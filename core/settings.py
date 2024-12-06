@@ -19,6 +19,8 @@ DEBUG = config('DEBUG', default=True, cast=bool)
 
 # load production server from .env
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', '10.77.8.91', config('SERVER', default='127.0.0.1')]
+AUTH_USER_MODEL = 'authentication.CustomUser'
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Application definition
 
