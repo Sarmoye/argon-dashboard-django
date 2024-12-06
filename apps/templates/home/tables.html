@@ -34,24 +34,53 @@
         <div class="card">
           <!-- Card header -->
           <div class="card-header border-0">
-            <h3 class="mb-0">Light table</h3>
+            <h3 class="mb-0">Sources Data</h3>
           </div>
           <!-- Light table -->
           <div class="table-responsive">
             <table class="table align-items-center table-flush">
               <thead class="thead-light">
                 <tr>
-                  <th scope="col" class="sort" data-sort="name">Project</th>
+                  <th scope="col" class="sort">ID</th>
+                  <th scope="col" class="sort">System Name</th>
+                  <th scope="col" class="sort">Domain</th>
+                  <th scope="col" class="sort">Service Type</th>
+                  <th scope="col" class="sort">Service Name</th>
+                  <th scope="col" class="sort">Error Count</th>
+                  <th scope="col" class="sort">Error Reason</th>
+                  <th scope="col" class="sort">Source Type</th>
+                  <th scope="col" class="sort">Timestamp</th>
+                  <th scope="col" class="sort">Validation Status</th>
+                  <th scope="col" class="sort">Processed Flag</th>
+                  <th scope="col" class="sort">Admin Notes</th>
+                  <th scope="col" class="sort">Inserted By</th>
+                  <!-- <th scope="col" class="sort" data-sort="name">Project</th>
                   <th scope="col" class="sort" data-sort="budget">Budget</th>
                   <th scope="col" class="sort" data-sort="status">Status</th>
                   <th scope="col">Users</th>
                   <th scope="col" class="sort" data-sort="completion">Completion</th>
-                  <th scope="col"></th>
+                  <th scope="col"></th> -->
                 </tr>
               </thead>
               <tbody class="list">
+                {% for data in source_data %}
                 <tr>
-                  <th scope="row">
+
+                  <td>{{ data.id }}</td>
+                  <td>{{ data.system_name }}</td>
+                  <td>{{ data.domain }}</td>
+                  <td>{{ data.service_type }}</td>
+                  <td>{{ data.service_name }}</td>
+                  <td>{{ data.error_count }}</td>
+                  <td>{{ data.error_reason }}</td>
+                  <td>{{ data.source_type }}</td>
+                  <td>{{ data.timestamp }}</td>
+                  <td>{{ data.validation_status }}</td>
+                  <td>{{ data.processed_flag }}</td>
+                  <td>{{ data.admin_notes }}</td>
+                  <td>{{ data.inserted_by }}</td>
+
+                  <!-- <th scope="row">
                     <div class="media align-items-center">
                       <a href="#" class="avatar rounded-circle mr-3">
                         <img alt="Image placeholder" src="/static/assets/img/theme/bootstrap.jpg">
@@ -349,7 +378,7 @@
             </table>
           </div>
           <!-- Card footer -->
-          <div class="card-footer py-4">
+          <!-- <div class="card-footer py-4">
             <nav aria-label="...">
               <ul class="pagination justify-content-end mb-0">
                 <li class="page-item disabled">
@@ -373,10 +402,10 @@
                 </li>
               </ul>
             </nav>
-          </div>
+          </div> -->
         </div>
       </div>
-    </div>
+    </div> -->
     <!-- Dark table -->
     <div class="row">
       <div class="col">
