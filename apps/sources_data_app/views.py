@@ -2,7 +2,7 @@ from django.shortcuts import render
 from .models import *
 from .decorators import roles_required
 
-""" @roles_required(['superadmin']) """
+@roles_required(['superadmin'])
 def index(request):
     source_data = SourceData.objects.all()
 
