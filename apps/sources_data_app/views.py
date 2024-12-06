@@ -5,6 +5,7 @@ from .decorators import roles_required
 @roles_required(['superadmin'])
 def index(request):
     source_data = SourceData.objects.all()
+    print(f'source_data ... {source_data}')
 
     context = {
         'source_data': source_data,
