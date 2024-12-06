@@ -69,10 +69,33 @@ WSGI_APPLICATION = 'core.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
-DATABASES = {
+""" DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': 'db.sqlite3',
+    }
+} """
+
+DB_ENGINE='postgresql'
+DB_NAME='itsea_db'
+DB_USERNAME='ems_user'
+DB_PASS="ems@!1&112024"
+DB_HOST='10.77.8.93'
+DB_PORT=5432
+DB_ATOMIC=True
+DB_CONN_HEALTH_CHECKS=True
+
+DATABASES = { 
+    'default': {
+        'ENGINE': f'django.db.backends.{DB_ENGINE}',
+        'NAME': DB_NAME,
+        'USER': DB_USERNAME,
+        'PASSWORD': DB_PASS,
+        'HOST': DB_HOST,
+        'PORT': DB_PORT,
+        'ATOMIC_REQUESTS': DB_ATOMIC == 'True',
+        'CONN_MAX_AGE': 600,  # Optional: maintain persistent connections
+        'CONN_HEALTH_CHECKS': DB_CONN_HEALTH_CHECKS,
     }
 }
 
