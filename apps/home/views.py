@@ -9,6 +9,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.template import loader
 from django.urls import reverse
 import logging
+from apps.sources_data_app.models import SourceData  # Import du modèle
 
 logger = logging.getLogger(__name__)
 
@@ -28,7 +29,13 @@ def pages(request):
 
         if load_template == 'admin':
             return HttpResponseRedirect(reverse('admin:index'))
+        
+        # Récupérer les données du modèle SourceData dans la vue pages
+        source_data = SourceData.objects.all()  # Récupérer toutes les entrées
+        
+        # Ajouter les données au contexte
         context['segment'] = load_template
+        context['source_data'] = source_data  # Passer les données à la vue
 
         html_template = loader.get_template('home/' + load_template)
         return HttpResponse(html_template.render(context, request))
