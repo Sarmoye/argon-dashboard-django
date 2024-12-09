@@ -7,6 +7,7 @@
 {% block stylesheets %}
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
 <style>
+    /* Style pour rendre la table responsive avec défilement horizontal */
     .table-responsive {
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
@@ -15,13 +16,14 @@
 {% endblock stylesheets %}
 
 {% block content %}
+
 <!DOCTYPE html>
 <html lang="en">
 <body>
     <div class="container mt-5">
         <h1 class="text-center">Source Data</h1>
 
-        <!-- Barre de recherche et options de filtrage -->
+        <!-- Barre de recherche et nombre d'entrées par page -->
         <div class="row mb-4">
             <div class="col-md-8">
                 <input type="text" class="form-control" id="searchInput" placeholder="Search...">
@@ -32,17 +34,38 @@
             </div>
         </div>
 
-        <!-- Dropdown pour les entrées par page -->
-        <div class="row mb-4">
-            <div class="col-md-6">
-                <label for="entriesSelect">Entries per page:</label>
-                <select id="entriesSelect" class="form-select">
-                    <option value="10">10</option>
-                    <option value="25">25</option>
-                    <option value="50">50</option>
-                    <option value="100">100</option>
+        <!-- Options de filtrage -->
+        <div class="collapse" id="filterOptions">
+            <div class="card card-body mb-3">
+                <label for="filterField">Filter by:</label>
+                <select class="form-select" id="filterField">
+                    <option value="">Select field</option>
+                    <option value="system_name">System Name</option>
+                    <option value="domain">Domain</option>
+                    <option value="service_type">Service Type</option>
+                    <option value="service_name">Service Name</option>
+                    <option value="error_count">Error Count</option>
+                    <option value="error_reason">Error Reason</option>
+                    <option value="source_type">Source Type</option>
+                    <option value="timestamp">Timestamp</option>
+                    <option value="validation_status">Validation Status</option>
+                    <option value="processed_flag">Processed Flag</option>
+                    <option value="admin_notes">Admin Notes</option>
+                    <option value="inserted_by">Inserted By</option>
                 </select>
+                <input type="text" class="form-control mt-2" id="filterInput" placeholder="Enter filter text">
             </div>
+        </div>
+
+        <!-- Sélecteur pour le nombre d'entrées par page -->
+        <div class="mb-3">
+            <label for="entriesPerPage">Entries per page:</label>
+            <select class="form-select" id="entriesPerPage">
+                <option value="10">10</option>
+                <option value="25">25</option>
+                <option value="50">50</option>
+                <option value="100">100</option>
+            </select>
         </div>
 
         <!-- Table responsive -->
@@ -103,25 +126,8 @@
         </div>
     </div>
 
-    <!-- JavaScript pour la recherche et gestion des entrées -->
+    <!-- JavaScript pour la recherche et le nombre d'entrées par page -->
     <script>
-        // Gestion des entrées par page
-        document.getElementById('entriesSelect').addEventListener('change', function() {
-            var entriesPerPage = parseInt(this.value);
-            var rows = document.getElementById('dataTable').getElementsByTagName('tr');
-
-            // Masquer toutes les lignes
-            for (var i = 1; i < rows.length; i++) {
-                rows[i].style.display = 'none';
-            }
-
-            // Afficher les lignes en fonction de l'option sélectionnée
-            for (var i = 1; i <= entriesPerPage && i < rows.length; i++) {
-                rows[i].style.display = '';
-            }
-        });
-
-        // Fonction de recherche dans la table
         document.getElementById('searchInput').addEventListener('keyup', function() {
             var input = document.getElementById('searchInput').value.toLowerCase();
             var rows = document.getElementById('dataTable').getElementsByTagName('tr');
@@ -144,9 +150,64 @@
                 }
             }
         });
+
+        document.getElementById('filterInput').addEventListener('input', function() {
+            var filterField = document.getElementById('filterField').value;
+            var filterValue = document.getElementById('filterInput').value.toLowerCase();
+            var rows = document.getElementById('dataTable').getElementsByTagName('tr');
+
+            for (var i = 1; i < rows.length; i++) {
+                var cells = rows[i].getElementsByTagName('td');
+                var cellValue = cells[0]; 
+
+                switch (filterField) {
+                    case 'system_name': cellValue = cells[1]; break;
+                    case 'domain': cellValue = cells[2]; break;
+                    case 'service_type': cellValue = cells[3]; break;
+                    case 'service_name': cellValue = cells[4]; break;
+                    case 'error_count': cellValue = cells[5]; break;
+                    case 'error_reason': cellValue = cells[6]; break;
+                    case 'source_type': cellValue = cells[7]; break;
+                    case 'timestamp': cellValue = cells[8]; break;
+                    case 'validation_status': cellValue = cells[9]; break;
+                    case 'processed_flag': cellValue = cells[10]; break;
+                    case 'admin_notes': cellValue = cells[11]; break;
+                    case 'inserted_by': cellValue = cells[12]; break;
+                }
+
+                if (filterValue === "" || cellValue.textContent.toLowerCase().indexOf(filterValue) > -1) {
+                    rows[i].style.display = '';
+                } else {
+                    rows[i].style.display = 'none';
+                }
+            }
+        });
+
+        // Fonction pour gérer l'affichage des lignes en fonction du nombre d'entrées par page
+        document.getElementById('entriesPerPage').addEventListener('change', function() {
+            var entriesPerPage = parseInt(this.value);
+            var rows = document.getElementById('dataTable').getElementsByTagName('tr');
+            for (var i = 1; i < rows.length; i++) {
+                rows[i].style.display = 'none'; // Cacher toutes les lignes
+            }
+
+            // Afficher les lignes en fonction de l'option sélectionnée
+            for (var i = 1; i <= entriesPerPage && i < rows.length; i++) {
+                rows[i].style.display = '';
+            }
+        });
+
+        // Initialiser avec 10 entrées par page
+        document.getElementById('entriesPerPage').value = '10';
+        document.getElementById('entriesPerPage').dispatchEvent(new Event('change'));
     </script>
+
 </body>
 </html>
 
 {% include "includes/footer.html" %}
+
 {% endblock content %}
+
+<!-- Specific JS goes HERE --> 
+{% block javascripts %}{% endblock javascripts %}
