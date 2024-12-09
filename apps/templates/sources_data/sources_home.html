@@ -27,33 +27,6 @@
                 <div class="col-md-8">
                     <input type="text" class="form-control" id="searchInput" placeholder="Search...">
                 </div>
-                <div class="col-md-4 text-end">
-                    <button class="btn btn-primary" id="addButton">Add New Data</button>
-                    <button class="btn btn-secondary" id="filterButton" data-bs-toggle="collapse" data-bs-target="#filterOptions" aria-expanded="false" aria-controls="filterOptions">Filter Data</button>
-                </div>
-            </div>
-
-            <!-- Options de filtrage -->
-            <div class="collapse" id="filterOptions">
-                <div class="card card-body mb-3">
-                    <label for="filterField">Filter by:</label>
-                    <select class="form-select" id="filterField">
-                        <option value="">Select field</option>
-                        <option value="system_name">System Name</option>
-                        <option value="domain">Domain</option>
-                        <option value="service_type">Service Type</option>
-                        <option value="service_name">Service Name</option>
-                        <option value="error_count">Error Count</option>
-                        <option value="error_reason">Error Reason</option>
-                        <option value="source_type">Source Type</option>
-                        <option value="timestamp">Timestamp</option>
-                        <option value="validation_status">Validation Status</option>
-                        <option value="processed_flag">Processed Flag</option>
-                        <option value="admin_notes">Admin Notes</option>
-                        <option value="inserted_by">Inserted By</option>
-                    </select>
-                    <input type="text" class="form-control mt-2" id="filterInput" placeholder="Enter filter text">
-                </div>
             </div>
 
             <!-- Sélecteur pour le nombre d'entrées par page -->
@@ -65,52 +38,6 @@
                     <option value="50">50</option>
                     <option value="100">100</option>
                 </select>
-            </div>
-
-            <!-- Bouton VALIDATION -->
-            <div class="text-end mb-3">
-                <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#validationModal">VALIDATION</button>
-            </div>
-
-            <!-- Modal VALIDATION -->
-            <div class="modal fade" id="validationModal" tabindex="-1" aria-labelledby="validationModalLabel" aria-hidden="true">
-                <div class="modal-dialog modal-dialog-centered">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="validationModalLabel">Apply Validation</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body">
-                            <form id="validationForm">
-                                <!-- Sélection de la date -->
-                                <div class="mb-3">
-                                    <label for="validationDate" class="form-label">Select Date (YYYY-MM-DD):</label>
-                                    <input type="date" class="form-control" id="validationDate" required>
-                                </div>
-
-                                <!-- Sélection du statut -->
-                                <div class="mb-3">
-                                    <label for="validationStatus" class="form-label">Validation Status:</label>
-                                    <select class="form-select" id="validationStatus" required>
-                                        <option value="Pending">Pending</option>
-                                        <option value="Validated">Validated</option>
-                                        <option value="Rejected">Rejected</option>
-                                    </select>
-                                </div>
-
-                                <!-- Notes administratives -->
-                                <div class="mb-3">
-                                    <label for="adminNotes" class="form-label">Admin Notes:</label>
-                                    <textarea class="form-control" id="adminNotes" rows="3"></textarea>
-                                </div>
-                            </form>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                            <button type="button" class="btn btn-primary" id="applyValidationButton">Apply</button>
-                        </div>
-                    </div>
-                </div>
             </div>
 
             <!-- Table responsive -->
@@ -197,42 +124,6 @@
                 }
             });
 
-            // Fonction de filtrage dynamique
-            document.getElementById('filterInput').addEventListener('input', function() {
-                var filterField = document.getElementById('filterField').value;
-                var filterValue = document.getElementById('filterInput').value.toLowerCase();
-                var rows = document.getElementById('dataTable').getElementsByTagName('tr');
-
-                for (var i = 1; i < rows.length; i++) {
-                    var cells = rows[i].getElementsByTagName('td');
-                    var cellValue;
-
-                    // Sélectionner la cellule correspondante au filtre choisi
-                    switch (filterField) {
-                        case 'system_name': cellValue = cells[1]; break;
-                        case 'domain': cellValue = cells[2]; break;
-                        case 'service_type': cellValue = cells[3]; break;
-                        case 'service_name': cellValue = cells[4]; break;
-                        case 'error_count': cellValue = cells[5]; break;
-                        case 'error_reason': cellValue = cells[6]; break;
-                        case 'source_type': cellValue = cells[7]; break;
-                        case 'timestamp': cellValue = cells[8]; break;
-                        case 'validation_status': cellValue = cells[9]; break;
-                        case 'processed_flag': cellValue = cells[10]; break;
-                        case 'admin_notes': cellValue = cells[11]; break;
-                        case 'inserted_by': cellValue = cells[12]; break;
-                        default: cellValue = null;
-                    }
-
-                    // Vérifier si le texte dans la cellule correspond au filtre
-                    if (filterValue === "" || (cellValue && cellValue.textContent.toLowerCase().includes(filterValue))) {
-                        rows[i].style.display = '';
-                    } else {
-                        rows[i].style.display = 'none';
-                    }
-                }
-            });
-
             // Fonction pour gérer l'affichage des lignes en fonction du nombre d'entrées par page
             document.getElementById('entriesPerPage').addEventListener('change', function() {
                 var entriesPerPage = parseInt(this.value);
@@ -259,41 +150,4 @@
     {% endblock content %}
 
     <!-- Specific JS goes HERE --> 
-    {% block javascripts %}
-    <script>
-        document.getElementById('applyValidationButton').addEventListener('click', function () {
-            const validationDate = document.getElementById('validationDate').value;
-            const validationStatus = document.getElementById('validationStatus').value;
-            const adminNotes = document.getElementById('adminNotes').value;
-    
-            if (!validationDate || !validationStatus) {
-                alert("Please fill in all required fields.");
-                return;
-            }
-    
-            // Envoi des données au serveur via Fetch API
-            fetch('/apply-validation/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': '{{ csrf_token }}',
-                },
-                body: JSON.stringify({
-                    validation_date: validationDate,
-                    validation_status: validationStatus,
-                    admin_notes: adminNotes,
-                }),
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert("Validation applied successfully!");
-                    window.location.reload();
-                } else {
-                    alert("Error applying validation: " + data.error);
-                }
-            })
-            .catch(error => console.error('Error:', error));
-        });
-    </script>
-    {% endblock javascripts %}
+    {% block javascripts %}{% endblock javascripts %}
