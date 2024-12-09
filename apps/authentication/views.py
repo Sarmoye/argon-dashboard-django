@@ -62,7 +62,7 @@ def login_view(request):
                     send_email(from_email, to_email, subject, body)
                     
                     # Retrieve the next parameter or redirect to the home page of the other app
-                    next_url = request.GET.get('next', reverse('home'))  # Redirect to home app
+                    next_url = request.GET.get('next', reverse('home:home'))  # Redirect to home app
                     
                     return redirect(next_url)
                 else:    
