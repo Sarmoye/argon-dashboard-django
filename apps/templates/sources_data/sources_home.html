@@ -109,7 +109,7 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <form method="POST" action="{% url 'validate_source_data' %}">
+                        <form method="POST" action="{% url 'sources_data_app:apply_validation' %}">
                             {% csrf_token %}
                             <div class="mb-3">
                                 <label for="validationDate" class="form-label">Validation Date</label>
