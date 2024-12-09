@@ -26,18 +26,12 @@
         <div class="header-body">
           <div class="row align-items-center py-4">
             <div class="col-lg-6 col-7">
-              <h6 class="h2 text-white d-inline-block mb-0">Default</h6>
+              <h6 class="h2 text-white d-inline-block mb-0">Source Data</h6>
               <nav aria-label="breadcrumb" class="d-none d-md-inline-block ml-md-4">
-                <ol class="breadcrumb breadcrumb-links breadcrumb-dark">
-                  <li class="breadcrumb-item"><a href="#"><i class="fas fa-home"></i></a></li>
-                  <li class="breadcrumb-item"><a href="#">Dashboards</a></li>
-                  <li class="breadcrumb-item active" aria-current="page">Default</li>
+                <ol class="breadcrumb breadcrumb-links breadcrumb-white">
+                  <li class="breadcrumb-item active" aria-current="page">Source Data</li>
                 </ol>
               </nav>
-            </div>
-            <div class="col-lg-6 col-5 text-right">
-              <a href="#" class="btn btn-sm btn-neutral">New</a>
-              <a href="#" class="btn btn-sm btn-neutral">Filters</a>
             </div>
           </div>
           <div class="col-md-8">
@@ -48,40 +42,6 @@
     </div>
     <div class="container mt-5">
         <h1 class="text-center">Source Data</h1>
-
-        <!-- Barre de recherche et nombre d'entrées par page -->
-        <div class="row mb-4">
-            <div class="col-md-8">
-                <input type="text" class="form-control" id="searchInput" placeholder="Search...">
-            </div>
-            <div class="col-md-4 text-end">
-                <button class="btn btn-primary" id="addButton">Add New Data</button>
-                <button class="btn btn-secondary" id="filterButton" data-bs-toggle="collapse" data-bs-target="#filterOptions" aria-expanded="false" aria-controls="filterOptions">Filter Data</button>
-            </div>
-        </div>
-
-        <!-- Options de filtrage -->
-        <div class="collapse" id="filterOptions">
-            <div class="card card-body mb-3">
-                <label for="filterField">Filter by:</label>
-                <select class="form-select" id="filterField">
-                    <option value="">Select field</option>
-                    <option value="system_name">System Name</option>
-                    <option value="domain">Domain</option>
-                    <option value="service_type">Service Type</option>
-                    <option value="service_name">Service Name</option>
-                    <option value="error_count">Error Count</option>
-                    <option value="error_reason">Error Reason</option>
-                    <option value="source_type">Source Type</option>
-                    <option value="timestamp">Timestamp</option>
-                    <option value="validation_status">Validation Status</option>
-                    <option value="processed_flag">Processed Flag</option>
-                    <option value="admin_notes">Admin Notes</option>
-                    <option value="inserted_by">Inserted By</option>
-                </select>
-                <input type="text" class="form-control mt-2" id="filterInput" placeholder="Enter filter text">
-            </div>
-        </div>
 
         <!-- Sélecteur pour le nombre d'entrées par page -->
         <div class="mb-3">
