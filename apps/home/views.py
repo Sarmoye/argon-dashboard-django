@@ -13,7 +13,7 @@ from apps.sources_data_app.models import SourceData  # Import du modèle
 
 logger = logging.getLogger(__name__)
 
-@login_required(login_url="/login/")
+@login_required(login_url='/authentication/login/')
 def index(request):
     context = {'segment': 'index'}
 
@@ -21,7 +21,7 @@ def index(request):
     return HttpResponse(html_template.render(context, request))
 
 
-@login_required(login_url="/login/")
+@login_required(login_url='/authentication/login/')
 def pages(request):
     context = {}
     try:
