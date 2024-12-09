@@ -18,6 +18,7 @@ from .utils import ldap_connect, send_email
 import logging
 from django.contrib import messages
 from .models import *
+from django.urls import reverse
 
 
 logger = logging.getLogger(__name__)
@@ -60,7 +61,9 @@ def login_view(request):
                     subject = "New user login"
                     send_email(from_email, to_email, subject, body)
                     
-                    next_url = request.GET.get('next', 'home/')  # Rediriger vers home par défaut
+                    # Retrieve the next parameter or redirect to the home page of the other app
+                    next_url = request.GET.get('next', reverse('home'))  # Redirect to home app
+                    
                     return redirect(next_url)
                 else:    
                     msg = 'Invalid credentials'    
