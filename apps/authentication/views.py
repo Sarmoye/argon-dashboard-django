@@ -60,7 +60,8 @@ def login_view(request):
                     subject = "New user login"
                     send_email(from_email, to_email, subject, body)
                     
-                    return redirect("home/")
+                    next_url = request.GET.get('next', 'home/')  # Rediriger vers home par défaut
+                    return redirect(next_url)
                 else:    
                     msg = 'Invalid credentials'    
                     logger.error(f"User {username} Invalid credentials.")           
