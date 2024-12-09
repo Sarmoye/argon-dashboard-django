@@ -8,7 +8,9 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template import loader
 from django.urls import reverse
+import logging
 
+logger = logging.getLogger(__name__)
 
 @login_required(login_url="/login/")
 def index(request):
@@ -21,10 +23,7 @@ def index(request):
 @login_required(login_url="/login/")
 def pages(request):
     context = {}
-    # All resource paths end in .html.
-    # Pick out the html file name from the url. And load that template.
     try:
-
         load_template = request.path.split('/')[-1]
 
         if load_template == 'admin':
@@ -35,10 +34,12 @@ def pages(request):
         return HttpResponse(html_template.render(context, request))
 
     except template.TemplateDoesNotExist:
-
         html_template = loader.get_template('home/page-404.html')
         return HttpResponse(html_template.render(context, request))
 
-    except:
-        html_template = loader.get_template('home/page-500.html')
-        return HttpResponse(html_template.render(context, request))
+    except Exception as e:
+        # Log the exception
+        logger.error(f"An unexpected error occurred: {str(e)}", exc_info=True)
+
+        # Optional: Display the exception details to the user (for development only)
+        return HttpResponse(f"An unexpected error occurred: {str(e)}")

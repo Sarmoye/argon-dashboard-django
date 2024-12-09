@@ -17,7 +17,7 @@ if not SECRET_KEY: """
 SECRET_KEY = ''.join(random.choice( string.ascii_lowercase  ) for i in range( 32 ))
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = config('DEBUG', default=True, cast=bool)
+DEBUG = True
 
 # load production server from .env
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', '10.77.8.91', config('SERVER', default='127.0.0.1')]
@@ -69,6 +69,26 @@ TEMPLATES = [
         },
     },
 ]
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'file': {
+            'level': 'ERROR',
+            'class': 'logging.FileHandler',
+            'filename': 'ems_logs.log',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['file'],
+            'level': 'ERROR',
+            'propagate': True,
+        },
+    },
+}
+
 
 WSGI_APPLICATION = 'core.wsgi.application'
 
