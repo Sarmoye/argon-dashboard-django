@@ -16,7 +16,6 @@
 {% endblock stylesheets %}
 
 {% block content %}
-
 <!DOCTYPE html>
 <html lang="en">
 <body>
@@ -91,7 +90,7 @@
                 </thead>
                 <tbody>
                     {% for data in source_data %}
-                    <tr>
+                    <tr class="data-row">
                         <td>{{ data.id }}</td>
                         <td>{{ data.system_name }}</td>
                         <td>{{ data.domain }}</td>
@@ -128,6 +127,7 @@
 
     <!-- JavaScript pour la recherche et le nombre d'entrées par page -->
     <script>
+        // Fonction de recherche
         document.getElementById('searchInput').addEventListener('keyup', function() {
             var input = document.getElementById('searchInput').value.toLowerCase();
             var rows = document.getElementById('dataTable').getElementsByTagName('tr');
@@ -151,6 +151,7 @@
             }
         });
 
+        // Fonction de filtrage dynamique
         document.getElementById('filterInput').addEventListener('input', function() {
             var filterField = document.getElementById('filterField').value;
             var filterValue = document.getElementById('filterInput').value.toLowerCase();
@@ -158,8 +159,9 @@
 
             for (var i = 1; i < rows.length; i++) {
                 var cells = rows[i].getElementsByTagName('td');
-                var cellValue = cells[0]; 
+                var cellValue;
 
+                // Sélectionner la cellule correspondante au filtre choisi
                 switch (filterField) {
                     case 'system_name': cellValue = cells[1]; break;
                     case 'domain': cellValue = cells[2]; break;
@@ -173,9 +175,11 @@
                     case 'processed_flag': cellValue = cells[10]; break;
                     case 'admin_notes': cellValue = cells[11]; break;
                     case 'inserted_by': cellValue = cells[12]; break;
+                    default: cellValue = null;
                 }
 
-                if (filterValue === "" || cellValue.textContent.toLowerCase().indexOf(filterValue) > -1) {
+                // Vérifier si le texte dans la cellule correspond au filtre
+                if (filterValue === "" || (cellValue && cellValue.textContent.toLowerCase().includes(filterValue))) {
                     rows[i].style.display = '';
                 } else {
                     rows[i].style.display = 'none';
@@ -206,7 +210,6 @@
 </html>
 
 {% include "includes/footer.html" %}
-
 {% endblock content %}
 
 <!-- Specific JS goes HERE --> 
