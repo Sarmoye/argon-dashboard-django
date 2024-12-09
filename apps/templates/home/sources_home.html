@@ -30,7 +30,30 @@
             </div>
             <div class="col-md-4 text-end">
                 <button class="btn btn-primary" id="addButton">Add New Data</button>
-                <button class="btn btn-secondary" id="filterButton">Filter Data</button>
+                <button class="btn btn-secondary" id="filterButton" data-bs-toggle="collapse" data-bs-target="#filterOptions" aria-expanded="false" aria-controls="filterOptions">Filter Data</button>
+            </div>
+        </div>
+
+        <!-- Options de filtrage -->
+        <div class="collapse" id="filterOptions">
+            <div class="card card-body mb-3">
+                <label for="filterField">Filter by:</label>
+                <select class="form-select" id="filterField">
+                    <option value="">Select field</option>
+                    <option value="system_name">System Name</option>
+                    <option value="domain">Domain</option>
+                    <option value="service_type">Service Type</option>
+                    <option value="service_name">Service Name</option>
+                    <option value="error_count">Error Count</option>
+                    <option value="error_reason">Error Reason</option>
+                    <option value="source_type">Source Type</option>
+                    <option value="timestamp">Timestamp</option>
+                    <option value="validation_status">Validation Status</option>
+                    <option value="processed_flag">Processed Flag</option>
+                    <option value="admin_notes">Admin Notes</option>
+                    <option value="inserted_by">Inserted By</option>
+                </select>
+                <input type="text" class="form-control mt-2" id="filterInput" placeholder="Enter filter text">
             </div>
         </div>
 
@@ -106,7 +129,42 @@
                 }
             }
         });
+
+        // Fonction de filtrage par champ spécifique
+        document.getElementById('filterInput').addEventListener('input', function() {
+            var filterField = document.getElementById('filterField').value;
+            var filterValue = document.getElementById('filterInput').value.toLowerCase();
+            var rows = document.getElementById('dataTable').getElementsByTagName('tr');
+
+            for (var i = 1; i < rows.length; i++) {  // Commencer à 1 pour ignorer l'en-tête
+                var cells = rows[i].getElementsByTagName('td');
+                var cellValue = cells[0]; // Initialiser la variable pour le filtrage
+
+                // Récupérer la cellule correspondante en fonction du champ sélectionné
+                switch (filterField) {
+                    case 'system_name': cellValue = cells[1]; break;
+                    case 'domain': cellValue = cells[2]; break;
+                    case 'service_type': cellValue = cells[3]; break;
+                    case 'service_name': cellValue = cells[4]; break;
+                    case 'error_count': cellValue = cells[5]; break;
+                    case 'error_reason': cellValue = cells[6]; break;
+                    case 'source_type': cellValue = cells[7]; break;
+                    case 'timestamp': cellValue = cells[8]; break;
+                    case 'validation_status': cellValue = cells[9]; break;
+                    case 'processed_flag': cellValue = cells[10]; break;
+                    case 'admin_notes': cellValue = cells[11]; break;
+                    case 'inserted_by': cellValue = cells[12]; break;
+                }
+
+                if (filterValue === "" || cellValue.textContent.toLowerCase().indexOf(filterValue) > -1) {
+                    rows[i].style.display = '';
+                } else {
+                    rows[i].style.display = 'none';
+                }
+            }
+        });
     </script>
+
 </body>
 </html>
 
