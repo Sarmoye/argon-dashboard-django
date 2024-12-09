@@ -1,157 +1,188 @@
-    {% extends 'layouts/base.html' %}
+{% extends 'layouts/base.html' %}
 
-    {% load static %}
+{% load static %}
 
-    {% block title %} Source DataTables {% endblock title %}
+{% block title %} Source DataTables {% endblock title %}
 
-    {% block stylesheets %}
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
-    <style>
-        /* Style pour rendre la table responsive avec défilement horizontal */
-        .table-responsive {
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-        }
-    </style>
-    {% endblock stylesheets %}
+{% block stylesheets %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
+<style>
+    /* Style pour rendre la table responsive avec défilement horizontal */
+    .table-responsive {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+</style>
+{% endblock stylesheets %}
 
-    {% block content %}
-    <!DOCTYPE html>
-    <html lang="en">
-    <body>
-        <div class="container mt-5">
-            <h1 class="text-center">Source Data</h1>
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center">Source Data</h1>
 
-            <!-- Barre de recherche et nombre d'entrées par page -->
-            <div class="row mb-4">
-                <div class="col-md-8">
-                    <input type="text" class="form-control" id="searchInput" placeholder="Search...">
-                </div>
-                <div class="col-md-4 text-end">
-                    <button class="btn btn-success" id="ValidationButton">Validation</button>
-                </div>
+        <!-- Barre de recherche et nombre d'entrées par page -->
+        <div class="row mb-4">
+            <div class="col-md-8">
+                <input type="text" class="form-control" id="searchInput" placeholder="Search...">
             </div>
-
-            <!-- Sélecteur pour le nombre d'entrées par page -->
-            <div class="mb-3">
-                <label for="entriesPerPage">Entries per page:</label>
-                <select class="form-select" id="entriesPerPage">
-                    <option value="10">10</option>
-                    <option value="25">25</option>
-                    <option value="50">50</option>
-                    <option value="100">100</option>
-                </select>
-            </div>
-            
-
-            <!-- Table responsive -->
-            <div class="table-responsive">
-                <table class="table table-striped table-bordered mt-4" id="dataTable">
-                    <thead class="thead-light">
-                        <tr>
-                            <th scope="col">ID</th>
-                            <th scope="col">System Name</th>
-                            <th scope="col">Domain</th>
-                            <th scope="col">Service Type</th>
-                            <th scope="col">Service Name</th>
-                            <th scope="col">Error Count</th>
-                            <th scope="col">Error Reason</th>
-                            <th scope="col">Source Type</th>
-                            <th scope="col">Timestamp</th>
-                            <th scope="col">Validation Status</th>
-                            <th scope="col">Processed Flag</th>
-                            <th scope="col">Admin Notes</th>
-                            <th scope="col">Inserted By</th>
-                            <th scope="col">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for data in source_data %}
-                        <tr class="data-row">
-                            <td>{{ data.id }}</td>
-                            <td>{{ data.system_name }}</td>
-                            <td>{{ data.domain }}</td>
-                            <td>{{ data.service_type }}</td>
-                            <td>{{ data.service_name }}</td>
-                            <td>{{ data.error_count }}</td>
-                            <td>{{ data.error_reason }}</td>
-                            <td>{{ data.source_type }}</td>
-                            <td>{{ data.timestamp }}</td>
-                            <td>{{ data.validation_status }}</td>
-                            <td>{{ data.processed_flag }}</td>
-                            <td>{{ data.admin_notes }}</td>
-                            <td>{{ data.inserted_by }}</td>
-                            <td class="text-right">
-                                <div class="dropdown">
-                                <a class="btn btn-sm btn-icon-only text-light" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                    <i class="fas fa-ellipsis-v"></i>
-                                </a>
-                                <div class="dropdown-menu dropdown-menu-right dropdown-menu-arrow">
-                                    <a class="dropdown-item" href="#">Edit</a>
-                                </div>
-                                </div>
-                            </td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="13" class="text-center">No data available.</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+            <div class="col-md-4 text-end">
+                <button class="btn btn-success" id="ValidationButton" data-bs-toggle="modal" data-bs-target="#validationModal">Validation</button>
             </div>
         </div>
 
-        <!-- JavaScript pour la recherche et le nombre d'entrées par page -->
-        <script>
-            // Fonction de recherche
-            document.getElementById('searchInput').addEventListener('keyup', function() {
-                var input = document.getElementById('searchInput').value.toLowerCase();
-                var rows = document.getElementById('dataTable').getElementsByTagName('tr');
+        <!-- Sélecteur pour le nombre d'entrées par page -->
+        <div class="mb-3">
+            <label for="entriesPerPage">Entries per page:</label>
+            <select class="form-select" id="entriesPerPage">
+                <option value="10">10</option>
+                <option value="25">25</option>
+                <option value="50">50</option>
+                <option value="100">100</option>
+            </select>
+        </div>
 
-                for (var i = 1; i < rows.length; i++) {
-                    var cells = rows[i].getElementsByTagName('td');
-                    var found = false;
+        <!-- Table responsive -->
+        <div class="table-responsive">
+            <table class="table table-striped table-bordered mt-4" id="dataTable">
+                <thead class="thead-light">
+                    <tr>
+                        <th scope="col">ID</th>
+                        <th scope="col">System Name</th>
+                        <th scope="col">Domain</th>
+                        <th scope="col">Service Type</th>
+                        <th scope="col">Service Name</th>
+                        <th scope="col">Error Count</th>
+                        <th scope="col">Error Reason</th>
+                        <th scope="col">Source Type</th>
+                        <th scope="col">Timestamp</th>
+                        <th scope="col">Validation Status</th>
+                        <th scope="col">Processed Flag</th>
+                        <th scope="col">Admin Notes</th>
+                        <th scope="col">Inserted By</th>
+                        <th scope="col">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for data in source_data %}
+                    <tr class="data-row">
+                        <td>{{ data.id }}</td>
+                        <td>{{ data.system_name }}</td>
+                        <td>{{ data.domain }}</td>
+                        <td>{{ data.service_type }}</td>
+                        <td>{{ data.service_name }}</td>
+                        <td>{{ data.error_count }}</td>
+                        <td>{{ data.error_reason }}</td>
+                        <td>{{ data.source_type }}</td>
+                        <td>{{ data.timestamp }}</td>
+                        <td>{{ data.validation_status }}</td>
+                        <td>{{ data.processed_flag }}</td>
+                        <td>{{ data.admin_notes }}</td>
+                        <td>{{ data.inserted_by }}</td>
+                        <td class="text-right">
+                            <div class="dropdown">
+                            <a class="btn btn-sm btn-icon-only text-light" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-right dropdown-menu-arrow">
+                                <a class="dropdown-item" href="#">Edit</a>
+                            </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="13" class="text-center">No data available.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
 
-                    for (var j = 0; j < cells.length; j++) {
-                        if (cells[j].textContent.toLowerCase().indexOf(input) > -1) {
-                            found = true;
-                            break;
-                        }
-                    }
+        <!-- Modal for validation -->
+        <div class="modal fade" id="validationModal" tabindex="-1" aria-labelledby="validationModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="validationModalLabel">Validation Form</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form method="POST" action="{% url 'validate_source_data' %}">
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                <label for="validationDate" class="form-label">Validation Date</label>
+                                <input type="date" class="form-control" id="validationDate" name="validation_date" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="validationStatus" class="form-label">Validation Status</label>
+                                <select class="form-select" id="validationStatus" name="validation_status" required>
+                                    <option value="Pending">Pending</option>
+                                    <option value="Validated">Validated</option>
+                                    <option value="Rejected">Rejected</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <button type="submit" class="btn btn-primary">Submit</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-                    if (found) {
-                        rows[i].style.display = '';
-                    } else {
-                        rows[i].style.display = 'none';
+    </div>
+
+    <!-- JavaScript pour la recherche et le nombre d'entrées par page -->
+    <script>
+        // Fonction de recherche
+        document.getElementById('searchInput').addEventListener('keyup', function() {
+            var input = document.getElementById('searchInput').value.toLowerCase();
+            var rows = document.getElementById('dataTable').getElementsByTagName('tr');
+
+            for (var i = 1; i < rows.length; i++) {
+                var cells = rows[i].getElementsByTagName('td');
+                var found = false;
+
+                for (var j = 0; j < cells.length; j++) {
+                    if (cells[j].textContent.toLowerCase().indexOf(input) > -1) {
+                        found = true;
+                        break;
                     }
                 }
-            });
 
-            // Fonction pour gérer l'affichage des lignes en fonction du nombre d'entrées par page
-            document.getElementById('entriesPerPage').addEventListener('change', function() {
-                var entriesPerPage = parseInt(this.value);
-                var rows = document.getElementById('dataTable').getElementsByTagName('tr');
-                for (var i = 1; i < rows.length; i++) {
-                    rows[i].style.display = 'none'; // Cacher toutes les lignes
-                }
-
-                // Afficher les lignes en fonction de l'option sélectionnée
-                for (var i = 1; i <= entriesPerPage && i < rows.length; i++) {
+                if (found) {
                     rows[i].style.display = '';
+                } else {
+                    rows[i].style.display = 'none';
                 }
-            });
+            }
+        });
 
-            // Initialiser avec 10 entrées par page
-            document.getElementById('entriesPerPage').value = '10';
-            document.getElementById('entriesPerPage').dispatchEvent(new Event('change'));
-        </script>
+        // Fonction pour gérer l'affichage des lignes en fonction du nombre d'entrées par page
+        document.getElementById('entriesPerPage').addEventListener('change', function() {
+            var entriesPerPage = parseInt(this.value);
+            var rows = document.getElementById('dataTable').getElementsByTagName('tr');
+            for (var i = 1; i < rows.length; i++) {
+                rows[i].style.display = 'none'; // Cacher toutes les lignes
+            }
 
-    </body>
-    </html>
+            // Afficher les lignes en fonction de l'option sélectionnée
+            for (var i = 1; i <= entriesPerPage && i < rows.length; i++) {
+                rows[i].style.display = '';
+            }
+        });
 
-    {% include "includes/footer.html" %}
-    {% endblock content %}
+        // Initialiser avec 10 entrées par page
+        document.getElementById('entriesPerPage').value = '10';
+        document.getElementById('entriesPerPage').dispatchEvent(new Event('change'));
+    </script>
 
-    <!-- Specific JS goes HERE --> 
-    {% block javascripts %}{% endblock javascripts %}
+</body>
+</html>
+
+{% include "includes/footer.html" %}
+{% endblock content %}
+
+{% block javascripts %}{% endblock javascripts %}
