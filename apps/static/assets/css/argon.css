@@ -92,6 +92,11 @@ p {
   margin-top: 0;
   margin-bottom: 1rem; }
 
+  .table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
 abbr[title],
 abbr[data-original-title] {
   text-decoration: underline;
