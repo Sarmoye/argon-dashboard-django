@@ -7,7 +7,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.template import loader
 from django.urls import reverse
 
-@roles_required(['superadmin'])
+""" @roles_required(['superadmin']) """
 def index(request):
     source_data = SourceData.objects.all()
     print(f'source_data ... {source_data}')
