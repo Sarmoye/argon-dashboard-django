@@ -10,6 +10,18 @@ def index(request):
     source_data = SourceData.objects.all().order_by('-timestamp')
     return render(request, 'sources_data/sources_home.html', {'source_data': source_data})
 
+@login_required(login_url='/authentication/login/')
+def get_source_data(request):
+    # Retrieve and order the data
+    source_data = SourceData.objects.all().order_by('-timestamp')
+
+    # Prepare the data for JSON response
+    data = list(source_data.values('id', 'system_name', 'domain', 'service_type', 'service_name', 
+                                   'error_count', 'error_reason', 'source_type', 'timestamp', 
+                                   'validation_status', 'processed_flag', 'admin_notes', 'inserted_by'))
+    
+    return JsonResponse({'data': data})
+
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
