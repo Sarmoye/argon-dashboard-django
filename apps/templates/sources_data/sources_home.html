@@ -34,23 +34,45 @@
         <!-- Modal -->
         <div class="modal fade" id="validationModal" tabindex="-1" role="dialog" aria-labelledby="validationModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                <h5 class="modal-title" id="validationModalLabel">Modal title</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="validationModalLabel">Validation Form</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="validationForm">
+                            <div class="form-group">
+                                <label for="source_date">Source Date</label>
+                                <input type="date" class="form-control" id="source_date" name="source_date" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="systeme">Systeme</label>
+                                <input type="text" class="form-control" id="systeme" name="systeme" placeholder="Enter systeme" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="name">Name</label>
+                                <input type="text" class="form-control" id="name" name="name" placeholder="Enter name" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="validation_status">Validation Status</label>
+                                <select class="form-control" id="validation_status" name="validation_status" required>
+                                    <option value="Pending">Pending</option>
+                                    <option value="Validated">Validated</option>
+                                    <option value="Rejected">Rejected</option>
+                                </select>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="submit" form="validationForm" class="btn btn-primary">Save changes</button>
+                    </div>
                 </div>
-                <div class="modal-body">
-                ...
-                </div>
-                <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary">Save changes</button>
-                </div>
-            </div>
             </div>
         </div>
+        
 
         <!-- Sélecteur pour le nombre d'entrées par page -->
         <div class="mb-3">
