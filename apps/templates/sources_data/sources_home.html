@@ -5,12 +5,7 @@
 {% block title %} Source DataTables {% endblock title %}
 
 {% block stylesheets %}
-   <!-- Bootstrap CSS -->
-   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-   <!-- DataTables CSS -->
-   <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
-   <!-- DataTables Buttons CSS -->
-   <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.2.2/css/buttons.dataTables.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
 <style>
     /* Style pour rendre la table responsive avec défilement horizontal */
     .table-responsive {
@@ -82,6 +77,52 @@
                 </div>
             </div>
         </div>
+
+        <div class="container">
+            <h2>Favorites List</h2>
+            <table id="requisitionTable" class="table table-striped">
+                <thead>
+                    <tr>
+                        <th scope="col">ID</th>
+                        <th scope="col">System Name</th>
+                        <th scope="col">Domain</th>
+                        <th scope="col">Service Type</th>
+                        <th scope="col">Service Name</th>
+                        <th scope="col">Error Count</th>
+                        <th scope="col">Error Reason</th>
+                        <th scope="col">Source Type</th>
+                        <th scope="col">Timestamp</th>
+                        <th scope="col">Validation Status</th>
+                        <th scope="col">Processed Flag</th>
+                        <th scope="col">Admin Notes</th>
+                        <th scope="col">Inserted By</th>
+                    </tr>  
+                </thead>
+                <tbody>
+                    {% for data in source_data %}
+                    <tr>
+                        <td>{{ data.id }}</td>
+                        <td>{{ data.system_name }}</td>
+                        <td>{{ data.domain }}</td>
+                        <td>{{ data.service_type }}</td>
+                        <td>{{ data.service_name }}</td>
+                        <td>{{ data.error_count }}</td>
+                        <td>{{ data.error_reason }}</td>
+                        <td>{{ data.source_type }}</td>
+                        <td>{{ data.timestamp }}</td>
+                        <td>{{ data.validation_status }}</td>
+                        <td>{{ data.processed_flag }}</td>
+                        <td>{{ data.admin_notes }}</td>
+                        <td>{{ data.inserted_by }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td>No data available.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
         
 
         <!-- Sélecteur pour le nombre d'entrées par page -->
@@ -97,7 +138,7 @@
 
         <!-- Table responsive -->
         <div class="table-responsive">
-            <table class="table table-striped" id="SourceDataTable">
+            <table class="table table-striped table-bordered mt-4" id="dataTable">
                 <thead class="thead-light">
                     <tr>
                         <th scope="col">ID</th>
@@ -141,9 +182,30 @@
             </table>
         </div>
     </div>
+    
+<!-- Bootstrap JS (optional if not already included) -->
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<!-- DataTables JS -->
+<script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+<!-- DataTables Buttons JS -->
+<script src="https://cdn.datatables.net/buttons/2.2.2/js/dataTables.buttons.min.js"></script>
+<!-- DataTables Buttons Print JS -->
+<script src="https://cdn.datatables.net/buttons/2.2.2/js/buttons.html5.min.js"></script>
+<!-- DataTables Buttons PDFMake JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/pdfmake.min.js"></script>
+<!-- DataTables Buttons VFS Fonts JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/vfs_fonts.js"></script>
+<!-- DataTables Buttons CSV JS -->
+<script src="https://cdn.datatables.net/buttons/2.2.2/js/buttons.colVis.min.js"></script>
+<!-- DataTables Buttons Flash JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+<!-- DataTables Buttons Flash JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/vfs_fonts.js"></script>
     <script>
         $(document).ready(function() {
-            $('#SourceDataTable').DataTable({
+            $('#requisitionTable').DataTable({
                 dom: 'Bfrtip',
                 buttons: [
                     'copy', 'csv', 'excel', 'pdf', 'print'
@@ -151,7 +213,7 @@
             });
         });
     </script>
-
+    
     <!-- JavaScript pour la recherche et le nombre d'entrées par page -->
     <script>
         // Fonction de recherche
