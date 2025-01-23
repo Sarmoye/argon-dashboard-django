@@ -57,7 +57,7 @@
               {% if user.role == 'admin' or user.role == 'superadmin' or user.role == 'analyst' %}
                 <li class="nav-item">
                   <a class="nav-link {% if 'sources_home' in segment %} active {% endif %}" href="{% url 'sources_data_app:index' %}">
-                      <i class="fa fa-list-alt text-default"></i>
+                      <i class="ni ni-bullet-list-67 text-default"></i>
                       <span class="nav-link-text">Analysis</span>
                   </a>
                 </li>
@@ -68,7 +68,7 @@
               {% if user.role == 'admin' or user.role == 'superadmin' or user.role == 'analyst' or user.role == 'viewer' %}
                 <li class="nav-item">
                   <a class="nav-link {% if 'sources_home' in segment %} active {% endif %}" href="{% url 'sources_data_app:index' %}">
-                      <i class="fa fa-line-chart text-default"></i>
+                      <i class="ni ni-chart-pie-35 text-default"></i>
                       <span class="nav-link-text">Visualization</span>
                   </a>
                 </li>
