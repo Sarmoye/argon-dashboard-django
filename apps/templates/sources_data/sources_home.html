@@ -75,11 +75,8 @@
     <div class="container mt-5">
         <h1 class="text-center">Source Data</h1>
 
-        <!-- Barre de recherche et nombre d'entrées par page -->
+        <!-- Validation button -->
         <div class="row mb-4">
-            <div class="col-md-8">
-                <input type="text" class="form-control" id="searchInput" placeholder="Search...">
-            </div>
             <div class="col-md-4 text-end">
                 <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#validationModal">Validation</button>
             </div>
@@ -254,7 +251,7 @@
             $('#dataTable').DataTable({
                 dom: 'Bfrtip',
                 buttons: [
-                    'copy', 'csv', 'excel', 'pdf', 'print'
+                    'copy', 'csv', 'excel'
                 ]
             });
         });
