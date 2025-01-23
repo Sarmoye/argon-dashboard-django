@@ -92,7 +92,7 @@
 
         <!-- Table responsive -->
         <div class="table-responsive">
-            <table class="table table-striped table-bordered mt-4" id="dataTable">
+            <table class="table table-striped table-bordered mt-4" id="SourceDataTable">
                 <thead class="thead-light">
                     <tr>
                         <th scope="col">ID</th>
@@ -108,7 +108,6 @@
                         <th scope="col">Processed Flag</th>
                         <th scope="col">Admin Notes</th>
                         <th scope="col">Inserted By</th>
-                        <th scope="col">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -127,16 +126,6 @@
                         <td>{{ data.processed_flag }}</td>
                         <td>{{ data.admin_notes }}</td>
                         <td>{{ data.inserted_by }}</td>
-                        <td class="text-right">
-                            <div class="dropdown">
-                            <a class="btn btn-sm btn-icon-only text-light" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <i class="fas fa-ellipsis-v"></i>
-                            </a>
-                            <div class="dropdown-menu dropdown-menu-right dropdown-menu-arrow">
-                                <a class="dropdown-item" href="#">Edit</a>
-                            </div>
-                            </div>
-                        </td>
                     </tr>
                     {% empty %}
                     <tr>
@@ -146,69 +135,17 @@
                 </tbody>
             </table>
         </div>
-
-
-<script>
-$(document).ready(function() {
-    // Initialize DataTable
-    $('#dataTable').DataTable({
-        responsive: true,
-        ajax: '{% url "sources_data_app:get_source_data" %}',  // Use Django's URL template tag to get the correct URL for the view
-        columns: [
-            { data: 'id' },
-            { data: 'system_name' },
-            { data: 'domain' },
-            { data: 'service_type' },
-            { data: 'service_name' },
-            { data: 'error_count' },
-            { data: 'error_reason' },
-            { data: 'source_type' },
-            { data: 'timestamp' },
-            { data: 'validation_status' },
-            { data: 'processed_flag' },
-            { data: 'admin_notes' },
-            { data: 'inserted_by' },
-            {
-                data: null,
-                orderable: false,
-                searchable: false,
-                render: function(data, type, row) {
-                    return `
-                        <div class="dropdown">
-                            <a class="btn btn-sm btn-icon-only text-light" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <i class="fas fa-ellipsis-v"></i>
-                            </a>
-                            <div class="dropdown-menu dropdown-menu-right dropdown-menu-arrow">
-                                <a class="dropdown-item" href="#">Edit</a>
-                            </div>
-                        </div>`;
-                }
-            }
-        ],
-        dom: '<"d-flex justify-content-between align-items-center"lf>tip',
-        buttons: [
-            {
-                extend: 'collection',
-                text: 'Export',
-                buttons: [
-                    'copy',
-                    'csv',
-                    'excel',
-                    'pdf',
-                    'print'
-                ]
-            }
-        ],
-        lengthMenu: [10, 25, 50, 100],
-        pageLength: 10,
-        order: [[0, 'asc']],
-    });
-
-});
-</script>
-
-
     </div>
+    <script>
+        $(document).ready(function() {
+            $('#SourceDataTable').DataTable({
+                dom: 'Bfrtip',
+                buttons: [
+                    'copy', 'csv', 'excel', 'pdf', 'print'
+                ]
+            });
+        });
+    </script>
 
     <!-- JavaScript pour la recherche et le nombre d'entrées par page -->
     <script>
