@@ -231,9 +231,7 @@
                 success: function(response) {
                     if (response.success) {
                         $('#validationModal').modal('hide');
-                        
-                        // Optional: Show success toast/message
-                        alert(`Updated ${response.updated_count} entries`);
+                        location.reload();
                     }
                 },
                 error: function(xhr, status, error) {
