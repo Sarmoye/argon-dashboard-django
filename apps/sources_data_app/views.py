@@ -47,3 +47,45 @@ def apply_validation(request):
             return JsonResponse({'success': False, 'error': str(e)})
     return JsonResponse({'success': False, 'error': 'Invalid request method'})
 
+
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
+from django.contrib.auth.decorators import login_required
+from .models import SourceData
+import json
+
+@login_required
+@require_POST
+def submit_validation(request):
+    try:
+        # Parse form data
+        data = json.loads(request.body)
+        
+        # Get the selected source data entries (you might want to pass specific IDs)
+        source_date = data.get('source_date')
+        systeme = data.get('systeme')
+        validation_status = data.get('validation_status')
+        
+        # Find source data entries to update
+        source_entries = SourceData.objects.filter(
+            system_name=systeme,
+            timestamp__date=source_date
+        )
+        
+        # Update validation status
+        updated_count = source_entries.update(
+            validation_status=validation_status,
+            admin_notes=f"Validated by {request.user.username}"
+        )
+        
+        return JsonResponse({
+            'success': True, 
+            'updated_count': updated_count
+        })
+    
+    except Exception as e:
+        return JsonResponse({
+            'success': False, 
+            'error': str(e)
+        }, status=400)
+

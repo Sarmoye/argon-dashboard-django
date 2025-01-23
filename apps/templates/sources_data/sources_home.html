@@ -210,5 +210,39 @@
                 ]
             });
         });
+
+        $('#validationForm').on('submit', function(e) {
+            e.preventDefault();
+
+            var formData = {
+                source_date: $('#source_date').val(),
+                systeme: $('#systeme').val(),
+                validation_status: $('#validation_status').val()
+            };
+
+            $.ajax({
+                url: '{% url "sources_data_app:submit_validation" %}',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(formData),
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                success: function(response) {
+                    if (response.success) {
+                        $('#validationModal').modal('hide');
+                        
+                        // Reload the DataTable
+                        $('#dataTable').DataTable().ajax.reload();
+                        
+                        // Optional: Show success toast/message
+                        alert(`Updated ${response.updated_count} entries`);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    alert('Error submitting validation: ' + xhr.responseJSON.error);
+                }
+            });
+        });
     </script>
 {% endblock javascripts %}
