@@ -177,51 +177,6 @@
 
     </div>
 
-    <!-- JavaScript pour la recherche et le nombre d'entrées par page -->
-    <script>
-        // Fonction de recherche
-        document.getElementById('searchInput').addEventListener('keyup', function() {
-            var input = document.getElementById('searchInput').value.toLowerCase();
-            var rows = document.getElementById('dataTable').getElementsByTagName('tr');
-
-            for (var i = 1; i < rows.length; i++) {
-                var cells = rows[i].getElementsByTagName('td');
-                var found = false;
-
-                for (var j = 0; j < cells.length; j++) {
-                    if (cells[j].textContent.toLowerCase().indexOf(input) > -1) {
-                        found = true;
-                        break;
-                    }
-                }
-
-                if (found) {
-                    rows[i].style.display = '';
-                } else {
-                    rows[i].style.display = 'none';
-                }
-            }
-        });
-
-        // Fonction pour gérer l'affichage des lignes en fonction du nombre d'entrées par page
-        document.getElementById('entriesPerPage').addEventListener('change', function() {
-            var entriesPerPage = parseInt(this.value);
-            var rows = document.getElementById('dataTable').getElementsByTagName('tr');
-            for (var i = 1; i < rows.length; i++) {
-                rows[i].style.display = 'none'; // Cacher toutes les lignes
-            }
-
-            // Afficher les lignes en fonction de l'option sélectionnée
-            for (var i = 1; i <= entriesPerPage && i < rows.length; i++) {
-                rows[i].style.display = '';
-            }
-        });
-
-        // Initialiser avec 10 entrées par page
-        document.getElementById('entriesPerPage').value = '10';
-        document.getElementById('entriesPerPage').dispatchEvent(new Event('change'));
-    </script>
-
 {% include "includes/footer.html" %}
 {% endblock content %}
 
