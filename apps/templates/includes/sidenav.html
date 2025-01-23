@@ -53,6 +53,28 @@
               </li>
               {% endif %}
           {% endif %}
+          {% if user.is_authenticated %}
+              {% if user.role == 'admin' or user.role == 'superadmin' or user.role == 'analyst' %}
+              <li class="nav-item">
+                  <a class="nav-link {% if 'sources_home' in segment %} active {% endif %}" href="{% url 'sources_data_app:index' %}">
+                      <i class="fa fa-file-text text-default"></i>
+                      <span class="nav-link-text">Analysis</span>
+                  </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link {% if 'sources_home' in segment %} active {% endif %}" href="{% url 'sources_data_app:index' %}">
+                    <i class="fa fa-wpforms text-default"></i>
+                    <span class="nav-link-text">Analysis</span>
+                </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link {% if 'sources_home' in segment %} active {% endif %}" href="{% url 'sources_data_app:index' %}">
+                  <i class="fa fa-list-alt text-default"></i>
+                  <span class="nav-link-text">Analysis</span>
+              </a>
+          </li>
+              {% endif %}
+          {% endif %}
           <!-- <li class="nav-item">
             <a class="nav-link" href="/login.html">
               <i class="ni ni-key-25 text-info"></i>
