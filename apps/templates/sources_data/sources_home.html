@@ -230,10 +230,8 @@
                 },
                 success: function(response) {
                     if (response.success) {
-                        // Reload the DataTable
-                        $('#dataTable').DataTable().ajax.reload();
-                        // Optional: Show success toast/message
-                        alert(`Updated ${response.updated_count} entries`);
+                        // Reload the Page
+                        location.reload();
                     }
                 },
                 error: function(xhr, status, error) {
