@@ -232,9 +232,12 @@
                     if (response.success) {
                         $('#validationModal').modal('hide');
                         
-                        // Reload the DataTable
-                        $('#dataTable').DataTable().ajax.reload();
-                        
+                        // Refresh the entire DataTable
+                        $('#dataTable').DataTable().destroy();
+                        $('#dataTable').DataTable({
+                            dom: 'Bfrtip',
+                            buttons: ['copy', 'csv', 'excel']
+                        });
                         // Optional: Show success toast/message
                         alert(`Updated ${response.updated_count} entries`);
                     }
