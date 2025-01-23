@@ -4,21 +4,74 @@
 
 {% block title %} Source DataTables {% endblock title %}
 
-{% block stylesheets %}
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
+{% block extrastyle %}
 <style>
-    /* Style pour rendre la table responsive avec défilement horizontal */
-    .table-responsive {
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
+    /* Custom CSS for table styling */
+    #dataTable {
+        width: 100%; /* Set table width to 100% */
+        border-collapse: collapse; /* Collapse table borders */
+        border: 1px solid #ddd; /* Add border to table */
+    }
+    #dataTable th, #dataTable td {
+        border: 1px solid #ddd; /* Add border to table cells */
+        padding: 8px; /* Add padding to table cells */
+    }
+    #dataTable th {
+        background-color: #f2f2f2; /* Set background color for table header */
+    }
+    #dataTable tbody tr:nth-child(even) {
+        background-color: #f2f2f2; /* Set background color for even rows */
+        color: rgb(0, 0, 0);
+    }
+    .modal-dialog {
+        max-width: 800px; /* Adjust as needed */
+    }
+    .modal-content {
+        box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.1);
+        border-radius: 10px;
+    }
+    .modal-header {
+        border-radius: 15px 15px 0 0;
+        background-color: #96eefc;
+        color: #fff;
+        padding: 15px;
+        border-bottom: none;
+    }
+    .modal-title {
+        font-size: 1rem;
+        font-weight: bold;
+    }
+    .modal-body p {
+        margin-bottom: 10px;
+    }
+    .modal-body .display-results {
+        font-weight: bold;
+    }
+    .modal-body .file-not-exist {
+        color: #FF0000;
+    }
+    .modal-body .load {
+        color: #FFA500;
+    }
+    .modal-body .processing {
+        color: #00c3ff;
+    }
+    .modal-body .completed {
+        color: #008000;
     }
 </style>
-{% endblock stylesheets %}
+{% endblock extrastyle %}
+
+{% block extrahead %}
+   <!-- Bootstrap CSS -->
+   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+   <!-- DataTables CSS -->
+   <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+   <!-- DataTables Buttons CSS -->
+   <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.2.2/css/buttons.dataTables.min.css">
+{% endblock extrahead %}
 
 {% block content %}
-<!DOCTYPE html>
-<html lang="en">
-<body>
     <div class="container mt-5">
         <h1 class="text-center">Source Data</h1>
 
@@ -183,25 +236,39 @@
         document.getElementById('entriesPerPage').value = '10';
         document.getElementById('entriesPerPage').dispatchEvent(new Event('change'));
     </script>
-    <!-- Initialize DataTable -->
-    <script>
-        $(document).ready(function () {
-            $('#dataTable').DataTable({
-                dom: 'Bfrtip',
-                buttons: [
-                    'csvHtml5',
-                    'excelHtml5',
-                    'pdfHtml5',
-                    'print'
-                ]
-            });
-        });
-    </script>
-
-</body>
-</html>
 
 {% include "includes/footer.html" %}
 {% endblock content %}
 
-{% block javascripts %}{% endblock javascripts %}
+{% block javascripts %}
+<!-- Bootstrap JS (optional if not already included) -->
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<!-- DataTables JS -->
+<script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+<!-- DataTables Buttons JS -->
+<script src="https://cdn.datatables.net/buttons/2.2.2/js/dataTables.buttons.min.js"></script>
+<!-- DataTables Buttons Print JS -->
+<script src="https://cdn.datatables.net/buttons/2.2.2/js/buttons.html5.min.js"></script>
+<!-- DataTables Buttons PDFMake JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/pdfmake.min.js"></script>
+<!-- DataTables Buttons VFS Fonts JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/vfs_fonts.js"></script>
+<!-- DataTables Buttons CSV JS -->
+<script src="https://cdn.datatables.net/buttons/2.2.2/js/buttons.colVis.min.js"></script>
+<!-- DataTables Buttons Flash JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+<!-- DataTables Buttons Flash JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/vfs_fonts.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#dataTable').DataTable({
+                dom: 'Bfrtip',
+                buttons: [
+                    'copy', 'csv', 'excel', 'pdf', 'print'
+                ]
+            });
+        });
+    </script>
+{% endblock javascripts %}
