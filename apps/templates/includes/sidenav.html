@@ -43,12 +43,14 @@
             </a>
           </li> -->
 
-          <li class="nav-item">
-            <a class="nav-link {% if 'sources_home' in segment %} active {% endif %}" href="{% url 'sources_data_app:index' %}">
-              <i class="fa fa-database text-default"></i>
-              <span class="nav-link-text">Sources</span>
-            </a>
-          </li>
+          {% if user.is_authenticated and user.role in ['admin', 'superadmin'] %}
+            <li class="nav-item">
+                <a class="nav-link {% if 'sources_home' in segment %} active {% endif %}" href="{% url 'sources_data_app:index' %}">
+                    <i class="fa fa-database text-default"></i>
+                    <span class="nav-link-text">Sources</span>
+                </a>
+            </li>
+          {% endif %}
           <!-- <li class="nav-item">
             <a class="nav-link" href="/login.html">
               <i class="ni ni-key-25 text-info"></i>
