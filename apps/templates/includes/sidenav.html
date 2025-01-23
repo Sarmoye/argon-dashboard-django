@@ -63,6 +63,17 @@
                 </li>
               {% endif %}
           {% endif %}
+
+          {% if user.is_authenticated %}
+              {% if user.role == 'admin' or user.role == 'superadmin' or user.role == 'analyst' or user.role == 'viewer' %}
+                <li class="nav-item">
+                  <a class="nav-link {% if 'sources_home' in segment %} active {% endif %}" href="{% url 'sources_data_app:index' %}">
+                      <i class="fa fa-line-chart text-default"></i>
+                      <span class="nav-link-text">Visualization</span>
+                  </a>
+                </li>
+              {% endif %}
+          {% endif %}
           <!-- <li class="nav-item">
             <a class="nav-link" href="/login.html">
               <i class="ni ni-key-25 text-info"></i>
