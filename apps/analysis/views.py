@@ -23,7 +23,7 @@ def check_user_role(user, allowed_roles=None):
     return user.role in allowed_roles
 
 @user_passes_test(
-    lambda u: check_user_role(u, ['admin', 'superadmin']), 
+    lambda u: check_user_role(u, ['admin', 'superadmin', 'analyst']), 
     login_url='/authentication/login/'
 )
 def index(request):
