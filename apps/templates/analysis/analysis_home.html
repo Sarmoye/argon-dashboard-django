@@ -72,110 +72,74 @@
 {% endblock extrahead %}
 
 {% block content %}
-    <div class="container mt-5">
-        <h1 class="text-center">Source Data</h1>
-
-        <!-- Validation button -->
-        <div class="row mb-4">
-            <div class="col-md-4 text-end">
-                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#validationModal">Validation</button>
-            </div>
-        </div>
-        <!-- Modal -->
-        <div class="modal fade" id="validationModal" tabindex="-1" role="dialog" aria-labelledby="validationModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="validationModalLabel">Validation Form</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        <form id="validationForm">
-                            <div class="form-group">
-                                <label for="source_date">Source Date</label>
-                                <input type="date" class="form-control" id="source_date" name="source_date" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="systeme">Systeme</label>
-                                <select class="form-control" id="systeme" name="systeme" required>
-                                    <option value="BSS_ESF">BSS_ESF</option>
-                                    <option value="IRM">IRM</option>
-                                    <option value="CIS">CIS</option>
-                                    <option value="ECW_SP">ECW_SP</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="name">Admin UserName</label>
-                                <input type="text" class="form-control" id="name" name="name" placeholder="{{ request.user.username }}" required disabled>
-                            </div>
-                            <div class="form-group">
-                                <label for="validation_status">Validation Status</label>
-                                <select class="form-control" id="validation_status" name="validation_status" required>
-                                    <option value="Pending">Pending</option>
-                                    <option value="Validated">Validated</option>
-                                    <option value="Rejected">Rejected</option>
-                                </select>
-                            </div>
-                        </form>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                        <button type="submit" form="validationForm" class="btn btn-primary">Save changes</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Table responsive -->
-        <div class="table-responsive">
-            <table class="table table-striped table-bordered mt-4" id="dataTable">
-                <thead class="thead-light">
-                    <tr>
-                        <th scope="col">ID</th>
-                        <th scope="col">System Name</th>
-                        <th scope="col">Domain</th>
-                        <th scope="col">Service Type</th>
-                        <th scope="col">Service Name</th>
-                        <th scope="col">Error Count</th>
-                        <th scope="col">Error Reason</th>
-                        <th scope="col">Source Type</th>
-                        <th scope="col">Timestamp</th>
-                        <th scope="col">Validation Status</th>
-                        <th scope="col">Processed Flag</th>
-                        <th scope="col">Admin Notes</th>
-                        <th scope="col">Inserted By</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for data in source_data %}
-                    <tr class="data-row">
-                        <td>{{ data.id }}</td>
-                        <td>{{ data.system_name }}</td>
-                        <td>{{ data.domain }}</td>
-                        <td>{{ data.service_type }}</td>
-                        <td>{{ data.service_name }}</td>
-                        <td>{{ data.error_count }}</td>
-                        <td>{{ data.error_reason }}</td>
-                        <td>{{ data.source_type }}</td>
-                        <td>{{ data.timestamp }}</td>
-                        <td>{{ data.validation_status }}</td>
-                        <td>{{ data.processed_flag }}</td>
-                        <td>{{ data.admin_notes }}</td>
-                        <td>{{ data.inserted_by }}</td>
-                    </tr>
-                    {% empty %}
-                    <tr>
-                        <td colspan="13" class="text-center">No data available.</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-
-
+<div class="container mt-5">
+    <h1 class="text-center">Source Data</h1>
+    <!-- Table responsive -->
+    <div class="table-responsive">
+        <table class="table table-striped table-bordered mt-4" id="dataTable">
+            <thead class="thead-light">
+                <tr>
+                    <th scope="col">ID</th>
+                    <th scope="col">System Name</th>
+                    <th scope="col">Domain</th>
+                    <th scope="col">Service Type</th>
+                    <th scope="col">Service Name</th>
+                    <th scope="col">Error Count</th>
+                    <th scope="col">Error Reason</th>
+                    <th scope="col">Timestamp</th>
+                    <th scope="col">Error Form</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for data in source_data %}
+                <tr class="data-row">
+                    <td>{{ data.id }}</td>
+                    <td>{{ data.system_name }}</td>
+                    <td>{{ data.domain }}</td>
+                    <td>{{ data.service_type }}</td>
+                    <td>{{ data.service_name }}</td>
+                    <td>{{ data.error_count }}</td>
+                    <td>{{ data.error_reason }}</td>
+                    <td>{{ data.timestamp }}</td>
+                    <!-- Button to trigger modal -->
+                    <td><button class="btn btn-primary" data-toggle="modal" data-target="#errorFormModal{{ data.id }}">Open Form</button></td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="9" class="text-center">No data available.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
+</div>
+
+<!-- Modal Template (dynamically rendered for each row) -->
+{% for data in source_data %}
+<div class="modal fade" id="errorFormModal{{ data.id }}" tabindex="-1" role="dialog" aria-labelledby="errorFormModalLabel{{ data.id }}" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="errorFormModalLabel{{ data.id }}">Error Form for {{ data.system_name }}</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form action="{% url 'submit_error_form' %}" method="POST">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="errorDescription">Error Description</label>
+                        <textarea class="form-control" id="errorDescription" name="error_description" rows="3" required></textarea>
+                    </div>
+                    <input type="hidden" name="data_id" value="{{ data.id }}">
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
 
 {% include "includes/footer.html" %}
 {% endblock content %}
@@ -208,35 +172,6 @@
                 buttons: [
                     'copy', 'csv', 'excel'
                 ]
-            });
-        });
-
-        $('#validationForm').on('submit', function(e) {
-            e.preventDefault();
-
-            var formData = {
-                source_date: $('#source_date').val(),
-                systeme: $('#systeme').val(),
-                validation_status: $('#validation_status').val()
-            };
-
-            $.ajax({
-                url: '{% url "sources_data_app:submit_validation" %}',
-                type: 'POST',
-                contentType: 'application/json',
-                data: JSON.stringify(formData),
-                headers: {
-                    'X-CSRFToken': '{{ csrf_token }}'
-                },
-                success: function(response) {
-                    if (response.success) {
-                        // Reload the Page
-                        location.reload();
-                    }
-                },
-                error: function(xhr, status, error) {
-                    alert('Error submitting validation: ' + xhr.responseJSON.error);
-                }
             });
         });
     </script>
