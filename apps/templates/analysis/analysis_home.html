@@ -81,7 +81,6 @@
                 <tr>
                     <th scope="col">ID</th>
                     <th scope="col">System Name</th>
-                    <th scope="col">Domain</th>
                     <th scope="col">Service Type</th>
                     <th scope="col">Service Name</th>
                     <th scope="col">Error Count</th>
@@ -95,7 +94,6 @@
                 <tr class="data-row">
                     <td>{{ data.id }}</td>
                     <td>{{ data.system_name }}</td>
-                    <td>{{ data.domain }}</td>
                     <td>{{ data.service_type }}</td>
                     <td>{{ data.service_name }}</td>
                     <td>{{ data.error_count }}</td>
@@ -120,7 +118,7 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="errorFormModalLabel{{ data.id }}">Error Form | SYSTEM : {{ data.system_name }} ERROR : {{ data.error_reason }}</h5>
+                <h5 class="modal-title" id="errorFormModalLabel{{ data.id }}">Error Form | System : {{ data.system_name }}</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
