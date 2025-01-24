@@ -56,7 +56,7 @@
           {% if user.is_authenticated %}
               {% if user.role == 'admin' or user.role == 'superadmin' or user.role == 'analyst' %}
                 <li class="nav-item">
-                  <a class="nav-link {% if 'sources_home' in segment %} active {% endif %}" href="{% url 'sources_data_app:index' %}">
+                  <a class="nav-link {% if 'sources_home' in segment %} active {% endif %}" href="{% url 'analysis:index' %}">
                       <i class="ni ni-bullet-list-67 text-default"></i>
                       <span class="nav-link-text">Analysis</span>
                   </a>
