@@ -1,4 +1,4 @@
-from sources_data_app.models import SourceData  # Assurez-vous que le modèle est correctement importé
+from apps.sources_data_app.models import SourceData  # Assurez-vous que le modèle est correctement importé
 from django.shortcuts import render
 from django.contrib.auth.decorators import user_passes_test
 
