@@ -120,7 +120,7 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="errorFormModalLabel{{ data.id }}">Error Form for {{ data.system_name }}</h5>
+                <h5 class="modal-title" id="errorFormModalLabel{{ data.id }}">Error Form | SYSTEM : {{ data.system_name }} ERROR : {{ data.error_reason }}</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -132,11 +132,11 @@
                     <!-- Pre-filled Fields -->
                     <div class="form-group">
                         <label for="errorReason">Error Reason</label>
-                        <textarea class="form-control" id="errorReason" name="error_reason" rows="3" required>{{ data.error_reason }}</textarea>
+                        <textarea class="form-control" id="errorReason" name="error_reason" rows="3" required disabled>{{ data.error_reason }}</textarea>
                     </div>
                     <div class="form-group">
                         <label for="errorCount">Error Count</label>
-                        <input type="number" class="form-control" id="errorCount" name="error_count" value="{{ data.error_count }}" required>
+                        <input type="number" class="form-control" id="errorCount" name="error_count" value="{{ data.error_count }}" required disabled>
                     </div>
                     <div class="form-group">
                         <label for="timestamp">Timestamp</label>
