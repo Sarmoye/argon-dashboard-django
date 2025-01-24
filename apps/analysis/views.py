@@ -23,11 +23,11 @@ def check_user_role(user, allowed_roles=None):
     return user.role in allowed_roles
 
 @user_passes_test(
-    lambda u: check_user_role(u, ['admin', 'superadmin', 'analyst']), 
+    lambda u: check_user_role(u, ['admin', 'superadmin']), 
     login_url='/authentication/login/'
 )
 def index(request):
-    # Trier les données par timestamp en ordre décroissant et filtrer par validation_status
-    source_data = SourceData.objects.filter(validation_status='Validated').order_by('-timestamp')
-    return render(request, 'analysis/analysis_home.html', {'source_data': source_data})
+    # Filtrer par validation_status et récupérer des erreurs distinctes
+    source_data = SourceData.objects.filter(validation_status='Validated').order_by('-timestamp').distinct('error_reason')
+    return render(request, 'sources_data/sources_home.html', {'source_data': source_data})
 
