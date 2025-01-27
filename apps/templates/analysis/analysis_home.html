@@ -90,7 +90,7 @@
                 </tr>
             </thead>
             <tbody>
-                {% for data in source_data %}
+                {% for data in fiche_erreurs %}
                 <tr class="data-row">
                     <td>{{ data.id }}</td>
                     <td>{{ data.system_name }}</td>
@@ -113,7 +113,7 @@
 </div>
 
 <!-- Modal Template (dynamically rendered for each row) -->
-{% for data in source_data %}
+{% for data in fiche_erreurs %}
 <div class="modal fade" id="errorFormModal{{ data.id }}" tabindex="-1" role="dialog" aria-labelledby="errorFormModalLabel{{ data.id }}" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -140,7 +140,7 @@
                         <label for="timestamp">Timestamp</label>
                         <input type="text" class="form-control" id="timestamp" name="timestamp" value="{{ data.timestamp }}" disabled>
                     </div>
-
+                
                     <!-- New Fields -->
                     <div class="form-group">
                         <label for="resolutionDate">Resolution Date</label>
@@ -150,11 +150,60 @@
                         <label for="teamResponsible">Team Responsible</label>
                         <input type="text" class="form-control" id="teamResponsible" name="team_responsible">
                     </div>
-                    
+                    <div class="form-group">
+                        <label for="analystErrorNormal">Is this a normal error (no real impact)?</label>
+                        <input type="checkbox" id="analystErrorNormal" name="erreur_normale">
+                        <small>Check if the error has no real impact on the system.</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="frequence">Error Frequency</label>
+                        <select class="form-control" id="frequence" name="frequence">
+                            <option value="Isolated">Isolated</option>
+                            <option value="Recurring">Recurring</option>
+                            <option value="Frequent">Frequent</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="statutResolution">Resolution Status</label>
+                        <select class="form-control" id="statutResolution" name="statut_resolution">
+                            <option value="Non commencé">Non commencé</option>
+                            <option value="En cours">En cours</option>
+                            <option value="Résolu">Résolu</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="analysts">Analysts Involved</label>
+                        <textarea class="form-control" id="analysts" name="analysts" rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="impactUtilisateur">Impact on Users</label>
+                        <input type="text" class="form-control" id="impactUtilisateur" name="impact_utilisateur">
+                    </div>
+                    <div class="form-group">
+                        <label for="typeErreur">Error Type</label>
+                        <input type="text" class="form-control" id="typeErreur" name="type_erreur">
+                    </div>
+                    <div class="form-group">
+                        <label for="historiqueActions">Action History</label>
+                        <textarea class="form-control" id="historiqueActions" name="historique_actions" rows="3">{{ data.historique_actions }}</textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="versionSysteme">System Version</label>
+                        <input type="text" class="form-control" id="versionSysteme" name="version_systeme" value="{{ data.version_systeme }}">
+                    </div>
+                    <div class="form-group">
+                        <label for="comportementAttendu">Expected Behavior</label>
+                        <textarea class="form-control" id="comportementAttendu" name="comportement_attendu" rows="3">{{ data.comportement_attendu }}</textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="comportementObserve">Observed Behavior</label>
+                        <textarea class="form-control" id="comportementObserve" name="comportement_observe" rows="3">{{ data.comportement_observe }}</textarea>
+                    </div>
+                
                     <input type="hidden" name="data_id" value="{{ data.id }}">
                     
                     <button type="submit" class="btn btn-primary">Submit</button>
-                </form>
+                </form>                
             </div>
         </div>
     </div>
