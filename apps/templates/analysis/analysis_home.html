@@ -23,43 +23,66 @@
         background-color: #f2f2f2; /* Set background color for even rows */
         color: rgb(0, 0, 0);
     }
-    .modal-dialog {
-        max-width: 800px; /* Adjust as needed */
-    }
-    .modal-content {
-        box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.1);
-        border-radius: 10px;
-    }
-    .modal-header {
-        border-radius: 15px 15px 0 0;
-        background-color: #96eefc;
-        color: #fff;
-        padding: 15px;
-        border-bottom: none;
-    }
-    .modal-title {
-        font-size: 1rem;
-        font-weight: bold;
-    }
-    .modal-body p {
-        margin-bottom: 10px;
-    }
-    .modal-body .display-results {
-        font-weight: bold;
-    }
-    .modal-body .file-not-exist {
-        color: #FF0000;
-    }
-    .modal-body .load {
-        color: #FFA500;
-    }
-    .modal-body .processing {
-        color: #00c3ff;
-    }
-    .modal-body .completed {
-        color: #008000;
-    }
 </style>
+<style>
+    .modal-lg {
+        max-width: 90%;
+    }
+    
+    .modal-content {
+        border-radius: 0.5rem;
+    }
+    
+    .modal-header {
+        border-top-left-radius: 0.5rem;
+        border-top-right-radius: 0.5rem;
+    }
+    
+    .card {
+        border-radius: 0.5rem;
+        border: none;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        margin-bottom: 1.5rem;
+    }
+    
+    .card-header {
+        border-top-left-radius: 0.5rem !important;
+        border-top-right-radius: 0.5rem !important;
+        padding: 0.75rem 1.25rem;
+    }
+    
+    .form-control {
+        border-radius: 0.25rem;
+        border: 1px solid #ced4da;
+        padding: 0.5rem 0.75rem;
+    }
+    
+    .form-control:focus {
+        border-color: #80bdff;
+        box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+    }
+    
+    .custom-select {
+        border-radius: 0.25rem;
+        padding: 0.5rem 2rem 0.5rem 0.75rem;
+    }
+    
+    .btn {
+        border-radius: 0.25rem;
+        padding: 0.5rem 1rem;
+        font-weight: 500;
+    }
+    
+    .modal-body {
+        max-height: 80vh;
+        overflow-y: auto;
+    }
+    
+    .form-group label {
+        margin-bottom: 0.5rem;
+        color: #495057;
+    }
+    </style>
 {% endblock extrastyle %}
 
 {% block extrahead %}
@@ -112,6 +135,235 @@
     </div>
 </div>
 
+<!-- Modal Template (dynamically rendered for each row) -->
+{% for data in fiche_erreurs %}
+<div class="modal fade" id="errorFormModal{{ data.id }}" tabindex="-1" role="dialog" aria-labelledby="errorFormModalLabel{{ data.id }}" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable" role="document">
+        <div class="modal-content shadow-lg">
+            <div class="modal-header bg-primary text-white py-3">
+                <h5 class="modal-title font-weight-bold" id="errorFormModalLabel{{ data.id }}">
+                    Error Form | System: {{ data.system_name }}
+                </h5>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body p-4">
+                <form action="#" method="POST" class="needs-validation" novalidate>
+                    {% csrf_token %}
+                    
+                    <!-- Pre-filled Information Section -->
+                    <div class="card mb-4 bg-light">
+                        <div class="card-header bg-secondary text-white">
+                            <h6 class="mb-0">Basic Error Information</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-12 mb-3">
+                                    <label class="font-weight-bold" for="errorReason">
+                                        Error Reason <i class="fas fa-info-circle text-primary" title="Describe the reason for the error. This field is pre-filled and cannot be edited."></i>
+                                    </label>
+                                    <textarea class="form-control bg-white" id="errorReason" name="error_reason" rows="3" required disabled>{{ data.error_reason }}</textarea>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="font-weight-bold" for="errorCount">Error Count</label>
+                                    <input type="number" class="form-control bg-white" id="errorCount" name="error_count" value="{{ data.error_count }}" required disabled>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="font-weight-bold" for="timestamp">Timestamp</label>
+                                    <input type="text" class="form-control bg-white" id="timestamp" name="timestamp" value="{{ data.timestamp }}" disabled>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Resolution Details Section -->
+                    <div class="card mb-4">
+                        <div class="card-header bg-primary text-white">
+                            <h6 class="mb-0">Resolution Details</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="font-weight-bold" for="resolutionDate">
+                                        Resolution Date <i class="fas fa-info-circle" title="The date when the error was resolved."></i>
+                                    </label>
+                                    <input type="date" class="form-control" id="resolutionDate" name="resolution_date">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="font-weight-bold" for="teamResponsible">
+                                        Team Responsible <i class="fas fa-info-circle" title="The team in charge of resolving the error."></i>
+                                    </label>
+                                    <input type="text" class="form-control" id="teamResponsible" name="team_responsible">
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label class="font-weight-bold" for="frequence">Error Frequency</label>
+                                    <select class="form-control custom-select" id="frequence" name="frequence">
+                                        <option value="Isolated">Isolated</option>
+                                        <option value="Recurring">Recurring</option>
+                                        <option value="Frequent">Frequent</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label class="font-weight-bold" for="statutResolution">Resolution Status</label>
+                                    <select class="form-control custom-select" id="statutResolution" name="statut_resolution">
+                                        <option value="Not started">Not started</option>
+                                        <option value="In progress">In progress</option>
+                                        <option value="Resolved">Resolved</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label class="font-weight-bold" for="delaiResolution">
+                                        Estimated Resolution Time <i class="fas fa-info-circle" title="The estimated time needed to resolve the error."></i>
+                                    </label>
+                                    <input type="text" class="form-control" id="delaiResolution" name="delai_resolution" value="{{ data.delai_resolution }}">
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-12 mb-3">
+                                    <label class="font-weight-bold" for="analysts">
+                                        Analysts Involved <i class="fas fa-info-circle" title="List of analysts involved in resolving the error."></i>
+                                    </label>
+                                    <textarea class="form-control" id="analysts" name="analysts" rows="3"></textarea>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="font-weight-bold" for="delaiEcoule">
+                                        Elapsed Time <i class="fas fa-info-circle" title="The time that has elapsed since the error was recorded."></i>
+                                    </label>
+                                    <input type="text" class="form-control" id="delaiEcoule" name="delai_ecoule" value="{{ data.delai_ecoule }}">
+                                </div>
+                                <div class="col-md-6 mb-3 d-flex align-items-center">
+                                    <div class="custom-control custom-checkbox mt-4">
+                                        <input type="checkbox" class="custom-control-input" id="analystErrorNormal" name="erreur_normale">
+                                        <label class="custom-control-label font-weight-bold" for="analystErrorNormal">Normal Error (No Impact)</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Impact Analysis Section -->
+                    <div class="card mb-4">
+                        <div class="card-header bg-primary text-white">
+                            <h6 class="mb-0">Impact Analysis</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="font-weight-bold" for="impactUtilisateur">
+                                        Impact on Users <i class="fas fa-info-circle" title="Describe the impact of the error on end users."></i>
+                                    </label>
+                                    <input type="text" class="form-control" id="impactUtilisateur" name="impact_utilisateur">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="font-weight-bold" for="impactFinancier">
+                                        Financial Impact <i class="fas fa-info-circle" title="The financial cost associated with the error."></i>
+                                    </label>
+                                    <input type="text" class="form-control" id="impactFinancier" name="impact_financier" value="{{ data.impact_financier }}">
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="font-weight-bold" for="nombreUtilisateurs">
+                                        Number of Users Affected <i class="fas fa-info-circle" title="The total number of users impacted by the error."></i>
+                                    </label>
+                                    <input type="number" class="form-control" id="nombreUtilisateurs" name="nombre_utilisateurs_impactes" value="{{ data.nombre_utilisateurs_impactes }}">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="font-weight-bold" for="zoneGeographique">
+                                        Geographical Zone Affected <i class="fas fa-info-circle" title="The geographical area affected by the error."></i>
+                                    </label>
+                                    <input type="text" class="form-control" id="zoneGeographique" name="zone_geographique_affectee" value="{{ data.zone_geographique_affectee }}">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Technical Details Section -->
+                    <div class="card mb-4">
+                        <div class="card-header bg-primary text-white">
+                            <h6 class="mb-0">Technical Details</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="font-weight-bold" for="typeErreur">
+                                        Error Type <i class="fas fa-info-circle" title="The type or category of the error."></i>
+                                    </label>
+                                    <input type="text" class="form-control" id="typeErreur" name="type_erreur">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="font-weight-bold" for="categorieErreur">
+                                        Error Category <i class="fas fa-info-circle" title="The category or classification of the error."></i>
+                                    </label>
+                                    <input type="text" class="form-control" id="categorieErreur" name="categorie_erreur" value="{{ data.categorie_erreur }}">
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="font-weight-bold" for="versionSysteme">
+                                        System Version <i class="fas fa-info-circle" title="The version of the system where the error occurred."></i>
+                                    </label>
+                                    <input type="text" class="form-control" id="versionSysteme" name="version_systeme" value="{{ data.version_systeme }}">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="font-weight-bold" for="niveauCriticite">
+                                        Criticality Level <i class="fas fa-info-circle" title="The severity or criticality level of the error."></i>
+                                    </label>
+                                    <input type="number" class="form-control" id="niveauCriticite" name="niveau_criticite" value="{{ data.niveau_criticite }}">
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-12 mb-3">
+                                    <label class="font-weight-bold" for="comportementAttendu">
+                                        Expected Behavior <i class="fas fa-info-circle" title="Describe the expected behavior of the system."></i>
+                                    </label>
+                                    <textarea class="form-control" id="comportementAttendu" name="comportement_attendu" rows="3">{{ data.comportement_attendu }}</textarea>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-12 mb-3">
+                                    <label class="font-weight-bold" for="comportementObserve">
+                                        Observed Behavior <i class="fas fa-info-circle" title="Describe the behavior observed during the error."></i>
+                                    </label>
+                                    <textarea class="form-control" id="comportementObserve" name="comportement_observe" rows="3">{{ data.comportement_observe }}</textarea>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-12 mb-3">
+                                    <label class="font-weight-bold" for="historiqueActions">
+                                        Action History <i class="fas fa-info-circle" title="Details of actions taken to resolve the error."></i>
+                                    </label>
+                                    <textarea class="form-control" id="historiqueActions" name="historique_actions" rows="3">{{ data.historique_actions }}</textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <input type="hidden" name="data_id" value="{{ data.id }}">
+                    <div class="text-right">
+                        <button type="button" class="btn btn-secondary mr-2" data-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endfor %}
 <!-- Modal Template (dynamically rendered for each row) -->
 {% for data in fiche_erreurs %}
 <div class="modal fade" id="errorFormModal{{ data.id }}" tabindex="-1" role="dialog" aria-labelledby="errorFormModalLabel{{ data.id }}" aria-hidden="true">
