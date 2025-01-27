@@ -109,12 +109,12 @@ def update_fiche_erreur(request):
         
         # Update communication and collaboration
         fiche.canaux_communication = request.POST.get('canaux_communication')
-        fiche.notifications_envoyees = request.POST.get('notifications_envoyees') in ['on', True, 'true', '1']
+        fiche.notifications_envoyees = bool(request.POST.get('notifications_envoyees'))
         fiche.parties_prenantes = request.POST.get('parties_prenantes')
         
         # Update additional options
-        fiche.automatisation_possible = request.POST.get('automatisation_possible') in ['on', True, 'true', '1']
-        fiche.resolution_automatique_possible = request.POST.get('resolution_automatique_possible') in ['on', True, 'true', '1']
+        fiche.automatisation_possible = bool(request.POST.get('automatisation_possible'))
+        fiche.resolution_automatique_possible = bool(request.POST.get('resolution_automatique_possible'))
         
         try:
             fiche.save()
