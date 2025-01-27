@@ -149,7 +149,7 @@
                 </button>
             </div>
             <div class="modal-body p-4">
-                <form action="{% url 'analysis:update_fiche_erreur' %}" method="POST">
+                <form id="errorForm{{ data.id }}" action="{% url 'analysis:update_fiche_erreur' %}" method="POST">
                     {% csrf_token %}
                     
                     <!-- Basic Information Section -->
@@ -416,4 +416,44 @@
             });
         });
     </script>
+    <!-- Include jQuery (add this if it's not already included in your template) -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+<script>
+    $(document).ready(function () {
+        // Bind the form submit event
+        $('form[id^="errorForm"]').on('submit', function (e) {
+            e.preventDefault(); // Prevent the default form submission
+
+            var form = $(this);
+            var formData = new FormData(this); // Collect the form data
+
+            // Disable the submit button to prevent multiple submissions
+            form.find('button[type="submit"]').prop('disabled', true);
+
+            $.ajax({
+                url: form.attr('action'),  // Form action URL
+                type: 'POST',              // Method type
+                data: formData,            // Send the form data
+                processData: false,        // Don't process the data
+                contentType: false,        // Don't set content type
+                success: function (response) {
+                    // Handle success (e.g., show a success message)
+                    alert('Form submitted successfully!');
+                    // Optionally, close the modal after successful submission
+                    $('#errorFormModal{{ data.id }}').modal('hide');
+                },
+                error: function (xhr, errmsg, err) {
+                    // Handle error (e.g., show an error message)
+                    alert('There was an error submitting the form: ' + errmsg);
+                },
+                complete: function () {
+                    // Re-enable the submit button after AJAX request is complete
+                    form.find('button[type="submit"]').prop('disabled', false);
+                }
+            });
+        });
+    });
+</script>
+
 {% endblock javascripts %}

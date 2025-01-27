@@ -63,8 +63,7 @@ def index(request):
 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
-from django.http import HttpResponseRedirect
-from django.urls import reverse
+from django.http import JsonResponse
 from .models import FicheErreur
 
 def update_fiche_erreur(request):
@@ -118,11 +117,11 @@ def update_fiche_erreur(request):
         
         try:
             fiche.save()
-            messages.success(request, 'Error report successfully updated.')
-            return redirect('analysis:index')  # Redirects to main analysis page
+            # Success response in JSON format for AJAX
+            return JsonResponse({'status': 'success', 'message': 'Error report successfully updated.'})
         except Exception as e:
-            messages.error(request, f'Error updating report: {str(e)}')
-            return redirect('analysis:index')  # Redirects to main analysis page on error
-            
-    # If not POST, redirect to main analysis page
-    return redirect('analysis:index')
+            # Error response in JSON format for AJAX
+            return JsonResponse({'status': 'error', 'message': f'Error updating report: {str(e)}'}, status=400)
+    
+    # If not POST, return an error response
+    return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=400)
