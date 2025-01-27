@@ -149,7 +149,7 @@
                 </button>
             </div>
             <div class="modal-body p-4">
-                <form action="{% url 'analysis:update_fiche_erreur' %}" method="POST" class="needs-validation" novalidate>
+                <form action="{% url 'analysis:update_fiche_erreur' %}" method="POST">
                     {% csrf_token %}
                     
                     <!-- Basic Information Section -->
