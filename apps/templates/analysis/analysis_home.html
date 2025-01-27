@@ -443,9 +443,9 @@
                     // Optionally, close the modal after successful submission
                     $('#errorFormModal{{ data.id }}').modal('hide');
                 },
-                error: function (response) {
-                    // Handle error (e.g., show an error message)
-                    alert('There was an error submitting the form: ' + response.message);
+                error: function(xhr, errmsg, err) {
+                    console.log('Error:', xhr.responseText); // Log the response for debugging
+                    alert('There was an error submitting the form: ' + xhr.responseText);
                 },
                 complete: function () {
                     // Re-enable the submit button after AJAX request is complete
