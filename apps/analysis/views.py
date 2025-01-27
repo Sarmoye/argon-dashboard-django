@@ -68,7 +68,7 @@ from .models import FicheErreur
 
 def update_fiche_erreur(request):
     if request.method == 'POST':
-        print(f"Received data: {request.POST}")
+        # print(f"Received data: {request.POST}")
         # Get the fiche erreur instance
         fiche_id = request.POST.get('data_id')
         fiche = get_object_or_404(FicheErreur, id=fiche_id)
