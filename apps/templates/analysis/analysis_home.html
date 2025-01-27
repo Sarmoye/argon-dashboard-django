@@ -126,7 +126,7 @@
             <div class="modal-body">
                 <form action="#" method="POST">
                     {% csrf_token %}
-                    
+                
                     <!-- Pre-filled Fields -->
                     <div class="form-group">
                         <label for="errorReason">Error Reason</label>
@@ -199,11 +199,39 @@
                         <label for="comportementObserve">Observed Behavior</label>
                         <textarea class="form-control" id="comportementObserve" name="comportement_observe" rows="3">{{ data.comportement_observe }}</textarea>
                     </div>
+                    <div class="form-group">
+                        <label for="delaiResolution">Estimated Resolution Time</label>
+                        <input type="text" class="form-control" id="delaiResolution" name="delai_resolution" value="{{ data.delai_resolution }}">
+                    </div>
+                    <div class="form-group">
+                        <label for="delaiEcoule">Elapsed Time</label>
+                        <input type="text" class="form-control" id="delaiEcoule" name="delai_ecoule" value="{{ data.delai_ecoule }}">
+                    </div>
+                    <div class="form-group">
+                        <label for="impactFinancier">Financial Impact</label>
+                        <input type="text" class="form-control" id="impactFinancier" name="impact_financier" value="{{ data.impact_financier }}">
+                    </div>
+                    <div class="form-group">
+                        <label for="nombreUtilisateurs">Number of Users Affected</label>
+                        <input type="number" class="form-control" id="nombreUtilisateurs" name="nombre_utilisateurs_impactes" value="{{ data.nombre_utilisateurs_impactes }}">
+                    </div>
+                    <div class="form-group">
+                        <label for="zoneGeographique">Geographical Zone Affected</label>
+                        <input type="text" class="form-control" id="zoneGeographique" name="zone_geographique_affectee" value="{{ data.zone_geographique_affectee }}">
+                    </div>
+                    <div class="form-group">
+                        <label for="categorieErreur">Error Category</label>
+                        <input type="text" class="form-control" id="categorieErreur" name="categorie_erreur" value="{{ data.categorie_erreur }}">
+                    </div>
+                    <div class="form-group">
+                        <label for="niveauCriticite">Criticality Level</label>
+                        <input type="number" class="form-control" id="niveauCriticite" name="niveau_criticite" value="{{ data.niveau_criticite }}">
+                    </div>
                 
                     <input type="hidden" name="data_id" value="{{ data.id }}">
-                    
                     <button type="submit" class="btn btn-primary">Submit</button>
-                </form>                
+                </form>
+                                
             </div>
         </div>
     </div>
