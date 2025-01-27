@@ -129,34 +129,33 @@
                 
                     <!-- Pre-filled Fields -->
                     <div class="form-group">
-                        <label for="errorReason">Error Reason</label>
+                        <label for="errorReason">Error Reason <span title="Describe the reason for the error. This field is pre-filled and cannot be edited.">ℹ️</span></label>
                         <textarea class="form-control" id="errorReason" name="error_reason" rows="3" required disabled>{{ data.error_reason }}</textarea>
                     </div>
                     <div class="form-group">
-                        <label for="errorCount">Error Count</label>
+                        <label for="errorCount">Error Count <span title="The number of occurrences for this error. This field is pre-filled and cannot be edited.">ℹ️</span></label>
                         <input type="number" class="form-control" id="errorCount" name="error_count" value="{{ data.error_count }}" required disabled>
                     </div>
                     <div class="form-group">
-                        <label for="timestamp">Timestamp</label>
+                        <label for="timestamp">Timestamp <span title="The date and time the error was recorded. This field is pre-filled and cannot be edited.">ℹ️</span></label>
                         <input type="text" class="form-control" id="timestamp" name="timestamp" value="{{ data.timestamp }}" disabled>
                     </div>
                 
                     <!-- New Fields -->
                     <div class="form-group">
-                        <label for="resolutionDate">Resolution Date</label>
+                        <label for="resolutionDate">Resolution Date <span title="The date when the error was resolved.">ℹ️</span></label>
                         <input type="date" class="form-control" id="resolutionDate" name="resolution_date">
                     </div>
                     <div class="form-group">
-                        <label for="teamResponsible">Team Responsible</label>
+                        <label for="teamResponsible">Team Responsible <span title="The team in charge of resolving the error.">ℹ️</span></label>
                         <input type="text" class="form-control" id="teamResponsible" name="team_responsible">
                     </div>
                     <div class="form-group">
-                        <label for="analystErrorNormal">Is this a normal error (no real impact)?</label>
+                        <label for="analystErrorNormal">Is this a normal error (no real impact)? <span title="Check this box if the error has no significant impact on the system.">ℹ️</span></label>
                         <input type="checkbox" id="analystErrorNormal" name="erreur_normale">
-                        <small>Check if the error has no real impact on the system.</small>
                     </div>
                     <div class="form-group">
-                        <label for="frequence">Error Frequency</label>
+                        <label for="frequence">Error Frequency <span title="The frequency of the error: isolated, recurring, or frequent.">ℹ️</span></label>
                         <select class="form-control" id="frequence" name="frequence">
                             <option value="Isolated">Isolated</option>
                             <option value="Recurring">Recurring</option>
@@ -164,74 +163,73 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="statutResolution">Resolution Status</label>
+                        <label for="statutResolution">Resolution Status <span title="The current resolution status of the error.">ℹ️</span></label>
                         <select class="form-control" id="statutResolution" name="statut_resolution">
-                            <option value="Non commencé">Non commencé</option>
-                            <option value="En cours">En cours</option>
-                            <option value="Résolu">Résolu</option>
+                            <option value="Not started">Not started</option>
+                            <option value="In progress">In progress</option>
+                            <option value="Resolved">Resolved</option>
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="analysts">Analysts Involved</label>
+                        <label for="analysts">Analysts Involved <span title="List of analysts involved in resolving the error.">ℹ️</span></label>
                         <textarea class="form-control" id="analysts" name="analysts" rows="3"></textarea>
                     </div>
                     <div class="form-group">
-                        <label for="impactUtilisateur">Impact on Users</label>
+                        <label for="impactUtilisateur">Impact on Users <span title="Describe the impact of the error on end users.">ℹ️</span></label>
                         <input type="text" class="form-control" id="impactUtilisateur" name="impact_utilisateur">
                     </div>
                     <div class="form-group">
-                        <label for="typeErreur">Error Type</label>
+                        <label for="typeErreur">Error Type <span title="The type or category of the error.">ℹ️</span></label>
                         <input type="text" class="form-control" id="typeErreur" name="type_erreur">
                     </div>
                     <div class="form-group">
-                        <label for="historiqueActions">Action History</label>
+                        <label for="historiqueActions">Action History <span title="Details of actions taken to resolve the error.">ℹ️</span></label>
                         <textarea class="form-control" id="historiqueActions" name="historique_actions" rows="3">{{ data.historique_actions }}</textarea>
                     </div>
                     <div class="form-group">
-                        <label for="versionSysteme">System Version</label>
+                        <label for="versionSysteme">System Version <span title="The version of the system where the error occurred.">ℹ️</span></label>
                         <input type="text" class="form-control" id="versionSysteme" name="version_systeme" value="{{ data.version_systeme }}">
                     </div>
                     <div class="form-group">
-                        <label for="comportementAttendu">Expected Behavior</label>
+                        <label for="comportementAttendu">Expected Behavior <span title="Describe the expected behavior of the system.">ℹ️</span></label>
                         <textarea class="form-control" id="comportementAttendu" name="comportement_attendu" rows="3">{{ data.comportement_attendu }}</textarea>
                     </div>
                     <div class="form-group">
-                        <label for="comportementObserve">Observed Behavior</label>
+                        <label for="comportementObserve">Observed Behavior <span title="Describe the behavior observed during the error.">ℹ️</span></label>
                         <textarea class="form-control" id="comportementObserve" name="comportement_observe" rows="3">{{ data.comportement_observe }}</textarea>
                     </div>
                     <div class="form-group">
-                        <label for="delaiResolution">Estimated Resolution Time</label>
+                        <label for="delaiResolution">Estimated Resolution Time <span title="The estimated time needed to resolve the error.">ℹ️</span></label>
                         <input type="text" class="form-control" id="delaiResolution" name="delai_resolution" value="{{ data.delai_resolution }}">
                     </div>
                     <div class="form-group">
-                        <label for="delaiEcoule">Elapsed Time</label>
+                        <label for="delaiEcoule">Elapsed Time <span title="The time that has elapsed since the error was recorded.">ℹ️</span></label>
                         <input type="text" class="form-control" id="delaiEcoule" name="delai_ecoule" value="{{ data.delai_ecoule }}">
                     </div>
                     <div class="form-group">
-                        <label for="impactFinancier">Financial Impact</label>
+                        <label for="impactFinancier">Financial Impact <span title="The financial cost associated with the error.">ℹ️</span></label>
                         <input type="text" class="form-control" id="impactFinancier" name="impact_financier" value="{{ data.impact_financier }}">
                     </div>
                     <div class="form-group">
-                        <label for="nombreUtilisateurs">Number of Users Affected</label>
+                        <label for="nombreUtilisateurs">Number of Users Affected <span title="The total number of users impacted by the error.">ℹ️</span></label>
                         <input type="number" class="form-control" id="nombreUtilisateurs" name="nombre_utilisateurs_impactes" value="{{ data.nombre_utilisateurs_impactes }}">
                     </div>
                     <div class="form-group">
-                        <label for="zoneGeographique">Geographical Zone Affected</label>
+                        <label for="zoneGeographique">Geographical Zone Affected <span title="The geographical area affected by the error.">ℹ️</span></label>
                         <input type="text" class="form-control" id="zoneGeographique" name="zone_geographique_affectee" value="{{ data.zone_geographique_affectee }}">
                     </div>
                     <div class="form-group">
-                        <label for="categorieErreur">Error Category</label>
+                        <label for="categorieErreur">Error Category <span title="The category or classification of the error.">ℹ️</span></label>
                         <input type="text" class="form-control" id="categorieErreur" name="categorie_erreur" value="{{ data.categorie_erreur }}">
                     </div>
                     <div class="form-group">
-                        <label for="niveauCriticite">Criticality Level</label>
+                        <label for="niveauCriticite">Criticality Level <span title="The severity or criticality level of the error.">ℹ️</span></label>
                         <input type="number" class="form-control" id="niveauCriticite" name="niveau_criticite" value="{{ data.niveau_criticite }}">
                     </div>
                 
                     <input type="hidden" name="data_id" value="{{ data.id }}">
                     <button type="submit" class="btn btn-primary">Submit</button>
-                </form>
-                                
+                </form>                        
             </div>
         </div>
     </div>
