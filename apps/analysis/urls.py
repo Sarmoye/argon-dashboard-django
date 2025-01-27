@@ -6,4 +6,5 @@ app_name = 'analysis'
 
 urlpatterns = [
     path('', views.index, name='index'),
+    path('update-fiche-erreur/', views.update_fiche_erreur, name='update_fiche_erreur'),
 ]

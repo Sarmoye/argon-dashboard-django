@@ -149,204 +149,222 @@
                 </button>
             </div>
             <div class="modal-body p-4">
-                <form action="#" method="POST" class="needs-validation" novalidate>
+                <form action="{% url 'analysis:update_fiche_erreur' %}" method="POST" class="needs-validation" novalidate>
                     {% csrf_token %}
                     
-                    <!-- Pre-filled Information Section -->
+                    <!-- Basic Information Section -->
                     <div class="card mb-4 bg-light">
                         <div class="card-header bg-secondary text-white">
-                            <h6 class="mb-0">Basic Error Information</h6>
+                            <h6 class="mb-0">Basic Information</h6>
                         </div>
                         <div class="card-body">
                             <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label class="font-weight-bold" for="system_name">System Name</label>
+                                    <input type="text" class="form-control" id="system_name" name="system_name" value="{{ data.system_name }}" required>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label class="font-weight-bold" for="service_type">Service Type</label>
+                                    <input type="text" class="form-control" id="service_type" name="service_type" value="{{ data.service_type }}" required>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label class="font-weight-bold" for="service_name">Service Name</label>
+                                    <input type="text" class="form-control" id="service_name" name="service_name" value="{{ data.service_name }}" required>
+                                </div>
+                            </div>
+                            <div class="row">
                                 <div class="col-md-12 mb-3">
-                                    <label class="font-weight-bold" for="errorReason">
-                                        Error Reason <i class="fas fa-info-circle text-primary" title="Describe the reason for the error. This field is pre-filled and cannot be edited."></i>
-                                    </label>
-                                    <textarea class="form-control bg-white" id="errorReason" name="error_reason" rows="3" required disabled>{{ data.error_reason }}</textarea>
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label class="font-weight-bold" for="errorCount">Error Count</label>
-                                    <input type="number" class="form-control bg-white" id="errorCount" name="error_count" value="{{ data.error_count }}" required disabled>
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label class="font-weight-bold" for="timestamp">Timestamp</label>
-                                    <input type="text" class="form-control bg-white" id="timestamp" name="timestamp" value="{{ data.timestamp }}" disabled>
+                                    <label class="font-weight-bold" for="error_reason">Error Reason</label>
+                                    <textarea class="form-control" id="error_reason" name="error_reason" rows="3" required>{{ data.error_reason }}</textarea>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Resolution Details Section -->
+                    <!-- Status and Priority Section -->
                     <div class="card mb-4">
                         <div class="card-header bg-primary text-white">
-                            <h6 class="mb-0">Resolution Details</h6>
+                            <h6 class="mb-0">Status and Priority</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label class="font-weight-bold" for="priorite">Priority</label>
+                                    <select class="form-control" id="priorite" name="priorite">
+                                        <option value="Normale" {% if data.priorite == "Normale" %}selected{% endif %}>Normal</option>
+                                        <option value="Haute" {% if data.priorite == "Haute" %}selected{% endif %}>High</option>
+                                        <option value="Urgente" {% if data.priorite == "Urgente" %}selected{% endif %}>Urgent</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label class="font-weight-bold" for="priorite_numerique">Numerical Priority (1-5)</label>
+                                    <input type="number" class="form-control" id="priorite_numerique" name="priorite_numerique" value="{{ data.priorite_numerique }}" min="1" max="5">
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label class="font-weight-bold" for="niveau_criticite">Criticality Level (1-5)</label>
+                                    <input type="number" class="form-control" id="niveau_criticite" name="niveau_criticite" value="{{ data.niveau_criticite }}" min="1" max="5">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Error Details Section -->
+                    <div class="card mb-4">
+                        <div class="card-header bg-primary text-white">
+                            <h6 class="mb-0">Error Details</h6>
                         </div>
                         <div class="card-body">
                             <div class="row">
                                 <div class="col-md-6 mb-3">
-                                    <label class="font-weight-bold" for="resolutionDate">
-                                        Resolution Date <i class="fas fa-info-circle" title="The date when the error was resolved."></i>
-                                    </label>
-                                    <input type="date" class="form-control" id="resolutionDate" name="resolution_date">
+                                    <label class="font-weight-bold" for="symptomes_observes">Observed Symptoms</label>
+                                    <textarea class="form-control" id="symptomes_observes" name="symptomes_observes" rows="3">{{ data.symptomes_observes }}</textarea>
                                 </div>
                                 <div class="col-md-6 mb-3">
-                                    <label class="font-weight-bold" for="teamResponsible">
-                                        Team Responsible <i class="fas fa-info-circle" title="The team in charge of resolving the error."></i>
-                                    </label>
-                                    <input type="text" class="form-control" id="teamResponsible" name="team_responsible">
+                                    <label class="font-weight-bold" for="logs_messages">Log Messages</label>
+                                    <textarea class="form-control" id="logs_messages" name="logs_messages" rows="3">{{ data.logs_messages }}</textarea>
                                 </div>
                             </div>
-                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="font-weight-bold" for="services_affectes">Affected Services</label>
+                                    <textarea class="form-control" id="services_affectes" name="services_affectes" rows="2">{{ data.services_affectes }}</textarea>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="font-weight-bold" for="cause">Root Cause</label>
+                                    <textarea class="form-control" id="cause" name="cause" rows="2">{{ data.cause }}</textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Resolution Information -->
+                    <div class="card mb-4">
+                        <div class="card-header bg-primary text-white">
+                            <h6 class="mb-0">Resolution Information</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="font-weight-bold" for="solution_proposee">Proposed Solution</label>
+                                    <textarea class="form-control" id="solution_proposee" name="solution_proposee" rows="3">{{ data.solution_proposee }}</textarea>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="font-weight-bold" for="solution_implantee">Implemented Solution</label>
+                                    <textarea class="form-control" id="solution_implantee" name="solution_implantee" rows="3">{{ data.solution_implantee }}</textarea>
+                                </div>
+                            </div>
                             <div class="row">
                                 <div class="col-md-4 mb-3">
-                                    <label class="font-weight-bold" for="frequence">Error Frequency</label>
-                                    <select class="form-control custom-select" id="frequence" name="frequence">
-                                        <option value="Isolated">Isolated</option>
-                                        <option value="Recurring">Recurring</option>
-                                        <option value="Frequent">Frequent</option>
-                                    </select>
+                                    <label class="font-weight-bold" for="efficacite_solution">Solution Effectiveness (1-10)</label>
+                                    <input type="number" class="form-control" id="efficacite_solution" name="efficacite_solution" value="{{ data.efficacite_solution }}" min="1" max="10">
                                 </div>
-                                <div class="col-md-4 mb-3">
-                                    <label class="font-weight-bold" for="statutResolution">Resolution Status</label>
-                                    <select class="form-control custom-select" id="statutResolution" name="statut_resolution">
-                                        <option value="Not started">Not started</option>
-                                        <option value="In progress">In progress</option>
-                                        <option value="Resolved">Resolved</option>
-                                    </select>
-                                </div>
-                                <div class="col-md-4 mb-3">
-                                    <label class="font-weight-bold" for="delaiResolution">
-                                        Estimated Resolution Time <i class="fas fa-info-circle" title="The estimated time needed to resolve the error."></i>
-                                    </label>
-                                    <input type="text" class="form-control" id="delaiResolution" name="delai_resolution" value="{{ data.delai_resolution }}">
+                                <div class="col-md-8 mb-3">
+                                    <label class="font-weight-bold" for="tests_effectues">Tests Performed</label>
+                                    <textarea class="form-control" id="tests_effectues" name="tests_effectues" rows="2">{{ data.tests_effectues }}</textarea>
                                 </div>
                             </div>
+                        </div>
+                    </div>
 
+                    <!-- Technical Information -->
+                    <div class="card mb-4">
+                        <div class="card-header bg-primary text-white">
+                            <h6 class="mb-0">Technical Information</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label class="font-weight-bold" for="code_erreur">Error Code</label>
+                                    <input type="text" class="form-control" id="code_erreur" name="code_erreur" value="{{ data.code_erreur }}">
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label class="font-weight-bold" for="version_systeme">System Version</label>
+                                    <input type="text" class="form-control" id="version_systeme" name="version_systeme" value="{{ data.version_systeme }}">
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label class="font-weight-bold" for="charge_systeme">System Load (%)</label>
+                                    <input type="number" class="form-control" id="charge_systeme" name="charge_systeme" value="{{ data.charge_systeme }}" step="0.01" min="0" max="100">
+                                </div>
+                            </div>
                             <div class="row">
                                 <div class="col-md-12 mb-3">
-                                    <label class="font-weight-bold" for="analysts">
-                                        Analysts Involved <i class="fas fa-info-circle" title="List of analysts involved in resolving the error."></i>
-                                    </label>
-                                    <textarea class="form-control" id="analysts" name="analysts" rows="3"></textarea>
+                                    <label class="font-weight-bold" for="fichiers_impactes">Impacted Files</label>
+                                    <textarea class="form-control" id="fichiers_impactes" name="fichiers_impactes" rows="2">{{ data.fichiers_impactes }}</textarea>
                                 </div>
                             </div>
+                        </div>
+                    </div>
 
+                    <!-- Impact Assessment -->
+                    <div class="card mb-4">
+                        <div class="card-header bg-primary text-white">
+                            <h6 class="mb-0">Impact Assessment</h6>
+                        </div>
+                        <div class="card-body">
                             <div class="row">
                                 <div class="col-md-6 mb-3">
-                                    <label class="font-weight-bold" for="delaiEcoule">
-                                        Elapsed Time <i class="fas fa-info-circle" title="The time that has elapsed since the error was recorded."></i>
-                                    </label>
-                                    <input type="text" class="form-control" id="delaiEcoule" name="delai_ecoule" value="{{ data.delai_ecoule }}">
+                                    <label class="font-weight-bold" for="impact_financier">Financial Impact</label>
+                                    <input type="number" class="form-control" id="impact_financier" name="impact_financier" value="{{ data.impact_financier }}" step="0.01">
                                 </div>
-                                <div class="col-md-6 mb-3 d-flex align-items-center">
+                                <div class="col-md-6 mb-3">
+                                    <label class="font-weight-bold" for="nombre_utilisateurs_impactes">Number of Users Affected</label>
+                                    <input type="number" class="form-control" id="nombre_utilisateurs_impactes" name="nombre_utilisateurs_impactes" value="{{ data.nombre_utilisateurs_impactes }}">
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12 mb-3">
+                                    <label class="font-weight-bold" for="zone_geographique_affectee">Affected Geographical Area</label>
+                                    <input type="text" class="form-control" id="zone_geographique_affectee" name="zone_geographique_affectee" value="{{ data.zone_geographique_affectee }}">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Communication and Collaboration -->
+                    <div class="card mb-4">
+                        <div class="card-header bg-primary text-white">
+                            <h6 class="mb-0">Communication and Collaboration</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="font-weight-bold" for="canaux_communication">Communication Channels</label>
+                                    <input type="text" class="form-control" id="canaux_communication" name="canaux_communication" value="{{ data.canaux_communication }}">
+                                </div>
+                                <div class="col-md-6 mb-3">
                                     <div class="custom-control custom-checkbox mt-4">
-                                        <input type="checkbox" class="custom-control-input" id="analystErrorNormal" name="erreur_normale">
-                                        <label class="custom-control-label font-weight-bold" for="analystErrorNormal">Normal Error (No Impact)</label>
+                                        <input type="checkbox" class="custom-control-input" id="notifications_envoyees" name="notifications_envoyees" {% if data.notifications_envoyees %}checked{% endif %}>
+                                        <label class="custom-control-label" for="notifications_envoyees">Notifications Sent</label>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-
-                    <!-- Impact Analysis Section -->
-                    <div class="card mb-4">
-                        <div class="card-header bg-primary text-white">
-                            <h6 class="mb-0">Impact Analysis</h6>
-                        </div>
-                        <div class="card-body">
                             <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label class="font-weight-bold" for="impactUtilisateur">
-                                        Impact on Users <i class="fas fa-info-circle" title="Describe the impact of the error on end users."></i>
-                                    </label>
-                                    <input type="text" class="form-control" id="impactUtilisateur" name="impact_utilisateur">
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label class="font-weight-bold" for="impactFinancier">
-                                        Financial Impact <i class="fas fa-info-circle" title="The financial cost associated with the error."></i>
-                                    </label>
-                                    <input type="text" class="form-control" id="impactFinancier" name="impact_financier" value="{{ data.impact_financier }}">
-                                </div>
-                            </div>
-                            
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label class="font-weight-bold" for="nombreUtilisateurs">
-                                        Number of Users Affected <i class="fas fa-info-circle" title="The total number of users impacted by the error."></i>
-                                    </label>
-                                    <input type="number" class="form-control" id="nombreUtilisateurs" name="nombre_utilisateurs_impactes" value="{{ data.nombre_utilisateurs_impactes }}">
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label class="font-weight-bold" for="zoneGeographique">
-                                        Geographical Zone Affected <i class="fas fa-info-circle" title="The geographical area affected by the error."></i>
-                                    </label>
-                                    <input type="text" class="form-control" id="zoneGeographique" name="zone_geographique_affectee" value="{{ data.zone_geographique_affectee }}">
+                                <div class="col-md-12 mb-3">
+                                    <label class="font-weight-bold" for="parties_prenantes">Stakeholders</label>
+                                    <textarea class="form-control" id="parties_prenantes" name="parties_prenantes" rows="2">{{ data.parties_prenantes }}</textarea>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Technical Details Section -->
+                    <!-- Additional Options -->
                     <div class="card mb-4">
                         <div class="card-header bg-primary text-white">
-                            <h6 class="mb-0">Technical Details</h6>
+                            <h6 class="mb-0">Additional Options</h6>
                         </div>
                         <div class="card-body">
                             <div class="row">
                                 <div class="col-md-6 mb-3">
-                                    <label class="font-weight-bold" for="typeErreur">
-                                        Error Type <i class="fas fa-info-circle" title="The type or category of the error."></i>
-                                    </label>
-                                    <input type="text" class="form-control" id="typeErreur" name="type_erreur">
+                                    <div class="custom-control custom-checkbox">
+                                        <input type="checkbox" class="custom-control-input" id="automatisation_possible" name="automatisation_possible" {% if data.automatisation_possible %}checked{% endif %}>
+                                        <label class="custom-control-label" for="automatisation_possible">Automatic Diagnosis/Correction Possible</label>
+                                    </div>
                                 </div>
                                 <div class="col-md-6 mb-3">
-                                    <label class="font-weight-bold" for="categorieErreur">
-                                        Error Category <i class="fas fa-info-circle" title="The category or classification of the error."></i>
-                                    </label>
-                                    <input type="text" class="form-control" id="categorieErreur" name="categorie_erreur" value="{{ data.categorie_erreur }}">
-                                </div>
-                            </div>
-
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label class="font-weight-bold" for="versionSysteme">
-                                        System Version <i class="fas fa-info-circle" title="The version of the system where the error occurred."></i>
-                                    </label>
-                                    <input type="text" class="form-control" id="versionSysteme" name="version_systeme" value="{{ data.version_systeme }}">
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label class="font-weight-bold" for="niveauCriticite">
-                                        Criticality Level <i class="fas fa-info-circle" title="The severity or criticality level of the error."></i>
-                                    </label>
-                                    <input type="number" class="form-control" id="niveauCriticite" name="niveau_criticite" value="{{ data.niveau_criticite }}">
-                                </div>
-                            </div>
-
-                            <div class="row">
-                                <div class="col-md-12 mb-3">
-                                    <label class="font-weight-bold" for="comportementAttendu">
-                                        Expected Behavior <i class="fas fa-info-circle" title="Describe the expected behavior of the system."></i>
-                                    </label>
-                                    <textarea class="form-control" id="comportementAttendu" name="comportement_attendu" rows="3">{{ data.comportement_attendu }}</textarea>
-                                </div>
-                            </div>
-
-                            <div class="row">
-                                <div class="col-md-12 mb-3">
-                                    <label class="font-weight-bold" for="comportementObserve">
-                                        Observed Behavior <i class="fas fa-info-circle" title="Describe the behavior observed during the error."></i>
-                                    </label>
-                                    <textarea class="form-control" id="comportementObserve" name="comportement_observe" rows="3">{{ data.comportement_observe }}</textarea>
-                                </div>
-                            </div>
-
-                            <div class="row">
-                                <div class="col-md-12 mb-3">
-                                    <label class="font-weight-bold" for="historiqueActions">
-                                        Action History <i class="fas fa-info-circle" title="Details of actions taken to resolve the error."></i>
-                                    </label>
-                                    <textarea class="form-control" id="historiqueActions" name="historique_actions" rows="3">{{ data.historique_actions }}</textarea>
+                                    <div class="custom-control custom-checkbox">
+                                        <input type="checkbox" class="custom-control-input" id="resolution_automatique_possible" name="resolution_automatique_possible" {% if data.resolution_automatique_possible %}checked{% endif %}>
+                                        <label class="custom-control-label" for="resolution_automatique_possible">Future Automation Possible</label>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -358,130 +376,6 @@
                         <button type="submit" class="btn btn-primary">Submit</button>
                     </div>
                 </form>
-            </div>
-        </div>
-    </div>
-</div>
-
-{% endfor %}
-<!-- Modal Template (dynamically rendered for each row) -->
-{% for data in fiche_erreurs %}
-<div class="modal fade" id="errorFormModal{{ data.id }}" tabindex="-1" role="dialog" aria-labelledby="errorFormModalLabel{{ data.id }}" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="errorFormModalLabel{{ data.id }}">Error Form | System : {{ data.system_name }}</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <form action="#" method="POST">
-                    {% csrf_token %}
-                
-                    <!-- Pre-filled Fields -->
-                    <div class="form-group">
-                        <label for="errorReason">Error Reason <span title="Describe the reason for the error. This field is pre-filled and cannot be edited.">ℹ️</span></label>
-                        <textarea class="form-control" id="errorReason" name="error_reason" rows="3" required disabled>{{ data.error_reason }}</textarea>
-                    </div>
-                    <div class="form-group">
-                        <label for="errorCount">Error Count <span title="The number of occurrences for this error. This field is pre-filled and cannot be edited.">ℹ️</span></label>
-                        <input type="number" class="form-control" id="errorCount" name="error_count" value="{{ data.error_count }}" required disabled>
-                    </div>
-                    <div class="form-group">
-                        <label for="timestamp">Timestamp <span title="The date and time the error was recorded. This field is pre-filled and cannot be edited.">ℹ️</span></label>
-                        <input type="text" class="form-control" id="timestamp" name="timestamp" value="{{ data.timestamp }}" disabled>
-                    </div>
-                
-                    <!-- New Fields -->
-                    <div class="form-group">
-                        <label for="resolutionDate">Resolution Date <span title="The date when the error was resolved.">ℹ️</span></label>
-                        <input type="date" class="form-control" id="resolutionDate" name="resolution_date">
-                    </div>
-                    <div class="form-group">
-                        <label for="teamResponsible">Team Responsible <span title="The team in charge of resolving the error.">ℹ️</span></label>
-                        <input type="text" class="form-control" id="teamResponsible" name="team_responsible">
-                    </div>
-                    <div class="form-group">
-                        <label for="analystErrorNormal">Is this a normal error (no real impact)? <span title="Check this box if the error has no significant impact on the system.">ℹ️</span></label>
-                        <input type="checkbox" id="analystErrorNormal" name="erreur_normale">
-                    </div>
-                    <div class="form-group">
-                        <label for="frequence">Error Frequency <span title="The frequency of the error: isolated, recurring, or frequent.">ℹ️</span></label>
-                        <select class="form-control" id="frequence" name="frequence">
-                            <option value="Isolated">Isolated</option>
-                            <option value="Recurring">Recurring</option>
-                            <option value="Frequent">Frequent</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="statutResolution">Resolution Status <span title="The current resolution status of the error.">ℹ️</span></label>
-                        <select class="form-control" id="statutResolution" name="statut_resolution">
-                            <option value="Not started">Not started</option>
-                            <option value="In progress">In progress</option>
-                            <option value="Resolved">Resolved</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="analysts">Analysts Involved <span title="List of analysts involved in resolving the error.">ℹ️</span></label>
-                        <textarea class="form-control" id="analysts" name="analysts" rows="3"></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label for="impactUtilisateur">Impact on Users <span title="Describe the impact of the error on end users.">ℹ️</span></label>
-                        <input type="text" class="form-control" id="impactUtilisateur" name="impact_utilisateur">
-                    </div>
-                    <div class="form-group">
-                        <label for="typeErreur">Error Type <span title="The type or category of the error.">ℹ️</span></label>
-                        <input type="text" class="form-control" id="typeErreur" name="type_erreur">
-                    </div>
-                    <div class="form-group">
-                        <label for="historiqueActions">Action History <span title="Details of actions taken to resolve the error.">ℹ️</span></label>
-                        <textarea class="form-control" id="historiqueActions" name="historique_actions" rows="3">{{ data.historique_actions }}</textarea>
-                    </div>
-                    <div class="form-group">
-                        <label for="versionSysteme">System Version <span title="The version of the system where the error occurred.">ℹ️</span></label>
-                        <input type="text" class="form-control" id="versionSysteme" name="version_systeme" value="{{ data.version_systeme }}">
-                    </div>
-                    <div class="form-group">
-                        <label for="comportementAttendu">Expected Behavior <span title="Describe the expected behavior of the system.">ℹ️</span></label>
-                        <textarea class="form-control" id="comportementAttendu" name="comportement_attendu" rows="3">{{ data.comportement_attendu }}</textarea>
-                    </div>
-                    <div class="form-group">
-                        <label for="comportementObserve">Observed Behavior <span title="Describe the behavior observed during the error.">ℹ️</span></label>
-                        <textarea class="form-control" id="comportementObserve" name="comportement_observe" rows="3">{{ data.comportement_observe }}</textarea>
-                    </div>
-                    <div class="form-group">
-                        <label for="delaiResolution">Estimated Resolution Time <span title="The estimated time needed to resolve the error.">ℹ️</span></label>
-                        <input type="text" class="form-control" id="delaiResolution" name="delai_resolution" value="{{ data.delai_resolution }}">
-                    </div>
-                    <div class="form-group">
-                        <label for="delaiEcoule">Elapsed Time <span title="The time that has elapsed since the error was recorded.">ℹ️</span></label>
-                        <input type="text" class="form-control" id="delaiEcoule" name="delai_ecoule" value="{{ data.delai_ecoule }}">
-                    </div>
-                    <div class="form-group">
-                        <label for="impactFinancier">Financial Impact <span title="The financial cost associated with the error.">ℹ️</span></label>
-                        <input type="text" class="form-control" id="impactFinancier" name="impact_financier" value="{{ data.impact_financier }}">
-                    </div>
-                    <div class="form-group">
-                        <label for="nombreUtilisateurs">Number of Users Affected <span title="The total number of users impacted by the error.">ℹ️</span></label>
-                        <input type="number" class="form-control" id="nombreUtilisateurs" name="nombre_utilisateurs_impactes" value="{{ data.nombre_utilisateurs_impactes }}">
-                    </div>
-                    <div class="form-group">
-                        <label for="zoneGeographique">Geographical Zone Affected <span title="The geographical area affected by the error.">ℹ️</span></label>
-                        <input type="text" class="form-control" id="zoneGeographique" name="zone_geographique_affectee" value="{{ data.zone_geographique_affectee }}">
-                    </div>
-                    <div class="form-group">
-                        <label for="categorieErreur">Error Category <span title="The category or classification of the error.">ℹ️</span></label>
-                        <input type="text" class="form-control" id="categorieErreur" name="categorie_erreur" value="{{ data.categorie_erreur }}">
-                    </div>
-                    <div class="form-group">
-                        <label for="niveauCriticite">Criticality Level <span title="The severity or criticality level of the error.">ℹ️</span></label>
-                        <input type="number" class="form-control" id="niveauCriticite" name="niveau_criticite" value="{{ data.niveau_criticite }}">
-                    </div>
-                
-                    <input type="hidden" name="data_id" value="{{ data.id }}">
-                    <button type="submit" class="btn btn-primary">Submit</button>
-                </form>          
             </div>
         </div>
     </div>

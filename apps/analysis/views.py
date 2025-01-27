@@ -61,4 +61,68 @@ def index(request):
     # Passer les fiches d'erreurs au template
     return render(request, 'analysis/analysis_home.html', {'fiche_erreurs': fiche_erreurs})
 
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib import messages
+from django.http import HttpResponseRedirect
+from django.urls import reverse
+from .models import FicheErreur
 
+def update_fiche_erreur(request):
+    if request.method == 'POST':
+        # Get the fiche erreur instance
+        fiche_id = request.POST.get('data_id')
+        fiche = get_object_or_404(FicheErreur, id=fiche_id)
+        
+        # Update basic information
+        fiche.system_name = request.POST.get('system_name')
+        fiche.service_type = request.POST.get('service_type')
+        fiche.service_name = request.POST.get('service_name')
+        fiche.error_reason = request.POST.get('error_reason')
+        
+        # Update status and priority
+        fiche.priorite = request.POST.get('priorite')
+        fiche.priorite_numerique = request.POST.get('priorite_numerique')
+        fiche.niveau_criticite = request.POST.get('niveau_criticite')
+        
+        # Update error details
+        fiche.symptomes_observes = request.POST.get('symptomes_observes')
+        fiche.logs_messages = request.POST.get('logs_messages')
+        fiche.services_affectes = request.POST.get('services_affectes')
+        fiche.cause = request.POST.get('cause')
+        
+        # Update resolution information
+        fiche.solution_proposee = request.POST.get('solution_proposee')
+        fiche.solution_implantee = request.POST.get('solution_implantee')
+        fiche.efficacite_solution = request.POST.get('efficacite_solution')
+        fiche.tests_effectues = request.POST.get('tests_effectues')
+        
+        # Update technical information
+        fiche.code_erreur = request.POST.get('code_erreur')
+        fiche.version_systeme = request.POST.get('version_systeme')
+        fiche.charge_systeme = request.POST.get('charge_systeme')
+        fiche.fichiers_impactes = request.POST.get('fichiers_impactes')
+        
+        # Update impact assessment
+        fiche.impact_financier = request.POST.get('impact_financier')
+        fiche.nombre_utilisateurs_impactes = request.POST.get('nombre_utilisateurs_impactes')
+        fiche.zone_geographique_affectee = request.POST.get('zone_geographique_affectee')
+        
+        # Update communication and collaboration
+        fiche.canaux_communication = request.POST.get('canaux_communication')
+        fiche.notifications_envoyees = request.POST.get('notifications_envoyees') in ['on', True, 'true', '1']
+        fiche.parties_prenantes = request.POST.get('parties_prenantes')
+        
+        # Update additional options
+        fiche.automatisation_possible = request.POST.get('automatisation_possible') in ['on', True, 'true', '1']
+        fiche.resolution_automatique_possible = request.POST.get('resolution_automatique_possible') in ['on', True, 'true', '1']
+        
+        try:
+            fiche.save()
+            messages.success(request, 'Error report successfully updated.')
+            return redirect('analysis:index')  # Redirects to main analysis page
+        except Exception as e:
+            messages.error(request, f'Error updating report: {str(e)}')
+            return redirect('analysis:index')  # Redirects to main analysis page on error
+            
+    # If not POST, redirect to main analysis page
+    return redirect('analysis:index')
