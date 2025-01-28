@@ -442,8 +442,8 @@
                     // Show a success message
                     alert('Form submitted successfully for data_id: ' + dataId);
 
-                    // Close the modal dynamically using dataId
-                    $('#errorFormModal' + dataId).modal('hide');
+                    // Reload the Page
+                    location.reload();
                 },
                 error: function(xhr, errmsg, err) {
                     console.log('Error:', xhr.responseText); // Log the response for debugging
