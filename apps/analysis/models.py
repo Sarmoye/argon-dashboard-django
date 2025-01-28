@@ -10,6 +10,7 @@ class FicheErreur(models.Model):
     error_count = models.IntegerField()
     error_reason = models.TextField()
     timestamp = models.DateTimeField()
+    source_timestamp = models.DateTimeField()
     priorite = models.CharField(max_length=50, default="Normale")
     statut = models.CharField(max_length=50, default="Ouvert")
     symptomes_observes = models.TextField(blank=True)

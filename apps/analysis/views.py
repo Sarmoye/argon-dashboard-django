@@ -49,6 +49,7 @@ def index(request):
                 error_count=data.error_count,
                 error_reason=data.error_reason,
                 timestamp=data.timestamp,
+                source_timestamp=data.timestamp,
                 priorite='Normale',  # Valeur par défaut
                 statut='Ouvert',  # Valeur par défaut
                 source_data_id=data.id,  # Assurez-vous que la fiche est liée à la SourceData
