@@ -425,6 +425,10 @@
             var form = $(this);
             var formData = new FormData(this); // Collect the form data
 
+            // Retrieve the data_id value from the hidden input
+            var dataId = form.find('input[name="data_id"]').val();
+            console.log('Submitting form for data_id:', dataId); // Debugging log
+
             // Disable the submit button to prevent multiple submissions
             form.find('button[type="submit"]').prop('disabled', true);
 
@@ -435,10 +439,11 @@
                 processData: false,        // Don't process the data
                 contentType: false,        // Don't set content type
                 success: function (response) {
-                    // Handle success (e.g., show a success message)
-                    alert('Form submitted successfully!');
-                    // Optionally, close the modal after successful submission
-                    $('#' + form.closest('.modal').attr('id')).modal('hide');
+                    // Show a success message
+                    alert('Form submitted successfully for data_id: ' + dataId);
+
+                    // Close the modal dynamically using dataId
+                    $('#errorFormModal' + dataId).modal('hide');
                 },
                 error: function(xhr, errmsg, err) {
                     console.log('Error:', xhr.responseText); // Log the response for debugging
