@@ -12,18 +12,21 @@
         border-collapse: collapse; /* Collapse table borders */
         border: 1px solid #ddd; /* Add border to table */
     }
+    
     #dataTable th, #dataTable td {
         border: 1px solid #ddd; /* Add border to table cells */
         padding: 8px; /* Add padding to table cells */
     }
+
     #dataTable th {
         background-color: #f2f2f2; /* Set background color for table header */
     }
+
     #dataTable tbody tr:nth-child(even) {
         background-color: #f2f2f2; /* Set background color for even rows */
         color: rgb(0, 0, 0);
     }
-    
+
     .is-invalid {
     border-color: #dc3545;
     padding-right: calc(1.5em + 0.75rem) !important;
@@ -456,90 +459,121 @@
         const $field = $(field);
         const value = $field.val();
         const fieldName = $field.attr('name');
-        const isRequired = $field.prop('required');
         
         // Clear existing errors
         $field.removeClass('is-invalid');
         $field.next('.invalid-feedback').remove();
 
-        // Required field validation
-        if (isRequired && !value) {
+        // Required fields validation (only Basic Information fields)
+        const requiredFields = ['system_name', 'service_type', 'service_name', 'error_reason'];
+        if (requiredFields.includes(fieldName) && !value.trim()) {
             $field.addClass('is-invalid');
             $field.after(`<div class="invalid-feedback">This field is required</div>`);
             return false;
         }
 
-        // Specific field validations
-        switch (fieldName) {
-            case 'system_name':
-                if (value.length > 50) {
-                    $field.addClass('is-invalid');
-                    $field.after(`<div class="invalid-feedback">System name cannot exceed 50 characters</div>`);
-                    return false;
-                }
-                break;
+        // Optional field validations (only validate if there's a value)
+        if (value.trim()) {
+            switch (fieldName) {
+                case 'system_name':
+                    if (value.length > 50) {
+                        $field.addClass('is-invalid');
+                        $field.after(`<div class="invalid-feedback">System name cannot exceed 50 characters</div>`);
+                        return false;
+                    }
+                    break;
 
-            case 'service_type':
-            case 'service_name':
-                if (value.length > 100) {
-                    $field.addClass('is-invalid');
-                    $field.after(`<div class="invalid-feedback">Cannot exceed 100 characters</div>`);
-                    return false;
-                }
-                break;
+                case 'service_type':
+                case 'service_name':
+                    if (value.length > 100) {
+                        $field.addClass('is-invalid');
+                        $field.after(`<div class="invalid-feedback">Cannot exceed 100 characters</div>`);
+                        return false;
+                    }
+                    break;
 
-            case 'priorite_numerique':
-                const prioNum = parseInt(value);
-                if (value && (prioNum < 1 || prioNum > 5)) {
-                    $field.addClass('is-invalid');
-                    $field.after(`<div class="invalid-feedback">Priority must be between 1 and 5</div>`);
-                    return false;
-                }
-                break;
+                case 'priorite_numerique':
+                    const prioNum = parseInt(value);
+                    if (isNaN(prioNum) || prioNum < 1 || prioNum > 10) {
+                        $field.addClass('is-invalid');
+                        $field.after(`<div class="invalid-feedback">Priority must be between 1 and 10</div>`);
+                        return false;
+                    }
+                    break;
 
-            case 'niveau_criticite':
-                const critNum = parseInt(value);
-                if (value && (critNum < 1 || critNum > 5)) {
-                    $field.addClass('is-invalid');
-                    $field.after(`<div class="invalid-feedback">Criticality must be between 1 and 5</div>`);
-                    return false;
-                }
-                break;
+                case 'niveau_criticite':
+                    const critNum = parseInt(value);
+                    if (isNaN(critNum) || critNum < 1 || critNum > 5) {
+                        $field.addClass('is-invalid');
+                        $field.after(`<div class="invalid-feedback">Criticality must be between 1 and 5</div>`);
+                        return false;
+                    }
+                    break;
 
-            case 'efficacite_solution':
-                const effNum = parseInt(value);
-                if (value && (effNum < 1 || effNum > 10)) {
-                    $field.addClass('is-invalid');
-                    $field.after(`<div class="invalid-feedback">Effectiveness must be between 1 and 10</div>`);
-                    return false;
-                }
-                break;
+                case 'efficacite_solution':
+                    if (value) {
+                        const effNum = parseInt(value);
+                        if (isNaN(effNum) || effNum < 0 || effNum > 100) {
+                            $field.addClass('is-invalid');
+                            $field.after(`<div class="invalid-feedback">Effectiveness must be between 0 and 100</div>`);
+                            return false;
+                        }
+                    }
+                    break;
 
-            case 'charge_systeme':
-                const loadNum = parseFloat(value);
-                if (value && (loadNum < 0 || loadNum > 100)) {
-                    $field.addClass('is-invalid');
-                    $field.after(`<div class="invalid-feedback">System load must be between 0 and 100</div>`);
-                    return false;
-                }
-                break;
+                case 'charge_systeme':
+                    if (value) {
+                        const loadNum = parseFloat(value);
+                        if (isNaN(loadNum) || loadNum < 0 || loadNum > 100) {
+                            $field.addClass('is-invalid');
+                            $field.after(`<div class="invalid-feedback">System load must be between 0 and 100</div>`);
+                            return false;
+                        }
+                    }
+                    break;
 
-            case 'impact_financier':
-                if (value && isNaN(value)) {
-                    $field.addClass('is-invalid');
-                    $field.after(`<div class="invalid-feedback">Please enter a valid number</div>`);
-                    return false;
-                }
-                break;
+                case 'impact_financier':
+                    if (value && isNaN(parseFloat(value))) {
+                        $field.addClass('is-invalid');
+                        $field.after(`<div class="invalid-feedback">Please enter a valid number</div>`);
+                        return false;
+                    }
+                    break;
 
-            case 'nombre_utilisateurs_impactes':
-                const userNum = parseInt(value);
-                if (value && (userNum < 0 || isNaN(userNum))) {
-                    $field.addClass('is-invalid');
-                    $field.after(`<div class="invalid-feedback">Please enter a valid positive number</div>`);
-                    return false;
-                }
-                break;
+                case 'nombre_utilisateurs_impactes':
+                    if (value) {
+                        const userNum = parseInt(value);
+                        if (isNaN(userNum) || userNum < 0) {
+                            $field.addClass('is-invalid');
+                            $field.after(`<div class="invalid-feedback">Please enter a valid positive number</div>`);
+                            return false;
+                        }
+                    }
+                    break;
+
+                // Character length validations for optional fields
+                case 'code_erreur':
+                case 'categorie_erreur':
+                    if (value.length > 50) {
+                        $field.addClass('is-invalid');
+                        $field.after(`<div class="invalid-feedback">Cannot exceed 50 characters</div>`);
+                        return false;
+                    }
+                    break;
+
+                case 'zone_geographique_affectee':
+                case 'canaux_communication':
+                case 'impact_utilisateur':
+                case 'frequence':
+                case 'version_systeme':
+                case 'etape_detection':
+                    if (value.length > 100) {
+                        $field.addClass('is-invalid');
+                        $field.after(`<div class="invalid-feedback">Cannot exceed 100 characters</div>`);
+                        return false;
+                    }
+                    break;
+            }
         }
 
         return true;
