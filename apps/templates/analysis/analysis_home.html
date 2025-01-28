@@ -453,7 +453,7 @@
         });
     </script>
 <script>
-    $(document).ready(function () {
+$(document).ready(function () {
     // Function to validate a single field
     function validateField(field) {
         const $field = $(field);
@@ -605,10 +605,12 @@
             </div>
         `;
         
-        $(`#${formId}`).prepend(alert);
-        
+        // Append the alert to the body to make it fixed
+        $('body').prepend(alert);
+
+        // Automatically hide and remove the notification after 5 seconds
         setTimeout(() => {
-            $(`#${formId} .alert`).fadeOut('slow', function() {
+            $('.alert').fadeOut('slow', function() {
                 $(this).remove();
             });
         }, 5000);
