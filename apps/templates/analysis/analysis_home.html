@@ -609,16 +609,8 @@ $(document).ready(function () {
                 </button>
             </div>
         `;
-        
-        // Prepend the alert to the form
-        $(`#${formId}`).prepend(alert);
-        
-        // Auto-hide the alert after 5 seconds
-        setTimeout(() => {
-            $(`#${formId} .alert`).fadeOut('slow', function() {
-                $(this).remove();
-            });
-        }, 5000);
+
+        alert(alert);
     }
 
     // Handle form submission
