@@ -438,7 +438,7 @@
                     // Handle success (e.g., show a success message)
                     alert('Form submitted successfully!');
                     // Optionally, close the modal after successful submission
-                    $('#errorFormModal{{ data.id }}').modal('hide');
+                    $('#' + form.closest('.modal').attr('id')).modal('hide');
                 },
                 error: function(xhr, errmsg, err) {
                     console.log('Error:', xhr.responseText); // Log the response for debugging
