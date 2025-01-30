@@ -198,17 +198,21 @@
                         </div>
                         <div class="card-body">
                             <div class="row">
-                                <div class="col-md-4 mb-3">
+                                <div class="col-md-4 mb-4">
                                     <label class="font-weight-bold" for="system_name">System Name</label>
                                     <input type="text" class="form-control" id="system_name" name="system_name" value="{{ data.system_name }}" required disabled>
                                 </div>
-                                <div class="col-md-4 mb-3">
+                                <div class="col-md-4 mb-4">
                                     <label class="font-weight-bold" for="service_type">Service Type</label>
                                     <input type="text" class="form-control" id="service_type" name="service_type" value="{{ data.service_type }}" required disabled>
                                 </div>
-                                <div class="col-md-4 mb-3">
+                                <div class="col-md-4 mb-4">
                                     <label class="font-weight-bold" for="service_name">Service Name</label>
                                     <input type="text" class="form-control" id="service_name" name="service_name" value="{{ data.service_name }}" required disabled>
+                                </div>
+                                <div class="col-md-4 mb-4">
+                                    <label class="font-weight-bold" for="error_count">Error Count</label>
+                                    <input type="number" class="form-control" id="error_count" name="error_count" value="{{ data.error_count }}" disabled>
                                 </div>
                             </div>
                             <div class="row">
