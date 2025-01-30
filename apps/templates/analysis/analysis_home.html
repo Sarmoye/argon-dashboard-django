@@ -618,13 +618,6 @@ $(document).ready(function () {
         
         // Prepend the alert to the form
         $(`#${formId}`).prepend(alert);
-        
-        // Auto-hide the alert after 20 seconds
-        setTimeout(() => {
-            $(`#${formId} .alert`).fadeOut('slow', function() {
-                $(this).remove();
-            });
-        }, 20000);
     }
 
     // Handle form submission
