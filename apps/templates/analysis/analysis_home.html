@@ -526,7 +526,7 @@ $(document).ready(function () {
 
                 case 'charge_systeme':
                     if (value) {
-                        const loadNum = parseFloat(value);
+                        const loadNum = parseInt(value);
                         if (isNaN(loadNum) || loadNum < 0 || loadNum > 100) {
                             $field.addClass('is-invalid');
                             $field.after(`<div class="invalid-feedback">System load must be between 0 and 100</div>`);
@@ -536,7 +536,7 @@ $(document).ready(function () {
                     break;
 
                 case 'impact_financier':
-                    if (value && isNaN(parseFloat(value))) {
+                    if (value && isNaN(parseInt(value))) {
                         $field.addClass('is-invalid');
                         $field.after(`<div class="invalid-feedback">Please enter a valid number</div>`);
                         return false;
