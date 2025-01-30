@@ -72,7 +72,7 @@ class FicheErreur(models.Model):
     # Informations techniques
     code_erreur = models.CharField(max_length=50, blank=True)  # Code d’erreur
     fichiers_impactes = models.TextField(blank=True)  # Fichiers/modules impactés
-    charge_systeme = models.DecimalField(max_digits=5, blank=True, null=True)  # Charge système
+    charge_systeme = models.DecimalField(max_digits=5, decimal_places=None, blank=True, null=True)  # Charge système
 
     # Analystes travaillant sur la fiche
     analysts = models.TextField(blank=True)  # Liste des analystes
