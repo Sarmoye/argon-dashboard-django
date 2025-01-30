@@ -113,6 +113,9 @@
         max-height: 80vh;
         overflow-y: auto;
     }
+    .modal-body {
+    scroll-behavior: smooth;
+    }
     
     .form-group label {
         margin-bottom: 0.5rem;
@@ -593,11 +596,15 @@ $(document).ready(function () {
         });
     });
 
-    // Function to show notifications
     function showNotification(formId, message, type = 'success') {
-        // Scroll the modal to the top before showing the notification
-        const modal = $(`#${formId}`).closest('.modal');  // Find the closest modal
-        modal.animate({ scrollTop: 0 }, 'smooth'); // Scroll to the top smoothly
+        // Find the modal body which is the scrollable container
+        const modalBody = $(`#${formId}`).closest('.modal-body');
+        
+        // Scroll the modal body to the top smoothly
+        modalBody.animate({ scrollTop: 0 }, {
+            duration: 300,  // Duration in milliseconds
+            easing: 'swing' // Default jQuery easing
+        });
         
         // Prepare the alert
         const alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
@@ -613,12 +620,12 @@ $(document).ready(function () {
         // Prepend the alert to the form
         $(`#${formId}`).prepend(alert);
         
-        // Auto-hide the alert after 10 seconds
+        // Auto-hide the alert after 20 seconds
         setTimeout(() => {
             $(`#${formId} .alert`).fadeOut('slow', function() {
                 $(this).remove();
             });
-        }, 10000);
+        }, 20000);
     }
 
     // Handle form submission
