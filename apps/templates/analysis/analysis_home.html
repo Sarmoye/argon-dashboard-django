@@ -194,7 +194,7 @@
                     <!-- Basic Information Section -->
                     <div class="card mb-4 bg-light">
                         <div class="card-header bg-secondary text-white">
-                            <h6 class="mb-0">Basic Information</h6>
+                            <h6 class="mb-0">Basics Informations</h6>
                         </div>
                         <div class="card-body">
                             <div class="row">
@@ -234,10 +234,13 @@
                                 <div class="col-md-4 mb-3">
                                     <label class="font-weight-bold" for="priorite">Priority</label>
                                     <select class="form-control" id="priorite" name="priorite">
+                                        <option value="Basse" {% if data.priorite == "Basse" %}selected{% endif %}>Low</option>
                                         <option value="Normale" {% if data.priorite == "Normale" %}selected{% endif %}>Normal</option>
-                                        <option value="Haute" {% if data.priorite == "Haute" %}selected{% endif %}>High</option>
+                                        <option value="Élevée" {% if data.priorite == "Élevée" %}selected{% endif %}>High</option>
                                         <option value="Urgente" {% if data.priorite == "Urgente" %}selected{% endif %}>Urgent</option>
-                                    </select>
+                                        <option value="Critique" {% if data.priorite == "Critique" %}selected{% endif %}>Critical</option>
+                                        <option value="Immédiate" {% if data.priorite == "Immédiate" %}selected{% endif %}>Immediate</option>
+                                    </select>                                    
                                 </div>
                                 <div class="col-md-4 mb-3">
                                     <label class="font-weight-bold" for="priorite_numerique">Numerical Priority (1-5)</label>
