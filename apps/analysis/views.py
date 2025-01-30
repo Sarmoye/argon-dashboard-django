@@ -72,6 +72,15 @@ def update_fiche_erreur(request):
         # Get the fiche erreur instance
         fiche_id = request.POST.get('data_id')
         fiche = get_object_or_404(FicheErreur, id=fiche_id)
+
+        # Get the username from the request
+        username = request.user.username  # Assuming the user is authenticated
+        
+        # Update the analysts field
+        if fiche.analysts:  # If there are already analysts, append the new one
+            fiche.analysts += f", {username}"
+        else:  # If no analysts are present, set the field to the current username
+            fiche.analysts = username
         
         # Update basic information
         fiche.system_name = request.POST.get('system_name')

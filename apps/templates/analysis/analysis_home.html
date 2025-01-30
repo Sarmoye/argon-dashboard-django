@@ -200,21 +200,21 @@
                             <div class="row">
                                 <div class="col-md-4 mb-3">
                                     <label class="font-weight-bold" for="system_name">System Name</label>
-                                    <input type="text" class="form-control" id="system_name" name="system_name" value="{{ data.system_name }}" required>
+                                    <input type="text" class="form-control" id="system_name" name="system_name" value="{{ data.system_name }}" required disabled>
                                 </div>
                                 <div class="col-md-4 mb-3">
                                     <label class="font-weight-bold" for="service_type">Service Type</label>
-                                    <input type="text" class="form-control" id="service_type" name="service_type" value="{{ data.service_type }}" required>
+                                    <input type="text" class="form-control" id="service_type" name="service_type" value="{{ data.service_type }}" required disabled>
                                 </div>
                                 <div class="col-md-4 mb-3">
                                     <label class="font-weight-bold" for="service_name">Service Name</label>
-                                    <input type="text" class="form-control" id="service_name" name="service_name" value="{{ data.service_name }}" required>
+                                    <input type="text" class="form-control" id="service_name" name="service_name" value="{{ data.service_name }}" required disabled>
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col-md-12 mb-3">
                                     <label class="font-weight-bold" for="error_reason">Error Reason</label>
-                                    <textarea class="form-control" id="error_reason" name="error_reason" rows="3" required>{{ data.error_reason }}</textarea>
+                                    <textarea class="form-control" id="error_reason" name="error_reason" rows="3" disabled required>{{ data.error_reason }}</textarea>
                                 </div>
                             </div>
                         </div>
@@ -395,8 +395,8 @@
                             <div class="row">
                                 <div class="col-md-6 mb-3">
                                     <div class="custom-control custom-checkbox">
-                                        <input type="checkbox" class="custom-control-input" id="automatisation_possible" name="automatisation_possible" {% if data.automatisation_possible %}checked{% endif %}>
-                                        <label class="custom-control-label" for="automatisation_possible">Automatic Diagnosis/Correction Possible</label>
+                                        <input type="checkbox" class="custom-control-input" id="analysts" name="analysts" {% if data.analysts %}checked{% endif %}>
+                                        <label class="custom-control-label" for="analysts">Automatic Diagnosis/Correction Possible</label>
                                     </div>
                                 </div>
                                 <div class="col-md-6 mb-3">
@@ -404,6 +404,21 @@
                                         <input type="checkbox" class="custom-control-input" id="resolution_automatique_possible" name="resolution_automatique_possible" {% if data.resolution_automatique_possible %}checked{% endif %}>
                                         <label class="custom-control-label" for="resolution_automatique_possible">Future Automation Possible</label>
                                     </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Analysts -->
+                    <div class="card mb-4">
+                        <div class="card-header bg-primary text-white">
+                            <h6 class="mb-0">All Analysts</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-12 mb-3">
+                                    <label class="font-weight-bold" for="parties_prenantes">Analysts</label>
+                                    <textarea class="form-control" id="parties_prenantes" name="parties_prenantes" rows="2" disabled>{{ data.analysts }}</textarea>
                                 </div>
                             </div>
                         </div>
