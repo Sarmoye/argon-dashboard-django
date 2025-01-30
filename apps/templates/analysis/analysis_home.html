@@ -600,10 +600,9 @@ $(document).ready(function () {
         // Find the modal body which is the scrollable container
         const modalBody = $(`#${formId}`).closest('.modal-body');
         
-        // Scroll the modal body to the top smoothly
         modalBody.animate({ scrollTop: 0 }, {
-            duration: 300,  // Duration in milliseconds
-            easing: 'swing' // Default jQuery easing
+            duration: 10000,  // Duration in milliseconds (10 seconds)
+            easing: 'linear'  // Linear easing for constant speed
         });
         
         // Prepare the alert
