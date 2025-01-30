@@ -194,21 +194,25 @@
                     <!-- Basic Information Section -->
                     <div class="card mb-4 bg-light">
                         <div class="card-header bg-secondary text-white">
-                            <h6 class="mb-0">Basic Information</h6>
+                            <h6 class="mb-0">Basics Informations</h6>
                         </div>
                         <div class="card-body">
                             <div class="row">
-                                <div class="col-md-4 mb-3">
+                                <div class="col-md-4 mb-4">
                                     <label class="font-weight-bold" for="system_name">System Name</label>
                                     <input type="text" class="form-control" id="system_name" name="system_name" value="{{ data.system_name }}" required>
                                 </div>
-                                <div class="col-md-4 mb-3">
+                                <div class="col-md-4 mb-4">
                                     <label class="font-weight-bold" for="service_type">Service Type</label>
                                     <input type="text" class="form-control" id="service_type" name="service_type" value="{{ data.service_type }}" required>
                                 </div>
-                                <div class="col-md-4 mb-3">
+                                <div class="col-md-4 mb-4">
                                     <label class="font-weight-bold" for="service_name">Service Name</label>
                                     <input type="text" class="form-control" id="service_name" name="service_name" value="{{ data.service_name }}" required>
+                                </div>
+                                <div class="col-md-4 mb-4">
+                                    <label class="font-weight-bold" for="error_count">Error Count</label>
+                                    <input type="number" class="form-control" id="error_count" name="error_count" value="{{ data.error_count }}">
                                 </div>
                             </div>
                             <div class="row">
@@ -230,10 +234,13 @@
                                 <div class="col-md-4 mb-3">
                                     <label class="font-weight-bold" for="priorite">Priority</label>
                                     <select class="form-control" id="priorite" name="priorite">
+                                        <option value="Basse" {% if data.priorite == "Basse" %}selected{% endif %}>Low</option>
                                         <option value="Normale" {% if data.priorite == "Normale" %}selected{% endif %}>Normal</option>
-                                        <option value="Haute" {% if data.priorite == "Haute" %}selected{% endif %}>High</option>
+                                        <option value="Élevée" {% if data.priorite == "Élevée" %}selected{% endif %}>High</option>
                                         <option value="Urgente" {% if data.priorite == "Urgente" %}selected{% endif %}>Urgent</option>
-                                    </select>
+                                        <option value="Critique" {% if data.priorite == "Critique" %}selected{% endif %}>Critical</option>
+                                        <option value="Immédiate" {% if data.priorite == "Immédiate" %}selected{% endif %}>Immediate</option>
+                                    </select>                                    
                                 </div>
                                 <div class="col-md-4 mb-3">
                                     <label class="font-weight-bold" for="priorite_numerique">Numerical Priority (1-5)</label>
@@ -395,8 +402,8 @@
                             <div class="row">
                                 <div class="col-md-6 mb-3">
                                     <div class="custom-control custom-checkbox">
-                                        <input type="checkbox" class="custom-control-input" id="automatisation_possible" name="automatisation_possible" {% if data.automatisation_possible %}checked{% endif %}>
-                                        <label class="custom-control-label" for="automatisation_possible">Automatic Diagnosis/Correction Possible</label>
+                                        <input type="checkbox" class="custom-control-input" id="analysts" name="analysts" {% if data.analysts %}checked{% endif %}>
+                                        <label class="custom-control-label" for="analysts">Automatic Diagnosis/Correction Possible</label>
                                     </div>
                                 </div>
                                 <div class="col-md-6 mb-3">
@@ -404,6 +411,21 @@
                                         <input type="checkbox" class="custom-control-input" id="resolution_automatique_possible" name="resolution_automatique_possible" {% if data.resolution_automatique_possible %}checked{% endif %}>
                                         <label class="custom-control-label" for="resolution_automatique_possible">Future Automation Possible</label>
                                     </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Analysts -->
+                    <div class="card mb-4">
+                        <div class="card-header bg-primary text-white">
+                            <h6 class="mb-0">All Analysts</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-12 mb-3">
+                                    <label class="font-weight-bold" for="analysts">Analysts</label>
+                                    <textarea class="form-control" id="analysts" name="analysts" rows="2" disabled>{{ data.analysts }}</textarea>
                                 </div>
                             </div>
                         </div>
