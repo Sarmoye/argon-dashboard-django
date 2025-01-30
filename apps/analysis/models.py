@@ -40,7 +40,7 @@ class FicheErreur(models.Model):
     delai_ecoule = models.DurationField(blank=True, null=True)  # Temps écoulé depuis détection
 
     # Impact et gravité
-    impact_financier = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)  # Impact financier
+    impact_financier = models.DecimalField(max_digits=10, blank=True, null=True)  # Impact financier
     nombre_utilisateurs_impactes = models.IntegerField(blank=True, null=True)  # Nombre d’utilisateurs touchés
     zone_geographique_affectee = models.CharField(max_length=100, blank=True)  # Zone affectée
 
@@ -72,7 +72,7 @@ class FicheErreur(models.Model):
     # Informations techniques
     code_erreur = models.CharField(max_length=50, blank=True)  # Code d’erreur
     fichiers_impactes = models.TextField(blank=True)  # Fichiers/modules impactés
-    charge_systeme = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True)  # Charge système
+    charge_systeme = models.DecimalField(max_digits=5, blank=True, null=True)  # Charge système
 
     # Analystes travaillant sur la fiche
     analysts = models.TextField(blank=True)  # Liste des analystes
