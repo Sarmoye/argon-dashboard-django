@@ -76,9 +76,11 @@ def update_fiche_erreur(request):
         # Get the username from the request
         username = request.user.username  # Assuming the user is authenticated
         
-        # Update the analysts field
-        if fiche.analysts:  # If there are already analysts, append the new one
-            fiche.analysts += f", {username}"
+        # Update the analysts field only if the username is not already present
+        if fiche.analysts:  # If there are already analysts
+            analysts_list = fiche.analysts.split(", ")  # Split into a list
+            if username not in analysts_list:  # Check if the username is not already in the list
+                fiche.analysts += f", {username}"  # Append the new username
         else:  # If no analysts are present, set the field to the current username
             fiche.analysts = username
         
