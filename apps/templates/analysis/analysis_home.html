@@ -601,8 +601,8 @@ $(document).ready(function () {
         const modalBody = $(`#${formId}`).closest('.modal-body');
         
         modalBody.animate({ scrollTop: 0 }, {
-            duration: 10000,  // Duration in milliseconds (10 seconds)
-            easing: 'linear'  // Linear easing for constant speed
+            duration: 30000,  // Duration in milliseconds (10 seconds)
+            easing: 'swing'
         });
         
         // Prepare the alert
@@ -618,6 +618,13 @@ $(document).ready(function () {
         
         // Prepend the alert to the form
         $(`#${formId}`).prepend(alert);
+        
+        // Auto-hide the alert after 20 seconds
+        setTimeout(() => {
+            $(`#${formId} .alert`).fadeOut('slow', function() {
+                $(this).remove();
+            });
+        }, 40000);
     }
 
     // Handle form submission
