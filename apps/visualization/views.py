@@ -36,7 +36,7 @@ def index(request):
     
     # Filtrer pour éviter les doublons sur les clés spécifiques
     distinct_errors = FicheErreur.objects.values(
-        "system_name", "service_type", "service_name", "error_reason", "gravite", "statut"
+        "system_name", "service_type", "service_name", "error_reason"
     ).distinct()
 
     # Nombre total d'erreurs distinctes
