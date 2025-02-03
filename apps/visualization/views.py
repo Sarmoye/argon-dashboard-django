@@ -29,7 +29,6 @@ def check_user_role(user, allowed_roles=None):
 
 from django.db.models import Count, Sum
 from django.shortcuts import render
-from apps.error_management.models import FicheErreur, SourceData
 
 def index(request):
     # Trier les données par timestamp en ordre décroissant
