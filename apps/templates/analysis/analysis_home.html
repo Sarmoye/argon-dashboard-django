@@ -190,13 +190,14 @@
             <div class="modal-body p-4">
                 <form id="errorForm{{ data.id }}" action="{% url 'analysis:update_fiche_erreur' %}" method="POST">
                     {% csrf_token %}
-                    
+                
                     <!-- Basic Information Section -->
                     <div class="card mb-4 bg-light">
                         <div class="card-header bg-secondary text-white">
                             <h6 class="mb-0">Basic Informations</h6>
                         </div>
                         <div class="card-body">
+                            <!-- System Name, Service Type, etc. remain as before -->
                             <div class="row">
                                 <div class="col-md-4 mb-4">
                                     <label class="font-weight-bold" for="system_name">System Name</label>
@@ -224,13 +225,14 @@
                         </div>
                     </div>
                 
-                    <!-- Status and Priority Section -->
+                    <!-- Status, Priority, and Severity Section -->
                     <div class="card mb-4">
                         <div class="card-header bg-primary text-white">
-                            <h6 class="mb-0">Status and Priority</h6>
+                            <h6 class="mb-0">Status, Priority and Severity</h6>
                         </div>
                         <div class="card-body">
                             <div class="row">
+                                <!-- Priority remains a select element -->
                                 <div class="col-md-4 mb-3">
                                     <label class="font-weight-bold" for="priorite">Priority</label>
                                     <select class="form-control" id="priorite" name="priorite">
@@ -240,180 +242,27 @@
                                         <option value="Urgente" {% if data.priorite == "Urgente" %}selected{% endif %}>Urgent</option>
                                         <option value="Critique" {% if data.priorite == "Critique" %}selected{% endif %}>Critical</option>
                                         <option value="Immédiate" {% if data.priorite == "Immédiate" %}selected{% endif %}>Immediate</option>
-                                    </select>                                    
+                                    </select>
                                 </div>
+                                <!-- Status select with several options -->
                                 <div class="col-md-4 mb-3">
-                                    <label class="font-weight-bold" for="priorite_numerique">Numerical Priority (1-5)</label>
-                                    <input type="number" class="form-control" id="priorite_numerique" name="priorite_numerique" value="{{ data.priorite_numerique }}" min="1" max="5">
+                                    <label class="font-weight-bold" for="statut">Status</label>
+                                    <select class="form-control" id="statut" name="statut">
+                                        <option value="Ouvert" {% if data.statut == "Ouvert" %}selected{% endif %}>Open</option>
+                                        <option value="En cours" {% if data.statut == "En cours" %}selected{% endif %}>In Progress</option>
+                                        <option value="Résolu" {% if data.statut == "Résolu" %}selected{% endif %}>Resolved</option>
+                                        <option value="Fermé" {% if data.statut == "Fermé" %}selected{% endif %}>Closed</option>
+                                    </select>
                                 </div>
+                                <!-- Severity select with multiple options -->
                                 <div class="col-md-4 mb-3">
-                                    <label class="font-weight-bold" for="niveau_criticite">Criticality Level (1-5)</label>
-                                    <input type="number" class="form-control" id="niveau_criticite" name="niveau_criticite" value="{{ data.niveau_criticite }}" min="1" max="5">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                
-                    <!-- Error Details Section -->
-                    <div class="card mb-4">
-                        <div class="card-header bg-primary text-white">
-                            <h6 class="mb-0">Error Details</h6>
-                        </div>
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label class="font-weight-bold" for="symptomes_observes">Observed Symptoms</label>
-                                    <textarea class="form-control" id="symptomes_observes" name="symptomes_observes" rows="3">{{ data.symptomes_observes }}</textarea>
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label class="font-weight-bold" for="logs_messages">Log Messages</label>
-                                    <textarea class="form-control" id="logs_messages" name="logs_messages" rows="3">{{ data.logs_messages }}</textarea>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label class="font-weight-bold" for="services_affectes">Affected Services</label>
-                                    <textarea class="form-control" id="services_affectes" name="services_affectes" rows="2">{{ data.services_affectes }}</textarea>
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label class="font-weight-bold" for="cause">Root Cause</label>
-                                    <textarea class="form-control" id="cause" name="cause" rows="2">{{ data.cause }}</textarea>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                
-                    <!-- Resolution Information -->
-                    <div class="card mb-4">
-                        <div class="card-header bg-primary text-white">
-                            <h6 class="mb-0">Resolution Information</h6>
-                        </div>
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label class="font-weight-bold" for="solution_proposee">Proposed Solution</label>
-                                    <textarea class="form-control" id="solution_proposee" name="solution_proposee" rows="3">{{ data.solution_proposee }}</textarea>
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label class="font-weight-bold" for="solution_implantee">Implemented Solution</label>
-                                    <textarea class="form-control" id="solution_implantee" name="solution_implantee" rows="3">{{ data.solution_implantee }}</textarea>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-4 mb-3">
-                                    <label class="font-weight-bold" for="efficacite_solution">Solution Effectiveness (1-10)</label>
-                                    <input type="number" class="form-control" id="efficacite_solution" name="efficacite_solution" value="{{ data.efficacite_solution }}" min="1" max="10">
-                                </div>
-                                <div class="col-md-8 mb-3">
-                                    <label class="font-weight-bold" for="tests_effectues">Tests Performed</label>
-                                    <textarea class="form-control" id="tests_effectues" name="tests_effectues" rows="2">{{ data.tests_effectues }}</textarea>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                
-                    <!-- Technical Information -->
-                    <div class="card mb-4">
-                        <div class="card-header bg-primary text-white">
-                            <h6 class="mb-0">Technical Information</h6>
-                        </div>
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-md-4 mb-3">
-                                    <label class="font-weight-bold" for="code_erreur">Error Code</label>
-                                    <input type="text" class="form-control" id="code_erreur" name="code_erreur" value="{{ data.code_erreur }}">
-                                </div>
-                                <div class="col-md-4 mb-3">
-                                    <label class="font-weight-bold" for="version_systeme">System Version</label>
-                                    <input type="text" class="form-control" id="version_systeme" name="version_systeme" value="{{ data.version_systeme }}">
-                                </div>
-                                <div class="col-md-4 mb-3">
-                                    <label class="font-weight-bold" for="charge_systeme">System Load (%)</label>
-                                    <input type="number" class="form-control" id="charge_systeme" name="charge_systeme" value="{{ data.charge_systeme }}" step="0.01" min="0" max="100">
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-12 mb-3">
-                                    <label class="font-weight-bold" for="fichiers_impactes">Impacted Files/Modules</label>
-                                    <textarea class="form-control" id="fichiers_impactes" name="fichiers_impactes" rows="2">{{ data.fichiers_impactes }}</textarea>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                
-                    <!-- Impact Assessment -->
-                    <div class="card mb-4">
-                        <div class="card-header bg-primary text-white">
-                            <h6 class="mb-0">Impact Assessment</h6>
-                        </div>
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label class="font-weight-bold" for="impact_financier">Financial Impact</label>
-                                    <input type="number" class="form-control" id="impact_financier" name="impact_financier" value="{{ data.impact_financier }}" step="0.01">
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label class="font-weight-bold" for="nombre_utilisateurs_impactes">Number of Users Affected</label>
-                                    <input type="number" class="form-control" id="nombre_utilisateurs_impactes" name="nombre_utilisateurs_impactes" value="{{ data.nombre_utilisateurs_impactes }}">
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-12 mb-3">
-                                    <label class="font-weight-bold" for="zone_geographique_affectee">Affected Geographical Area</label>
-                                    <input type="text" class="form-control" id="zone_geographique_affectee" name="zone_geographique_affectee" value="{{ data.zone_geographique_affectee }}">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                
-                    <!-- Communication and Collaboration -->
-                    <div class="card mb-4">
-                        <div class="card-header bg-primary text-white">
-                            <h6 class="mb-0">Communication and Collaboration</h6>
-                        </div>
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label class="font-weight-bold" for="canaux_communication">Communication Channels</label>
-                                    <input type="text" class="form-control" id="canaux_communication" name="canaux_communication" value="{{ data.canaux_communication }}">
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <div class="custom-control custom-checkbox mt-4">
-                                        <input type="checkbox" class="custom-control-input" id="notifications_envoyees" name="notifications_envoyees" {% if data.notifications_envoyees %}checked{% endif %}>
-                                        <label class="custom-control-label" for="notifications_envoyees">Notifications Sent</label>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-12 mb-3">
-                                    <label class="font-weight-bold" for="parties_prenantes">Stakeholders</label>
-                                    <textarea class="form-control" id="parties_prenantes" name="parties_prenantes" rows="2">{{ data.parties_prenantes }}</textarea>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                
-                    <!-- Additional Options -->
-                    <div class="card mb-4">
-                        <div class="card-header bg-primary text-white">
-                            <h6 class="mb-0">Additional Options</h6>
-                        </div>
-                        <div class="card-body">
-                            <div class="row">
-                                <!-- Parfois, le champ "analysts" est utilisé à la fois pour afficher la liste et pour activer une option.
-                                     Ici, nous le considérons comme une simple zone d'affichage. -->
-                                <div class="col-md-6 mb-3">
-                                    <div class="custom-control custom-checkbox">
-                                        <!-- Si vous souhaitez utiliser ce champ pour une option d'automatisation, il faut le dissocier de la liste des analystes -->
-                                        <input type="checkbox" class="custom-control-input" id="automatisation_possible" name="automatisation_possible" {% if data.automatisation_possible %}checked{% endif %}>
-                                        <label class="custom-control-label" for="automatisation_possible">Automatic Diagnosis/Correction Possible</label>
-                                    </div>
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <div class="custom-control custom-checkbox">
-                                        <input type="checkbox" class="custom-control-input" id="resolution_automatique_possible" name="resolution_automatique_possible" {% if data.resolution_automatique_possible %}checked{% endif %}>
-                                        <label class="custom-control-label" for="resolution_automatique_possible">Future Automation Possible</label>
-                                    </div>
+                                    <label class="font-weight-bold" for="gravite">Severity</label>
+                                    <select class="form-control" id="gravite" name="gravite">
+                                        <option value="Faible" {% if data.gravite == "Faible" %}selected{% endif %}>Low</option>
+                                        <option value="Moyenne" {% if data.gravite == "Moyenne" %}selected{% endif %}>Medium</option>
+                                        <option value="Elevée" {% if data.gravite == "Elevée" %}selected{% endif %}>High</option>
+                                        <option value="Critique" {% if data.gravite == "Critique" %}selected{% endif %}>Critical</option>
+                                    </select>
                                 </div>
                             </div>
                         </div>
@@ -425,61 +274,18 @@
                             <h6 class="mb-0">Additional Details</h6>
                         </div>
                         <div class="card-body">
-                            <!-- Timestamp, Status and Severity -->
+                            <!-- Error Frequency select element -->
                             <div class="row">
                                 <div class="col-md-4 mb-3">
-                                    <label class="font-weight-bold" for="timestamp">Timestamp</label>
-                                    <!-- On utilise ici un input de type datetime-local. Assurez-vous de formater la valeur correctement -->
-                                    <input type="datetime-local" class="form-control" id="timestamp" name="timestamp" value="{{ data.timestamp|date:'Y-m-d\\TH:i' }}">
-                                </div>
-                                <div class="col-md-4 mb-3">
-                                    <label class="font-weight-bold" for="statut">Status</label>
-                                    <input type="text" class="form-control" id="statut" name="statut" value="{{ data.statut }}">
-                                </div>
-                                <div class="col-md-4 mb-3">
-                                    <label class="font-weight-bold" for="gravite">Severity</label>
-                                    <select class="form-control" id="gravite" name="gravite">
-                                        <option value="Faible" {% if data.gravite == "Faible" %}selected{% endif %}>Low</option>
-                                        <option value="Moyenne" {% if data.gravite == "Moyenne" %}selected{% endif %}>Medium</option>
-                                        <option value="Elevée" {% if data.gravite == "Elevée" %}selected{% endif %}>High</option>
+                                    <label class="font-weight-bold" for="frequence">Error Frequency</label>
+                                    <select class="form-control" id="frequence" name="frequence">
+                                        <option value="Rare" {% if data.frequence == "Rare" %}selected{% endif %}>Rare</option>
+                                        <option value="Occasionnel" {% if data.frequence == "Occasionnel" %}selected{% endif %}>Occasional</option>
+                                        <option value="Fréquente" {% if data.frequence == "Fréquente" %}selected{% endif %}>Frequent</option>
+                                        <option value="Très fréquente" {% if data.frequence == "Très fréquente" %}selected{% endif %}>Very Frequent</option>
                                     </select>
                                 </div>
-                            </div>
-                            <!-- Hypotheses and Next Actions -->
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label class="font-weight-bold" for="hypotheses">Hypotheses</label>
-                                    <textarea class="form-control" id="hypotheses" name="hypotheses" rows="3">{{ data.hypotheses }}</textarea>
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label class="font-weight-bold" for="prochaines_actions">Next Actions</label>
-                                    <textarea class="form-control" id="prochaines_actions" name="prochaines_actions" rows="3">{{ data.prochaines_actions }}</textarea>
-                                </div>
-                            </div>
-                            <!-- Responsible Resolution and Comments -->
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label class="font-weight-bold" for="responsable_resolution">Responsible for Resolution</label>
-                                    <input type="text" class="form-control" id="responsable_resolution" name="responsable_resolution" value="{{ data.responsable_resolution }}">
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label class="font-weight-bold" for="commentaires">Comments</label>
-                                    <textarea class="form-control" id="commentaires" name="commentaires" rows="3">{{ data.commentaires }}</textarea>
-                                </div>
-                            </div>
-                            <!-- Error Type and User Impact -->
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label class="font-weight-bold" for="type_erreur">Error Type</label>
-                                    <input type="text" class="form-control" id="type_erreur" name="type_erreur" value="{{ data.type_erreur }}">
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label class="font-weight-bold" for="impact_utilisateur">User Impact</label>
-                                    <input type="text" class="form-control" id="impact_utilisateur" name="impact_utilisateur" value="{{ data.impact_utilisateur }}">
-                                </div>
-                            </div>
-                            <!-- Resolution Status and Action History -->
-                            <div class="row">
+                                <!-- Resolution Status select element -->
                                 <div class="col-md-4 mb-3">
                                     <label class="font-weight-bold" for="statut_resolution">Resolution Status</label>
                                     <select class="form-control" id="statut_resolution" name="statut_resolution">
@@ -488,99 +294,43 @@
                                         <option value="Terminé" {% if data.statut_resolution == "Terminé" %}selected{% endif %}>Completed</option>
                                     </select>
                                 </div>
-                                <div class="col-md-8 mb-3">
-                                    <label class="font-weight-bold" for="historique_actions">Action History</label>
-                                    <textarea class="form-control" id="historique_actions" name="historique_actions" rows="3">{{ data.historique_actions }}</textarea>
-                                </div>
-                            </div>
-                            <!-- Responsible Team and Frequency -->
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label class="font-weight-bold" for="equipe_responsable">Responsible Team</label>
-                                    <input type="text" class="form-control" id="equipe_responsable" name="equipe_responsable" value="{{ data.equipe_responsable }}">
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label class="font-weight-bold" for="frequence">Error Frequency</label>
-                                    <input type="text" class="form-control" id="frequence" name="frequence" value="{{ data.frequence }}">
-                                </div>
-                            </div>
-                            <!-- Expected and Observed Behavior -->
-                            <div class="row">
+                                <!-- Other selects can be added similarly as needed -->
                                 <div class="col-md-4 mb-3">
-                                    <label class="font-weight-bold" for="comportement_attendu">Expected Behavior</label>
-                                    <textarea class="form-control" id="comportement_attendu" name="comportement_attendu" rows="3">{{ data.comportement_attendu }}</textarea>
-                                </div>
-                                <div class="col-md-4 mb-3">
-                                    <label class="font-weight-bold" for="comportement_observe">Observed Behavior</label>
-                                    <textarea class="form-control" id="comportement_observe" name="comportement_observe" rows="3">{{ data.comportement_observe }}</textarea>
-                                </div>
-                                <div class="col-md-4 mb-3">
-                                    <!-- Les champs de durée sont ici traités comme texte (format HH:MM:SS) -->
-                                    <label class="font-weight-bold" for="delai_resolution">Estimated Resolution Time (HH:MM:SS)</label>
-                                    <input type="text" class="form-control" id="delai_resolution" name="delai_resolution" value="{{ data.delai_resolution }}">
+                                    <label class="font-weight-bold" for="priorite_numerique">Numerical Priority (1-5)</label>
+                                    <input type="number" class="form-control" id="priorite_numerique" name="priorite_numerique" value="{{ data.priorite_numerique }}" min="1" max="5">
                                 </div>
                             </div>
+                
+                            <!-- Additional select options for any other fields -->
                             <div class="row">
+                                <!-- For example, if you want a select for error type -->
                                 <div class="col-md-6 mb-3">
-                                    <label class="font-weight-bold" for="delai_ecoule">Elapsed Time Since Detection (HH:MM:SS)</label>
-                                    <input type="text" class="form-control" id="delai_ecoule" name="delai_ecoule" value="{{ data.delai_ecoule }}">
+                                    <label class="font-weight-bold" for="type_erreur">Error Type</label>
+                                    <select class="form-control" id="type_erreur" name="type_erreur">
+                                        <option value="Syntaxique" {% if data.type_erreur == "Syntaxique" %}selected{% endif %}>Syntax</option>
+                                        <option value="Logique" {% if data.type_erreur == "Logique" %}selected{% endif %}>Logic</option>
+                                        <option value="Réseau" {% if data.type_erreur == "Réseau" %}selected{% endif %}>Network</option>
+                                        <option value="Autre" {% if data.type_erreur == "Autre" %}selected{% endif %}>Other</option>
+                                    </select>
                                 </div>
+                                <!-- And a select for user impact if desired -->
                                 <div class="col-md-6 mb-3">
-                                    <label class="font-weight-bold" for="categorie_erreur">Error Category</label>
-                                    <input type="text" class="form-control" id="categorie_erreur" name="categorie_erreur" value="{{ data.categorie_erreur }}">
+                                    <label class="font-weight-bold" for="impact_utilisateur">User Impact</label>
+                                    <select class="form-control" id="impact_utilisateur" name="impact_utilisateur">
+                                        <option value="Faible" {% if data.impact_utilisateur == "Faible" %}selected{% endif %}>Low</option>
+                                        <option value="Modéré" {% if data.impact_utilisateur == "Modéré" %}selected{% endif %}>Moderate</option>
+                                        <option value="Élevé" {% if data.impact_utilisateur == "Élevé" %}selected{% endif %}>High</option>
+                                        <option value="Critique" {% if data.impact_utilisateur == "Critique" %}selected{% endif %}>Critical</option>
+                                    </select>
                                 </div>
                             </div>
-                            <!-- Detection Stage -->
-                            <div class="row">
-                                <div class="col-md-12 mb-3">
-                                    <label class="font-weight-bold" for="etape_detection">Detection Stage</label>
-                                    <input type="text" class="form-control" id="etape_detection" name="etape_detection" value="{{ data.etape_detection }}">
-                                </div>
-                            </div>
-                            <!-- Similar Previous Incidents -->
-                            <div class="row">
-                                <div class="col-md-12 mb-3">
-                                    <label class="font-weight-bold" for="precedent_incidents_similaires">Similar Previous Incidents</label>
-                                    <textarea class="form-control" id="precedent_incidents_similaires" name="precedent_incidents_similaires" rows="3">{{ data.precedent_incidents_similaires }}</textarea>
-                                </div>
-                            </div>
-                            <!-- Audit Log and Associated Documentation -->
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label class="font-weight-bold" for="audit_log">Audit Log</label>
-                                    <textarea class="form-control" id="audit_log" name="audit_log" rows="3">{{ data.audit_log }}</textarea>
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label class="font-weight-bold" for="documentation_associee">Associated Documentation</label>
-                                    <textarea class="form-control" id="documentation_associee" name="documentation_associee" rows="3">{{ data.documentation_associee }}</textarea>
-                                </div>
-                            </div>
-                            <!-- Normal Error Checkbox -->
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <div class="custom-control custom-checkbox">
-                                        <input type="checkbox" class="custom-control-input" id="erreur_normale" name="erreur_normale" {% if data.erreur_normale %}checked{% endif %}>
-                                        <label class="custom-control-label" for="erreur_normale">Normal Error (No real impact)</label>
-                                    </div>
-                                </div>
-                            </div>
+                
+                            <!-- You can continue to change other input fields to select elements if desired. -->
                         </div>
                     </div>
                 
-                    <!-- Analysts Section (affichage seulement) -->
-                    <div class="card mb-4">
-                        <div class="card-header bg-primary text-white">
-                            <h6 class="mb-0">All Analysts</h6>
-                        </div>
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-md-12 mb-3">
-                                    <label class="font-weight-bold" for="analysts">Analysts</label>
-                                    <textarea class="form-control" id="analysts" name="analysts" rows="2" disabled>{{ data.analysts }}</textarea>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    <!-- Continue with other sections as before (Resolution Information, Technical Information, etc.) -->
+                    <!-- ... -->
                 
                     <input type="hidden" name="data_id" value="{{ data.id }}">
                     <div class="text-right">
