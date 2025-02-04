@@ -144,7 +144,6 @@ def update_fiche_erreur(request):
         fiche.audit_log = request.POST.get('audit_log')
         fiche.documentation_associee = request.POST.get('documentation_associee')
         fiche.erreur_normale = bool(request.POST.get('erreur_normale'))
-        fiche.analysts = request.POST.get('analysts')
 
 
         print(fiche)
