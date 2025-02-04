@@ -85,6 +85,30 @@ def index(request):
         delai_resolution__isnull=False,
         delai_ecoule__gt=F('delai_resolution')
     ).count()
+    # Supposons que ces variables sont déjà définies dans votre code :
+    # total_errors, open_errors, resolved_errors, avg_resolution, avg_criticite,
+    # evolution_labels, evolution_counts, priority_labels, priority_values,
+    # critical_errors, errors_with_delay_issue
+
+    # Créez un dictionnaire avec toutes les variables
+    donnees = {
+        'total_errors': total_errors,
+        'open_errors': open_errors,
+        'resolved_errors': resolved_errors,
+        'avg_resolution': avg_resolution,
+        'avg_criticite': avg_criticite,
+        'evolution_labels': evolution_labels,
+        'evolution_counts': evolution_counts,
+        'priority_labels': priority_labels,
+        'priority_values': priority_values,
+        'critical_errors': critical_errors,
+        'errors_with_delay_issue': errors_with_delay_issue,
+    }
+
+    # Affichez chaque clé et sa valeur
+    for cle, valeur in donnees.items():
+        print(f"{cle}: {valeur}")
+
 
     context = {
         'total_errors': total_errors,
