@@ -39,12 +39,8 @@ def index(request):
         "system_name", "service_type", "service_name", "error_reason"
     ).distinct()
 
-    print(distinct_errors)
-
     # Nombre total d'erreurs distinctes
     total_erreurs_distinctes = distinct_errors.count()
-
-    print(total_erreurs_distinctes)
     
     # Répartition par statut (en utilisant le queryset distinct)
     erreurs_ouvertes = distinct_errors.filter(statut="Ouvert").count()
