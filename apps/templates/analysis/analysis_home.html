@@ -216,7 +216,7 @@
                                 </div>
                             </div>
                             <div class="row">
-                                <div class="col-md-4 mb-4">
+                                <div class="col-md-12 mb-3">
                                     <label class="font-weight-bold" for="error_reason">Error Reason</label>
                                     <textarea class="form-control" id="error_reason" name="error_reason" rows="3" required>{{ data.error_reason }}</textarea>
                                 </div>
@@ -247,17 +247,17 @@
                         <div class="card-body">
                             <div class="row">
                                 <div class="row">
-                                    <div class="col-md-6 mb-3">
+                                    <div class="col-md-4 mb-3">
                                         <label class="font-weight-bold" for="type_erreur">Error Type</label>
                                         <input type="text" class="form-control" id="type_erreur" name="type_erreur" value="{{ data.type_erreur }}">
                                     </div>
-                                    <div class="col-md-6 mb-3">
+                                    <div class="col-md-4 mb-3">
                                         <label class="font-weight-bold" for="categorie_erreur">Error Category</label>
                                         <input type="text" class="form-control" id="categorie_erreur" name="categorie_erreur" value="{{ data.categorie_erreur }}">
                                     </div>
                                 </div>
                                 <div class="row">
-                                    <div class="col-md-6 mb-3">
+                                    <div class="col-md-4 mb-3">
                                         <label class="font-weight-bold" for="frequence">Error Frequency</label>
                                         <select class="form-control" id="frequence" name="frequence">
                                             <option value="Rare" {% if data.frequence == "Rare" %}selected{% endif %}>Rare</option>
@@ -266,33 +266,33 @@
                                             <option value="Très fréquente" {% if data.frequence == "Très fréquente" %}selected{% endif %}>Very Frequent</option>
                                         </select>
                                     </div>
-                                    <div class="col-md-6 mb-3">
+                                    <div class="col-md-4 mb-3">
                                         <label class="font-weight-bold" for="etape_detection">Detection Stage</label>
                                         <input type="text" class="form-control" id="etape_detection" name="etape_detection" value="{{ data.etape_detection }}">
                                     </div>
                                 </div>
                                 <div class="row">
-                                    <div class="col-md-6 mb-3">
+                                    <div class="col-md-4 mb-3">
                                         <label class="font-weight-bold" for="symptomes_observes">Observed Symptoms</label>
                                         <textarea class="form-control" id="symptomes_observes" name="symptomes_observes" rows="3">{{ data.symptomes_observes }}</textarea>
                                     </div>
-                                    <div class="col-md-6 mb-3">
+                                    <div class="col-md-4 mb-3">
                                         <label class="font-weight-bold" for="services_affectes">Affected Services</label>
                                         <textarea class="form-control" id="services_affectes" name="services_affectes" rows="2">{{ data.services_affectes }}</textarea>
                                     </div>
                                 </div>
                                 <div class="row">
-                                    <div class="col-md-6 mb-3">
+                                    <div class="col-md-4 mb-3">
                                         <label class="font-weight-bold" for="cause">Root Cause</label>
                                         <textarea class="form-control" id="cause" name="cause" rows="2">{{ data.cause }}</textarea>
                                     </div>
-                                    <div class="col-md-6 mb-3">
+                                    <div class="col-md-4 mb-3">
                                         <label class="font-weight-bold" for="logs_messages">Log Messages</label>
                                         <textarea class="form-control" id="logs_messages" name="logs_messages" rows="3">{{ data.logs_messages }}</textarea>
                                     </div>
                                 </div>
                                 <div class="row">
-                                    <div class="col-md-6 mb-3">
+                                    <div class="col-md-4 mb-3">
                                         <div class="custom-control custom-checkbox">
                                             <input type="checkbox" class="custom-control-input" id="erreur_normale" name="erreur_normale" {% if data.erreur_normale %}checked{% endif %}>
                                             <label class="custom-control-label" for="erreur_normale">Normal Error (No real impact)</label>
@@ -415,7 +415,7 @@
                             <div class="row">
                                 <div class="row">
                                     <div class="row">
-                                        <div class="col-md-6 mb-3">
+                                        <div class="col-md-4 mb-3">
                                             <label class="font-weight-bold" for="statut_resolution">Resolution Status</label>
                                             <select class="form-control" id="statut_resolution" name="statut_resolution">
                                                 <option value="Non commencé" {% if data.statut_resolution == "Non commencé" %}selected{% endif %}>Not Started</option>
@@ -425,47 +425,47 @@
                                         </div>
                                     </div>
                                     <div class="row">
-                                        <div class="col-md-6 mb-3">
+                                        <div class="col-md-4 mb-3">
                                             <label class="font-weight-bold" for="solution_proposee">Proposed Solution</label>
                                             <textarea class="form-control" id="solution_proposee" name="solution_proposee" rows="3">{{ data.solution_proposee }}</textarea>
                                         </div>
-                                        <div class="col-md-6 mb-3">
+                                        <div class="col-md-4 mb-3">
                                             <label class="font-weight-bold" for="solution_implantee">Implemented Solution</label>
                                             <textarea class="form-control" id="solution_implantee" name="solution_implantee" rows="3">{{ data.solution_implantee }}</textarea>
                                         </div>
                                     </div>
                                     <div class="row">
-                                        <div class="col-md-6 mb-3">
+                                        <div class="col-md-4 mb-3">
                                             <label class="font-weight-bold" for="efficacite_solution">Solution Effectiveness (1-10)</label>
                                             <input type="number" class="form-control" id="efficacite_solution" name="efficacite_solution" value="{{ data.efficacite_solution }}" min="1" max="10">
                                         </div>
-                                        <div class="col-md-6 mb-3">
+                                        <div class="col-md-4 mb-3">
                                             <label class="font-weight-bold" for="tests_effectues">Tests Performed</label>
                                             <textarea class="form-control" id="tests_effectues" name="tests_effectues" rows="2">{{ data.tests_effectues }}</textarea>
                                         </div>
                                     </div>
                                     <div class="row">
-                                        <div class="col-md-6 mb-3">
+                                        <div class="col-md-4 mb-3">
                                             <label class="font-weight-bold" for="comportement_attendu">Expected Behavior</label>
                                             <textarea class="form-control" id="comportement_attendu" name="comportement_attendu" rows="3">{{ data.comportement_attendu }}</textarea>
                                         </div>
-                                        <div class="col-md-6 mb-3">
+                                        <div class="col-md-4 mb-3">
                                             <label class="font-weight-bold" for="comportement_observe">Observed Behavior</label>
                                             <textarea class="form-control" id="comportement_observe" name="comportement_observe" rows="3">{{ data.comportement_observe }}</textarea>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="row">
-                                    <div class="col-md-6 mb-3">
+                                    <div class="col-md-4 mb-3">
                                         <label class="font-weight-bold" for="delai_resolution">Estimated Resolution Time</label>
                                         <input type="text" class="form-control" id="delai_resolution" name="delai_resolution" value="{{ data.delai_resolution }}">
                                     </div>
-                                    <div class="col-md-6 mb-3">
+                                    <div class="col-md-4 mb-3">
                                         <label class="font-weight-bold" for="delai_ecoule">Elapsed Time Since Detection</label>
                                         <input type="text" class="form-control" id="delai_ecoule" name="delai_ecoule" value="{{ data.delai_ecoule }}">
                                     </div>
                                 </div>
-                                <div class="col-md-6 mb-3">
+                                <div class="col-md-4 mb-3">
                                     <label class="font-weight-bold" for="prochaines_actions">Next Actions</label>
                                     <textarea class="form-control" id="prochaines_actions" name="prochaines_actions" rows="3">{{ data.prochaines_actions }}</textarea>
                                 </div>
