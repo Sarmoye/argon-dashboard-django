@@ -223,6 +223,174 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- Informations Générales -->
+                    <div class="card mb-4">
+                        <div class="card-header bg-info text-white">
+                            <h6 class="mb-0">General Information</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label class="font-weight-bold" for="timestamp">Timestamp</label>
+                                    <input type="datetime-local" class="form-control" id="timestamp" name="timestamp" value="{{ data.timestamp|date:'Y-m-d\\TH:i' }}">
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label class="font-weight-bold" for="frequence">Error Frequency</label>
+                                    <select class="form-control" id="frequence" name="frequence">
+                                        <option value="Rare" {% if data.frequence == "Rare" %}selected{% endif %}>Rare</option>
+                                        <option value="Occasionnel" {% if data.frequence == "Occasionnel" %}selected{% endif %}>Occasional</option>
+                                        <option value="Fréquente" {% if data.frequence == "Fréquente" %}selected{% endif %}>Frequent</option>
+                                        <option value="Très fréquente" {% if data.frequence == "Très fréquente" %}selected{% endif %}>Very Frequent</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Détails de l'Erreur -->
+                    <div class="card mb-4">
+                        <div class="card-header bg-light text-dark">
+                            <h6 class="mb-0">Error Details</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="font-weight-bold" for="type_erreur">Error Type</label>
+                                    <input type="text" class="form-control" id="type_erreur" name="type_erreur" value="{{ data.type_erreur }}">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="font-weight-bold" for="impact_utilisateur">User Impact</label>
+                                    <input type="text" class="form-control" id="impact_utilisateur" name="impact_utilisateur" value="{{ data.impact_utilisateur }}">
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="font-weight-bold" for="comportement_attendu">Expected Behavior</label>
+                                    <textarea class="form-control" id="comportement_attendu" name="comportement_attendu" rows="3">{{ data.comportement_attendu }}</textarea>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="font-weight-bold" for="comportement_observe">Observed Behavior</label>
+                                    <textarea class="form-control" id="comportement_observe" name="comportement_observe" rows="3">{{ data.comportement_observe }}</textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Actions et Résolution -->
+                    <div class="card mb-4">
+                        <div class="card-header bg-primary text-white">
+                            <h6 class="mb-0">Actions and Resolution</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="font-weight-bold" for="prochaines_actions">Next Actions</label>
+                                    <textarea class="form-control" id="prochaines_actions" name="prochaines_actions" rows="3">{{ data.prochaines_actions }}</textarea>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="font-weight-bold" for="statut_resolution">Resolution Status</label>
+                                    <select class="form-control" id="statut_resolution" name="statut_resolution">
+                                        <option value="Non commencé" {% if data.statut_resolution == "Non commencé" %}selected{% endif %}>Not Started</option>
+                                        <option value="En cours" {% if data.statut_resolution == "En cours" %}selected{% endif %}>In Progress</option>
+                                        <option value="Terminé" {% if data.statut_resolution == "Terminé" %}selected{% endif %}>Completed</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label class="font-weight-bold" for="delai_resolution">Estimated Resolution Time</label>
+                                    <input type="text" class="form-control" id="delai_resolution" name="delai_resolution" value="{{ data.delai_resolution }}">
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label class="font-weight-bold" for="delai_ecoule">Elapsed Time Since Detection</label>
+                                    <input type="text" class="form-control" id="delai_ecoule" name="delai_ecoule" value="{{ data.delai_ecoule }}">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Analyse et Hypothèses -->
+                    <div class="card mb-4">
+                        <div class="card-header bg-light text-dark">
+                            <h6 class="mb-0">Analysis and Hypotheses</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-12 mb-3">
+                                    <label class="font-weight-bold" for="hypotheses">Hypotheses</label>
+                                    <textarea class="form-control" id="hypotheses" name="hypotheses" rows="3">{{ data.hypotheses }}</textarea>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12 mb-3">
+                                    <label class="font-weight-bold" for="precedent_incidents_similaires">Similar Previous Incidents</label>
+                                    <textarea class="form-control" id="precedent_incidents_similaires" name="precedent_incidents_similaires" rows="3">{{ data.precedent_incidents_similaires }}</textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Suivi et Historique -->
+                    <div class="card mb-4">
+                        <div class="card-header bg-light text-dark">
+                            <h6 class="mb-0">Follow-up and History</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="font-weight-bold" for="audit_log">Audit Log</label>
+                                    <textarea class="form-control" id="audit_log" name="audit_log" rows="3">{{ data.audit_log }}</textarea>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="font-weight-bold" for="documentation_associee">Associated Documentation</label>
+                                    <textarea class="form-control" id="documentation_associee" name="documentation_associee" rows="3">{{ data.documentation_associee }}</textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Responsabilités -->
+                    <div class="card mb-4">
+                        <div class="card-header bg-info text-white">
+                            <h6 class="mb-0">Responsibilities</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="font-weight-bold" for="responsable_resolution">Responsible for Resolution</label>
+                                    <input type="text" class="form-control" id="responsable_resolution" name="responsable_resolution" value="{{ data.responsable_resolution }}">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="font-weight-bold" for="equipe_responsable">Responsible Team</label>
+                                    <input type="text" class="form-control" id="equipe_responsable" name="equipe_responsable" value="{{ data.equipe_responsable }}">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Autres -->
+                    <div class="card mb-4">
+                        <div class="card-header bg-light text-dark">
+                            <h6 class="mb-0">Other Details</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-12 mb-3">
+                                    <label class="font-weight-bold" for="etape_detection">Detection Stage</label>
+                                    <input type="text" class="form-control" id="etape_detection" name="etape_detection" value="{{ data.etape_detection }}">
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12 mb-3">
+                                    <div class="custom-control custom-checkbox">
+                                        <input type="checkbox" class="custom-control-input" id="erreur_normale" name="erreur_normale" {% if data.erreur_normale %}checked{% endif %}>
+                                        <label class="custom-control-label" for="erreur_normale">Normal Error (No real impact)</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 
                     <!-- Status and Priority Section -->
                     <div class="card mb-4">
@@ -444,149 +612,8 @@
                             </div>
                         </div>
                     </div>
-                
-                    <!-- Additional Details Section -->
-                    <div class="card mb-4">
-                        <div class="card-header bg-info text-white">
-                            <h6 class="mb-0">Additional Details</h6>
-                        </div>
-                        <div class="card-body">
-                            <!-- Timestamp, Status and Severity -->
-                            <div class="row">
-                                <div class="col-md-4 mb-3">
-                                    <label class="font-weight-bold" for="timestamp">Timestamp</label>
-                                    <!-- On utilise ici un input de type datetime-local. Assurez-vous de formater la valeur correctement -->
-                                    <input type="datetime-local" class="form-control" id="timestamp" name="timestamp" value="{{ data.timestamp|date:'Y-m-d\\TH:i' }}">
-                                </div>
-                                <div class="col-md-4 mb-3">
-                                    <label class="font-weight-bold" for="frequence">Error Frequency</label>
-                                    <select class="form-control" id="frequence" name="frequence">
-                                        <option value="Rare" {% if data.frequence == "Rare" %}selected{% endif %}>Rare</option>
-                                        <option value="Occasionnel" {% if data.frequence == "Occasionnel" %}selected{% endif %}>Occasional</option>
-                                        <option value="Fréquente" {% if data.frequence == "Fréquente" %}selected{% endif %}>Frequent</option>
-                                        <option value="Très fréquente" {% if data.frequence == "Très fréquente" %}selected{% endif %}>Very Frequent</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <!-- Hypotheses and Next Actions -->
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label class="font-weight-bold" for="hypotheses">Hypotheses</label>
-                                    <textarea class="form-control" id="hypotheses" name="hypotheses" rows="3">{{ data.hypotheses }}</textarea>
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label class="font-weight-bold" for="prochaines_actions">Next Actions</label>
-                                    <textarea class="form-control" id="prochaines_actions" name="prochaines_actions" rows="3">{{ data.prochaines_actions }}</textarea>
-                                </div>
-                            </div>
-                            <!-- Responsible Resolution and Comments -->
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label class="font-weight-bold" for="responsable_resolution">Responsible for Resolution</label>
-                                    <input type="text" class="form-control" id="responsable_resolution" name="responsable_resolution" value="{{ data.responsable_resolution }}">
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label class="font-weight-bold" for="commentaires">Comments</label>
-                                    <textarea class="form-control" id="commentaires" name="commentaires" rows="3">{{ data.commentaires }}</textarea>
-                                </div>
-                            </div>
-                            <!-- Error Type and User Impact -->
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label class="font-weight-bold" for="type_erreur">Error Type</label>
-                                    <input type="text" class="form-control" id="type_erreur" name="type_erreur" value="{{ data.type_erreur }}">
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label class="font-weight-bold" for="impact_utilisateur">User Impact</label>
-                                    <input type="text" class="form-control" id="impact_utilisateur" name="impact_utilisateur" value="{{ data.impact_utilisateur }}">
-                                </div>
-                            </div>
-                            <!-- Resolution Status and Action History -->
-                            <div class="row">
-                                <div class="col-md-4 mb-3">
-                                    <label class="font-weight-bold" for="statut_resolution">Resolution Status</label>
-                                    <select class="form-control" id="statut_resolution" name="statut_resolution">
-                                        <option value="Non commencé" {% if data.statut_resolution == "Non commencé" %}selected{% endif %}>Not Started</option>
-                                        <option value="En cours" {% if data.statut_resolution == "En cours" %}selected{% endif %}>In Progress</option>
-                                        <option value="Terminé" {% if data.statut_resolution == "Terminé" %}selected{% endif %}>Completed</option>
-                                    </select>
-                                </div>
-                                <div class="col-md-8 mb-3">
-                                    <label class="font-weight-bold" for="historique_actions">Action History</label>
-                                    <textarea class="form-control" id="historique_actions" name="historique_actions" rows="3">{{ data.historique_actions }}</textarea>
-                                </div>
-                            </div>
-                            <!-- Responsible Team and Frequency -->
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label class="font-weight-bold" for="equipe_responsable">Responsible Team</label>
-                                    <input type="text" class="form-control" id="equipe_responsable" name="equipe_responsable" value="{{ data.equipe_responsable }}">
-                                </div>
-                            </div>
-                            <!-- Expected and Observed Behavior -->
-                            <div class="row">
-                                <div class="col-md-4 mb-3">
-                                    <label class="font-weight-bold" for="comportement_attendu">Expected Behavior</label>
-                                    <textarea class="form-control" id="comportement_attendu" name="comportement_attendu" rows="3">{{ data.comportement_attendu }}</textarea>
-                                </div>
-                                <div class="col-md-4 mb-3">
-                                    <label class="font-weight-bold" for="comportement_observe">Observed Behavior</label>
-                                    <textarea class="form-control" id="comportement_observe" name="comportement_observe" rows="3">{{ data.comportement_observe }}</textarea>
-                                </div>
-                                <div class="col-md-4 mb-3">
-                                    <!-- Les champs de durée sont ici traités comme texte (format HH:MM:SS) -->
-                                    <label class="font-weight-bold" for="delai_resolution">Estimated Resolution Time (HH:MM:SS)</label>
-                                    <input type="text" class="form-control" id="delai_resolution" name="delai_resolution" value="{{ data.delai_resolution }}">
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label class="font-weight-bold" for="delai_ecoule">Elapsed Time Since Detection (HH:MM:SS)</label>
-                                    <input type="text" class="form-control" id="delai_ecoule" name="delai_ecoule" value="{{ data.delai_ecoule }}">
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label class="font-weight-bold" for="categorie_erreur">Error Category</label>
-                                    <input type="text" class="form-control" id="categorie_erreur" name="categorie_erreur" value="{{ data.categorie_erreur }}">
-                                </div>
-                            </div>
-                            <!-- Detection Stage -->
-                            <div class="row">
-                                <div class="col-md-12 mb-3">
-                                    <label class="font-weight-bold" for="etape_detection">Detection Stage</label>
-                                    <input type="text" class="form-control" id="etape_detection" name="etape_detection" value="{{ data.etape_detection }}">
-                                </div>
-                            </div>
-                            <!-- Similar Previous Incidents -->
-                            <div class="row">
-                                <div class="col-md-12 mb-3">
-                                    <label class="font-weight-bold" for="precedent_incidents_similaires">Similar Previous Incidents</label>
-                                    <textarea class="form-control" id="precedent_incidents_similaires" name="precedent_incidents_similaires" rows="3">{{ data.precedent_incidents_similaires }}</textarea>
-                                </div>
-                            </div>
-                            <!-- Audit Log and Associated Documentation -->
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label class="font-weight-bold" for="audit_log">Audit Log</label>
-                                    <textarea class="form-control" id="audit_log" name="audit_log" rows="3">{{ data.audit_log }}</textarea>
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label class="font-weight-bold" for="documentation_associee">Associated Documentation</label>
-                                    <textarea class="form-control" id="documentation_associee" name="documentation_associee" rows="3">{{ data.documentation_associee }}</textarea>
-                                </div>
-                            </div>
-                            <!-- Normal Error Checkbox -->
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <div class="custom-control custom-checkbox">
-                                        <input type="checkbox" class="custom-control-input" id="erreur_normale" name="erreur_normale" {% if data.erreur_normale %}checked{% endif %}>
-                                        <label class="custom-control-label" for="erreur_normale">Normal Error (No real impact)</label>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                
-                    <!-- Analysts Section (affichage seulement) -->
+
+                    <!-- Section Analystes (Affichage Seulement) -->
                     <div class="card mb-4">
                         <div class="card-header bg-primary text-white">
                             <h6 class="mb-0">All Analysts</h6>
@@ -600,6 +627,7 @@
                             </div>
                         </div>
                     </div>
+
                 
                     <input type="hidden" name="data_id" value="{{ data.id }}">
                     <div class="text-right">
