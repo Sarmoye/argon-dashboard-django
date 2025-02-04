@@ -241,23 +241,23 @@
 
                     <!-- Détails de l'Erreur -->
                     <div class="card mb-4">
-                        <div class="card-header bg-transparent text-dark">
+                        <div class="card-header bg-light text-dark">
                             <h6 class="mb-0">Error Details</h6>
                         </div>
                         <div class="card-body">
                             <div class="row">
                                 <div class="row">
-                                    <div class="col-md-4 mb-3">
+                                    <div class="col-md-4 mb-4">
                                         <label class="font-weight-bold" for="type_erreur">Error Type</label>
                                         <input type="text" class="form-control" id="type_erreur" name="type_erreur" value="{{ data.type_erreur }}">
                                     </div>
-                                    <div class="col-md-4 mb-3">
+                                    <div class="col-md-4 mb-4">
                                         <label class="font-weight-bold" for="categorie_erreur">Error Category</label>
                                         <input type="text" class="form-control" id="categorie_erreur" name="categorie_erreur" value="{{ data.categorie_erreur }}">
                                     </div>
                                 </div>
                                 <div class="row">
-                                    <div class="col-md-4 mb-3">
+                                    <div class="col-md-4 mb-4">
                                         <label class="font-weight-bold" for="frequence">Error Frequency</label>
                                         <select class="form-control" id="frequence" name="frequence">
                                             <option value="Rare" {% if data.frequence == "Rare" %}selected{% endif %}>Rare</option>
@@ -266,33 +266,33 @@
                                             <option value="Très fréquente" {% if data.frequence == "Très fréquente" %}selected{% endif %}>Very Frequent</option>
                                         </select>
                                     </div>
-                                    <div class="col-md-4 mb-3">
+                                    <div class="col-md-4 mb-4">
                                         <label class="font-weight-bold" for="etape_detection">Detection Stage</label>
                                         <input type="text" class="form-control" id="etape_detection" name="etape_detection" value="{{ data.etape_detection }}">
                                     </div>
                                 </div>
                                 <div class="row">
-                                    <div class="col-md-4 mb-3">
+                                    <div class="col-md-4 mb-4">
                                         <label class="font-weight-bold" for="symptomes_observes">Observed Symptoms</label>
                                         <textarea class="form-control" id="symptomes_observes" name="symptomes_observes" rows="3">{{ data.symptomes_observes }}</textarea>
                                     </div>
-                                    <div class="col-md-4 mb-3">
+                                    <div class="col-md-4 mb-4">
                                         <label class="font-weight-bold" for="services_affectes">Affected Services</label>
                                         <textarea class="form-control" id="services_affectes" name="services_affectes" rows="2">{{ data.services_affectes }}</textarea>
                                     </div>
                                 </div>
                                 <div class="row">
-                                    <div class="col-md-4 mb-3">
+                                    <div class="col-md-4 mb-4">
                                         <label class="font-weight-bold" for="cause">Root Cause</label>
                                         <textarea class="form-control" id="cause" name="cause" rows="2">{{ data.cause }}</textarea>
                                     </div>
-                                    <div class="col-md-4 mb-3">
+                                    <div class="col-md-4 mb-4">
                                         <label class="font-weight-bold" for="logs_messages">Log Messages</label>
                                         <textarea class="form-control" id="logs_messages" name="logs_messages" rows="3">{{ data.logs_messages }}</textarea>
                                     </div>
                                 </div>
                                 <div class="row">
-                                    <div class="col-md-4 mb-3">
+                                    <div class="col-md-4 mb-4">
                                         <div class="custom-control custom-checkbox">
                                             <input type="checkbox" class="custom-control-input" id="erreur_normale" name="erreur_normale" {% if data.erreur_normale %}checked{% endif %}>
                                             <label class="custom-control-label" for="erreur_normale">Normal Error (No real impact)</label>
@@ -305,7 +305,7 @@
 
                     <!-- Status and Priority Section -->
                     <div class="card mb-4">
-                        <div class="card-header bg-transparent text-dark">
+                        <div class="card-header bg-light text-dark">
                             <h6 class="mb-0">Status and Priority</h6>
                         </div>
                         <div class="card-body">
@@ -353,7 +353,7 @@
 
                     <!-- Impact Assessment -->
                     <div class="card mb-4">
-                        <div class="card-header bg-transparent text-dark">
+                        <div class="card-header bg-light text-dark">
                             <h6 class="mb-0">Impact Assessment</h6>
                         </div>
                         <div class="card-body">
@@ -387,7 +387,7 @@
 
                     <!-- Analyse et Hypothèses -->
                     <div class="card mb-4">
-                        <div class="card-header bg-transparent text-dark">
+                        <div class="card-header bg-light text-dark">
                             <h6 class="mb-0">Analysis and Hypotheses</h6>
                         </div>
                         <div class="card-body">
@@ -408,7 +408,7 @@
 
                     <!-- Actions et Résolution -->
                     <div class="card mb-4">
-                        <div class="card-header bg-transparent text-dark">
+                        <div class="card-header bg-light text-dark">
                             <h6 class="mb-0">Actions and Resolution</h6>
                         </div>
                         <div class="card-body">
