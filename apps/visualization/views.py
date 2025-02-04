@@ -30,50 +30,74 @@ def check_user_role(user, allowed_roles=None):
 from django.db.models import Count, Sum
 from django.shortcuts import render
 
+from django.shortcuts import render
+from django.db.models import Count, Avg, F, Q
+from django.db.models.functions import TruncDay
+
 def index(request):
     # Trier les données par timestamp en ordre décroissant
     source_data = SourceData.objects.filter(validation_status='Validated').order_by('-timestamp')
     
     # Filtrer pour éviter les doublons sur les clés spécifiques
-    distinct_errors = FicheErreur.objects.values(
+    total_errors = FicheErreur.objects.values(
         "system_name", "service_type", "service_name", "error_reason"
     ).distinct()
+    
+    # On considère comme "ouvertes" les fiches avec statut "Ouvert" ou resolution "Non commencé"
+    open_errors = FicheErreur.objects.filter(
+        Q(statut="Ouvert") | Q(statut_resolution="Non commencé")
+    ).count()
+    
+    resolved_errors = total_errors - open_errors
 
-    # Nombre total d'erreurs distinctes
-    total_erreurs_distinctes = distinct_errors.count()
+    # Moyenne du délai de résolution (le champ delai_resolution est de type DurationField)
+    avg_resolution = FicheErreur.objects.aggregate(avg_delai=Avg('delai_resolution'))['avg_delai']
     
-    # Répartition par statut (en utilisant le queryset distinct)
-    erreurs_ouvertes = distinct_errors.filter(statut="Ouvert").count()
-    erreurs_encours = distinct_errors.filter(statut="En cours").count()
-    erreurs_resolues = distinct_errors.filter(statut="Résolu").count()
+    # Score moyen de criticité basé sur le champ niveau_criticite
+    avg_criticite = FicheErreur.objects.aggregate(avg=Avg('niveau_criticite'))['avg']
     
-    # Répartition par système (distinct par system_name)
-    erreurs_par_systeme = distinct_errors.values('system_name').annotate(total=Count('system_name'))
+    # Graphique d'évolution temporelle
+    errors_by_day = (
+        FicheErreur.objects
+        .annotate(day=TruncDay('timestamp'))
+        .values('day')
+        .annotate(count=Count('id'))
+        .order_by('day')
+    )
+    # Préparation des données pour Chart.js
+    evolution_labels = [error['day'].strftime('%Y-%m-%d') for error in errors_by_day]
+    evolution_counts = [error['count'] for error in errors_by_day]
     
-    # Répartition par gravité (distinct par gravite)
-    erreurs_par_gravite = distinct_errors.values('gravite').annotate(total=Count('gravite'))
-    
-    # Répartition par service (distinct par service_name)
-    erreurs_par_service = distinct_errors.values('service_name').annotate(total=Count('service_name'))
-    
-    # Impact utilisateur : somme du nombre d'utilisateurs impactés sur toutes les fiches
-    # Remarque : comme 'nombre_utilisateurs_impactes' n'est pas dans le queryset distinct, on effectue une agrégation séparée
-    impact_utilisateur = FicheErreur.objects.filter(nombre_utilisateurs_impactes__isnull=False)\
-                            .aggregate(total=Sum('nombre_utilisateurs_impactes'))['total']
-    if impact_utilisateur is None:
-        impact_utilisateur = 0
+    # Histogramme des priorités : ici nous utilisons priorite_numerique (vous pouvez adapter selon vos besoins)
+    priority_data = (
+        FicheErreur.objects
+        .values('priorite_numerique')
+        .annotate(count=Count('id'))
+        .order_by('priorite_numerique')
+    )
+    priority_labels = [str(item['priorite_numerique']) for item in priority_data]
+    priority_values = [item['count'] for item in priority_data]
+
+    # Alertes et notifications :
+    # Exemple : erreurs avec une criticité maximale (niveau 5) et celles dont le temps écoulé dépasse le délai prévu
+    critical_errors = FicheErreur.objects.filter(niveau_criticite=5).count()
+    errors_with_delay_issue = FicheErreur.objects.filter(
+        delai_resolution__isnull=False,
+        delai_ecoule__gt=F('delai_resolution')
+    ).count()
 
     context = {
-        'total_erreurs': total_erreurs_distinctes,
-        'erreurs_ouvertes': erreurs_ouvertes,
-        'erreurs_encours': erreurs_encours,
-        'erreurs_resolues': erreurs_resolues,
-        'erreurs_par_systeme': erreurs_par_systeme,
-        'erreurs_par_gravite': erreurs_par_gravite,
-        'erreurs_par_service': erreurs_par_service,
-        'impact_utilisateur': impact_utilisateur,
-        'source_data': source_data,
-        'distinct_errors': distinct_errors,
+        'total_errors': total_errors,
+        'open_errors': open_errors,
+        'resolved_errors': resolved_errors,
+        'avg_resolution': avg_resolution,
+        'avg_criticite': avg_criticite,
+        'evolution_labels': evolution_labels,
+        'evolution_counts': evolution_counts,
+        'priority_labels': priority_labels,
+        'priority_values': priority_values,
+        'critical_errors': critical_errors,
+        'errors_with_delay_issue': errors_with_delay_issue,
     }
     return render(request, 'visualization/visualization_home.html', context)
 
