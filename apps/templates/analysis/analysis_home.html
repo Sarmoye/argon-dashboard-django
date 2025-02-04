@@ -226,7 +226,7 @@
 
                     <!-- Informations Générales -->
                     <div class="card mb-4">
-                        <div class="card-header bg-info text-white">
+                        <div class="card-header bg-info text-dark">
                             <h6 class="mb-0">General Information</h6>
                         </div>
                         <div class="card-body">
@@ -241,7 +241,7 @@
 
                     <!-- Détails de l'Erreur -->
                     <div class="card mb-4">
-                        <div class="card-header bg-light text-dark">
+                        <div class="card-header bg-transparent text-dark">
                             <h6 class="mb-0">Error Details</h6>
                         </div>
                         <div class="card-body">
@@ -255,6 +255,8 @@
                                         <label class="font-weight-bold" for="categorie_erreur">Error Category</label>
                                         <input type="text" class="form-control" id="categorie_erreur" name="categorie_erreur" value="{{ data.categorie_erreur }}">
                                     </div>
+                                </div>
+                                <div class="row">
                                     <div class="col-md-6 mb-3">
                                         <label class="font-weight-bold" for="frequence">Error Frequency</label>
                                         <select class="form-control" id="frequence" name="frequence">
@@ -264,15 +266,25 @@
                                             <option value="Très fréquente" {% if data.frequence == "Très fréquente" %}selected{% endif %}>Very Frequent</option>
                                         </select>
                                     </div>
-                                </div>
-                                <div class="row">
                                     <div class="col-md-6 mb-3">
                                         <label class="font-weight-bold" for="etape_detection">Detection Stage</label>
                                         <input type="text" class="form-control" id="etape_detection" name="etape_detection" value="{{ data.etape_detection }}">
                                     </div>
+                                </div>
+                                <div class="row">
                                     <div class="col-md-6 mb-3">
                                         <label class="font-weight-bold" for="symptomes_observes">Observed Symptoms</label>
                                         <textarea class="form-control" id="symptomes_observes" name="symptomes_observes" rows="3">{{ data.symptomes_observes }}</textarea>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="font-weight-bold" for="services_affectes">Affected Services</label>
+                                        <textarea class="form-control" id="services_affectes" name="services_affectes" rows="2">{{ data.services_affectes }}</textarea>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="font-weight-bold" for="cause">Root Cause</label>
+                                        <textarea class="form-control" id="cause" name="cause" rows="2">{{ data.cause }}</textarea>
                                     </div>
                                     <div class="col-md-6 mb-3">
                                         <label class="font-weight-bold" for="logs_messages">Log Messages</label>
@@ -280,14 +292,6 @@
                                     </div>
                                 </div>
                                 <div class="row">
-                                    <div class="col-md-6 mb-3">
-                                        <label class="font-weight-bold" for="services_affectes">Affected Services</label>
-                                        <textarea class="form-control" id="services_affectes" name="services_affectes" rows="2">{{ data.services_affectes }}</textarea>
-                                    </div>
-                                    <div class="col-md-6 mb-3">
-                                        <label class="font-weight-bold" for="cause">Root Cause</label>
-                                        <textarea class="form-control" id="cause" name="cause" rows="2">{{ data.cause }}</textarea>
-                                    </div>
                                     <div class="col-md-6 mb-3">
                                         <div class="custom-control custom-checkbox">
                                             <input type="checkbox" class="custom-control-input" id="erreur_normale" name="erreur_normale" {% if data.erreur_normale %}checked{% endif %}>
@@ -301,7 +305,7 @@
 
                     <!-- Status and Priority Section -->
                     <div class="card mb-4">
-                        <div class="card-header bg-light text-white">
+                        <div class="card-header bg-transparent text-dark">
                             <h6 class="mb-0">Status and Priority</h6>
                         </div>
                         <div class="card-body">
@@ -349,7 +353,7 @@
 
                     <!-- Impact Assessment -->
                     <div class="card mb-4">
-                        <div class="card-header bg-light text-white">
+                        <div class="card-header bg-transparent text-dark">
                             <h6 class="mb-0">Impact Assessment</h6>
                         </div>
                         <div class="card-body">
@@ -373,7 +377,7 @@
                                 </div>
                             </div>
                             <div class="row">
-                                <div class="col-md-12 mb-3">
+                                <div class="col-md-6 mb-3">
                                     <label class="font-weight-bold" for="zone_geographique_affectee">Affected Geographical Area</label>
                                     <input type="text" class="form-control" id="zone_geographique_affectee" name="zone_geographique_affectee" value="{{ data.zone_geographique_affectee }}">
                                 </div>
@@ -383,18 +387,18 @@
 
                     <!-- Analyse et Hypothèses -->
                     <div class="card mb-4">
-                        <div class="card-header bg-light text-dark">
+                        <div class="card-header bg-transparent text-dark">
                             <h6 class="mb-0">Analysis and Hypotheses</h6>
                         </div>
                         <div class="card-body">
                             <div class="row">
-                                <div class="col-md-12 mb-3">
+                                <div class="col-md-6 mb-3">
                                     <label class="font-weight-bold" for="hypotheses">Hypotheses</label>
                                     <textarea class="form-control" id="hypotheses" name="hypotheses" rows="3">{{ data.hypotheses }}</textarea>
                                 </div>
                             </div>
                             <div class="row">
-                                <div class="col-md-12 mb-3">
+                                <div class="col-md-6 mb-3">
                                     <label class="font-weight-bold" for="precedent_incidents_similaires">Similar Previous Incidents</label>
                                     <textarea class="form-control" id="precedent_incidents_similaires" name="precedent_incidents_similaires" rows="3">{{ data.precedent_incidents_similaires }}</textarea>
                                 </div>
@@ -404,7 +408,7 @@
 
                     <!-- Actions et Résolution -->
                     <div class="card mb-4">
-                        <div class="card-header bg-light text-white">
+                        <div class="card-header bg-transparent text-dark">
                             <h6 class="mb-0">Actions and Resolution</h6>
                         </div>
                         <div class="card-body">
@@ -431,11 +435,11 @@
                                         </div>
                                     </div>
                                     <div class="row">
-                                        <div class="col-md-4 mb-3">
+                                        <div class="col-md-6 mb-3">
                                             <label class="font-weight-bold" for="efficacite_solution">Solution Effectiveness (1-10)</label>
                                             <input type="number" class="form-control" id="efficacite_solution" name="efficacite_solution" value="{{ data.efficacite_solution }}" min="1" max="10">
                                         </div>
-                                        <div class="col-md-8 mb-3">
+                                        <div class="col-md-6 mb-3">
                                             <label class="font-weight-bold" for="tests_effectues">Tests Performed</label>
                                             <textarea class="form-control" id="tests_effectues" name="tests_effectues" rows="2">{{ data.tests_effectues }}</textarea>
                                         </div>
@@ -452,11 +456,11 @@
                                     </div>
                                 </div>
                                 <div class="row">
-                                    <div class="col-md-4 mb-3">
+                                    <div class="col-md-6 mb-3">
                                         <label class="font-weight-bold" for="delai_resolution">Estimated Resolution Time</label>
                                         <input type="text" class="form-control" id="delai_resolution" name="delai_resolution" value="{{ data.delai_resolution }}">
                                     </div>
-                                    <div class="col-md-4 mb-3">
+                                    <div class="col-md-6 mb-3">
                                         <label class="font-weight-bold" for="delai_ecoule">Elapsed Time Since Detection</label>
                                         <input type="text" class="form-control" id="delai_ecoule" name="delai_ecoule" value="{{ data.delai_ecoule }}">
                                     </div>
@@ -592,6 +596,20 @@
                             </div>
                         </div>
                     </div>
+                    <!-- Section Analystes (Affichage Seulement) -->
+                    <div class="card mb-4">
+                        <div class="card-header bg-info text-white">
+                            <h6 class="mb-0">All Analysts</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-12 mb-3">
+                                    <label class="font-weight-bold" for="analysts">Analysts</label>
+                                    <textarea class="form-control" id="analysts" name="analysts" rows="2" disabled>{{ data.analysts }}</textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
                     <!-- Autres -->
                     <div class="card mb-4">
@@ -608,22 +626,6 @@
                         </div>
                     </div>
 
-                    <!-- Section Analystes (Affichage Seulement) -->
-                    <div class="card mb-4">
-                        <div class="card-header bg-info text-white">
-                            <h6 class="mb-0">All Analysts</h6>
-                        </div>
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-md-12 mb-3">
-                                    <label class="font-weight-bold" for="analysts">Analysts</label>
-                                    <textarea class="form-control" id="analysts" name="analysts" rows="2" disabled>{{ data.analysts }}</textarea>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                
                     <input type="hidden" name="data_id" value="{{ data.id }}">
                     <div class="text-right">
                         <button type="button" class="btn btn-secondary mr-2" data-dismiss="modal">Cancel</button>
