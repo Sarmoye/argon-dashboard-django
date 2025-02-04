@@ -522,10 +522,6 @@
                                     <label class="font-weight-bold" for="equipe_responsable">Responsible Team</label>
                                     <input type="text" class="form-control" id="equipe_responsable" name="equipe_responsable" value="{{ data.equipe_responsable }}">
                                 </div>
-                                <div class="col-md-6 mb-3">
-                                    <label class="font-weight-bold" for="frequence">Error Frequency</label>
-                                    <input type="text" class="form-control" id="frequence" name="frequence" value="{{ data.frequence }}">
-                                </div>
                             </div>
                             <!-- Expected and Observed Behavior -->
                             <div class="row">
@@ -765,6 +761,26 @@ $(document).ready(function () {
                 case 'impact_utilisateur':
                 case 'frequence':
                 case 'version_systeme':
+                case 'automatisation_possible':
+                case 'resolution_automatique_possible':
+                case 'timestamp':
+                case 'hypotheses':
+                case 'prochaines_actions':
+                case 'responsable_resolution':
+                case 'commentaires':
+                case 'type_erreur':
+                case 'statut_resolution':
+                case 'historique_actions':
+                case 'equipe_responsable':
+                case 'comportement_attendu':
+                case 'comportement_observe':
+                case 'delai_resolution':
+                case 'delai_ecoule':
+                case 'precedent_incidents_similaires':
+                case 'audit_log':
+                case 'documentation_associee':
+                case 'erreur_normale':
+                case 'analysts':
                 case 'etape_detection':
                     if (value.length > 100) {
                         $field.addClass('is-invalid');

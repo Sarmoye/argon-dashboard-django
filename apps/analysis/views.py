@@ -126,6 +126,8 @@ def update_fiche_erreur(request):
         # Update additional options
         fiche.automatisation_possible = bool(request.POST.get('automatisation_possible'))
         fiche.resolution_automatique_possible = bool(request.POST.get('resolution_automatique_possible'))
+
+        print(fiche)
         
         try:
             fiche.save()
