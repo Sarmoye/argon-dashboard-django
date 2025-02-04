@@ -41,7 +41,7 @@ def index(request):
     # Filtrer pour éviter les doublons sur les clés spécifiques
     total_errors = FicheErreur.objects.values(
         "system_name", "service_type", "service_name", "error_reason"
-    ).distinct()
+    ).distinct().count()
     
     # On considère comme "ouvertes" les fiches avec statut "Ouvert" ou resolution "Non commencé"
     open_errors = FicheErreur.objects.filter(
