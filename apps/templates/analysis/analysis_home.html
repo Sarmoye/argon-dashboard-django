@@ -376,6 +376,10 @@
                         </div>
                         <div class="card-body">
                             <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="font-weight-bold" for="commentaires">Comments</label>
+                                    <textarea class="form-control" id="commentaires" name="commentaires" rows="3">{{ data.commentaires }}</textarea>
+                                </div>
                                 <div class="col-md-12 mb-3">
                                     <label class="font-weight-bold" for="etape_detection">Detection Stage</label>
                                     <input type="text" class="form-control" id="etape_detection" name="etape_detection" value="{{ data.etape_detection }}">
