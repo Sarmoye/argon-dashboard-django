@@ -127,6 +127,26 @@ def update_fiche_erreur(request):
         fiche.automatisation_possible = bool(request.POST.get('automatisation_possible'))
         fiche.resolution_automatique_possible = bool(request.POST.get('resolution_automatique_possible'))
 
+        fiche.timestamp = request.POST.get('timestamp')
+        fiche.hypotheses = request.POST.get('hypotheses')
+        fiche.prochaines_actions = request.POST.get('prochaines_actions')
+        fiche.responsable_resolution = request.POST.get('responsable_resolution')
+        fiche.commentaires = request.POST.get('commentaires')
+        fiche.type_erreur = request.POST.get('type_erreur')
+        fiche.statut_resolution = request.POST.get('statut_resolution')
+        fiche.historique_actions = request.POST.get('historique_actions')
+        fiche.equipe_responsable = request.POST.get('equipe_responsable')
+        fiche.comportement_attendu = request.POST.get('comportement_attendu')
+        fiche.comportement_observe = request.POST.get('comportement_observe')
+        fiche.delai_resolution = request.POST.get('delai_resolution')
+        fiche.delai_ecoule = request.POST.get('delai_ecoule')
+        fiche.precedent_incidents_similaires = request.POST.get('precedent_incidents_similaires')
+        fiche.audit_log = request.POST.get('audit_log')
+        fiche.documentation_associee = request.POST.get('documentation_associee')
+        fiche.erreur_normale = bool(request.POST.get('erreur_normale'))
+        fiche.analysts = request.POST.get('analysts')
+
+
         print(fiche)
         
         try:
