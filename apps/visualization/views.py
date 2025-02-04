@@ -41,6 +41,8 @@ def index(request):
 
     # Nombre total d'erreurs distinctes
     total_erreurs_distinctes = distinct_errors.count()
+
+    print(total_erreurs_distinctes)
     
     # Répartition par statut (en utilisant le queryset distinct)
     erreurs_ouvertes = distinct_errors.filter(statut="Ouvert").count()
