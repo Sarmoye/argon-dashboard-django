@@ -2,26 +2,27 @@
 
 {% load static %}
 
-{% block title %} Source DataTables {% endblock title %}
+{% block title %}Tableau de bord - Error Management{% endblock title %}
 
 {% block extrastyle %}
 <style>
-    /* Custom CSS for table styling */
-    #dataTable {
-        width: 100%; /* Set table width to 100% */
-        border-collapse: collapse; /* Collapse table borders */
-        border: 1px solid #ddd; /* Add border to table */
+    /* Styles pour les indicateurs */
+    .dashboard-card {
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        padding: 20px;
+        margin-bottom: 20px;
+        text-align: center;
+        background-color: #f9f9f9;
     }
-    #dataTable th, #dataTable td {
-        border: 1px solid #ddd; /* Add border to table cells */
-        padding: 8px; /* Add padding to table cells */
+    .dashboard-card h3 {
+        margin: 0;
+        font-size: 1.5rem;
     }
-    #dataTable th {
-        background-color: #f2f2f2; /* Set background color for table header */
-    }
-    #dataTable tbody tr:nth-child(even) {
-        background-color: #f2f2f2; /* Set background color for even rows */
-        color: rgb(0, 0, 0);
+    .dashboard-card p {
+        margin: 5px 0 0;
+        font-size: 1.2rem;
+        font-weight: bold;
     }
 </style>
 {% endblock extrastyle %}
@@ -36,36 +37,114 @@
 {% endblock extrahead %}
 
 {% block content %}
-    <div class="container mt-5">
-        <h1 class="text-center">VISUALIZATION</h1>
-        <!-- Table responsive -->
-        <div class="table-responsive">
-            <table class="table table-striped table-bordered mt-4" id="dataTable">
-                <thead class="thead-light">
-                    <tr>
-                        
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for data in source_data %}
-                    <tr class="data-row">
-                        
-                    </tr>
-                    {% empty %}
-                    <tr>
-                        <td colspan="9" class="text-center">No data available.</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+<div class="container mt-5">
+    <h1 class="text-center mb-4">Tableau de Bord - Gestion des Erreurs</h1>
+
+    <!-- Section des indicateurs clés -->
+    <div class="row">
+        <!-- Erreurs Totales -->
+        <div class="col-md-4">
+            <div class="dashboard-card">
+                <h3>Erreurs Totales</h3>
+                <p>{{ total_erreurs }}</p>
+            </div>
+        </div>
+        <!-- Impact Utilisateur -->
+        <div class="col-md-4">
+            <div class="dashboard-card">
+                <h3>Impact Utilisateur</h3>
+                <p>{{ impact_utilisateur }}</p>
+            </div>
+        </div>
+        <!-- Statut des Erreurs (Ouvertes, En cours, Résolues) -->
+        <div class="col-md-4">
+            <div class="dashboard-card">
+                <h3>Statut des Erreurs</h3>
+                <p>Ouvertes: {{ erreurs_ouvertes }}</p>
+                <p>En cours: {{ erreurs_encours }}</p>
+                <p>Résolues: {{ erreurs_resolues }}</p>
+            </div>
         </div>
     </div>
+
+    <!-- Section Répartition par Système, Gravité et Service -->
+    <div class="row">
+        <!-- Répartition par Système -->
+        <div class="col-md-4">
+            <div class="dashboard-card">
+                <h3>Erreurs par Système</h3>
+                <ul class="list-unstyled">
+                    {% for item in erreurs_par_systeme %}
+                        <li>{{ item.system_name }}: {{ item.total }}</li>
+                    {% empty %}
+                        <li>Aucune donnée</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+        <!-- Répartition par Gravité -->
+        <div class="col-md-4">
+            <div class="dashboard-card">
+                <h3>Gravité des Erreurs</h3>
+                <ul class="list-unstyled">
+                    {% for item in erreurs_par_gravite %}
+                        <li>{{ item.gravite }}: {{ item.total }}</li>
+                    {% empty %}
+                        <li>Aucune donnée</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+        <!-- Erreurs par Service -->
+        <div class="col-md-4">
+            <div class="dashboard-card">
+                <h3>Erreurs par Service</h3>
+                <ul class="list-unstyled">
+                    {% for item in erreurs_par_service %}
+                        <li>{{ item.service_name }}: {{ item.total }}</li>
+                    {% empty %}
+                        <li>Aucune donnée</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Vous pouvez garder votre table existante ou la remplacer par d'autres visualisations -->
+    <div class="table-responsive mt-5">
+        <table class="table table-striped table-bordered" id="dataTable">
+            <thead class="thead-light">
+                <tr>
+                    <!-- Vous pouvez ajouter ici les colonnes à afficher pour source_data -->
+                    <th>ID</th>
+                    <th>Système</th>
+                    <th>Service</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for data in source_data %}
+                <tr class="data-row">
+                    <td>{{ data.unique_identifier }}</td>
+                    <td>{{ data.system_name }}</td>
+                    <td>{{ data.service_name }}</td>
+                    <td>{{ data.timestamp|date:"d/m/Y H:i" }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" class="text-center">Aucune donnée disponible.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
 
 {% include "includes/footer.html" %}
 {% endblock content %}
 
 {% block javascripts %}
-<!-- Bootstrap JS (optional if not already included) -->
+<!-- Bootstrap JS -->
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 <!-- jQuery -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -83,16 +162,14 @@
 <script src="https://cdn.datatables.net/buttons/2.2.2/js/buttons.colVis.min.js"></script>
 <!-- DataTables Buttons Flash JS -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
-<!-- DataTables Buttons Flash JS -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/vfs_fonts.js"></script>
-    <script>
-        $(document).ready(function() {
-            $('#dataTable').DataTable({
-                dom: 'Bfrtip',
-                buttons: [
-                    'copy', 'csv', 'excel'
-                ]
-            });
+<script>
+    $(document).ready(function() {
+        $('#dataTable').DataTable({
+            dom: 'Bfrtip',
+            buttons: [
+                'copy', 'csv', 'excel'
+            ]
         });
-    </script>
+    });
+</script>
 {% endblock javascripts %}
