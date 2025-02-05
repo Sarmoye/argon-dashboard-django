@@ -134,6 +134,7 @@ def update_fiche_erreur(request):
         fiche.commentaires = request.POST.get('commentaires')
         fiche.type_erreur = request.POST.get('type_erreur')
         fiche.statut_resolution = request.POST.get('statut_resolution')
+        fiche.statut = request.POST.get('statut')
         fiche.historique_actions = request.POST.get('historique_actions')
         fiche.equipe_responsable = request.POST.get('equipe_responsable')
         fiche.comportement_attendu = request.POST.get('comportement_attendu')
