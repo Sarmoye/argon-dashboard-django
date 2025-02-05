@@ -1,98 +1,206 @@
-{% extends 'layouts/base.html' %}
-
+{% extends 'base.html' %}
 {% load static %}
 
-{% block title %} Source DataTables {% endblock title %}
-
-{% block extrastyle %}
-<style>
-    /* Custom CSS for table styling */
-    #dataTable {
-        width: 100%; /* Set table width to 100% */
-        border-collapse: collapse; /* Collapse table borders */
-        border: 1px solid #ddd; /* Add border to table */
-    }
-    #dataTable th, #dataTable td {
-        border: 1px solid #ddd; /* Add border to table cells */
-        padding: 8px; /* Add padding to table cells */
-    }
-    #dataTable th {
-        background-color: #f2f2f2; /* Set background color for table header */
-    }
-    #dataTable tbody tr:nth-child(even) {
-        background-color: #f2f2f2; /* Set background color for even rows */
-        color: rgb(0, 0, 0);
-    }
-</style>
-{% endblock extrastyle %}
-
-{% block extrahead %}
-   <!-- Bootstrap CSS -->
-   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-   <!-- DataTables CSS -->
-   <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
-   <!-- DataTables Buttons CSS -->
-   <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.2.2/css/buttons.dataTables.min.css">
-{% endblock extrahead %}
-
 {% block content %}
-    <div class="container mt-5">
-        <h1 class="text-center">VISUALIZATION</h1>
-        <!-- Table responsive -->
-        <div class="table-responsive">
-            <table class="table table-striped table-bordered mt-4" id="dataTable">
-                <thead class="thead-light">
-                    <tr>
+<div class="container-fluid p-4">
+    <!-- Filtres -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <form id="filterForm" method="GET" class="row g-3">
+                        <div class="col-md-4">
+                            <label class="form-label">Système</label>
+                            <select name="system" class="form-select">
+                                <option value="">Tous les systèmes</option>
+                                {% for system in systems %}
+                                <option value="{{ system }}" {% if system == selected_system %}selected{% endif %}>
+                                    {{ system }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Période</label>
+                            <select name="date_range" class="form-select">
+                                <option value="7" {% if date_range == '7' %}selected{% endif %}>7 derniers jours</option>
+                                <option value="30" {% if date_range == '30' %}selected{% endif %}>30 derniers jours</option>
+                                <option value="90" {% if date_range == '90' %}selected{% endif %}>90 derniers jours</option>
+                            </select>
+                        </div>
                         
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for data in source_data %}
-                    <tr class="data-row">
-                        
-                    </tr>
-                    {% empty %}
-                    <tr>
-                        <td colspan="9" class="text-center">No data available.</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+                    </form>
+                </div>
+            </div>
         </div>
     </div>
 
-{% include "includes/footer.html" %}
-{% endblock content %}
+    <!-- Statistiques rapides -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Total Erreurs</h5>
+                    <h2>{{ error_stats.total_errors }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Erreurs Ouvertes</h5>
+                    <h2>{{ error_stats.open_errors }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-danger text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Erreurs Critiques</h5>
+                    <h2>{{ error_stats.critical_errors }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Temps Moyen Résolution</h5>
+                    <h2>{{ error_stats.avg_resolution_time|floatformat:1 }} h</h2>
+                </div>
+            </div>
+        </div>
+    </div>
 
-{% block javascripts %}
-<!-- Bootstrap JS (optional if not already included) -->
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-<!-- jQuery -->
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<!-- DataTables JS -->
-<script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
-<!-- DataTables Buttons JS -->
-<script src="https://cdn.datatables.net/buttons/2.2.2/js/dataTables.buttons.min.js"></script>
-<!-- DataTables Buttons Print JS -->
-<script src="https://cdn.datatables.net/buttons/2.2.2/js/buttons.html5.min.js"></script>
-<!-- DataTables Buttons PDFMake JS -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/pdfmake.min.js"></script>
-<!-- DataTables Buttons VFS Fonts JS -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/vfs_fonts.js"></script>
-<!-- DataTables Buttons CSV JS -->
-<script src="https://cdn.datatables.net/buttons/2.2.2/js/buttons.colVis.min.js"></script>
-<!-- DataTables Buttons Flash JS -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
-<!-- DataTables Buttons Flash JS -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/vfs_fonts.js"></script>
-    <script>
-        $(document).ready(function() {
-            $('#dataTable').DataTable({
-                dom: 'Bfrtip',
-                buttons: [
-                    'copy', 'csv', 'excel'
+    <!-- Graphiques -->
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Évolution des erreurs</h5>
+                    <canvas id="errorTrendChart" 
+                        data-labels="{% for item in errors_by_day %}{{ item.date }}{% if not forloop.last %},{% endif %}{% endfor %}"
+                        data-values="{% for item in errors_by_day %}{{ item.count }}{% if not forloop.last %},{% endif %}{% endfor %}">
+                    </canvas>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Erreurs par système</h5>
+                    <canvas id="errorBySystemChart"
+                        data-labels="{% for item in errors_by_system %}{{ item.system_name }}{% if not forloop.last %},{% endif %}{% endfor %}"
+                        data-values="{% for item in errors_by_system %}{{ item.count }}{% if not forloop.last %},{% endif %}{% endfor %}">
+                    </canvas>
+                </div>
+            </div>
+        </div>
+    
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Distribution par priorité</h5>
+                    <canvas id="errorByPriorityChart"
+                        data-labels="{% for item in errors_by_priority %}{{ item.priorite }}{% if not forloop.last %},{% endif %}{% endfor %}"
+                        data-values="{% for item in errors_by_priority %}{{ item.count }}{% if not forloop.last %},{% endif %}{% endfor %}">
+                    </canvas>
+                </div>
+            </div>
+        </div>
+    
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Statut des erreurs</h5>
+                    <canvas id="errorByStatusChart"
+                        data-labels="{% for item in errors_by_status %}{{ item.statut }}{% if not forloop.last %},{% endif %}{% endfor %}"
+                        data-values="{% for item in errors_by_status %}{{ item.count }}{% if not forloop.last %},{% endif %}{% endfor %}">
+                    </canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Fonction utilitaire pour récupérer les données des attributs
+    function getChartData(elementId) {
+        const canvas = document.getElementById(elementId);
+        return {
+            labels: canvas.dataset.labels.split(','),
+            values: canvas.dataset.values.split(',').map(Number)
+        };
+    }
+
+    // Graphique d'évolution
+    const trendData = getChartData('errorTrendChart');
+    new Chart(document.getElementById('errorTrendChart'), {
+        type: 'line',
+        data: {
+            labels: trendData.labels,
+            datasets: [{
+                label: 'Nombre d\'erreurs',
+                data: trendData.values,
+                borderColor: 'rgb(75, 192, 192)',
+                tension: 0.1
+            }]
+        }
+    });
+
+    // Graphique par système
+    const systemData = getChartData('errorBySystemChart');
+    new Chart(document.getElementById('errorBySystemChart'), {
+        type: 'bar',
+        data: {
+            labels: systemData.labels,
+            datasets: [{
+                label: 'Nombre d\'erreurs',
+                data: systemData.values,
+                backgroundColor: 'rgb(54, 162, 235)'
+            }]
+        }
+    });
+
+    // Graphique par priorité
+    const priorityData = getChartData('errorByPriorityChart');
+    new Chart(document.getElementById('errorByPriorityChart'), {
+        type: 'pie',
+        data: {
+            labels: priorityData.labels,
+            datasets: [{
+                data: priorityData.values,
+                backgroundColor: [
+                    'rgb(255, 99, 132)',
+                    'rgb(255, 205, 86)',
+                    'rgb(75, 192, 192)'
                 ]
-            });
-        });
-    </script>
-{% endblock javascripts %}
+            }]
+        }
+    });
+
+    // Graphique par statut
+    const statusData = getChartData('errorByStatusChart');
+    new Chart(document.getElementById('errorByStatusChart'), {
+        type: 'doughnut',
+        data: {
+            labels: statusData.labels,
+            datasets: [{
+                data: statusData.values,
+                backgroundColor: [
+                    'rgb(255, 99, 132)',
+                    'rgb(54, 162, 235)',
+                    'rgb(255, 205, 86)'
+                ]
+            }]
+        }
+    });
+});
+
+</script>
+{% endblock %}
