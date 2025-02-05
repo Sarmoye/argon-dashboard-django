@@ -38,12 +38,26 @@
     <!-- Statistiques rapides -->
     <div class="row mb-4">
         <div class="col-md-3">
-            <div class="card bg-primary text-white">
+            <div class="card card-stats">
+                <!-- Card body -->
                 <div class="card-body">
-                    <h5 class="card-title">Total Erreurs</h5>
-                    <h2>{{ error_stats.total_errors }}</h2>
+                    <div class="row">
+                        <div class="col">
+                            <h5 class="card-title text-uppercase text-muted mb-0">Nombre Total d'Erreurs</h5>
+                            <span class="h2 font-weight-bold mb-0">{{ total_errors }}</span>
+                        </div>
+                        <div class="col-auto">
+                            <div class="icon icon-shape bg-gradient-red text-white rounded-circle shadow">
+                                <i class="ni ni-alert-circle-exc"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="mt-3 mb-0 text-sm">
+                        <span class="text-danger mr-2"><i class="fa fa-exclamation-circle"></i> Incident Tracking</span>
+                        <span class="text-nowrap">Toutes sources confondues</span>
+                    </p>
                 </div>
-            </div>
+            </div>            
         </div>
         <div class="col-md-3">
             <div class="card bg-warning text-white">
