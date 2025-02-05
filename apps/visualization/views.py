@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import login_required
 from apps.analysis.models import FicheErreur 
 from django.shortcuts import render
 from django.contrib.auth.decorators import user_passes_test
-from django.db.models import Count, Sum
+from django.db.models import Count, Sum, Avg
 
 def check_user_role(user, allowed_roles=None):
     """
@@ -29,67 +29,56 @@ def check_user_role(user, allowed_roles=None):
 
 
 
-from django.db.models import Count, Avg
-from django.db.models.functions import TruncDate
-from datetime import datetime, timedelta
-
 def index(request):
-    # Récupérer le système sélectionné depuis les paramètres GET
-    selected_system = request.GET.get('system', None)
-    date_range = request.GET.get('date_range', '7')  # Par défaut 7 jours
+    # Filtrer pour éviter les doublons sur les clés spécifiques
+    distinct_errors = FicheErreur.objects.values(
+        "system_name", "service_type", "service_name", "error_reason"
+    ).distinct()
+
+    # Nombre total d'erreurs distinctes
+    total_erreurs_distinctes = distinct_errors.count()
     
-    # Query de base
-    queryset = FicheErreur.objects.all()
+    # Répartition par statut (en utilisant le queryset distinct)
+    erreurs_ouvertes = distinct_errors.filter(statut="Ouvert").count()
+    erreurs_encours = distinct_errors.filter(statut="En cours").count()
+    erreurs_resolues = distinct_errors.filter(statut="Résolu").count()
     
-    # Filtrer par système si sélectionné
-    if selected_system:
-        queryset = queryset.filter(system_name=selected_system)
+    # Répartition par système (distinct par system_name)
+    erreurs_par_systeme = distinct_errors.values('system_name').annotate(total=Count('system_name'))
+    
+    # Répartition par gravité (distinct par gravite)
+    erreurs_par_gravite = distinct_errors.values('gravite').annotate(total=Count('gravite'))
+    
+    # Répartition par service (distinct par service_name)
+    erreurs_par_service = distinct_errors.values('service_name').annotate(total=Count('service_name'))
+    
+    # Impact utilisateur : somme du nombre d'utilisateurs impactés sur toutes les fiches
+    # Remarque : comme 'nombre_utilisateurs_impactes' n'est pas dans le queryset distinct, on effectue une agrégation séparée
+    impact_utilisateur = FicheErreur.objects.filter(nombre_utilisateurs_impactes__isnull=False)\
+                            .aggregate(total=Sum('nombre_utilisateurs_impactes'))['total']
+    if impact_utilisateur is None:
+        impact_utilisateur = 0
 
-    # Calculer la date de début selon la période sélectionnée
-    days = int(date_range)
-    start_date = datetime.now() - timedelta(days=days)
-    queryset = queryset.filter(timestamp__gte=start_date)
-
-    # Statistiques générales
-    error_stats = {
-        'total_errors': queryset.count(),
-        'open_errors': queryset.filter(statut='Ouvert').count(),
-        'avg_resolution_time': queryset.exclude(delai_resolution__isnull=True).aggregate(Avg('delai_resolution'))['delai_resolution__avg'],
-        'critical_errors': queryset.filter(gravite='Haute').count(),
-    }
-
-    # Données pour les graphiques
-    errors_by_day = queryset.annotate(
-        date=TruncDate('timestamp')
-    ).values('date').annotate(
-        count=Count('id')
-    ).order_by('date')
-
-    errors_by_system = queryset.values('system_name').annotate(
-        count=Count('id')
-    ).order_by('-count')
-
-    errors_by_priority = queryset.values('priorite').annotate(
-        count=Count('id')
-    ).order_by('priorite')
-
-    errors_by_status = queryset.values('statut').annotate(
-        count=Count('id')
-    ).order_by('statut')
-
-    # Liste des systèmes pour le filtre
-    systems = FicheErreur.objects.values_list('system_name', flat=True).distinct()
+    # Calcul du temps moyen de résolution pour chaque erreur distincte
+    erreurs_moyenne_temps = (
+        FicheErreur.objects.values(
+            "system_name", "service_type", "service_name", "error_reason"
+        )
+        .annotate(moyenne_temps=Avg("delai_resolution"))
+        .order_by("-moyenne_temps")  # Optionnel : trier par temps moyen décroissant
+    )
 
     context = {
-        'error_stats': error_stats,
-        'errors_by_day': list(errors_by_day),
-        'errors_by_system': list(errors_by_system),
-        'errors_by_priority': list(errors_by_priority),
-        'errors_by_status': list(errors_by_status),
-        'systems': systems,
-        'selected_system': selected_system,
-        'date_range': date_range,
+        'total_erreurs': total_erreurs_distinctes,
+        'erreurs_ouvertes': erreurs_ouvertes,
+        'erreurs_encours': erreurs_encours,
+        'erreurs_resolues': erreurs_resolues,
+        'erreurs_par_systeme': erreurs_par_systeme,
+        'erreurs_par_gravite': erreurs_par_gravite,
+        'erreurs_par_service': erreurs_par_service,
+        'impact_utilisateur': impact_utilisateur,
+        'distinct_errors': distinct_errors,
+        'erreurs_moyenne_temps':erreurs_moyenne_temps,
     }
-    
     return render(request, 'visualization/visualization_home.html', context)
 
