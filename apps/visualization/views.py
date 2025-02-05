@@ -35,7 +35,6 @@ def index(request):
 
     # Nombre total d'erreurs distinctes
     total_erreurs_distinctes = distinct_errors.count()
-    print(total_erreurs_distinctes)
     
     # Répartition par statut (en utilisant le queryset distinct)
     erreurs_ouvertes = distinct_errors.filter(statut="Ouvert").count()
@@ -64,7 +63,7 @@ def index(request):
     moyenne_globale_resolution = erreurs_moyenne_temps.aggregate(Avg("moyenne_temps"))["moyenne_temps__avg"]
 
     context = {
-        'total_erreurs': total_erreurs_distinctes,
+        'total_erreurs_distinctes': total_erreurs_distinctes,
         'erreurs_ouvertes': erreurs_ouvertes,
         'erreurs_resolues': erreurs_resolues,
         'erreurs_par_systeme': erreurs_par_systeme,
