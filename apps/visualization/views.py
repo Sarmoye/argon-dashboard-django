@@ -41,20 +41,15 @@ def index(request):
     erreurs_resolues = distinct_errors.filter(statut="Résolu").count()
     
     # Répartition par système (distinct par system_name)
-    erreurs_par_systeme = distinct_errors.values('system_name').annotate(total=Count('system_name'))
+    erreurs_par_systeme = (FicheErreur.objects.values("system_name").annotate(distinct_errors=Count("error_reason", distinct=True)))
     
     # Répartition par gravité (distinct par gravite)
-    erreurs_par_gravite = distinct_errors.values('gravite').annotate(total=Count('gravite'))
-    
-    # Répartition par service (distinct par service_name)
-    erreurs_par_service = distinct_errors.values('service_name').annotate(total=Count('service_name'))
-    
-    # Impact utilisateur : somme du nombre d'utilisateurs impactés sur toutes les fiches
-    # Remarque : comme 'nombre_utilisateurs_impactes' n'est pas dans le queryset distinct, on effectue une agrégation séparée
-    impact_utilisateur = FicheErreur.objects.filter(nombre_utilisateurs_impactes__isnull=False)\
-                            .aggregate(total=Sum('nombre_utilisateurs_impactes'))['total']
-    if impact_utilisateur is None:
-        impact_utilisateur = 0
+    erreurs_par_gravite = (FicheErreur.objects.values("gravite").annotate(distinct_errors=Count("error_reason", distinct=True)))
+
+    # Répartition par priorité (distinct par priorite)
+    erreurs_par_priorite = (FicheErreur.objects.values("priorite").annotate(distinct_errors=Count("error_reason", distinct=True)))
+
+    erreurs_ouvertes_per_system = FicheErreur.objects.filter(statut="Ouvert").values("system_name").annotate(distinct_errors=Count("error_reason", distinct=True))
 
     # Calcul du temps moyen de résolution pour chaque erreur distincte
     erreurs_moyenne_temps = (FicheErreur.objects.values("error_reason").annotate(moyenne_temps=Avg("delai_resolution")))
@@ -67,9 +62,9 @@ def index(request):
         'erreurs_ouvertes': erreurs_ouvertes,
         'erreurs_resolues': erreurs_resolues,
         'erreurs_par_systeme': erreurs_par_systeme,
+        'erreurs_par_priorite': erreurs_par_priorite,
         'erreurs_par_gravite': erreurs_par_gravite,
-        'erreurs_par_service': erreurs_par_service,
-        'impact_utilisateur': impact_utilisateur,
+        'erreurs_ouvertes_per_system': erreurs_ouvertes_per_system,
         'distinct_errors': distinct_errors,
         'moyenne_globale_resolution':moyenne_globale_resolution,
     }

@@ -142,7 +142,7 @@
         <div class="col-md-6 mb-4">
             <div class="card">
                 <div class="card-body">
-                    <h5 class="card-title">Erreurs ouvertes par système</h5>
+                    <h5 class="card-title">Erreurs ouvertes par système {{erreurs_ouvertes_per_system}} </h5>
                     <canvas id="errorBySystemChart"
                         data-labels="{% for item in errors_by_system %}{{ item.system_name }}{% if not forloop.last %},{% endif %}{% endfor %}"
                         data-values="{% for item in errors_by_system %}{{ item.count }}{% if not forloop.last %},{% endif %}{% endfor %}">
@@ -154,7 +154,7 @@
         <div class="col-md-6 mb-4">
             <div class="card">
                 <div class="card-body">
-                    <h5 class="card-title">Distribution par priorité</h5>
+                    <h5 class="card-title">Distribution par priorité {{erreurs_par_priorite}}</h5>
                     <canvas id="errorByPriorityChart"
                         data-labels="{% for item in errors_by_priority %}{{ item.priorite }}{% if not forloop.last %},{% endif %}{% endfor %}"
                         data-values="{% for item in errors_by_priority %}{{ item.count }}{% if not forloop.last %},{% endif %}{% endfor %}">
@@ -166,7 +166,7 @@
         <div class="col-md-6 mb-4">
             <div class="card">
                 <div class="card-body">
-                    <h5 class="card-title">Distribution par gravité</h5>
+                    <h5 class="card-title">Distribution par gravité {{erreurs_par_gravite}}</h5>
                     <canvas id="errorByStatusChart"
                         data-labels="{% for item in errors_by_status %}{{ item.statut }}{% if not forloop.last %},{% endif %}{% endfor %}"
                         data-values="{% for item in errors_by_status %}{{ item.count }}{% if not forloop.last %},{% endif %}{% endfor %}">

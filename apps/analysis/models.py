@@ -9,7 +9,7 @@ class FicheErreur(models.Model):
     service_name = models.CharField(max_length=100)
     error_count = models.IntegerField()
     error_reason = models.TextField()
-    timestamp = models.DateTimeField()
+    timestamp = models.DateTimeField(auto_now_add=True)
     priorite = models.CharField(max_length=50, default="Normale")
     statut = models.CharField(max_length=50, default="Ouvert")
     symptomes_observes = models.TextField(blank=True)

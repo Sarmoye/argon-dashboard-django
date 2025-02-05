@@ -48,7 +48,6 @@ def index(request):
                 service_name=data.service_name,
                 error_count=data.error_count,
                 error_reason=data.error_reason,
-                timestamp=data.timestamp,
                 priorite='Normale',  # Valeur par défaut
                 statut='Ouvert',  # Valeur par défaut
                 source_data_id=data.id,  # Assurez-vous que la fiche est liée à la SourceData
@@ -127,7 +126,7 @@ def update_fiche_erreur(request):
         fiche.automatisation_possible = bool(request.POST.get('automatisation_possible'))
         fiche.resolution_automatique_possible = bool(request.POST.get('resolution_automatique_possible'))
 
-        fiche.timestamp = request.POST.get('timestamp')
+        fiche.timestamp_modification = request.POST.get('timestamp')
         fiche.hypotheses = request.POST.get('hypotheses')
         fiche.prochaines_actions = request.POST.get('prochaines_actions')
         fiche.responsable_resolution = request.POST.get('responsable_resolution')
