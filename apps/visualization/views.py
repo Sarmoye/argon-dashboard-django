@@ -31,16 +31,13 @@ def check_user_role(user, allowed_roles=None):
 
 def index(request):
     # Filtrer pour éviter les doublons sur les clés spécifiques
-    distinct_errors = FicheErreur.objects.values(
-        "system_name", "service_type", "service_name", "error_reason"
-    ).distinct()
+    distinct_errors = FicheErreur.objects.values("error_reason").distinct().count()
 
     # Nombre total d'erreurs distinctes
     total_erreurs_distinctes = distinct_errors.count()
     
     # Répartition par statut (en utilisant le queryset distinct)
     erreurs_ouvertes = distinct_errors.filter(statut="Ouvert").count()
-    erreurs_encours = distinct_errors.filter(statut="En cours").count()
     erreurs_resolues = distinct_errors.filter(statut="Résolu").count()
     
     # Répartition par système (distinct par system_name)
@@ -60,12 +57,7 @@ def index(request):
         impact_utilisateur = 0
 
     # Calcul du temps moyen de résolution pour chaque erreur distincte
-    erreurs_moyenne_temps = (
-        FicheErreur.objects.values(
-            "system_name", "service_type", "service_name", "error_reason"
-        )
-        .annotate(moyenne_temps=Avg("delai_resolution"))
-    )
+    erreurs_moyenne_temps = (FicheErreur.objects.values("error_reason").annotate(moyenne_temps=Avg("delai_resolution")))
 
     # Calcul de la moyenne globale des moyennes
     moyenne_globale_resolution = erreurs_moyenne_temps.aggregate(Avg("moyenne_temps"))["moyenne_temps__avg"]
@@ -73,7 +65,6 @@ def index(request):
     context = {
         'total_erreurs': total_erreurs_distinctes,
         'erreurs_ouvertes': erreurs_ouvertes,
-        'erreurs_encours': erreurs_encours,
         'erreurs_resolues': erreurs_resolues,
         'erreurs_par_systeme': erreurs_par_systeme,
         'erreurs_par_gravite': erreurs_par_gravite,
