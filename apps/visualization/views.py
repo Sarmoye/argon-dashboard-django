@@ -26,9 +26,6 @@ def check_user_role(user, allowed_roles=None):
     
     return user.role in allowed_roles
 
-
-
-
 def index(request):
     # Filtrer pour éviter les doublons sur les clés spécifiques
     distinct_errors = FicheErreur.objects.values("error_reason").distinct()
