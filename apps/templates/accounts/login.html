@@ -5,10 +5,22 @@
 <!-- Specific CSS goes HERE -->
 {% block stylesheets %}{% endblock stylesheets %}
 
+{% block extrastyle %}
+<style>
+  body {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    background-color: #f8f9fe;
+    margin: 0;
+}
+</style>
+{% endblock extrastyle %}
+
 {% block content %}
 
     <!-- Page content -->
-    <div class="container mt--8 pb-5">
+    <div class="container pb-5">
       <div class="row justify-content-center">
         <div class="col-lg-5 col-md-7">
           <div class="card bg-secondary shadow border-0">
