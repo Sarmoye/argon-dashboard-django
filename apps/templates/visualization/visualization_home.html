@@ -125,28 +125,57 @@
         </div>
     </div>
 
+    <!-- Graphiques -->
     <div class="row">
-        <!-- Table: Erreurs ouvertes par système -->
         <div class="col-md-6 mb-4">
-            <div class="card shadow-sm">
+            <div class="card">
                 <div class="card-body">
-                    <h5 class="card-title">Erreurs ouvertes par système</h5>
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th>Système</th>
-                                <th>Nombre d'erreurs</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for item in erreurs_ouvertes_per_system %}
-                            <tr>
-                                <td>{{ item.system_name }}</td>
-                                <td>{{ item.distinct_errors }}</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+                    <h5 class="card-title">Évolution des erreurs</h5>
+                    <canvas id="errorTrendChart" 
+                        data-labels="{% for item in errors_by_day %}{{ item.date }}{% if not forloop.last %},{% endif %}{% endfor %}"
+                        data-values="{% for item in errors_by_day %}{{ item.count }}{% if not forloop.last %},{% endif %}{% endfor %}">
+                    </canvas>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6 mb-4">
+            <div class="card border-0 shadow-lg">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Erreurs ouvertes par système</h5>
+                    <span class="badge bg-light text-primary">
+                        Total: {% set total_errors = erreurs_ouvertes_per_system|sum(attribute='distinct_errors') %}{{ total_errors }}
+                    </span>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th class="py-3 px-4 text-muted text-uppercase small">Système</th>
+                                    <th class="py-3 px-4 text-muted text-uppercase small text-end">Nombre d'erreurs</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in erreurs_ouvertes_per_system|sort(attribute='distinct_errors', reverse=True) %}
+                                <tr {% if loop.index % 2 == 0 %}class="bg-light"{% endif %}>
+                                    <td class="py-3 px-4">
+                                        <span class="fw-bold">{{ item.system_name }}</span>
+                                    </td>
+                                    <td class="py-3 px-4 text-end">
+                                        <span class="badge {% if item.distinct_errors > 10 %}bg-danger{% elif item.distinct_errors > 5 %}bg-warning{% else %}bg-success{% endif %} px-3">
+                                            {{ item.distinct_errors }}
+                                        </span>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="card-footer text-muted small py-2 px-4 d-flex justify-content-between">
+                    <span>Last updated: {{ current_timestamp }}</span>
+                    <a href="#" class="text-primary text-decoration-none">View Details</a>
                 </div>
             </div>
         </div>
