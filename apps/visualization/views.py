@@ -65,8 +65,10 @@ def index(request):
             "system_name", "service_type", "service_name", "error_reason"
         )
         .annotate(moyenne_temps=Avg("delai_resolution"))
-        .order_by("-moyenne_temps")  # Optionnel : trier par temps moyen décroissant
     )
+
+    # Calcul de la moyenne globale des moyennes
+    moyenne_globale_resolution = erreurs_moyenne_temps.aggregate(Avg("moyenne_temps"))["moyenne_temps__avg"]
 
     context = {
         'total_erreurs': total_erreurs_distinctes,
@@ -78,7 +80,7 @@ def index(request):
         'erreurs_par_service': erreurs_par_service,
         'impact_utilisateur': impact_utilisateur,
         'distinct_errors': distinct_errors,
-        'erreurs_moyenne_temps':erreurs_moyenne_temps,
+        'moyenne_globale_resolution':moyenne_globale_resolution,
     }
     return render(request, 'visualization/visualization_home.html', context)
 
