@@ -125,52 +125,59 @@
         </div>
     </div>
 
-    <!-- Graphiques -->
     <div class="row">
+        <!-- Table: Erreurs ouvertes par système -->
         <div class="col-md-6 mb-4">
-            <div class="card">
+            <div class="card shadow-sm">
                 <div class="card-body">
-                    <h5 class="card-title">Évolution des erreurs</h5>
-                    <canvas id="errorTrendChart" 
-                        data-labels="{% for item in errors_by_day %}{{ item.date }}{% if not forloop.last %},{% endif %}{% endfor %}"
-                        data-values="{% for item in errors_by_day %}{{ item.count }}{% if not forloop.last %},{% endif %}{% endfor %}">
-                    </canvas>
-                </div>
-            </div>
-        </div>
-        
-        <div class="col-md-6 mb-4">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">Erreurs ouvertes par système {{erreurs_ouvertes_per_system}} </h5>
-                    <canvas id="errorBySystemChart"
-                        data-labels="{% for item in errors_by_system %}{{ item.system_name }}{% if not forloop.last %},{% endif %}{% endfor %}"
-                        data-values="{% for item in errors_by_system %}{{ item.count }}{% if not forloop.last %},{% endif %}{% endfor %}">
-                    </canvas>
-                </div>
-            </div>
-        </div>
-    
-        <div class="col-md-6 mb-4">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">Distribution par priorité {{erreurs_par_priorite}}</h5>
-                    <canvas id="errorByPriorityChart"
-                        data-labels="{% for item in errors_by_priority %}{{ item.priorite }}{% if not forloop.last %},{% endif %}{% endfor %}"
-                        data-values="{% for item in errors_by_priority %}{{ item.count }}{% if not forloop.last %},{% endif %}{% endfor %}">
-                    </canvas>
+                    <h5 class="card-title">Erreurs ouvertes par système</h5>
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Système</th>
+                                <th>Nombre d'erreurs</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in erreurs_ouvertes_per_system %}
+                            <tr>
+                                <td>{{ item.system_name }}</td>
+                                <td>{{ item.distinct_errors }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
     
+        <!-- Hidden data storage for JavaScript -->
+        <div id="prioriteData" 
+            data-labels="{% for item in erreurs_par_priorite %}{{ item.priorite }},{% endfor %}"
+            data-values="{% for item in erreurs_par_priorite %}{{ item.distinct_errors }},{% endfor %}">
+        </div>
+    
+        <div id="graviteData" 
+            data-labels="{% for item in erreurs_par_gravite %}{{ item.gravite }},{% endfor %}"
+            data-values="{% for item in erreurs_par_gravite %}{{ item.distinct_errors }},{% endfor %}">
+        </div>
+    
+        <!-- Chart: Distribution par priorité -->
         <div class="col-md-6 mb-4">
-            <div class="card">
+            <div class="card shadow-sm">
                 <div class="card-body">
-                    <h5 class="card-title">Distribution par gravité {{erreurs_par_gravite}}</h5>
-                    <canvas id="errorByStatusChart"
-                        data-labels="{% for item in errors_by_status %}{{ item.statut }}{% if not forloop.last %},{% endif %}{% endfor %}"
-                        data-values="{% for item in errors_by_status %}{{ item.count }}{% if not forloop.last %},{% endif %}{% endfor %}">
-                    </canvas>
+                    <h5 class="card-title">Distribution par priorité</h5>
+                    <canvas id="prioriteChart"></canvas>
+                </div>
+            </div>
+        </div>
+    
+        <!-- Chart: Distribution par gravité -->
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Distribution par gravité</h5>
+                    <canvas id="graviteChart"></canvas>
                 </div>
             </div>
         </div>
@@ -180,81 +187,63 @@
 {% endblock %}
 
 {% block extra_js %}
+<!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Fonction utilitaire pour récupérer les données des attributs
-    function getChartData(elementId) {
-        const canvas = document.getElementById(elementId);
+    function getDataFromElement(id) {
+        const element = document.getElementById(id);
         return {
-            labels: canvas.dataset.labels.split(','),
-            values: canvas.dataset.values.split(',').map(Number)
+            labels: element.dataset.labels.split(',').filter(label => label.trim() !== ""),
+            values: element.dataset.values.split(',').map(value => parseInt(value, 10)).filter(value => !isNaN(value))
         };
     }
 
-    // Graphique d'évolution
-    const trendData = getChartData('errorTrendChart');
-    new Chart(document.getElementById('errorTrendChart'), {
-        type: 'line',
-        data: {
-            labels: trendData.labels,
-            datasets: [{
-                label: 'Nombre d\'erreurs',
-                data: trendData.values,
-                borderColor: 'rgb(75, 192, 192)',
-                tension: 0.1
-            }]
-        }
-    });
-
-    // Graphique par système
-    const systemData = getChartData('errorBySystemChart');
-    new Chart(document.getElementById('errorBySystemChart'), {
+    // Load data for "Distribution par priorité"
+    const priorite = getDataFromElement("prioriteData");
+    const prioriteChart = new Chart(document.getElementById('prioriteChart'), {
         type: 'bar',
         data: {
-            labels: systemData.labels,
+            labels: priorite.labels,
             datasets: [{
                 label: 'Nombre d\'erreurs',
-                data: systemData.values,
-                backgroundColor: 'rgb(54, 162, 235)'
+                data: priorite.values,
+                backgroundColor: ['#dc3545', '#ffc107'], // Rouge, Jaune
+                borderRadius: 5
             }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { display: false },
+            },
+            scales: {
+                y: { beginAtZero: true }
+            }
         }
     });
 
-    // Graphique par priorité
-    const priorityData = getChartData('errorByPriorityChart');
-    new Chart(document.getElementById('errorByPriorityChart'), {
-        type: 'pie',
+    // Load data for "Distribution par gravité"
+    const gravite = getDataFromElement("graviteData");
+    const graviteChart = new Chart(document.getElementById('graviteChart'), {
+        type: 'bar',
         data: {
-            labels: priorityData.labels,
+            labels: gravite.labels,
             datasets: [{
-                data: priorityData.values,
-                backgroundColor: [
-                    'rgb(255, 99, 132)',
-                    'rgb(255, 205, 86)',
-                    'rgb(75, 192, 192)'
-                ]
+                label: 'Nombre d\'erreurs',
+                data: gravite.values,
+                backgroundColor: ['#007bff', '#28a745'], // Bleu, Vert
+                borderRadius: 5
             }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { display: false },
+            },
+            scales: {
+                y: { beginAtZero: true }
+            }
         }
     });
-
-    // Graphique par statut
-    const statusData = getChartData('errorByStatusChart');
-    new Chart(document.getElementById('errorByStatusChart'), {
-        type: 'doughnut',
-        data: {
-            labels: statusData.labels,
-            datasets: [{
-                data: statusData.values,
-                backgroundColor: [
-                    'rgb(255, 99, 132)',
-                    'rgb(54, 162, 235)',
-                    'rgb(255, 205, 86)'
-                ]
-            }]
-        }
-    });
-});
-
 </script>
 {% endblock %}
