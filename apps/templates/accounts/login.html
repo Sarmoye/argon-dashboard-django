@@ -7,12 +7,20 @@
 
 {% block extrastyle %}
 <style>
-  body {
-    min-height: 100vh;
+  html, body {
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+}
+
+body {
     display: flex;
     align-items: center;
     background-color: #f8f9fe;
-    margin: 0;
+}
+.container {
+    width: 100%;
+    margin: 0 auto;
 }
 </style>
 {% endblock extrastyle %}
