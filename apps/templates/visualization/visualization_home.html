@@ -48,7 +48,7 @@
                         </div>
                         <div class="col-auto">
                             <div class="icon icon-shape bg-gradient-red text-white rounded-circle shadow">
-                                <i class="ni ni-alert-circle-exc"></i>
+                                <i class="ni ni-bullet-list-67"></i>
                             </div>
                         </div>
                     </div>
@@ -69,7 +69,7 @@
                         </div>
                         <div class="col-auto">
                             <div class="icon icon-shape bg-gradient-red text-white rounded-circle shadow">
-                                <i class="ni ni-fat-remove"></i>
+                                <i class="ni ni-support-16"></i>
                             </div>
                         </div>
                     </div>
@@ -107,12 +107,12 @@
                 <div class="card-body">
                     <div class="row">
                         <div class="col">
-                            <h5 class="card-title text-uppercase text-muted mb-0">Delai moyen de resolution</h5>
+                            <h5 class="card-title text-uppercase text-muted mb-0">Temps moyen de resolution</h5>
                             <span class="h2 font-weight-bold mb-0">{{ moyenne_globale_resolution }}</span>
                         </div>
                         <div class="col-auto">
                             <div class="icon icon-shape bg-gradient-red text-white rounded-circle shadow">
-                                <i class="ni ni-alert-circle-exc"></i>
+                                <i class="ni ni-time-alarm"></i>
                             </div>
                         </div>
                     </div>
@@ -142,7 +142,7 @@
         <div class="col-md-6 mb-4">
             <div class="card">
                 <div class="card-body">
-                    <h5 class="card-title">Erreurs par système</h5>
+                    <h5 class="card-title">Erreurs ouvertes par système</h5>
                     <canvas id="errorBySystemChart"
                         data-labels="{% for item in errors_by_system %}{{ item.system_name }}{% if not forloop.last %},{% endif %}{% endfor %}"
                         data-values="{% for item in errors_by_system %}{{ item.count }}{% if not forloop.last %},{% endif %}{% endfor %}">
@@ -166,7 +166,7 @@
         <div class="col-md-6 mb-4">
             <div class="card">
                 <div class="card-body">
-                    <h5 class="card-title">Statut des erreurs</h5>
+                    <h5 class="card-title">Distribution par gravité</h5>
                     <canvas id="errorByStatusChart"
                         data-labels="{% for item in errors_by_status %}{{ item.statut }}{% if not forloop.last %},{% endif %}{% endfor %}"
                         data-values="{% for item in errors_by_status %}{{ item.count }}{% if not forloop.last %},{% endif %}{% endfor %}">
