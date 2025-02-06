@@ -138,7 +138,11 @@
             <div class="card-body">
               <!-- Chart -->
               <div class="chart">
-                <canvas id="chart-sales-dark1" class="chart-canvas" data-dates='{{ dates|safe }}' data-counts='{{ counts|safe }}'></canvas>
+                <canvas id="chart-sales-dark1" class="chart-canvas" data-systems='[
+                {% for item in error_evolution %}
+                  {"name": "{{ item.date }}", "value": {{ item.count }}}
+                  {% if not forloop.last %},{% endif %}
+                {% endfor %}]'></canvas>
               </div>
             </div>
           </div>
@@ -331,12 +335,14 @@
         return;
     }
 
-    console.log("Raw data-dates:", canvas.getAttribute("data-dates"));
-    console.log("Raw data-counts:", canvas.getAttribute("data-counts"));
+    // Get data from the data-systems attribute
+    const systemsData = JSON.parse(canvas.dataset.systems || '[]');
+    
+    // Prepare data for the chart
+    const dates = systemsData.map(item => item.name);
+    const counts = systemsData.map(item => item.value);
 
     try {
-        var dates = JSON.parse(canvas.getAttribute("data-dates") || "[]");
-        var counts = JSON.parse(canvas.getAttribute("data-counts") || "[]");
 
         console.log("Parsed dates:", dates);
         console.log("Parsed counts:", counts);
