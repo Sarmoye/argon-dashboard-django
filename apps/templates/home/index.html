@@ -154,7 +154,7 @@
             <div class="card-body">
               <!-- Chart -->
               <div class="chart">
-                <canvas id="chart-sales-dark" class="chart-canvas"></canvas>
+                <canvas id="chart-sales-dark" class="chart-canvas" data-dates='{{ dates|safe }}' data-counts='{{ counts|safe }}'></canvas>
               </div>
             </div>
           </div>
@@ -171,7 +171,7 @@
             </div>
             <div class="card-body">
               <div class="chart">
-                <canvas id="chart-bars" class="chart-canvas"
+                <canvas id="chart-bars1" class="chart-canvas"
                   data-systems='[
                     {% for item in erreurs_ouvertes_per_system %}
                       {"name": "{{ item.system_name }}", "value": {{ item.distinct_errors }}}
@@ -268,7 +268,7 @@
   <script src="/static/assets/vendor/chart.js/dist/Chart.min.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', function() {
-  const canvas = document.getElementById('chart-bars');
+  const canvas = document.getElementById('chart-bars1');
   const ctx = canvas.getContext('2d');
   
   // Get data from the data-systems attribute
