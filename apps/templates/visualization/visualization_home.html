@@ -20,15 +20,6 @@
                                 {% endfor %}
                             </select>
                         </div>
-                        <div class="col-md-4">
-                            <label class="form-label">Période</label>
-                            <select name="date_range" class="form-select">
-                                <option value="7" {% if date_range == '7' %}selected{% endif %}>7 derniers jours</option>
-                                <option value="30" {% if date_range == '30' %}selected{% endif %}>30 derniers jours</option>
-                                <option value="90" {% if date_range == '90' %}selected{% endif %}>90 derniers jours</option>
-                            </select>
-                        </div>
-                        
                     </form>
                 </div>
             </div>
