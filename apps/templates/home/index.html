@@ -267,79 +267,140 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', function() {
-  const canvas = document.getElementById('chart-bars');
-  const ctx = canvas.getContext('2d');
-  
-  // Get data from the data-systems attribute
-  const systemsData = JSON.parse(canvas.dataset.systems || '[]');
-  
-  // Prepare data for the chart
-  const labels = systemsData.map(item => item.name);
-  const values = systemsData.map(item => item.value);
-  
-  new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: labels,
-      datasets: [{
-        label: 'Erreurs ouvertes',
-        data: values,
-        backgroundColor: 'rgba(94, 114, 228, 0.8)',
-        borderColor: 'rgba(94, 114, 228, 1)',
-        borderWidth: 1
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      scales: {
-        y: {
-          beginAtZero: true,
-          grid: {
-            borderDash: [2],
-            borderDashOffset: [2],
-            drawBorder: false,
-            drawTicks: false
-          },
-          ticks: {
-            padding: 10
-          }
+    // Evolution of errors chart
+    const salesCanvas = document.getElementById('chart-sales-dark');
+    const salesCtx = salesCanvas.getContext('2d');
+    
+    // Get data from data attributes
+    const dates = JSON.parse(salesCanvas.dataset.dates);
+    const counts = JSON.parse(salesCanvas.dataset.counts);
+    
+    new Chart(salesCtx, {
+        type: 'line',
+        data: {
+            labels: dates,
+            datasets: [{
+                label: 'Nombre d\'erreurs',
+                data: counts,
+                borderColor: 'rgba(255, 255, 255, 0.8)',
+                backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                pointBackgroundColor: 'rgba(255, 255, 255, 1)',
+                pointBorderColor: 'rgba(255, 255, 255, 1)',
+                borderWidth: 2,
+                fill: true,
+                tension: 0.4
+            }]
         },
-        x: {
-          grid: {
-            drawBorder: false,
-            display: false,
-            drawOnChartArea: false,
-            drawTicks: false
-          },
-          ticks: {
-            padding: 20,
-            font: {
-              size: 11
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        color: 'rgba(255, 255, 255, 0.1)',
+                        drawBorder: false
+                    },
+                    ticks: {
+                        color: 'rgba(255, 255, 255, 0.8)',
+                        padding: 10
+                    }
+                },
+                x: {
+                    grid: {
+                        color: 'rgba(255, 255, 255, 0.1)',
+                        drawBorder: false
+                    },
+                    ticks: {
+                        color: 'rgba(255, 255, 255, 0.8)',
+                        padding: 10
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                    titleColor: '#333',
+                    bodyColor: '#666',
+                    borderColor: '#e9ecef',
+                    borderWidth: 1,
+                    padding: 10
+                }
             }
-          }
         }
-      },
-      plugins: {
-        legend: {
-          display: false
+    });
+
+    // Errors by system chart
+    const barsCanvas = document.getElementById('chart-bars');
+    const barsCtx = barsCanvas.getContext('2d');
+    
+    // Get data from data attributes
+    const systemsData = JSON.parse(barsCanvas.dataset.systems || '[]');
+    
+    new Chart(barsCtx, {
+        type: 'bar',
+        data: {
+            labels: systemsData.map(item => item.name),
+            datasets: [{
+                label: 'Erreurs ouvertes',
+                data: systemsData.map(item => item.value),
+                backgroundColor: 'rgba(94, 114, 228, 0.8)',
+                borderColor: 'rgba(94, 114, 228, 1)',
+                borderWidth: 1
+            }]
         },
-        tooltip: {
-          backgroundColor: '#fff',
-          titleColor: '#333',
-          bodyColor: '#666',
-          bodySpacing: 4,
-          padding: 12,
-          borderColor: '#e9ecef',
-          borderWidth: 1,
-          usePointStyle: true,
-          mode: 'index',
-          intersect: 0
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        borderDash: [2],
+                        borderDashOffset: [2],
+                        drawBorder: false,
+                        drawTicks: false
+                    },
+                    ticks: {
+                        padding: 10
+                    }
+                },
+                x: {
+                    grid: {
+                        drawBorder: false,
+                        display: false,
+                        drawOnChartArea: false,
+                        drawTicks: false
+                    },
+                    ticks: {
+                        padding: 20,
+                        font: {
+                            size: 11
+                        }
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    backgroundColor: '#fff',
+                    titleColor: '#333',
+                    bodyColor: '#666',
+                    padding: 12,
+                    borderColor: '#e9ecef',
+                    borderWidth: 1
+                }
+            }
         }
-      }
-    }
-  });
+    });
 });
   </script>
+  <script src="/static/assets/vendor/chart.js/dist/Chart.min.js"></script>
+  <script src="/static/assets/vendor/chart.js/dist/Charts.js"></script>
 
 {% endblock javascripts %}
