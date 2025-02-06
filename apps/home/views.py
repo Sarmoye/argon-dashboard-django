@@ -62,12 +62,7 @@ def index(request):
         .order_by('date')
     )
     
-    # Convert to lists for the chart
-    dates = [item['date'].strftime('%d %b') for item in error_evolution]
-    counts = [item['count'] for item in error_evolution]
-    
-    import json
-    
+
     context = {
         'segment': 'index',
         'total_erreurs_distinctes': total_erreurs_distinctes,
@@ -79,8 +74,7 @@ def index(request):
         'erreurs_ouvertes_per_system': erreurs_ouvertes_per_system,
         'distinct_errors': distinct_errors,
         'moyenne_globale_resolution':moyenne_globale_resolution,
-        'dates': json.dumps(dates),
-        'counts': json.dumps(counts),
+        'error_evolution': error_evolution,
         }
 
     html_template = loader.get_template('home/index.html')

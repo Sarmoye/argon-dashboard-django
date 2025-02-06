@@ -131,14 +131,14 @@
               <div class="row align-items-center">
                 <div class="col">
                   <h6 class="text-light text-uppercase ls-1 mb-1">Overview</h6>
-                  <h5 class="h3 text-white mb-0">Evolution of errors</h5>
+                  <h5 class="h3 text-white mb-0">Evolution of errors {{error_evolution}}</h5>
                 </div>
               </div>
             </div>
             <div class="card-body">
               <!-- Chart -->
               <div class="chart">
-                <canvas id="chart-sales-dark1" class="chart-canvas" data-dates='{{ dates|escapejs }}' data-counts='{{ counts|escapejs }}'></canvas>
+                <canvas id="chart-sales-dark1" class="chart-canvas" data-dates='{{ dates|safe }}' data-counts='{{ counts|safe }}'></canvas>
               </div>
             </div>
           </div>
