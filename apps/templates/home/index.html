@@ -328,56 +328,66 @@
 });
   </script>
   <script>
-    document.addEventListener("DOMContentLoaded", function () {
-    var canvas = document.getElementById("chart-sales-dark1");
-    if (!canvas) {
-        console.error("Canvas element not found!");
+    document.addEventListener('DOMContentLoaded', function() {
+      const canvas = document.getElementById('chart-sales-dark1');
+      if (!canvas) {
+        console.error("Canvas element for donut chart not found!");
         return;
-    }
-
-    // Get data from the data-systems attribute
-    const systemsData = JSON.parse(canvas.dataset.systems || '[]');
-    
-    // Prepare data for the chart
-    const dates = systemsData.map(item => item.name);
-    const counts = systemsData.map(item => item.value);
-
-    try {
-
-        console.log("Parsed dates:", dates);
-        console.log("Parsed counts:", counts);
-
-        if (dates.length === 0 || counts.length === 0) {
-            console.warn("Chart data is empty! Check your Django template.");
-        }
-
-        var ctx = canvas.getContext("2d");
-        new Chart(ctx, {
-            type: "line",
-            data: {
-                labels: dates,
-                datasets: [{
-                    label: "Errors Per Day",
-                    data: counts,
-                    borderColor: "rgba(75, 192, 192, 1)",
-                    backgroundColor: "rgba(75, 192, 192, 0.2)",
-                    borderWidth: 2,
-                    fill: true,
-                    tension: 0.4
-                }]
+      }
+      const ctx = canvas.getContext('2d');
+      
+      // Get data from the data-systems attribute
+      const systemsData = JSON.parse(canvas.dataset.systems || '[]');
+      
+      // Prepare data for the donut chart
+      const labels = systemsData.map(item => item.name);
+      const values = systemsData.map(item => item.value);
+      
+      // Define some colors for each segment.
+      // Adjust the number of colors or let Chart.js pick defaults if necessary.
+      const backgroundColors = [
+        'rgba(94, 114, 228, 0.8)',
+        'rgba(75, 192, 192, 0.8)',
+        'rgba(255, 205, 86, 0.8)',
+        'rgba(255, 99, 132, 0.8)',
+        'rgba(54, 162, 235, 0.8)'
+      ];
+      
+      // Create the donut chart
+      new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: labels,
+          datasets: [{
+            data: values,
+            backgroundColor: backgroundColors,
+            borderColor: 'rgba(255, 255, 255, 1)',
+            borderWidth: 2
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'bottom'
             },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    x: { title: { display: true, text: "Date" } },
-                    y: { title: { display: true, text: "Number of Errors" }, beginAtZero: true }
-                }
+            tooltip: {
+              backgroundColor: '#fff',
+              titleColor: '#333',
+              bodyColor: '#666',
+              bodySpacing: 4,
+              padding: 12,
+              borderColor: '#e9ecef',
+              borderWidth: 1,
+              usePointStyle: true,
+              mode: 'index',
+              intersect: 0
             }
-        });
-    } catch (error) {
-        console.error("Error parsing chart data:", error);
-    }
-});
-</script>
+          }
+        }
+      });
+    });
+    </script>
+    
 {% endblock javascripts %}
