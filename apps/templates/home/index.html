@@ -138,7 +138,7 @@
             <div class="card-body">
               <!-- Chart -->
               <div class="chart">
-                <canvas id="chart-sales-dark" class="chart-canvas" data-dates='{{ dates|safe }}' data-counts='{{ counts|safe }}'></canvas>
+                <canvas id="chart-sales-dark1" class="chart-canvas" data-dates='{{ dates|safe }}' data-counts='{{ counts|safe }}'></canvas>
               </div>
             </div>
           </div>
@@ -329,7 +329,7 @@
   <script>
     document.addEventListener("DOMContentLoaded", function () {
         // Get canvas element
-        var canvas = document.getElementById("chart-sales-dark");
+        var canvas = document.getElementById("chart-sales-dark1");
         
         // Read data from the dataset attributes
         var dates = JSON.parse(canvas.getAttribute("data-dates"));
