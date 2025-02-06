@@ -172,18 +172,7 @@
                 </div>
               </div>
             </div>
-            <div class="card-body">
-              <div class="chart">
-                <canvas id="chart-bars" class="chart-canvas"
-                  data-systems='[
-                    {% for item in erreurs_ouvertes_per_system %}
-                      {"name": "{{ item.system_name }}", "value": {{ item.distinct_errors }}}
-                      {% if not forloop.last %},{% endif %}
-                    {% endfor %}
-                  ]'
-                ></canvas>
-              </div>
-            </div>
+            
           </div>
         </div>
       </div>
