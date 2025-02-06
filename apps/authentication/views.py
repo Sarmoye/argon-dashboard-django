@@ -55,11 +55,11 @@ def login_view(request):
                     logger.info(f"User {username} successfully logged in.")
                     
                     # Envoi d'un e-mail à l'administrateur
-                    from_email = "EMS.Administrator@mtn.com"
-                    to_email = ["Sarmoye.AmitoureHaidara@mtn.com"]
-                    body = f"User {username} has logged in to the application."
-                    subject = "New user login"
-                    send_email(from_email, to_email, subject, body)
+                    # from_email = "EMS.Administrator@mtn.com"
+                    # to_email = ["Sarmoye.AmitoureHaidara@mtn.com"]
+                    # body = f"User {username} has logged in to the application."
+                    # subject = "New user login"
+                    # send_email(from_email, to_email, subject, body)
                     
                     # Retrieve the next parameter or redirect to the home page of the other app
                     next_url = request.GET.get('next', reverse('home:home'))  # Redirect to home app
