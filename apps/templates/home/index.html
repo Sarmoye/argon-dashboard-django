@@ -154,7 +154,7 @@
             <div class="card-body">
               <!-- Chart -->
               <div class="chart">
-                <canvas id="chart-sales-dark" class="chart-canvas" data-dates='{{ dates|safe }}' data-counts='{{ counts|safe }}'></canvas>
+                <canvas id="chart-sales-dark1" class="chart-canvas" data-dates='{{ dates|safe }}' data-counts='{{ counts|safe }}'></canvas>
               </div>
             </div>
           </div>
@@ -342,5 +342,47 @@
   });
 });
   </script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // Get canvas element
+        var canvas = document.getElementById("chart-sales-dark1");
+        
+        // Read data from the dataset attributes
+        var dates = JSON.parse(canvas.getAttribute("data-dates"));
+        var counts = JSON.parse(canvas.getAttribute("data-counts"));
+
+        // Initialize Chart.js
+        var ctx = canvas.getContext("2d");
+        var errorChart = new Chart(ctx, {
+            type: "line",
+            data: {
+                labels: dates,  // Dates from Django context
+                datasets: [{
+                    label: "Errors Per Day",
+                    data: counts,  // Error count per day
+                    borderColor: "rgba(75, 192, 192, 1)",
+                    backgroundColor: "rgba(75, 192, 192, 0.2)",
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.4 // Smooth curve
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        title: { display: true, text: "Date" }
+                    },
+                    y: {
+                        title: { display: true, text: "Number of Errors" },
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    });
+</script>
+
 
 {% endblock javascripts %}
