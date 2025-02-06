@@ -152,10 +152,15 @@
               </div>
             </div>
             <div class="card-body">
-              <!-- Chart -->
               <div class="chart">
-                <!-- Chart wrapper -->
-                <canvas id="chart-sales-dark" class="chart-canvas"></canvas>
+                <canvas id="chart-bars" class="chart-canvas"
+                  data-systems='[
+                    {% for item in erreurs_ouvertes_per_system %}
+                      {"name": "{{ item.system_name }}", "value": {{ item.distinct_errors }}}
+                      {% if not forloop.last %},{% endif %}
+                    {% endfor %}
+                  ]'
+                ></canvas>
               </div>
             </div>
           </div>
@@ -171,24 +176,10 @@
               </div>
             </div>
             <div class="card-body">
-              <div class="table-responsive">
-                <!-- Projects table -->
-                <table class="table align-items-center table-flush">
-                  <thead class="thead-light">
-                    <tr>
-                      <th scope="col">System Name</th>
-                      <th scope="col">Error Count</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {% for item in erreurs_par_priorite %}
-                    <tr>
-                        <td>{{ item.system_name }}</td>
-                        <td>{{ item.distinct_errors }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-                </table>
+              <!-- Chart -->
+              <div class="chart">
+                <canvas id="chart-bars" class="chart-canvas"></canvas>
+              </div>
             </div>
           </div>
         </div>
@@ -273,5 +264,82 @@
 
   <script src="/static/assets/vendor/chart.js/dist/Chart.min.js"></script>
   <script src="/static/assets/vendor/chart.js/dist/Chart.extension.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+  const canvas = document.getElementById('chart-bars');
+  const ctx = canvas.getContext('2d');
+  
+  // Get data from the data-systems attribute
+  const systemsData = JSON.parse(canvas.dataset.systems || '[]');
+  
+  // Prepare data for the chart
+  const labels = systemsData.map(item => item.name);
+  const values = systemsData.map(item => item.value);
+  
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Erreurs ouvertes',
+        data: values,
+        backgroundColor: 'rgba(94, 114, 228, 0.8)',
+        borderColor: 'rgba(94, 114, 228, 1)',
+        borderWidth: 1
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        y: {
+          beginAtZero: true,
+          grid: {
+            borderDash: [2],
+            borderDashOffset: [2],
+            drawBorder: false,
+            drawTicks: false
+          },
+          ticks: {
+            padding: 10
+          }
+        },
+        x: {
+          grid: {
+            drawBorder: false,
+            display: false,
+            drawOnChartArea: false,
+            drawTicks: false
+          },
+          ticks: {
+            padding: 20,
+            font: {
+              size: 11
+            }
+          }
+        }
+      },
+      plugins: {
+        legend: {
+          display: false
+        },
+        tooltip: {
+          backgroundColor: '#fff',
+          titleColor: '#333',
+          bodyColor: '#666',
+          bodySpacing: 4,
+          padding: 12,
+          borderColor: '#e9ecef',
+          borderWidth: 1,
+          usePointStyle: true,
+          mode: 'index',
+          intersect: 0
+        }
+      }
+    }
+  });
+});
+  </script>
 
 {% endblock javascripts %}
