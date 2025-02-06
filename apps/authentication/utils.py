@@ -100,9 +100,9 @@ body = f"User Hi ! this is a send mail test in to the application."
 subject = "New user login"
 # send_email(from_email, to_email, subject, body)
 
-# username = input("Username: ")
-# password = getpass.getpass("Enter Password:")
+username = input("Username: ")
+password = getpass.getpass("Enter Password:")
 
-# stat = ldap_connect(username=username, password=password)
+stat = ldap_connect(username=username, password=password)
 
-# print (stat)
+print (stat)
