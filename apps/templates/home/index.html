@@ -154,10 +154,7 @@
             <div class="card-body">
               <!-- Chart -->
               <div class="chart">
-                <canvas id="chart-sales-dark" class="chart-canvas"
-                    data-dates='{{ dates|safe }}'
-                    data-counts='{{ counts|safe }}'
-                ></canvas>
+                <canvas id="chart-sales-dark" class="chart-canvas" data-dates='{{ dates|safe }}' data-counts='{{ counts|safe }}'></canvas>
               </div>
             </div>
           </div>
@@ -265,94 +262,20 @@
 <!-- Specific JS goes HERE --> 
 {% block javascripts %}
 
+  <script src="/static/assets/vendor/chart.js/dist/Chart.min.js"></script>
+  <script src="/static/assets/vendor/chart.js/dist/Chart.extension.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', function() {
-  const canvas = document.getElementById('chart-bars');
-  const ctx = canvas.getContext('2d');
-  
-  // Get data from the data-systems attribute
-  const systemsData = JSON.parse(canvas.dataset.systems || '[]');
-  
-  // Prepare data for the chart
-  const labels = systemsData.map(item => item.name);
-  const values = systemsData.map(item => item.value);
-  
-  new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: labels,
-      datasets: [{
-        label: 'Erreurs ouvertes',
-        data: values,
-        backgroundColor: 'rgba(94, 114, 228, 0.8)',
-        borderColor: 'rgba(94, 114, 228, 1)',
-        borderWidth: 1
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      scales: {
-        y: {
-          beginAtZero: true,
-          grid: {
-            borderDash: [2],
-            borderDashOffset: [2],
-            drawBorder: false,
-            drawTicks: false
-          },
-          ticks: {
-            padding: 10
-          }
-        },
-        x: {
-          grid: {
-            drawBorder: false,
-            display: false,
-            drawOnChartArea: false,
-            drawTicks: false
-          },
-          ticks: {
-            padding: 20,
-            font: {
-              size: 11
-            }
-          }
-        }
-      },
-      plugins: {
-        legend: {
-          display: false
-        },
-        tooltip: {
-          backgroundColor: '#fff',
-          titleColor: '#333',
-          bodyColor: '#666',
-          bodySpacing: 4,
-          padding: 12,
-          borderColor: '#e9ecef',
-          borderWidth: 1,
-          usePointStyle: true,
-          mode: 'index',
-          intersect: 0
-        }
-      }
-    }
-  });
-});
-  </script>
-  <script>
-    document.addEventListener('DOMContentLoaded', function() {
-    const canvas = document.getElementById('chart-sales-dark');
-    const ctx = canvas.getContext('2d');
+    // Evolution of errors chart
+    const salesCanvas = document.getElementById('chart-sales-dark');
+    const salesCtx = salesCanvas.getContext('2d');
     
     // Get data from data attributes
-    const dates = JSON.parse(canvas.dataset.dates);
-    const counts = JSON.parse(canvas.dataset.counts);
+    const dates = JSON.parse(salesCanvas.dataset.dates);
+    const counts = JSON.parse(salesCanvas.dataset.counts);
     
-    // Chart configuration
-    const chart = new Chart(ctx, {
+    new Chart(salesCtx, {
         type: 'line',
         data: {
             labels: dates,
@@ -399,8 +322,6 @@
                     display: false
                 },
                 tooltip: {
-                    mode: 'index',
-                    intersect: false,
                     backgroundColor: 'rgba(255, 255, 255, 0.9)',
                     titleColor: '#333',
                     bodyColor: '#666',
@@ -411,35 +332,73 @@
             }
         }
     });
+
+    // Errors by system chart
+    const barsCanvas = document.getElementById('chart-bars');
+    const barsCtx = barsCanvas.getContext('2d');
     
-    // Handle filter buttons
-    document.querySelectorAll('[data-toggle="tab"]').forEach(button => {
-        button.addEventListener('click', function(e) {
-            e.preventDefault();
-            
-            // Update active state
-            document.querySelectorAll('[data-toggle="tab"]').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            this.classList.add('active');
-            
-            // Fetch new data based on selected range
-            const range = this.querySelector('span').textContent.toLowerCase();
-            fetchData(range, chart);
-        });
+    // Get data from data attributes
+    const systemsData = JSON.parse(barsCanvas.dataset.systems || '[]');
+    
+    new Chart(barsCtx, {
+        type: 'bar',
+        data: {
+            labels: systemsData.map(item => item.name),
+            datasets: [{
+                label: 'Erreurs ouvertes',
+                data: systemsData.map(item => item.value),
+                backgroundColor: 'rgba(94, 114, 228, 0.8)',
+                borderColor: 'rgba(94, 114, 228, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        borderDash: [2],
+                        borderDashOffset: [2],
+                        drawBorder: false,
+                        drawTicks: false
+                    },
+                    ticks: {
+                        padding: 10
+                    }
+                },
+                x: {
+                    grid: {
+                        drawBorder: false,
+                        display: false,
+                        drawOnChartArea: false,
+                        drawTicks: false
+                    },
+                    ticks: {
+                        padding: 20,
+                        font: {
+                            size: 11
+                        }
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    backgroundColor: '#fff',
+                    titleColor: '#333',
+                    bodyColor: '#666',
+                    padding: 12,
+                    borderColor: '#e9ecef',
+                    borderWidth: 1
+                }
+            }
+        }
     });
 });
-
-function fetchData(range, chart) {
-    fetch(`/api/error-evolution?range=${range}`)
-        .then(response => response.json())
-        .then(data => {
-            // Update chart data
-            chart.data.labels = data.dates;
-            chart.data.datasets[0].data = data.counts;
-            chart.update();
-        });
-}
   </script>
 
 {% endblock javascripts %}

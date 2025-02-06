@@ -15,6 +15,8 @@ from apps.analysis.models import FicheErreur
 from apps.sources_data_app.models import SourceData
 from django.shortcuts import render
 from django.db.models import Count, Sum, Avg
+from django.db.models.functions import TruncDate
+from datetime import datetime, timedelta
 
 logger = logging.getLogger(__name__)
 
@@ -47,33 +49,21 @@ def index(request):
 
     # Calcul de la moyenne globale des moyennes
     moyenne_globale_resolution = erreurs_moyenne_temps.aggregate(Avg("moyenne_temps"))["moyenne_temps__avg"]
-    # Get the time range parameter (week/month)
-    time_range = request.GET.get('range', 'month')
+
+    # Get error evolution for the last 30 days
+    start_date = datetime.now() - timedelta(days=30)
     
-    # Base queryset
-    queryset = FicheErreur.objects.all()
-    
-    if time_range == 'week':
-        # Last 7 days data
-        start_date = datetime.now() - timedelta(days=7)
-        trunc_function = TruncDate('timestamp')
-    else:
-        # Last 30 days data
-        start_date = datetime.now() - timedelta(days=30)
-        trunc_function = TruncDate('timestamp')
-    
-    # Get daily error counts
     error_evolution = (
-        queryset
+        FicheErreur.objects
         .filter(timestamp__gte=start_date)
-        .annotate(date=trunc_function)
+        .annotate(date=TruncDate('timestamp'))
         .values('date')
         .annotate(count=Count('id'))
         .order_by('date')
     )
     
     # Convert to lists for the chart
-    dates = [item['date'].strftime('%Y-%m-%d') for item in error_evolution]
+    dates = [item['date'].strftime('%d %b') for item in error_evolution]
     counts = [item['count'] for item in error_evolution]
     
 
@@ -94,47 +84,6 @@ def index(request):
 
     html_template = loader.get_template('home/index.html')
     return HttpResponse(html_template.render(context, request))
-
-from django.db.models import Count
-from django.db.models.functions import TruncDate, TruncWeek, TruncMonth
-from datetime import datetime, timedelta
-
-def get_error_evolution(request):
-    # Get the time range parameter (week/month)
-    time_range = request.GET.get('range', 'month')
-    
-    # Base queryset
-    queryset = FicheErreur.objects.all()
-    
-    if time_range == 'week':
-        # Last 7 days data
-        start_date = datetime.now() - timedelta(days=7)
-        trunc_function = TruncDate('timestamp')
-    else:
-        # Last 30 days data
-        start_date = datetime.now() - timedelta(days=30)
-        trunc_function = TruncDate('timestamp')
-    
-    # Get daily error counts
-    error_evolution = (
-        queryset
-        .filter(timestamp__gte=start_date)
-        .annotate(date=trunc_function)
-        .values('date')
-        .annotate(count=Count('id'))
-        .order_by('date')
-    )
-    
-    # Convert to lists for the chart
-    dates = [item['date'].strftime('%Y-%m-%d') for item in error_evolution]
-    counts = [item['count'] for item in error_evolution]
-    
-    context = {
-        'dates': dates,
-        'counts': counts,
-    }
-    
-    return render(request, 'home/index.html', context)
 
 
 @login_required(login_url='/authentication/login/')
