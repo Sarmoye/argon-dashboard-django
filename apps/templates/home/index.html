@@ -171,10 +171,24 @@
               </div>
             </div>
             <div class="card-body">
-              <!-- Chart -->
-              <div class="chart">
-                <canvas id="chart-bars" class="chart-canvas"></canvas>
-              </div>
+              <div class="table-responsive">
+                <!-- Projects table -->
+                <table class="table align-items-center table-flush">
+                  <thead class="thead-light">
+                    <tr>
+                      <th scope="col">System Name</th>
+                      <th scope="col">Error Count</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for item in erreurs_par_priorite %}
+                    <tr>
+                        <td>{{ item.system_name }}</td>
+                        <td>{{ item.distinct_errors }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+                </table>
             </div>
           </div>
         </div>
@@ -185,7 +199,7 @@
             <div class="card-header border-0">
               <div class="row align-items-center">
                 <div class="col">
-                  <h3 class="mb-0">Distribution par priorité</h3>
+                  <h3 class="mb-0">Distribution by priority</h3>
                 </div>
                 <div class="col text-right">
                   <a href="#!" class="btn btn-sm btn-primary">See all</a>
@@ -197,7 +211,7 @@
               <table class="table align-items-center table-flush">
                 <thead class="thead-light">
                   <tr>
-                    <th scope="col">Priorité</th>
+                    <th scope="col">Priority</th>
                     <th scope="col">Error Count</th>
                   </tr>
                 </thead>
@@ -218,7 +232,7 @@
             <div class="card-header border-0">
               <div class="row align-items-center">
                 <div class="col">
-                  <h3 class="mb-0">Distribution par gravité</h3>
+                  <h3 class="mb-0">Distribution by severity</h3>
                 </div>
                 <div class="col text-right">
                   <a href="#!" class="btn btn-sm btn-primary">See all</a>
@@ -230,7 +244,7 @@
               <table class="table align-items-center table-flush">
                 <thead class="thead-light">
                   <tr>
-                    <th scope="col">Gravite</th>
+                    <th scope="col">Severity</th>
                     <th scope="col">Error Count</th>
                   </tr>
                 </thead>
