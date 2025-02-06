@@ -29,6 +29,8 @@ def check_user_role(user, allowed_roles=None):
 def index(request):
     # Filtrer pour éviter les doublons sur les clés spécifiques
     distinct_errors = FicheErreur.objects.values("error_reason").distinct()
+    
+    systems = FicheErreur.objects.values("system_name").distinct()
 
     # Nombre total d'erreurs distinctes
     total_erreurs_distinctes = distinct_errors.count()
@@ -64,6 +66,7 @@ def index(request):
         'erreurs_ouvertes_per_system': erreurs_ouvertes_per_system,
         'distinct_errors': distinct_errors,
         'moyenne_globale_resolution':moyenne_globale_resolution,
+        'systems': systems,
     }
     return render(request, 'visualization/visualization_home.html', context)
 
