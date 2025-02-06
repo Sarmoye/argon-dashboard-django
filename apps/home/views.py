@@ -47,6 +47,35 @@ def index(request):
 
     # Calcul de la moyenne globale des moyennes
     moyenne_globale_resolution = erreurs_moyenne_temps.aggregate(Avg("moyenne_temps"))["moyenne_temps__avg"]
+    # Get the time range parameter (week/month)
+    time_range = request.GET.get('range', 'month')
+    
+    # Base queryset
+    queryset = FicheErreur.objects.all()
+    
+    if time_range == 'week':
+        # Last 7 days data
+        start_date = datetime.now() - timedelta(days=7)
+        trunc_function = TruncDate('timestamp')
+    else:
+        # Last 30 days data
+        start_date = datetime.now() - timedelta(days=30)
+        trunc_function = TruncDate('timestamp')
+    
+    # Get daily error counts
+    error_evolution = (
+        queryset
+        .filter(timestamp__gte=start_date)
+        .annotate(date=trunc_function)
+        .values('date')
+        .annotate(count=Count('id'))
+        .order_by('date')
+    )
+    
+    # Convert to lists for the chart
+    dates = [item['date'].strftime('%Y-%m-%d') for item in error_evolution]
+    counts = [item['count'] for item in error_evolution]
+    
 
     context = {
         'segment': 'index',
@@ -59,6 +88,8 @@ def index(request):
         'erreurs_ouvertes_per_system': erreurs_ouvertes_per_system,
         'distinct_errors': distinct_errors,
         'moyenne_globale_resolution':moyenne_globale_resolution,
+        'dates': dates,
+        'counts': counts,
         }
 
     html_template = loader.get_template('home/index.html')
