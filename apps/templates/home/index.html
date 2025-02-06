@@ -154,8 +154,10 @@
             <div class="card-body">
               <!-- Chart -->
               <div class="chart">
-                <!-- Chart wrapper -->
-                <canvas id="chart-sales-dark" class="chart-canvas"></canvas>
+                <canvas id="chart-sales-dark" class="chart-canvas"
+                    data-dates='{{ dates|safe }}'
+                    data-counts='{{ counts|safe }}'
+                ></canvas>
               </div>
             </div>
           </div>
@@ -341,6 +343,105 @@
     }
   });
 });
+  </script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+    const canvas = document.getElementById('chart-sales-dark');
+    const ctx = canvas.getContext('2d');
+    
+    // Get data from data attributes
+    const dates = JSON.parse(canvas.dataset.dates);
+    const counts = JSON.parse(canvas.dataset.counts);
+    
+    // Chart configuration
+    const chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: dates,
+            datasets: [{
+                label: 'Nombre d\'erreurs',
+                data: counts,
+                borderColor: 'rgba(255, 255, 255, 0.8)',
+                backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                pointBackgroundColor: 'rgba(255, 255, 255, 1)',
+                pointBorderColor: 'rgba(255, 255, 255, 1)',
+                borderWidth: 2,
+                fill: true,
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        color: 'rgba(255, 255, 255, 0.1)',
+                        drawBorder: false
+                    },
+                    ticks: {
+                        color: 'rgba(255, 255, 255, 0.8)',
+                        padding: 10
+                    }
+                },
+                x: {
+                    grid: {
+                        color: 'rgba(255, 255, 255, 0.1)',
+                        drawBorder: false
+                    },
+                    ticks: {
+                        color: 'rgba(255, 255, 255, 0.8)',
+                        padding: 10
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    mode: 'index',
+                    intersect: false,
+                    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                    titleColor: '#333',
+                    bodyColor: '#666',
+                    borderColor: '#e9ecef',
+                    borderWidth: 1,
+                    padding: 10
+                }
+            }
+        }
+    });
+    
+    // Handle filter buttons
+    document.querySelectorAll('[data-toggle="tab"]').forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            // Update active state
+            document.querySelectorAll('[data-toggle="tab"]').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            this.classList.add('active');
+            
+            // Fetch new data based on selected range
+            const range = this.querySelector('span').textContent.toLowerCase();
+            fetchData(range, chart);
+        });
+    });
+});
+
+function fetchData(range, chart) {
+    fetch(`/api/error-evolution?range=${range}`)
+        .then(response => response.json())
+        .then(data => {
+            // Update chart data
+            chart.data.labels = data.dates;
+            chart.data.datasets[0].data = data.counts;
+            chart.update();
+        });
+}
   </script>
 
 {% endblock javascripts %}
