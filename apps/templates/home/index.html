@@ -138,7 +138,7 @@
             <div class="card-body">
               <!-- Chart -->
               <div class="chart">
-                <canvas id="chart-sales-dark1" class="chart-canvas" data-dates='{{ dates|tojson }}' data-counts='{{ counts|tojson }}'></canvas>
+                <canvas id="chart-sales-dark1" class="chart-canvas" data-dates='{{ dates|escapejs }}' data-counts='{{ counts|escapejs }}'></canvas>
               </div>
             </div>
           </div>
@@ -331,12 +331,18 @@
         return;
     }
 
+    console.log("Raw data-dates:", canvas.getAttribute("data-dates"));
+    console.log("Raw data-counts:", canvas.getAttribute("data-counts"));
+
     try {
         var dates = JSON.parse(canvas.getAttribute("data-dates") || "[]");
         var counts = JSON.parse(canvas.getAttribute("data-counts") || "[]");
 
+        console.log("Parsed dates:", dates);
+        console.log("Parsed counts:", counts);
+
         if (dates.length === 0 || counts.length === 0) {
-            console.warn("Chart data is empty!");
+            console.warn("Chart data is empty! Check your Django template.");
         }
 
         var ctx = canvas.getContext("2d");
