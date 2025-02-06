@@ -247,9 +247,6 @@
 {% block javascripts %}
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="/static/assets/vendor/chart.js/dist/Charts.js"></script>
-  <script src="/static/assets/vendor/chart.js/dist/Chart.extension.js"></script>
-  <script src="/static/assets/vendor/chart.js/dist/Chart.min.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', function() {
   const canvas = document.getElementById('chart-bars');
@@ -328,45 +325,47 @@
   </script>
   <script>
     document.addEventListener("DOMContentLoaded", function () {
-        // Get canvas element
-        var canvas = document.getElementById("chart-sales-dark1");
-        
-        // Read data from the dataset attributes
-        var dates = JSON.parse(canvas.getAttribute("data-dates"));
-        var counts = JSON.parse(canvas.getAttribute("data-counts"));
+    var canvas = document.getElementById("chart-sales-dark1");
+    if (!canvas) {
+        console.error("Canvas element not found!");
+        return;
+    }
 
-        // Initialize Chart.js
+    try {
+        var dates = JSON.parse(canvas.getAttribute("data-dates") || "[]");
+        var counts = JSON.parse(canvas.getAttribute("data-counts") || "[]");
+
+        if (dates.length === 0 || counts.length === 0) {
+            console.warn("Chart data is empty!");
+        }
+
         var ctx = canvas.getContext("2d");
-        var errorChart = new Chart(ctx, {
+        new Chart(ctx, {
             type: "line",
             data: {
-                labels: dates,  // Dates from Django context
+                labels: dates,
                 datasets: [{
                     label: "Errors Per Day",
-                    data: counts,  // Error count per day
+                    data: counts,
                     borderColor: "rgba(75, 192, 192, 1)",
                     backgroundColor: "rgba(75, 192, 192, 0.2)",
                     borderWidth: 2,
                     fill: true,
-                    tension: 0.4 // Smooth curve
+                    tension: 0.4
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
                 scales: {
-                    x: {
-                        title: { display: true, text: "Date" }
-                    },
-                    y: {
-                        title: { display: true, text: "Number of Errors" },
-                        beginAtZero: true
-                    }
+                    x: { title: { display: true, text: "Date" } },
+                    y: { title: { display: true, text: "Number of Errors" }, beginAtZero: true }
                 }
             }
         });
-    });
+    } catch (error) {
+        console.error("Error parsing chart data:", error);
+    }
+});
 </script>
-
-
 {% endblock javascripts %}
