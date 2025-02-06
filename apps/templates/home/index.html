@@ -152,15 +152,10 @@
               </div>
             </div>
             <div class="card-body">
+              <!-- Chart -->
               <div class="chart">
-                <canvas id="chart-bars" class="chart-canvas"
-                  data-systems='[
-                    {% for item in erreurs_ouvertes_per_system %}
-                      {"name": "{{ item.system_name }}", "value": {{ item.distinct_errors }}}
-                      {% if not forloop.last %},{% endif %}
-                    {% endfor %}
-                  ]'
-                ></canvas>
+                <!-- Chart wrapper -->
+                <canvas id="chart-sales-dark" class="chart-canvas"></canvas>
               </div>
             </div>
           </div>
@@ -176,9 +171,15 @@
               </div>
             </div>
             <div class="card-body">
-              <!-- Chart -->
               <div class="chart">
-                <canvas id="chart-bars" class="chart-canvas"></canvas>
+                <canvas id="chart-bars" class="chart-canvas"
+                  data-systems='[
+                    {% for item in erreurs_ouvertes_per_system %}
+                      {"name": "{{ item.system_name }}", "value": {{ item.distinct_errors }}}
+                      {% if not forloop.last %},{% endif %}
+                    {% endfor %}
+                  ]'
+                ></canvas>
               </div>
             </div>
           </div>
