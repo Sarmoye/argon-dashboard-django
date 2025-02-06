@@ -15,7 +15,7 @@
                                 <option value="">Tous les systèmes</option>
                                 {% for system in systems %}
                                 <option value="{{ system }}" {% if system == selected_system %}selected{% endif %}>
-                                    {{ system }}
+                                    {{ system.system_name }}
                                 </option>
                                 {% endfor %}
                             </select>
