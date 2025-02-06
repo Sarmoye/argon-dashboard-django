@@ -66,7 +66,8 @@ def index(request):
     dates = [item['date'].strftime('%d %b') for item in error_evolution]
     counts = [item['count'] for item in error_evolution]
     
-
+    import json
+    
     context = {
         'segment': 'index',
         'total_erreurs_distinctes': total_erreurs_distinctes,
@@ -78,8 +79,8 @@ def index(request):
         'erreurs_ouvertes_per_system': erreurs_ouvertes_per_system,
         'distinct_errors': distinct_errors,
         'moyenne_globale_resolution':moyenne_globale_resolution,
-        'dates': dates,
-        'counts': counts,
+        'dates': json.dumps(dates),
+        'counts': json.dumps(counts),
         }
 
     html_template = loader.get_template('home/index.html')
