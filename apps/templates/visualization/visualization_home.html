@@ -205,14 +205,14 @@
         </div>
         <div class="col-md-6 mb-4">
             <div class="card">
-              <div class="card-header">
-                <div class="card-title">Multiple Line Chart</div>
-              </div>
-              <div class="card-body">
-                <div class="chart-container">
-                  <canvas id="multipleLineChart"></canvas>
+                <div class="card-header">
+                    <div class="card-title">Multiple Line Chart</div>
                 </div>
-              </div>
+                <div class="card-body">
+                    <div class="chart-container" style="height: 400px;">
+                        <canvas id="multipleLineChart"></canvas>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -220,62 +220,58 @@
 
 {% endblock %}
 
+
+
 {% block extra_js %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    document.addEventListener("DOMContentLoaded", function () {
-    var multipleLineChart = document.getElementById("multipleLineChart").getContext("2d");
-    var myMultipleLineChart = new Chart(multipleLineChart, {
+window.onload = function() {
+    console.log("Page fully loaded!"); // Debugging step
+
+    var ctx = document.getElementById("multipleLineChart");
+    if (!ctx) {
+        console.error("Canvas not found!");
+        return;
+    }
+
+    var multipleLineChart = ctx.getContext("2d");
+
+    new Chart(multipleLineChart, {
         type: "line",
         data: {
-            labels: [
-                "Jan", "Feb", "Mar", "Apr", "May", "Jun", 
-                "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
-            ],
+            labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
             datasets: [
                 {
                     label: "Python",
                     borderColor: "#1d7af3",
-                    pointBorderColor: "#FFF",
+                    backgroundColor: "rgba(29, 122, 243, 0.2)",
                     pointBackgroundColor: "#1d7af3",
-                    pointBorderWidth: 2,
-                    pointHoverRadius: 4,
-                    pointHoverBorderWidth: 1,
-                    pointRadius: 4,
-                    backgroundColor: "transparent",
-                    fill: true,
-                    borderWidth: 2,
+                    pointBorderColor: "#FFF",
                     data: [30, 45, 45, 68, 69, 90, 100, 158, 177, 200, 245, 256],
+                    fill: true,
+                    borderWidth: 2
                 },
                 {
                     label: "PHP",
                     borderColor: "#59d05d",
-                    pointBorderColor: "#FFF",
+                    backgroundColor: "rgba(89, 208, 93, 0.2)",
                     pointBackgroundColor: "#59d05d",
-                    pointBorderWidth: 2,
-                    pointHoverRadius: 4,
-                    pointHoverBorderWidth: 1,
-                    pointRadius: 4,
-                    backgroundColor: "transparent",
-                    fill: true,
-                    borderWidth: 2,
+                    pointBorderColor: "#FFF",
                     data: [10, 20, 55, 75, 80, 48, 59, 55, 23, 107, 60, 87],
+                    fill: true,
+                    borderWidth: 2
                 },
                 {
                     label: "Ruby",
                     borderColor: "#f3545d",
-                    pointBorderColor: "#FFF",
+                    backgroundColor: "rgba(243, 84, 93, 0.2)",
                     pointBackgroundColor: "#f3545d",
-                    pointBorderWidth: 2,
-                    pointHoverRadius: 4,
-                    pointHoverBorderWidth: 1,
-                    pointRadius: 4,
-                    backgroundColor: "transparent",
-                    fill: true,
-                    borderWidth: 2,
+                    pointBorderColor: "#FFF",
                     data: [10, 30, 58, 79, 90, 105, 117, 160, 185, 210, 185, 194],
-                },
-            ],
+                    fill: true,
+                    borderWidth: 2
+                }
+            ]
         },
         options: {
             responsive: true,
@@ -294,8 +290,8 @@
             layout: {
                 padding: { left: 15, right: 15, top: 15, bottom: 15 },
             },
-        },
+        }
     });
-});
+};
 </script>
 {% endblock %}
