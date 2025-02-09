@@ -1,431 +1,317 @@
-{% extends 'layouts/base.html' %}
-
-{% block title %} Dashboard {% endblock title %}
-
-<!-- Specific CSS goes HERE -->
-{% block stylesheets %}{% endblock stylesheets %}
-
-{% block content %}
-
-    <!-- Header -->
-    <div class="header bg-primary pb-6">
-      <div class="container-fluid">
-        <div class="header-body">
-          <div class="row align-items-center py-4">
-            <div class="col-lg-6 col-7">
-              <h6 class="h2 text-white d-inline-block mb-0">Default</h6>
-              <nav aria-label="breadcrumb" class="d-none d-md-inline-block ml-md-4">
-                <ol class="breadcrumb breadcrumb-links breadcrumb-dark">
-                  <li class="breadcrumb-item"><a href="#"><i class="fas fa-home"></i></a></li>
-                  <li class="breadcrumb-item"><a href="#">IRM Transactions Dashboard</a></li>
-                  <li class="breadcrumb-item active" aria-current="page">Default</li>
-                </ol>
-              </nav>
-            </div>
-            <div class="col-lg-6 col-5 text-right">
-              <a href="#" class="btn btn-sm btn-neutral">New</a>
-              <a href="#" class="btn btn-sm btn-neutral">Filters</a>
-            </div>
-          </div>
-          <!-- Card stats -->
-          <div class="row">
-            <h2>REGISTRATION</h2>
-            <div class="col-xl-3 col-md-6">
-              <div class="card card-stats">
-                <!-- Card body -->
-                <div class="card-body">
-                  <div class="row">
-                    <div class="col">
-                      <h5 class="card-title text-uppercase text-muted mb-0">Success</h5>
-                      <span class="h2 font-weight-bold mb-0">{{ total_erreurs_distinctes }}</span>
-                    </div>
-                    <div class="col-auto">
-                      <div class="icon icon-shape bg-gradient-red text-white rounded-circle shadow">
-                        <i class="ni ni-check-bold"></i>
-                      </div>
-                    </div>
-                  </div>
-                  <p class="mt-3 mb-0 text-sm">
-                    <span class="text-success mr-2"><i class="fa fa-check-circle"></i> Successful Operations</span>
-                    <span class="text-nowrap">All sources combined</span>
-                  </p>                  
-                </div>
-              </div>
-            </div>
-            <div class="col-xl-3 col-md-6">
-              <div class="card card-stats">
-                <!-- Card body -->
-                <div class="card-body">
-                  <div class="row">
-                    <div class="col">
-                      <h5 class="card-title text-uppercase text-muted mb-0">Failed</h5>
-                      <span class="h2 font-weight-bold mb-0">{{ erreurs_ouvertes }}</span>
-                    </div>
-                    <div class="col-auto">
-                      <div class="icon icon-shape bg-gradient-orange text-white rounded-circle shadow">
-                        <i class="ni ni-support-16"></i>
-                      </div>
-                    </div>
-                  </div>
-                  <p class="mt-3 mb-0 text-sm">
-                    <span class="text-danger mr-2"><i class="fa fa-times-circle"></i> Failed Operations</span>
-                    <span class="text-nowrap">All sources combined</span>
-                  </p>                  
-                </div>
-              </div>
-            </div>
-            <div class="col-xl-3 col-md-6">
-              <div class="card card-stats">
-                <!-- Card body -->
-                <div class="card-body">
-                  <div class="row">
-                    <div class="col">
-                      <h5 class="card-title text-uppercase text-muted mb-0">Rejected</h5>
-                      <span class="h2 font-weight-bold mb-0">{{ erreurs_resolues }}</span>
-                    </div>
-                    <div class="col-auto">
-                      <div class="icon icon-shape bg-gradient-green text-white rounded-circle shadow">
-                        <i class="ni ni-fat-remove"></i>
-                      </div>
-                    </div>
-                  </div>
-                  <p class="mt-3 mb-0 text-sm">
-                    <span class="text-warning mr-2"><i class="fa fa-ban"></i> Rejected Requests</span>
-                    <span class="text-nowrap">All sources combined</span>
-                  </p>                  
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="row">
-            <h2>ANIP TRANSACTIONS</h2>
-            <div class="col-xl-3 col-md-6">
-                <div class="card card-stats">
-                  <!-- Card body -->
-                  <div class="card-body">
-                    <div class="row">
-                      <div class="col">
-                        <h5 class="card-title text-uppercase text-muted mb-0">Success</h5>
-                        <span class="h2 font-weight-bold mb-0">{{ total_erreurs_distinctes }}</span>
-                      </div>
-                      <div class="col-auto">
-                        <div class="icon icon-shape bg-gradient-red text-white rounded-circle shadow">
-                          <i class="ni ni-check-bold"></i>
-                        </div>
-                      </div>
-                    </div>
-                    <p class="mt-3 mb-0 text-sm">
-                      <span class="text-success mr-2"><i class="fa fa-check-circle"></i> Successful Operations</span>
-                      <span class="text-nowrap">All sources combined</span>
-                    </p>                  
-                  </div>
-                </div>
-              </div>
-              <div class="col-xl-3 col-md-6">
-                <div class="card card-stats">
-                  <!-- Card body -->
-                  <div class="card-body">
-                    <div class="row">
-                      <div class="col">
-                        <h5 class="card-title text-uppercase text-muted mb-0">Failed</h5>
-                        <span class="h2 font-weight-bold mb-0">{{ erreurs_ouvertes }}</span>
-                      </div>
-                      <div class="col-auto">
-                        <div class="icon icon-shape bg-gradient-orange text-white rounded-circle shadow">
-                          <i class="ni ni-support-16"></i>
-                        </div>
-                      </div>
-                    </div>
-                    <p class="mt-3 mb-0 text-sm">
-                      <span class="text-danger mr-2"><i class="fa fa-times-circle"></i> Failed Operations</span>
-                      <span class="text-nowrap">All sources combined</span>
-                    </p>                  
-                  </div>
-                </div>
-              </div>
-              <div class="col-xl-3 col-md-6">
-                <div class="card card-stats">
-                  <!-- Card body -->
-                  <div class="card-body">
-                    <div class="row">
-                      <div class="col">
-                        <h5 class="card-title text-uppercase text-muted mb-0">Rejected</h5>
-                        <span class="h2 font-weight-bold mb-0">{{ erreurs_resolues }}</span>
-                      </div>
-                      <div class="col-auto">
-                        <div class="icon icon-shape bg-gradient-green text-white rounded-circle shadow">
-                          <i class="ni ni-fat-remove"></i>
-                        </div>
-                      </div>
-                    </div>
-                    <p class="mt-3 mb-0 text-sm">
-                      <span class="text-warning mr-2"><i class="fa fa-ban"></i> Rejected Requests</span>
-                      <span class="text-nowrap">All sources combined</span>
-                    </p>                  
-                  </div>
-                </div>
-              </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Page content -->
-    <div class="container-fluid mt--6">
-      <div class="row">
-        <div class="col-xl-8">
-          <div class="card bg-default">
-            <div class="card-header bg-transparent">
-              <div class="row align-items-center">
-                <div class="col">
-                  <h6 class="text-light text-uppercase ls-1 mb-1">Overview</h6>
-                  <h5 class="h3 text-white mb-0">Evolution of errors</h5>
-                </div>
-              </div>
-            </div>
-            <div class="card-body">
-              <!-- Chart -->
-              <div class="chart">
-                <canvas id="chart-sales-dark1" class="chart-canvas" data-systems='[
-                {% for item in error_evolution %}
-                  {"name": "{{ item.date }}", "value": {{ item.count }}}
-                  {% if not forloop.last %},{% endif %}
-                {% endfor %}]'></canvas>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="col-xl-4">
-          <div class="card">
-            <div class="card-header bg-transparent">
-              <div class="row align-items-center">
-                <div class="col">
-                  <h6 class="text-uppercase text-muted ls-1 mb-1">Performance</h6>
-                  <h5 class="h3 mb-0">Erreurs ouvertes par système</h5>
-                </div>
-              </div>
-            </div>
-            <div class="card-body">
-              <div class="chart">
-                <canvas id="chart-bars" class="chart-canvas"
-                  data-systems='[
-                    {% for item in erreurs_ouvertes_per_system %}
-                      {"name": "{{ item.system_name }}", "value": {{ item.distinct_errors }}}
-                      {% if not forloop.last %},{% endif %}
-                    {% endfor %}
-                  ]'
-                ></canvas>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col-xl-8">
-          <div class="card">
-            <div class="card-header border-0">
-              <div class="row align-items-center">
-                <div class="col">
-                  <h3 class="mb-0">Distribution by priority</h3>
-                </div>
-                <div class="col text-right">
-                  <a href="#!" class="btn btn-sm btn-primary">See all</a>
-                </div>
-              </div>
-            </div>
-            <div class="table-responsive">
-              <!-- Projects table -->
-              <table class="table align-items-center table-flush">
-                <thead class="thead-light">
-                  <tr>
-                    <th scope="col">Priority</th>
-                    <th scope="col">Error Count</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {% for item in erreurs_par_priorite %}
-                  <tr>
-                      <td>{{ item.priorite }}</td>
-                      <td>{{ item.distinct_errors }}</td>
-                  </tr>
-                  {% endfor %}
-              </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-        <div class="col-xl-4">
-          <div class="card">
-            <div class="card-header border-0">
-              <div class="row align-items-center">
-                <div class="col">
-                  <h3 class="mb-0">Distribution by severity</h3>
-                </div>
-                <div class="col text-right">
-                  <a href="#!" class="btn btn-sm btn-primary">See all</a>
-                </div>
-              </div>
-            </div>
-            <div class="table-responsive">
-              <!-- Projects table -->
-              <table class="table align-items-center table-flush">
-                <thead class="thead-light">
-                  <tr>
-                    <th scope="col">Severity</th>
-                    <th scope="col">Error Count</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {% for item in erreurs_par_gravite %}
-                  <tr>
-                      <td>{{ item.gravite }}</td>
-                      <td>{{ item.distinct_errors }}</td>
-                  </tr>
-                  {% endfor %}
-              </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {% include "includes/footer.html" %}
-
-    </div>
-
-{% endblock content %}
-
-<!-- Specific JS goes HERE --> 
-{% block javascripts %}
-
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script>
-    document.addEventListener('DOMContentLoaded', function() {
-  const canvas = document.getElementById('chart-bars');
-  const ctx = canvas.getContext('2d');
-  
-  // Get data from the data-systems attribute
-  const systemsData = JSON.parse(canvas.dataset.systems || '[]');
-  
-  // Prepare data for the chart
-  const labels = systemsData.map(item => item.name);
-  const values = systemsData.map(item => item.value);
-  
-  new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: labels,
-      datasets: [{
-        label: 'Erreurs ouvertes',
-        data: values,
-        backgroundColor: 'rgba(94, 114, 228, 0.8)',
-        borderColor: 'rgba(94, 114, 228, 1)',
-        borderWidth: 1
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      scales: {
-        y: {
-          beginAtZero: true,
-          grid: {
-            borderDash: [2],
-            borderDashOffset: [2],
-            drawBorder: false,
-            drawTicks: false
-          },
-          ticks: {
-            padding: 10
-          }
-        },
-        x: {
-          grid: {
-            drawBorder: false,
-            display: false,
-            drawOnChartArea: false,
-            drawTicks: false
-          },
-          ticks: {
-            padding: 20,
-            font: {
-              size: 11
-            }
-          }
-        }
-      },
-      plugins: {
-        legend: {
-          display: false
-        },
-        tooltip: {
-          backgroundColor: '#fff',
-          titleColor: '#333',
-          bodyColor: '#666',
-          bodySpacing: 4,
-          padding: 12,
-          borderColor: '#e9ecef',
-          borderWidth: 1,
-          usePointStyle: true,
-          mode: 'index',
-          intersect: 0
-        }
-      }
-    }
-  });
-});
-  </script>
-  <script>
-    document.addEventListener("DOMContentLoaded", function () {
-    var canvas = document.getElementById("chart-sales-dark1");
-    if (!canvas) {
-        console.error("Canvas element not found!");
-        return;
-    }
-
-    // Get data from the data-systems attribute
-    const systemsData = JSON.parse(canvas.dataset.systems || '[]');
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IRM Transactions Dashboard</title>
     
-    // Prepare data for the chart
-    const dates = systemsData.map(item => item.name);
-    const counts = systemsData.map(item => item.value);
-
-    try {
-
-        console.log("Parsed dates:", dates);
-        console.log("Parsed counts:", counts);
-
-        if (dates.length === 0 || counts.length === 0) {
-            console.warn("Chart data is empty! Check your Django template.");
+    <!-- Bootstrap 4 CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.6.2/css/bootstrap.min.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <!-- Animate.css -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    
+    <style>
+        :root {
+            --primary-color: #5e72e4;
+            --success-color: #2dce89;
+            --warning-color: #fb6340;
+            --danger-color: #f5365c;
         }
 
-        var ctx = canvas.getContext("2d");
-        new Chart(ctx, {
-            type: "line",
-            data: {
-                labels: dates,
-                datasets: [{
-                    label: "Errors Per Day",
-                    data: counts,
-                    borderColor: "rgba(75, 192, 192, 1)",
-                    backgroundColor: "rgba(75, 192, 192, 0.2)",
-                    borderWidth: 2,
-                    fill: true,
-                    tension: 0.4
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    x: { title: { display: true, text: "Date" } },
-                    y: { title: { display: true, text: "Number of Errors" }, beginAtZero: true }
-                }
+        body {
+            background-color: #f8f9fe;
+        }
+
+        .header {
+            background: linear-gradient(87deg, #5e72e4 0, #825ee4 100%) !important;
+            padding: 3rem 0;
+            margin-bottom: 3rem;
+        }
+
+        .card {
+            border: 0;
+            box-shadow: 0 0 2rem 0 rgba(136, 152, 170, .15);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 1rem 3rem rgba(0,0,0,.175);
+        }
+
+        .card-stats {
+            border-radius: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .icon-shape {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .breadcrumb-dark .breadcrumb-item a {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .breadcrumb-dark .breadcrumb-item.active {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .section-title {
+            color: #5e72e4;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            padding-left: 15px;
+        }
+
+        .btn-neutral {
+            color: #5e72e4;
+            background-color: #fff;
+            border: 1px solid #e9ecef;
+            box-shadow: 0 1px 3px rgba(50,50,93,.15), 0 1px 0 rgba(0,0,0,.02);
+        }
+
+        .counter {
+            animation: countUp 2s ease-out;
+        }
+
+        @keyframes countUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
             }
-        });
-    } catch (error) {
-        console.error("Error parsing chart data:", error);
-    }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <div class="container-fluid">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h2 class="text-white mb-0">IRM Transactions Dashboard</h2>
+                <nav aria-label="breadcrumb" class="d-none d-md-inline-block mt-2">
+                    <ol class="breadcrumb breadcrumb-dark bg-transparent">
+                        <li class="breadcrumb-item"><a href="#"><i class="fas fa-home"></i></a></li>
+                        <li class="breadcrumb-item"><a href="#">Dashboard</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Transactions</li>
+                    </ol>
+                </nav>
+            </div>
+            <div class="col-lg-6 text-right">
+                <button class="btn btn-neutral btn-icon">
+                    <span class="btn-inner--icon"><i class="fas fa-plus"></i></span>
+                    <span class="btn-inner--text">New</span>
+                </button>
+                <button class="btn btn-neutral btn-icon ml-2">
+                    <span class="btn-inner--icon"><i class="fas fa-filter"></i></span>
+                    <span class="btn-inner--text">Filters</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Registration Section -->
+        <h3 class="section-title mt-5">REGISTRATION</h3>
+        <div class="row">
+            <div class="col-xl-4 col-md-6">
+                <div class="card card-stats animate__animated animate__fadeInUp">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col">
+                                <h5 class="card-title text-uppercase text-muted mb-0">Success</h5>
+                                <span class="h2 font-weight-bold mb-0 counter" id="successCount">0</span>
+                            </div>
+                            <div class="col-auto">
+                                <div class="icon-shape bg-gradient-success text-white">
+                                    <i class="fas fa-check"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="mt-3 mb-0 text-sm">
+                            <span class="text-success mr-2"><i class="fas fa-check-circle"></i> Successful Operations</span>
+                            <span class="text-nowrap">All sources</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-4 col-md-6">
+                <div class="card card-stats animate__animated animate__fadeInUp" style="animation-delay: 0.2s">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col">
+                                <h5 class="card-title text-uppercase text-muted mb-0">Failed</h5>
+                                <span class="h2 font-weight-bold mb-0 counter" id="failedCount">0</span>
+                            </div>
+                            <div class="col-auto">
+                                <div class="icon-shape bg-gradient-warning text-white">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="mt-3 mb-0 text-sm">
+                            <span class="text-danger mr-2"><i class="fas fa-times-circle"></i> Failed Operations</span>
+                            <span class="text-nowrap">All sources</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-4 col-md-6">
+                <div class="card card-stats animate__animated animate__fadeInUp" style="animation-delay: 0.4s">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col">
+                                <h5 class="card-title text-uppercase text-muted mb-0">Rejected</h5>
+                                <span class="h2 font-weight-bold mb-0 counter" id="rejectedCount">0</span>
+                            </div>
+                            <div class="col-auto">
+                                <div class="icon-shape bg-gradient-danger text-white">
+                                    <i class="fas fa-ban"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="mt-3 mb-0 text-sm">
+                            <span class="text-warning mr-2"><i class="fas fa-ban"></i> Rejected Requests</span>
+                            <span class="text-nowrap">All sources</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ANIP Transactions Section -->
+        <h3 class="section-title mt-5">ANIP TRANSACTIONS</h3>
+        <div class="row">
+            <!-- Similar cards for ANIP transactions with different IDs -->
+            <div class="col-xl-4 col-md-6">
+                <div class="card card-stats animate__animated animate__fadeInUp">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col">
+                                <h5 class="card-title text-uppercase text-muted mb-0">Success</h5>
+                                <span class="h2 font-weight-bold mb-0 counter" id="anipSuccessCount">0</span>
+                            </div>
+                            <div class="col-auto">
+                                <div class="icon-shape bg-gradient-success text-white">
+                                    <i class="fas fa-check"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="mt-3 mb-0 text-sm">
+                            <span class="text-success mr-2"><i class="fas fa-check-circle"></i> Successful Operations</span>
+                            <span class="text-nowrap">All sources</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-4 col-md-6">
+                <div class="card card-stats animate__animated animate__fadeInUp" style="animation-delay: 0.2s">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col">
+                                <h5 class="card-title text-uppercase text-muted mb-0">Failed</h5>
+                                <span class="h2 font-weight-bold mb-0 counter" id="anipFailedCount">0</span>
+                            </div>
+                            <div class="col-auto">
+                                <div class="icon-shape bg-gradient-warning text-white">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="mt-3 mb-0 text-sm">
+                            <span class="text-danger mr-2"><i class="fas fa-times-circle"></i> Failed Operations</span>
+                            <span class="text-nowrap">All sources</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-4 col-md-6">
+                <div class="card card-stats animate__animated animate__fadeInUp" style="animation-delay: 0.4s">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col">
+                                <h5 class="card-title text-uppercase text-muted mb-0">Rejected</h5>
+                                <span class="h2 font-weight-bold mb-0 counter" id="anipRejectedCount">0</span>
+                            </div>
+                            <div class="col-auto">
+                                <div class="icon-shape bg-gradient-danger text-white">
+                                    <i class="fas fa-ban"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="mt-3 mb-0 text-sm">
+                            <span class="text-warning mr-2"><i class="fas fa-ban"></i> Rejected Requests</span>
+                            <span class="text-nowrap">All sources</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Required Scripts -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.1/umd/popper.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.6.2/js/bootstrap.min.js"></script>
+
+<script>
+// Animate counter function
+function animateCounter(elementId, finalValue) {
+    let startValue = 0;
+    const duration = 2000;
+    const interval = 50;
+    const steps = duration / interval;
+    const increment = finalValue / steps;
+    
+    const counter = setInterval(() => {
+        startValue += increment;
+        if(startValue >= finalValue) {
+            document.getElementById(elementId).textContent = Math.round(finalValue);
+            clearInterval(counter);
+        } else {
+            document.getElementById(elementId).textContent = Math.round(startValue);
+        }
+    }, interval);
+}
+
+// Initialize counters with sample data (replace with actual data)
+document.addEventListener('DOMContentLoaded', function() {
+    // Registration section
+    animateCounter('successCount', 856);
+    animateCounter('failedCount', 123);
+    animateCounter('rejectedCount', 45);
+    
+    // ANIP section
+    animateCounter('anipSuccessCount', 742);
+    animateCounter('anipFailedCount', 89);
+    animateCounter('anipRejectedCount', 34);
+});
+
+// Add hover effect to cards
+document.querySelectorAll('.card').forEach(card => {
+    card.addEventListener('mouseenter', function() {
+        this.style.transform = 'translateY(-5px)';
+    });
+    
+    card.addEventListener('mouseleave', function() {
+        this.style.transform = 'translateY(0)';
+    });
 });
 </script>
-{% endblock javascripts %}
+
+</body>
+</html>
