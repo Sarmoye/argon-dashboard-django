@@ -30,7 +30,7 @@
             <!-- Card stats -->
             <h2>REGISTRATION TRANSACTIONS ON IRM</h2>
             <div class="row">
-                <div class="col-xl-4 col-md-6">
+                <div class="col-xl-4 col-md-4">
                     <div class="card card-stats">
                         <!-- Card body -->
                         <div class="card-body">
@@ -51,7 +51,7 @@
                             </p>                  
                         </div>
                     </div>
-                <div class="col-xl-4 col-md-6">
+                <div class="col-xl-4 col-md-4">
                     <div class="card card-stats">
                         <!-- Card body -->
                         <div class="card-body">
@@ -73,7 +73,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-xl-4 col-md-6">
+                <div class="col-xl-4 col-md-4">
                     <div class="card card-stats">
                         <!-- Card body -->
                         <div class="card-body">
@@ -98,7 +98,7 @@
             </div>
             <h2>ANIP TRANSACTIONS WITH IRM</h2>
             <div class="row">
-                <div class="col-xl-4 col-md-6">
+                <div class="col-xl-4 col-md-4">
                     <div class="card card-stats">
                         <!-- Card body -->
                         <div class="card-body">
@@ -120,7 +120,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-xl-4 col-md-6">
+                <div class="col-xl-4 col-md-4">
                     <div class="card card-stats">
                         <!-- Card body -->
                         <div class="card-body">
@@ -142,7 +142,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-xl-4 col-md-6">
+                <div class="col-xl-4 col-md-4">
                     <div class="card card-stats">
                         <!-- Card body -->
                         <div class="card-body">
@@ -221,45 +221,6 @@
             </div>
           </div>
         </div>
-
-
-      <div class="row">
-        
-        <div class="col-xl-4">
-          <div class="card">
-            <div class="card-header border-0">
-              <div class="row align-items-center">
-                <div class="col">
-                  <h3 class="mb-0">Distribution by severity</h3>
-                </div>
-                <div class="col text-right">
-                  <a href="#!" class="btn btn-sm btn-primary">See all</a>
-                </div>
-              </div>
-            </div>
-            <div class="table-responsive">
-              <!-- Projects table -->
-              <table class="table align-items-center table-flush">
-                <thead class="thead-light">
-                  <tr>
-                    <th scope="col">Severity</th>
-                    <th scope="col">Error Count</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {% for item in erreurs_par_gravite %}
-                  <tr>
-                      <td>{{ item.gravite }}</td>
-                      <td>{{ item.distinct_errors }}</td>
-                  </tr>
-                  {% endfor %}
-              </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      </div>
-
       {% include "includes/footer.html" %}
 
     </div>
