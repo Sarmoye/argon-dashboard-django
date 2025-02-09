@@ -13,5 +13,6 @@ urlpatterns = [
     path("home/", include("apps.home.urls")),             # UI Kits Html files
     path("sources/", include("apps.sources_data_app.urls")),
     path("analysis/", include("apps.analysis.urls")),
-    path("visualization/", include("apps.visualization.urls"))
+    path("visualization/", include("apps.visualization.urls")),
+    path("irm_dashboard/", include("apps.irm_dashboard.urls")),
 ]
