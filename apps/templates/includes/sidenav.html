@@ -74,6 +74,17 @@
                 </li>
               {% endif %}
           {% endif %}
+
+          {% if user.is_authenticated %}
+              {% if user.role == 'admin' or user.role == 'superadmin' or user.role == 'analyst' or user.role == 'viewer' %}
+                <li class="nav-item">
+                  <a class="nav-link {% if 'sources_home' in segment %} active {% endif %}" href="{% url 'irm_dashboard:home' %}">
+                      <i class="ni ni-chart-bar-32 text-default"></i>
+                      <span class="nav-link-text">IRM Dashboard</span>
+                  </a>
+                </li>
+              {% endif %}
+          {% endif %}
           <!-- <li class="nav-item">
             <a class="nav-link" href="/login.html">
               <i class="ni ni-key-25 text-info"></i>
