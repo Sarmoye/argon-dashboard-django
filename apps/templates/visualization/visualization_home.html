@@ -129,6 +129,17 @@
                 </div>
             </div>
         </div>
+
+        <div class="chart">
+            <canvas id="chart-bars" class="chart-canvas"
+              data-systems='[
+                {% for item in erreurs_ouvertes_per_system %}
+                  {"name": "{{ item.system_name }}", "value": {{ item.distinct_errors }}}
+                  {% if not forloop.last %},{% endif %}
+                {% endfor %}
+              ]'
+            ></canvas>
+        </div>
         
         <div class="col-md-6 mb-4">
             <div class="card shadow-sm">
@@ -203,27 +214,11 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-6 mb-4">
-            <div class="card">
-                <div class="card-header">
-                    <div class="card-title">Multiple Line Chart</div>
-                </div>
-                <div class="card-body">
-                    <div class="chart-container" style="height: 400px;">
-                        <canvas id="multipleLineChart"></canvas>
-                    </div>
-                </div>
-            </div>
-        </div>
     </div>
 </div>
 
 {% endblock %}
 
-
-
 {% block extra_js %}
-<script>
-    console.log("JavaScript is running!");
-</script>
+
 {% endblock %}
