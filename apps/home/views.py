@@ -36,11 +36,19 @@ def index(request):
     # Répartition par système (distinct par system_name)
     erreurs_par_systeme = (FicheErreur.objects.values("system_name").annotate(distinct_errors=Count("error_reason", distinct=True)))
     
-    # Répartition par gravité (distinct par gravite)
-    erreurs_par_gravite = (FicheErreur.objects.values("gravite").annotate(distinct_errors=Count("error_reason", distinct=True)))
+    # Répartition par gravité (distinct par gravite) pour les erreurs avec statut "Ouvert"
+    erreurs_par_gravite = (
+        FicheErreur.objects.filter(statut="Ouvert")
+        .values("gravite")
+        .annotate(distinct_errors=Count("error_reason", distinct=True))
+    )
 
-    # Répartition par priorité (distinct par priorite)
-    erreurs_par_priorite = (FicheErreur.objects.values("priorite").annotate(distinct_errors=Count("error_reason", distinct=True)))
+    # Répartition par priorité (distinct par priorite) pour les erreurs avec statut "Ouvert"
+    erreurs_par_priorite = (
+        FicheErreur.objects.filter(statut="Ouvert")
+        .values("priorite")
+        .annotate(distinct_errors=Count("error_reason", distinct=True))
+    )
 
     erreurs_ouvertes_per_system = FicheErreur.objects.filter(statut="Ouvert").values("system_name").annotate(distinct_errors=Count("error_reason", distinct=True))
 
