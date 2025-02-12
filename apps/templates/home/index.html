@@ -121,6 +121,87 @@
     align-items: center;
     z-index: 1;
   }
+
+  .priority-badge, .severity-badge {
+    padding: 0.5rem 1rem;
+    border-radius: 30px;
+    font-weight: 600;
+    font-size: 0.875rem;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  /* Priority badges */
+  .priority-basse {
+    background-color: #eaecef;
+    color: #666;
+  }
+
+  .priority-normale {
+    background-color: #e3f2fd;
+    color: #1976d2;
+  }
+
+  .priority-elevee {
+    background-color: #fff3e0;
+    color: #f57c00;
+  }
+
+  .priority-urgente {
+    background-color: #ffebee;
+    color: #d32f2f;
+  }
+
+  .priority-critique {
+    background-color: #fce4ec;
+    color: #c2185b;
+  }
+
+  .priority-immediate {
+    background-color: #621b1b;
+    color: white;
+  }
+
+  /* Severity badges */
+  .severity-faible {
+    background-color: #f1f8e9;
+    color: #558b2f;
+  }
+
+  .severity-moyenne {
+    background-color: #fff3e0;
+    color: #f57c00;
+  }
+
+  .severity-elevee {
+    background-color: #ffebee;
+    color: #d32f2f;
+  }
+
+  .severity-critique {
+    background-color: #621b1b;
+    color: white;
+  }
+
+  /* Table row hover effect */
+  .table tbody tr {
+    transition: background-color 0.2s ease;
+  }
+
+  .table tbody tr:hover {
+    background-color: rgba(94, 114, 228, 0.05);
+  }
+
+  /* Count badge */
+  .count-badge {
+    background: #eaecef;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: #666;
+  }
 </style>
 {% endblock stylesheets %}
 
@@ -297,7 +378,7 @@
             <div class="card-header border-0">
               <div class="row align-items-center">
                 <div class="col">
-                  <h3 class="mb-0">Distribution by priority</h3>
+                  <h3 class="mb-0">Distribution by Priority</h3>
                 </div>
                 <div class="col text-right">
                   <a href="#!" class="btn btn-sm btn-primary">See all</a>
@@ -305,22 +386,49 @@
               </div>
             </div>
             <div class="table-responsive">
-              <!-- Projects table -->
               <table class="table align-items-center table-flush">
                 <thead class="thead-light">
                   <tr>
-                    <th scope="col">Priority</th>
+                    <th scope="col">Priority Level</th>
                     <th scope="col">Error Count</th>
+                    <th scope="col">Percentage</th>
                   </tr>
                 </thead>
                 <tbody>
+                  {% with priorities="Basse,Normale,Élevée,Urgente,Critique,Immédiate" %}
+                  {% for priority in priorities.split(',') %}
+                  {% with count=0 %}
                   {% for item in erreurs_par_priorite %}
-                  <tr>
-                      <td>{{ item.priorite }}</td>
-                      <td>{{ item.distinct_errors }}</td>
-                  </tr>
+                    {% if item.priorite == priority %}
+                      {% with count=item.distinct_errors %}{% endwith %}
+                    {% endif %}
                   {% endfor %}
-              </tbody>
+                  <tr>
+                    <td>
+                      <span class="priority-badge priority-{{ priority|lower }}">
+                        {{ priority }}
+                      </span>
+                    </td>
+                    <td>
+                      <span class="count-badge">{{ count|default:0 }}</span>
+                    </td>
+                    <td>
+                      <div class="d-flex align-items-center">
+                        <span class="mr-2">
+                          {% if total_erreurs_distinctes > 0 %}
+                            {{ count|default:0|multiply:100|divide:total_erreurs_distinctes|floatformat:1 }}%
+                          {% else %}
+                            0%
+                          {% endif %}
+                        </span>
+                        
+                      </div>
+                    </td>
+                  </tr>
+                  {% endwith %}
+                  {% endfor %}
+                  {% endwith %}
+                </tbody>
               </table>
             </div>
           </div>
@@ -330,7 +438,7 @@
             <div class="card-header border-0">
               <div class="row align-items-center">
                 <div class="col">
-                  <h3 class="mb-0">Distribution by severity</h3>
+                  <h3 class="mb-0">Distribution by Severity</h3>
                 </div>
                 <div class="col text-right">
                   <a href="#!" class="btn btn-sm btn-primary">See all</a>
@@ -338,22 +446,36 @@
               </div>
             </div>
             <div class="table-responsive">
-              <!-- Projects table -->
               <table class="table align-items-center table-flush">
                 <thead class="thead-light">
                   <tr>
-                    <th scope="col">Severity</th>
+                    <th scope="col">Severity Level</th>
                     <th scope="col">Error Count</th>
                   </tr>
                 </thead>
                 <tbody>
+                  {% with severities="Faible,Moyenne,Elevée,Critique" %}
+                  {% for severity in severities.split(',') %}
+                  {% with count=0 %}
                   {% for item in erreurs_par_gravite %}
-                  <tr>
-                      <td>{{ item.gravite }}</td>
-                      <td>{{ item.distinct_errors }}</td>
-                  </tr>
+                    {% if item.gravite == severity %}
+                      {% with count=item.distinct_errors %}{% endwith %}
+                    {% endif %}
                   {% endfor %}
-              </tbody>
+                  <tr>
+                    <td>
+                      <span class="severity-badge severity-{{ severity|lower }}">
+                        {{ severity }}
+                      </span>
+                    </td>
+                    <td>
+                      <span class="count-badge">{{ count|default:0 }}</span>
+                    </td>
+                  </tr>
+                  {% endwith %}
+                  {% endfor %}
+                  {% endwith %}
+                </tbody>
               </table>
             </div>
           </div>
