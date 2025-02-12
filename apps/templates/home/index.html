@@ -121,7 +121,6 @@
     align-items: center;
     z-index: 1;
   }
-
   .priority-badge, .severity-badge {
     padding: 0.5rem 1rem;
     border-radius: 30px;
@@ -132,7 +131,6 @@
     align-items: center;
   }
 
-  /* Priority badges */
   .priority-basse {
     background-color: #eaecef;
     color: #666;
@@ -184,15 +182,6 @@
     color: white;
   }
 
-  /* Table row hover effect */
-  .table tbody tr {
-    transition: background-color 0.2s ease;
-  }
-
-  .table tbody tr:hover {
-    background-color: rgba(94, 114, 228, 0.05);
-  }
-
   /* Count badge */
   .count-badge {
     background: #eaecef;
@@ -201,6 +190,14 @@
     font-weight: 600;
     font-size: 0.875rem;
     color: #666;
+  }
+
+  .table tbody tr {
+    transition: background-color 0.2s ease;
+  }
+
+  .table tbody tr:hover {
+    background-color: rgba(94, 114, 228, 0.05);
   }
 </style>
 {% endblock stylesheets %}
@@ -395,22 +392,22 @@
                   </tr>
                 </thead>
                 <tbody>
-                  {% with priorities="Basse,Normale,Élevée,Urgente,Critique,Immédiate" %}
-                  {% for priority in priorities.split(',') %}
-                  {% with count=0 %}
-                  {% for item in erreurs_par_priorite %}
-                    {% if item.priorite == priority %}
-                      {% with count=item.distinct_errors %}{% endwith %}
-                    {% endif %}
-                  {% endfor %}
+                  {% comment %} Basse Priority {% endcomment %}
                   <tr>
                     <td>
-                      <span class="priority-badge priority-{{ priority|lower }}">
-                        {{ priority }}
-                      </span>
+                      <span class="priority-badge priority-basse">Basse</span>
                     </td>
                     <td>
-                      <span class="count-badge">{{ count|default:0 }}</span>
+                      <span class="count-badge">
+                        {% with count=0 %}
+                          {% for item in erreurs_par_priorite %}
+                            {% if item.priorite == 'Basse' %}
+                              {% with count=item.distinct_errors %}{% endwith %}
+                            {% endif %}
+                          {% endfor %}
+                          {{ count }}
+                        {% endwith %}
+                      </span>
                     </td>
                     <td>
                       <div class="d-flex align-items-center">
@@ -421,13 +418,159 @@
                             0%
                           {% endif %}
                         </span>
-                        
                       </div>
                     </td>
                   </tr>
-                  {% endwith %}
-                  {% endfor %}
-                  {% endwith %}
+      
+                  {% comment %} Normale Priority {% endcomment %}
+                  <tr>
+                    <td>
+                      <span class="priority-badge priority-normale">Normale</span>
+                    </td>
+                    <td>
+                      <span class="count-badge">
+                        {% with count=0 %}
+                          {% for item in erreurs_par_priorite %}
+                            {% if item.priorite == 'Normale' %}
+                              {% with count=item.distinct_errors %}{% endwith %}
+                            {% endif %}
+                          {% endfor %}
+                          {{ count }}
+                        {% endwith %}
+                      </span>
+                    </td>
+                    <td>
+                      <div class="d-flex align-items-center">
+                        <span class="mr-2">
+                          {% if total_erreurs_distinctes > 0 %}
+                            {{ count|default:0|multiply:100|divide:total_erreurs_distinctes|floatformat:1 }}%
+                          {% else %}
+                            0%
+                          {% endif %}
+                        </span>
+                      </div>
+                    </td>
+                  </tr>
+      
+                  {% comment %} Élevée Priority {% endcomment %}
+                  <tr>
+                    <td>
+                      <span class="priority-badge priority-elevee">Élevée</span>
+                    </td>
+                    <td>
+                      <span class="count-badge">
+                        {% with count=0 %}
+                          {% for item in erreurs_par_priorite %}
+                            {% if item.priorite == 'Élevée' %}
+                              {% with count=item.distinct_errors %}{% endwith %}
+                            {% endif %}
+                          {% endfor %}
+                          {{ count }}
+                        {% endwith %}
+                      </span>
+                    </td>
+                    <td>
+                      <div class="d-flex align-items-center">
+                        <span class="mr-2">
+                          {% if total_erreurs_distinctes > 0 %}
+                            {{ count|default:0|multiply:100|divide:total_erreurs_distinctes|floatformat:1 }}%
+                          {% else %}
+                            0%
+                          {% endif %}
+                        </span>
+                      </div>
+                    </td>
+                  </tr>
+      
+                  {% comment %} Urgente Priority {% endcomment %}
+                  <tr>
+                    <td>
+                      <span class="priority-badge priority-urgente">Urgente</span>
+                    </td>
+                    <td>
+                      <span class="count-badge">
+                        {% with count=0 %}
+                          {% for item in erreurs_par_priorite %}
+                            {% if item.priorite == 'Urgente' %}
+                              {% with count=item.distinct_errors %}{% endwith %}
+                            {% endif %}
+                          {% endfor %}
+                          {{ count }}
+                        {% endwith %}
+                      </span>
+                    </td>
+                    <td>
+                      <div class="d-flex align-items-center">
+                        <span class="mr-2">
+                          {% if total_erreurs_distinctes > 0 %}
+                            {{ count|default:0|multiply:100|divide:total_erreurs_distinctes|floatformat:1 }}%
+                          {% else %}
+                            0%
+                          {% endif %}
+                        </span>
+                      </div>
+                    </td>
+                  </tr>
+      
+                  {% comment %} Critique Priority {% endcomment %}
+                  <tr>
+                    <td>
+                      <span class="priority-badge priority-critique">Critique</span>
+                    </td>
+                    <td>
+                      <span class="count-badge">
+                        {% with count=0 %}
+                          {% for item in erreurs_par_priorite %}
+                            {% if item.priorite == 'Critique' %}
+                              {% with count=item.distinct_errors %}{% endwith %}
+                            {% endif %}
+                          {% endfor %}
+                          {{ count }}
+                        {% endwith %}
+                      </span>
+                    </td>
+                    <td>
+                      <div class="d-flex align-items-center">
+                        <span class="mr-2">
+                          {% if total_erreurs_distinctes > 0 %}
+                            {{ count|default:0|multiply:100|divide:total_erreurs_distinctes|floatformat:1 }}%
+                          {% else %}
+                            0%
+                          {% endif %}
+                        </span>
+                      </div>
+                    </td>
+                  </tr>
+      
+                  {% comment %} Immédiate Priority {% endcomment %}
+                  <tr>
+                    <td>
+                      <span class="priority-badge priority-immediate">Immédiate</span>
+                    </td>
+                    <td>
+                      <span class="count-badge">
+                        {% with count=0 %}
+                          {% for item in erreurs_par_priorite %}
+                            {% if item.priorite == 'Immédiate' %}
+                              {% with count=item.distinct_errors %}{% endwith %}
+                            {% endif %}
+                          {% endfor %}
+                          {{ count }}
+                        {% endwith %}
+                      </span>
+                    </td>
+                    <td>
+                      <div class="d-flex align-items-center">
+                        <span class="mr-2">
+                          {% if total_erreurs_distinctes > 0 %}
+                            {{ count|default:0|multiply:100|divide:total_erreurs_distinctes|floatformat:1 }}%
+                          {% else %}
+                            0%
+                          {% endif %}
+                        </span>
+                      </div>
+                    </td>
+                  </tr>
                 </tbody>
               </table>
             </div>
@@ -454,27 +597,81 @@
                   </tr>
                 </thead>
                 <tbody>
-                  {% with severities="Faible,Moyenne,Elevée,Critique" %}
-                  {% for severity in severities.split(',') %}
-                  {% with count=0 %}
-                  {% for item in erreurs_par_gravite %}
-                    {% if item.gravite == severity %}
-                      {% with count=item.distinct_errors %}{% endwith %}
-                    {% endif %}
-                  {% endfor %}
+                  {% comment %} Faible Severity {% endcomment %}
                   <tr>
                     <td>
-                      <span class="severity-badge severity-{{ severity|lower }}">
-                        {{ severity }}
-                      </span>
+                      <span class="severity-badge severity-faible">Faible</span>
                     </td>
                     <td>
-                      <span class="count-badge">{{ count|default:0 }}</span>
+                      <span class="count-badge">
+                        {% with count=0 %}
+                          {% for item in erreurs_par_gravite %}
+                            {% if item.gravite == 'Faible' %}
+                              {% with count=item.distinct_errors %}{% endwith %}
+                            {% endif %}
+                          {% endfor %}
+                          {{ count }}
+                        {% endwith %}
+                      </span>
                     </td>
                   </tr>
-                  {% endwith %}
-                  {% endfor %}
-                  {% endwith %}
+      
+                  {% comment %} Moyenne Severity {% endcomment %}
+                  <tr>
+                    <td>
+                      <span class="severity-badge severity-moyenne">Moyenne</span>
+                    </td>
+                    <td>
+                      <span class="count-badge">
+                        {% with count=0 %}
+                          {% for item in erreurs_par_gravite %}
+                            {% if item.gravite == 'Moyenne' %}
+                              {% with count=item.distinct_errors %}{% endwith %}
+                            {% endif %}
+                          {% endfor %}
+                          {{ count }}
+                        {% endwith %}
+                      </span>
+                    </td>
+                  </tr>
+      
+                  {% comment %} Elevée Severity {% endcomment %}
+                  <tr>
+                    <td>
+                      <span class="severity-badge severity-elevee">Elevée</span>
+                    </td>
+                    <td>
+                      <span class="count-badge">
+                        {% with count=0 %}
+                          {% for item in erreurs_par_gravite %}
+                            {% if item.gravite == 'Elevée' %}
+                              {% with count=item.distinct_errors %}{% endwith %}
+                            {% endif %}
+                          {% endfor %}
+                          {{ count }}
+                        {% endwith %}
+                      </span>
+                    </td>
+                  </tr>
+      
+                  {% comment %} Critique Severity {% endcomment %}
+                  <tr>
+                    <td>
+                      <span class="severity-badge severity-critique">Critique</span>
+                    </td>
+                    <td>
+                      <span class="count-badge">
+                        {% with count=0 %}
+                          {% for item in erreurs_par_gravite %}
+                            {% if item.gravite == 'Critique' %}
+                              {% with count=item.distinct_errors %}{% endwith %}
+                            {% endif %}
+                          {% endfor %}
+                          {{ count }}
+                        {% endwith %}
+                      </span>
+                    </td>
+                  </tr>
                 </tbody>
               </table>
             </div>
