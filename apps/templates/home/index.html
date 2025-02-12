@@ -2,8 +2,127 @@
 
 {% block title %} Dashboard {% endblock title %}
 
-<!-- Specific CSS goes HERE -->
-{% block stylesheets %}{% endblock stylesheets %}
+{% block stylesheets %}
+<style>
+  /* Custom gradients and shadows */
+  .bg-primary {
+    background: linear-gradient(87deg, #5e72e4 0, #825ee4 100%) !important;
+  }
+  
+  .card {
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    border: none;
+    box-shadow: 0 0 2rem 0 rgba(136, 152, 170, .15);
+  }
+
+  .card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0 3rem 0 rgba(136, 152, 170, .2);
+  }
+
+  .card-stats .icon {
+    transition: all 0.2s ease;
+  }
+
+  .card-stats:hover .icon {
+    transform: scale(1.1);
+  }
+
+  /* Enhanced breadcrumb styling */
+  .breadcrumb {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(5px);
+    border-radius: 30px;
+    padding: 0.5rem 1rem;
+  }
+
+  .breadcrumb-item + .breadcrumb-item::before {
+    color: rgba(255, 255, 255, 0.8);
+  }
+
+  /* Button enhancements */
+  .btn-neutral {
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(5px);
+    border: none;
+    box-shadow: 0 4px 6px rgba(50, 50, 93, .11);
+    transition: all 0.2s ease;
+  }
+
+  .btn-neutral:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 7px 14px rgba(50, 50, 93, .1);
+  }
+
+  /* Stats card refinements */
+  .card-stats .card-body {
+    padding: 1.5rem;
+  }
+
+  .card-title {
+    letter-spacing: 0.1em;
+  }
+
+  .icon-shape {
+    transition: all 0.3s ease;
+  }
+
+  /* Table enhancements */
+  .table {
+    margin-bottom: 0;
+  }
+
+  .table thead th {
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border-bottom: 2px solid #e9ecef;
+    background-color: #f6f9fc;
+  }
+
+  .table td {
+    vertical-align: middle;
+    padding: 1rem;
+  }
+
+  /* Chart containers */
+  .chart-container {
+    position: relative;
+    min-height: 300px;
+    padding: 1rem;
+  }
+
+  /* Custom scrollbar */
+  .table-responsive::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  .table-responsive::-webkit-scrollbar-thumb {
+    background-color: rgba(94, 114, 228, 0.3);
+    border-radius: 3px;
+  }
+
+  /* Loading animation */
+  .chart-loading {
+    position: relative;
+  }
+
+  .chart-loading::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1;
+  }
+</style>
+{% endblock stylesheets %}
 
 {% block content %}
 
@@ -247,137 +366,219 @@
 
 {% endblock content %}
 
-<!-- Specific JS goes HERE --> 
 {% block javascripts %}
-
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script>
-    document.addEventListener('DOMContentLoaded', function() {
-  const canvas = document.getElementById('chart-bars');
-  const ctx = canvas.getContext('2d');
-  
-  // Get data from the data-systems attribute
-  const systemsData = JSON.parse(canvas.dataset.systems || '[]');
-  
-  // Prepare data for the chart
-  const labels = systemsData.map(item => item.name);
-  const values = systemsData.map(item => item.value);
-  
-  new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: labels,
-      datasets: [{
-        label: 'Erreurs ouvertes',
-        data: values,
-        backgroundColor: 'rgba(94, 114, 228, 0.8)',
-        borderColor: 'rgba(94, 114, 228, 1)',
-        borderWidth: 1
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      scales: {
-        y: {
-          beginAtZero: true,
-          grid: {
-            borderDash: [2],
-            borderDashOffset: [2],
-            drawBorder: false,
-            drawTicks: false
-          },
-          ticks: {
-            padding: 10
-          }
-        },
-        x: {
-          grid: {
-            drawBorder: false,
-            display: false,
-            drawOnChartArea: false,
-            drawTicks: false
-          },
-          ticks: {
-            padding: 20,
-            font: {
-              size: 11
-            }
-          }
-        }
-      },
-      plugins: {
-        legend: {
-          display: false
-        },
-        tooltip: {
-          backgroundColor: '#fff',
-          titleColor: '#333',
-          bodyColor: '#666',
-          bodySpacing: 4,
-          padding: 12,
-          borderColor: '#e9ecef',
-          borderWidth: 1,
-          usePointStyle: true,
-          mode: 'index',
-          intersect: 0
-        }
-      }
-    }
-  });
-});
-  </script>
-  <script>
-    document.addEventListener("DOMContentLoaded", function () {
-    var canvas = document.getElementById("chart-sales-dark1");
-    if (!canvas) {
-        console.error("Canvas element not found!");
-        return;
-    }
-
-    // Get data from the data-systems attribute
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Enhanced bar chart
+  const initBarChart = () => {
+    const canvas = document.getElementById('chart-bars');
+    if (!canvas) return;
+    
+    const ctx = canvas.getContext('2d');
     const systemsData = JSON.parse(canvas.dataset.systems || '[]');
     
-    // Prepare data for the chart
-    const dates = systemsData.map(item => item.name);
-    const counts = systemsData.map(item => item.value);
+    const gradientFill = ctx.createLinearGradient(0, 0, 0, 300);
+    gradientFill.addColorStop(0, 'rgba(94, 114, 228, 0.9)');
+    gradientFill.addColorStop(1, 'rgba(94, 114, 228, 0.3)');
 
-    try {
-
-        console.log("Parsed dates:", dates);
-        console.log("Parsed counts:", counts);
-
-        if (dates.length === 0 || counts.length === 0) {
-            console.warn("Chart data is empty! Check your Django template.");
-        }
-
-        var ctx = canvas.getContext("2d");
-        new Chart(ctx, {
-            type: "line",
-            data: {
-                labels: dates,
-                datasets: [{
-                    label: "Errors Per Day",
-                    data: counts,
-                    borderColor: "rgba(75, 192, 192, 1)",
-                    backgroundColor: "rgba(75, 192, 192, 0.2)",
-                    borderWidth: 2,
-                    fill: true,
-                    tension: 0.4
-                }]
+    new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: systemsData.map(item => item.name),
+        datasets: [{
+          label: 'Erreurs ouvertes',
+          data: systemsData.map(item => item.value),
+          backgroundColor: gradientFill,
+          borderColor: 'rgba(94, 114, 228, 1)',
+          borderWidth: 2,
+          borderRadius: 5,
+          barThickness: 25
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          y: {
+            beginAtZero: true,
+            grid: {
+              borderDash: [2],
+              borderDashOffset: [2],
+              drawBorder: false,
+              color: 'rgba(29, 140, 248, 0.1)',
+              zeroLineColor: 'transparent'
             },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    x: { title: { display: true, text: "Date" } },
-                    y: { title: { display: true, text: "Number of Errors" }, beginAtZero: true }
-                }
+            ticks: {
+              padding: 10,
+              font: {
+                size: 11,
+                family: 'Open Sans',
+                style: 'normal',
+                lineHeight: 2
+              }
             }
-        });
-    } catch (error) {
-        console.error("Error parsing chart data:", error);
-    }
+          },
+          x: {
+            grid: {
+              drawBorder: false,
+              display: false
+            },
+            ticks: {
+              padding: 20,
+              font: {
+                size: 11,
+                family: 'Open Sans'
+              }
+            }
+          }
+        },
+        plugins: {
+          legend: {
+            display: false
+          },
+          tooltip: {
+            backgroundColor: '#fff',
+            titleColor: '#333',
+            bodyColor: '#666',
+            bodySpacing: 4,
+            padding: 12,
+            borderColor: '#e9ecef',
+            borderWidth: 1,
+            usePointStyle: true,
+            mode: 'index',
+            intersect: 0,
+            callbacks: {
+              label: function(context) {
+                return ` ${context.parsed.y} erreurs`;
+              }
+            }
+          }
+        },
+        animation: {
+          duration: 1000,
+          easing: 'easeInOutQuart'
+        }
+      }
+    });
+  };
+
+  // Enhanced line chart
+  const initLineChart = () => {
+    const canvas = document.getElementById('chart-sales-dark1');
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    const systemsData = JSON.parse(canvas.dataset.systems || '[]');
+    
+    const gradientStroke = ctx.createLinearGradient(0, 230, 0, 50);
+    gradientStroke.addColorStop(1, 'rgba(75,192,192,0.2)');
+    gradientStroke.addColorStop(0.2, 'rgba(75,192,192,0.0)');
+    gradientStroke.addColorStop(0, 'rgba(75,192,192,0)');
+
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: systemsData.map(item => item.name),
+        datasets: [{
+          label: 'Errors Per Day',
+          data: systemsData.map(item => item.value),
+          borderColor: 'rgba(75,192,192,1)',
+          backgroundColor: gradientStroke,
+          borderWidth: 3,
+          fill: true,
+          tension: 0.4,
+          pointRadius: 4,
+          pointBackgroundColor: 'rgba(75,192,192,1)',
+          pointBorderColor: 'rgba(255,255,255,1)',
+          pointHoverRadius: 6,
+          pointHoverBackgroundColor: 'rgba(75,192,192,1)',
+          pointHoverBorderColor: 'rgba(255,255,255,1)',
+          pointBorderWidth: 2,
+          pointHoverBorderWidth: 2
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          x: {
+            grid: {
+              display: false,
+              drawBorder: false
+            },
+            ticks: {
+              font: {
+                size: 11,
+                family: 'Open Sans'
+              },
+              color: 'rgba(255,255,255,0.7)'
+            }
+          },
+          y: {
+            grid: {
+              borderDash: [2],
+              drawBorder: false,
+              color: 'rgba(255,255,255,0.1)',
+              zeroLineColor: 'transparent'
+            },
+            ticks: {
+              font: {
+                size: 11,
+                family: 'Open Sans'
+              },
+              color: 'rgba(255,255,255,0.7)',
+              padding: 10
+            }
+          }
+        },
+        plugins: {
+          legend: {
+            display: false
+          },
+          tooltip: {
+            backgroundColor: 'rgba(255,255,255,0.9)',
+            titleColor: '#333',
+            bodyColor: '#666',
+            borderColor: 'rgba(255,255,255,0.3)',
+            borderWidth: 1,
+            padding: 10,
+            displayColors: false,
+            callbacks: {
+              label: function(context) {
+                return ` ${context.parsed.y} errors`;
+              }
+            }
+          }
+        },
+        interaction: {
+          intersect: false,
+          mode: 'index'
+        },
+        animation: {
+          duration: 1000,
+          easing: 'easeInOutQuart'
+        }
+      }
+    });
+  };
+
+  // Initialize charts
+  initBarChart();
+  initLineChart();
+
+  // Add loading animation for charts
+  const addLoadingAnimation = () => {
+    document.querySelectorAll('.chart-container').forEach(container => {
+      container.classList.add('chart-loading');
+      setTimeout(() => {
+        container.classList.remove('chart-loading');
+      }, 1000);
+    });
+  };
+
+  // Call loading animation
+  addLoadingAnimation();
 });
 </script>
 {% endblock javascripts %}
