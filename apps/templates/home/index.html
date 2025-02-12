@@ -398,14 +398,11 @@
                     </td>
                     <td>
                       <span class="count-badge">
-                        {% with count=0 %}
-                          {% for item in erreurs_par_priorite %}
-                            {% if item.priorite == 'Basse' %}
-                              {% with count=item.distinct_errors %}{% endwith %}
-                            {% endif %}
-                          {% endfor %}
-                          {{ item.distinct_errors }}
-                        {% endwith %}
+                        {% for item in erreurs_par_priorite %}
+                          {% if item.priorite == 'Basse' %}
+                              {{ item.distinct_errors }}
+                          {% endif %}
+                        {% endfor %}
                       </span>
                     </td>
                   </tr>
@@ -417,14 +414,11 @@
                     </td>
                     <td>
                       <span class="count-badge">
-                        {% with count=0 %}
-                          {% for item in erreurs_par_priorite %}
-                            {% if item.priorite == 'Normale' %}
-                              {% with count=item.distinct_errors %}{% endwith %}
-                            {% endif %}
-                          {% endfor %}
-                          {{ item.distinct_errors }}
-                        {% endwith %}
+                        {% for item in erreurs_par_priorite %}
+                          {% if item.priorite == 'Normale' %}
+                              {{ item.distinct_errors }}
+                          {% endif %}
+                        {% endfor %}
                       </span>
                     </td>
                   </tr>
@@ -436,14 +430,11 @@
                     </td>
                     <td>
                       <span class="count-badge">
-                        {% with count=0 %}
-                          {% for item in erreurs_par_priorite %}
-                            {% if item.priorite == 'Élevée' %}
-                              {% with count=item.distinct_errors %}{% endwith %}
-                            {% endif %}
-                          {% endfor %}
-                          {{ item.distinct_errors }}
-                        {% endwith %}
+                        {% for item in erreurs_par_priorite %}
+                          {% if item.priorite == 'Élevée' %}
+                              {{ item.distinct_errors }}
+                          {% endif %}
+                        {% endfor %}
                       </span>
                     </td>
                   </tr>
@@ -455,14 +446,11 @@
                     </td>
                     <td>
                       <span class="count-badge">
-                        {% with count=0 %}
-                          {% for item in erreurs_par_priorite %}
-                            {% if item.priorite == 'Urgente' %}
-                              {% with count=item.distinct_errors %}{% endwith %}
-                            {% endif %}
-                          {% endfor %}
-                          {{ item.distinct_errors }}
-                        {% endwith %}
+                        {% for item in erreurs_par_priorite %}
+                          {% if item.priorite == 'Urgente' %}
+                              {{ item.distinct_errors }}
+                          {% endif %}
+                        {% endfor %}
                       </span>
                     </td>
                   </tr>
@@ -474,14 +462,11 @@
                     </td>
                     <td>
                       <span class="count-badge">
-                        {% with count=0 %}
-                          {% for item in erreurs_par_priorite %}
-                            {% if item.priorite == 'Critique' %}
-                              {% with count=item.distinct_errors %}{% endwith %}
-                            {% endif %}
-                          {% endfor %}
-                          {{ item.distinct_errors }}
-                        {% endwith %}
+                        {% for item in erreurs_par_priorite %}
+                          {% if item.priorite == 'Critique' %}
+                              {{ item.distinct_errors }}
+                          {% endif %}
+                        {% endfor %}
                       </span>
                     </td>
                   </tr>
@@ -493,14 +478,11 @@
                     </td>
                     <td>
                       <span class="count-badge">
-                        {% with count=0 %}
-                          {% for item in erreurs_par_priorite %}
-                            {% if item.priorite == 'Immédiate' %}
-                              {% with count=item.distinct_errors %}{% endwith %}
-                            {% endif %}
-                          {% endfor %}
-                          {{ item.distinct_errors }}
-                        {% endwith %}
+                        {% for item in erreurs_par_priorite %}
+                          {% if item.priorite == 'Immédiate' %}
+                              {{ item.distinct_errors }}
+                          {% endif %}
+                        {% endfor %}
                       </span>
                     </td>
                   </tr>
@@ -537,14 +519,11 @@
                     </td>
                     <td>
                       <span class="count-badge">
-                        {% with count=0 %}
-                          {% for item in erreurs_par_gravite %}
-                            {% if item.gravite == 'Faible' %}
-                              {% with count=item.distinct_errors %}{% endwith %}
-                            {% endif %}
-                          {% endfor %}
-                          {{ item.distinct_errors }}
-                        {% endwith %}
+                        {% for item in erreurs_par_gravite %}
+                          {% if item.gravite == 'Faible' %}
+                              {{ item.distinct_errors }}
+                          {% endif %}
+                        {% endfor %}
                       </span>
                     </td>
                   </tr>
@@ -556,14 +535,11 @@
                     </td>
                     <td>
                       <span class="count-badge">
-                        {% with count=0 %}
-                          {% for item in erreurs_par_gravite %}
-                            {% if item.gravite == 'Moyenne' %}
-                              {% with count=item.distinct_errors %}{% endwith %}
-                            {% endif %}
-                          {% endfor %}
-                          {{ item.distinct_errors }}
-                        {% endwith %}
+                        {% for item in erreurs_par_gravite %}
+                          {% if item.gravite == 'Moyenne' %}
+                              {{ item.distinct_errors }}
+                          {% endif %}
+                        {% endfor %}
                       </span>
                     </td>
                   </tr>
@@ -575,14 +551,11 @@
                     </td>
                     <td>
                       <span class="count-badge">
-                        {% with count=0 %}
-                          {% for item in erreurs_par_gravite %}
-                            {% if item.gravite == 'Elevée' %}
-                              {% with count=item.distinct_errors %}{% endwith %}
-                            {% endif %}
-                          {% endfor %}
-                          {{ item.distinct_errors }}
-                        {% endwith %}
+                        {% for item in erreurs_par_gravite %}
+                          {% if item.gravite == 'Elevée' %}
+                              {{ item.distinct_errors }}
+                          {% endif %}
+                        {% endfor %}
                       </span>
                     </td>
                   </tr>
@@ -594,14 +567,11 @@
                     </td>
                     <td>
                       <span class="count-badge">
-                        {% with count=0 %}
-                          {% for item in erreurs_par_gravite %}
-                            {% if item.gravite == 'Critique' %}
-                              {% with count=item.distinct_errors %}{% endwith %}
-                            {% endif %}
-                          {% endfor %}
-                          {{ item.distinct_errors }}
-                        {% endwith %}
+                        {% for item in erreurs_par_gravite %}
+                          {% if item.gravite == 'Critique' %}
+                              {{ item.distinct_errors }}
+                          {% endif %}
+                        {% endfor %}
                       </span>
                     </td>
                   </tr>
