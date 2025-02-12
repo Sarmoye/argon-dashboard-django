@@ -489,14 +489,7 @@
                     </td>
                     <td>
                       <span class="count-badge">
-                        {% with count=0 %}
-                          {% for item in erreurs_par_priorite %}
-                            {% if item.priorite == 'Urgente' %}
-                              {% with count=item.distinct_errors %}{% endwith %}
-                            {% endif %}
-                          {% endfor %}
-                          {{ count }}
-                        {% endwith %}
+                        20
                       </span>
                     </td>
                     <td>
@@ -519,14 +512,7 @@
                     </td>
                     <td>
                       <span class="count-badge">
-                        {% with count=0 %}
-                          {% for item in erreurs_par_priorite %}
-                            {% if item.priorite == 'Critique' %}
-                              {% with count=item.distinct_errors %}{% endwith %}
-                            {% endif %}
-                          {% endfor %}
-                          {{ count }}
-                        {% endwith %}
+                        10
                       </span>
                     </td>
                     <td>
