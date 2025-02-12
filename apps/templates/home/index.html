@@ -388,7 +388,6 @@
                   <tr>
                     <th scope="col">Priority Level</th>
                     <th scope="col">Error Count</th>
-                    <th scope="col">Percentage</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -405,20 +404,9 @@
                               {% with count=item.distinct_errors %}{% endwith %}
                             {% endif %}
                           {% endfor %}
-                          {{ count }}
+                          {{ item.distinct_errors }}
                         {% endwith %}
                       </span>
-                    </td>
-                    <td>
-                      <div class="d-flex align-items-center">
-                        <span class="mr-2">
-                          {% if total_erreurs_distinctes > 0 %}
-                            {% widthratio count total_erreurs_distinctes 100 %}%
-                          {% else %}
-                            0%
-                          {% endif %}
-                        </span>
-                      </div>
                     </td>
                   </tr>
       
@@ -435,20 +423,9 @@
                               {% with count=item.distinct_errors %}{% endwith %}
                             {% endif %}
                           {% endfor %}
-                          {{ count }}
+                          {{ item.distinct_errors }}
                         {% endwith %}
                       </span>
-                    </td>
-                    <td>
-                      <div class="d-flex align-items-center">
-                        <span class="mr-2">
-                          {% if total_erreurs_distinctes > 0 %}
-                            {% widthratio count total_erreurs_distinctes 100 %}%
-                          {% else %}
-                            0%
-                          {% endif %}
-                        </span>
-                      </div>
                     </td>
                   </tr>
       
@@ -465,20 +442,9 @@
                               {% with count=item.distinct_errors %}{% endwith %}
                             {% endif %}
                           {% endfor %}
-                          {{ count }}
+                          {{ item.distinct_errors }}
                         {% endwith %}
                       </span>
-                    </td>
-                    <td>
-                      <div class="d-flex align-items-center">
-                        <span class="mr-2">
-                          {% if total_erreurs_distinctes > 0 %}
-                            {% widthratio count total_erreurs_distinctes 100 %}%
-                          {% else %}
-                            0%
-                          {% endif %}
-                        </span>
-                      </div>
                     </td>
                   </tr>
       
@@ -489,19 +455,15 @@
                     </td>
                     <td>
                       <span class="count-badge">
-                        20
+                        {% with count=0 %}
+                          {% for item in erreurs_par_priorite %}
+                            {% if item.priorite == 'Urgente' %}
+                              {% with count=item.distinct_errors %}{% endwith %}
+                            {% endif %}
+                          {% endfor %}
+                          {{ item.distinct_errors }}
+                        {% endwith %}
                       </span>
-                    </td>
-                    <td>
-                      <div class="d-flex align-items-center">
-                        <span class="mr-2">
-                          {% if total_erreurs_distinctes > 0 %}
-                            {% widthratio count total_erreurs_distinctes 100 %}%
-                          {% else %}
-                            0%
-                          {% endif %}
-                        </span>
-                      </div>
                     </td>
                   </tr>
       
@@ -512,19 +474,15 @@
                     </td>
                     <td>
                       <span class="count-badge">
-                        10
+                        {% with count=0 %}
+                          {% for item in erreurs_par_priorite %}
+                            {% if item.priorite == 'Critique' %}
+                              {% with count=item.distinct_errors %}{% endwith %}
+                            {% endif %}
+                          {% endfor %}
+                          {{ item.distinct_errors }}
+                        {% endwith %}
                       </span>
-                    </td>
-                    <td>
-                      <div class="d-flex align-items-center">
-                        <span class="mr-2">
-                          {% if total_erreurs_distinctes > 0 %}
-                            {% widthratio count total_erreurs_distinctes 100 %}%
-                          {% else %}
-                            0%
-                          {% endif %}
-                        </span>
-                      </div>
                     </td>
                   </tr>
       
@@ -541,20 +499,9 @@
                               {% with count=item.distinct_errors %}{% endwith %}
                             {% endif %}
                           {% endfor %}
-                          {{ count }}
+                          {{ item.distinct_errors }}
                         {% endwith %}
                       </span>
-                    </td>
-                    <td>
-                      <div class="d-flex align-items-center">
-                        <span class="mr-2">
-                          {% if total_erreurs_distinctes > 0 %}
-                            {% widthratio count total_erreurs_distinctes 100 %}%
-                          {% else %}
-                            0%
-                          {% endif %}
-                        </span>
-                      </div>
                     </td>
                   </tr>
                 </tbody>
@@ -596,7 +543,7 @@
                               {% with count=item.distinct_errors %}{% endwith %}
                             {% endif %}
                           {% endfor %}
-                          {{ count }}
+                          {{ item.distinct_errors }}
                         {% endwith %}
                       </span>
                     </td>
@@ -615,7 +562,7 @@
                               {% with count=item.distinct_errors %}{% endwith %}
                             {% endif %}
                           {% endfor %}
-                          {{ count }}
+                          {{ item.distinct_errors }}
                         {% endwith %}
                       </span>
                     </td>
@@ -634,7 +581,7 @@
                               {% with count=item.distinct_errors %}{% endwith %}
                             {% endif %}
                           {% endfor %}
-                          {{ count }}
+                          {{ item.distinct_errors }}
                         {% endwith %}
                       </span>
                     </td>
@@ -653,7 +600,7 @@
                               {% with count=item.distinct_errors %}{% endwith %}
                             {% endif %}
                           {% endfor %}
-                          {{ count }}
+                          {{ item.distinct_errors }}
                         {% endwith %}
                       </span>
                     </td>
