@@ -118,6 +118,10 @@
                                     <option value="Rejected">Rejected</option>
                                 </select>
                             </div>
+                            <div class="form-group">
+                                <label for="admin_notes">Admin Notes</label>
+                                <textarea class="form-control" id="admin_notes" name="admin_notes" rows="3" placeholder="Add Notes Here..."></textarea>
+                            </div>
                         </form>
                     </div>
                     <div class="modal-footer">
@@ -217,7 +221,8 @@
             var formData = {
                 source_date: $('#source_date').val(),
                 systeme: $('#systeme').val(),
-                validation_status: $('#validation_status').val()
+                validation_status: $('#validation_status').val(),
+                admin_notes: $('admin_notes').val()
             };
 
             $.ajax({
