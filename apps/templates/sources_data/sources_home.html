@@ -225,6 +225,8 @@
                 admin_notes: $('admin_notes').val()
             };
 
+            console.log(formData);
+
             $.ajax({
                 url: '{% url "sources_data_app:submit_validation" %}',
                 type: 'POST',
