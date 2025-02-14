@@ -89,6 +89,7 @@ def submit_validation(request):
         source_date = data.get('source_date')
         systeme = data.get('systeme')
         validation_status = data.get('validation_status')
+        admin_notes = data.get('admin_notes')
         signature = f"Validated by {request.user.username}"
         if signature not in admin_notes:
             admin_notes = f"{admin_notes}\n{signature}" if admin_notes else signature
