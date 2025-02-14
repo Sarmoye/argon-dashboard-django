@@ -120,7 +120,7 @@
                             </div>
                             <div class="form-group">
                                 <label for="admin_notes">Admin Notes</label>
-                                <textarea class="form-control" id="admin_notes" name="admin_notes" rows="3" placeholder="Add Notes Here...">{{ admin_notes }}</textarea>
+                                <textarea class="form-control" id="admin_notes" name="admin_notes" rows="3" placeholder="Add Notes Here...">{% for data in source_data %} {{ data.admin_notes }} {% endfor %}</textarea>
                             </div>
                         </form>
                     </div>
