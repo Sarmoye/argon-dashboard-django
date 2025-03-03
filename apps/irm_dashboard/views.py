@@ -39,7 +39,10 @@ def index(request):
     moyenne_globale_resolution = erreurs_moyenne_temps.aggregate(Avg("moyenne_temps"))["moyenne_temps__avg"]
 
     # Get error evolution for the last 30 days
-    start_date = datetime.now() - timedelta(days=30)
+    from django.utils import timezone
+
+    start_date = timezone.now() - timedelta(days=30)
+
     
     error_evolution = (
         FicheErreur.objects

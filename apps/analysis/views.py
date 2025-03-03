@@ -51,6 +51,7 @@ def index(request):
                 priorite='Normale',  # Valeur par défaut
                 statut='Ouvert',  # Valeur par défaut
                 source_data_id=data.id,  # Assurez-vous que la fiche est liée à la SourceData
+                timestamp=data.timestamp,
             )
             fiche.save()
             fiche_erreurs.append(fiche)
