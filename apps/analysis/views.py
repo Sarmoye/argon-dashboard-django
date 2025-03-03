@@ -33,11 +33,14 @@ def index(request):
     # Trier les données SourceData par timestamp en ordre décroissant et filtrer par validation_status
     source_data = SourceData.objects.filter(validation_status='Validated').order_by('-timestamp')
 
-    # Créer une fiche pour chaque SourceData validée si elle n'existe pas déjà (en utilisant unique_identifier)
+    # Créer une fiche pour chaque combinaison unique (system_name, error_reason)
     fiche_erreurs = []
     for data in source_data:
-        # Vérifier si une fiche existe déjà pour ce unique_identifier
-        fiche_existante = FicheErreur.objects.filter(source_data__unique_identifier=data.unique_identifier).first()
+        # Vérifier si une fiche existe déjà pour ce system_name et error_reason
+        fiche_existante = FicheErreur.objects.filter(
+            system_name=data.system_name,
+            error_reason=data.error_reason
+        ).first()
 
         # Si la fiche n'existe pas, on la crée
         if not fiche_existante:
@@ -60,6 +63,7 @@ def index(request):
 
     # Passer les fiches d'erreurs au template
     return render(request, 'analysis/analysis_home.html', {'fiche_erreurs': fiche_erreurs})
+
 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages

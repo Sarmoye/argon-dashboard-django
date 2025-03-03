@@ -1,5 +1,6 @@
 from django.db import models
 from apps.sources_data_app.models import SourceData
+from django.db.models import UniqueConstraint
 
 # Create your models here.
 class FicheErreur(models.Model):
@@ -80,5 +81,10 @@ class FicheErreur(models.Model):
     # Champ pour les erreurs normales
     erreur_normale = models.BooleanField(default=False)  # Erreur normale sans impact réel
 
+    class Meta:
+        constraints = [
+            UniqueConstraint(fields=['system_name', 'error_reason'], name='unique_system_error')
+        ]
+
     def __str__(self):
-        return f"Fiche Erreur: {self.source_data.unique_identifier}"
+        return f"Fiche Erreur: {self.system_name} - {self.error_reason}"
