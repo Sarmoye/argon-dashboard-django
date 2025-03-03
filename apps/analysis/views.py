@@ -33,16 +33,18 @@ def index(request):
     # Trier les données SourceData par timestamp en ordre décroissant et filtrer par validation_status
     source_data = SourceData.objects.filter(validation_status='Validated').order_by('-timestamp')
 
-    # Créer une fiche pour chaque combinaison unique (system_name, error_reason)
-    fiche_erreurs = []
+    # Dictionnaire pour éviter les doublons (clé = (system_name, error_reason))
+    fiche_erreurs_dict = {}
+
     for data in source_data:
-        # Vérifier si une fiche existe déjà pour ce system_name et error_reason
+        key = (data.system_name, data.error_reason)  # Clé unique pour chaque combinaison système + erreur
+
+        # Vérifier si une fiche existe déjà en base de données
         fiche_existante = FicheErreur.objects.filter(
             system_name=data.system_name,
             error_reason=data.error_reason
         ).first()
 
-        # Si la fiche n'existe pas, on la crée
         if not fiche_existante:
             fiche = FicheErreur(
                 source_data=data,  # Lier la fiche à SourceData via OneToOneField
@@ -57,11 +59,13 @@ def index(request):
                 timestamp=data.timestamp,
             )
             fiche.save()
-            fiche_erreurs.append(fiche)
+            fiche_erreurs_dict[key] = fiche  # Ajouter au dictionnaire
         else:
-            fiche_erreurs.append(fiche_existante)
+            fiche_erreurs_dict[key] = fiche_existante  # Éviter les doublons
 
-    # Passer les fiches d'erreurs au template
+    # Convertir en liste avant de passer au template
+    fiche_erreurs = list(fiche_erreurs_dict.values())
+
     return render(request, 'analysis/analysis_home.html', {'fiche_erreurs': fiche_erreurs})
 
 
