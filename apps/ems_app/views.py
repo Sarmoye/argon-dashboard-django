@@ -139,7 +139,7 @@ def dashboard(request):
         date_resolution__isnull=False
     ).values('priorite').annotate(
         avg_hours=Avg(ExpressionWrapper(
-            (F('date_resolution') - F('date_creation')) / timedelta(hours=1),
+             (F('date_resolution') - F('date_creation')).seconds / 3600.0,
             output_field=fields.FloatField()
         ))
     ).order_by('priorite'))
