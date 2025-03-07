@@ -45,7 +45,7 @@
                 <h5 class="modal-title" id="editEventModalLabel">Modifier Détails de l'événement</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form method="post" action="{% url 'ems_app:edit_event' event.id %}">
+            <form method="post" action="#">
                 {% csrf_token %}
                 <div class="modal-body">
                     <div class="mb-3">
@@ -78,7 +78,7 @@
                 <h5 class="modal-title" id="editTicketModalLabel">Modifier Ticket de suivi</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form method="post" action="{% url 'ems_app:edit_ticket' event.error_type.ticket.id %}">
+            <form method="post" action="#">
                 {% csrf_token %}
                 <div class="modal-body">
                     <div class="mb-3">
