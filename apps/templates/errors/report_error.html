@@ -6,7 +6,7 @@
 <div class="container mt-4">
     <h2>Signaler une erreur</h2>
     
-    <form method="post" action="{% url 'report_error' %}">
+    <form method="post" action="{% url 'ems_app:report_error' %}">
         {% csrf_token %}
         
         <div class="form-group mb-3">
