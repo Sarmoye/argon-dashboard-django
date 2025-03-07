@@ -27,7 +27,7 @@ class ErrorType(models.Model):
         verbose_name = "Type d'erreur"
         verbose_name_plural = "Types d'erreurs"
         constraints = [
-            models.UniqueConstraint(fields=['system_name', 'error_reason'], name='unique_system_error')
+            models.UniqueConstraint(fields=['system_name', 'error_reason'], name='unique_system_error_reason')
         ]
     
     def __str__(self):
