@@ -75,3 +75,104 @@ def error_detail(request, reference_id):
     except ErrorEvent.DoesNotExist:
         messages.error(request, f"Erreur avec référence {reference_id} non trouvée")
         return redirect('ems_app:error_list')
+    
+# errors/views.py
+# Ajoutez ces imports en haut du fichier
+from django.db.models import Count, Avg, F, ExpressionWrapper, fields, Q
+from django.utils import timezone
+from datetime import timedelta
+import json
+
+def dashboard(request):
+    """Vue pour le tableau de bord de suivi des erreurs"""
+    # Calculer la date il y a 30 jours
+    thirty_days_ago = timezone.now() - timedelta(days=30)
+    
+    # Statistiques générales
+    stats = {
+        'total_errors': ErrorEvent.objects.count(),
+        'active_errors': ErrorEvent.objects.filter(error_type__ticket__statut__in=['OPEN', 'IN_PROGRESS', 'PENDING']).count(),
+        'resolved_errors': ErrorEvent.objects.filter(error_type__ticket__statut='RESOLVED').count(),
+        'error_types': ErrorType.objects.count(),
+        'recent_errors': ErrorEvent.objects.filter(timestamp__gte=thirty_days_ago).count(),
+        'avg_resolution_time': ErrorTicket.objects.filter(
+            statut='RESOLVED',
+            date_resolution__isnull=False
+        ).annotate(
+            resolution_hours=ExpressionWrapper(
+                F('date_resolution') - F('date_creation'), 
+                output_field=fields.DurationField()
+            )
+        ).aggregate(
+            avg_hours=Avg(ExpressionWrapper(
+                F('resolution_hours') / timedelta(hours=1),
+                output_field=fields.FloatField()
+            ))
+        )['avg_hours'] or 0
+    }
+    
+    # Données pour le graphique des erreurs par système
+    system_errors = list(ErrorType.objects.values('system_name')
+                        .annotate(count=Count('events'))
+                        .order_by('-count')[:10])
+    
+    # Données pour le graphique des tendances temporelles
+    # Agréger par jour les 30 derniers jours
+    daily_errors = ErrorEvent.objects.filter(
+        timestamp__gte=thirty_days_ago
+    ).extra({
+        'date': "date(timestamp)"
+    }).values('date').annotate(
+        count=Count('id')
+    ).order_by('date')
+    
+    # Données pour la distribution des priorités
+    priority_distribution = list(ErrorTicket.objects.values('priorite')
+                               .annotate(count=Count('id'))
+                               .order_by('priorite'))
+    
+    # Temps moyen de résolution par priorité
+    resolution_by_priority = list(ErrorTicket.objects.filter(
+        statut='RESOLVED',
+        date_resolution__isnull=False
+    ).values('priorite').annotate(
+        avg_hours=Avg(ExpressionWrapper(
+            (F('date_resolution') - F('date_creation')) / timedelta(hours=1),
+            output_field=fields.FloatField()
+        ))
+    ).order_by('priorite'))
+    
+    # Top 5 des erreurs les plus fréquentes
+    top_errors = list(ErrorType.objects.annotate(
+        events_count=Count('events')
+    ).values('system_name', 'error_reason', 'events_count')
+    .order_by('-events_count')[:5])
+    
+    # Préparer les données pour les graphiques
+    chart_data = {
+        'system_labels': json.dumps([item['system_name'] for item in system_errors]),
+        'system_counts': json.dumps([item['count'] for item in system_errors]),
+        
+        'daily_dates': json.dumps([str(item['date']) for item in daily_errors]),
+        'daily_counts': json.dumps([item['count'] for item in daily_errors]),
+        
+        'priority_labels': json.dumps([dict(ErrorTicket.PRIORITY_CHOICES)[item['priorite']] for item in priority_distribution]),
+        'priority_counts': json.dumps([item['count'] for item in priority_distribution]),
+        
+        'resolution_priority_labels': json.dumps([dict(ErrorTicket.PRIORITY_CHOICES)[item['priorite']] for item in resolution_by_priority]),
+        'resolution_priority_times': json.dumps([round(item['avg_hours'], 1) for item in resolution_by_priority]),
+    }
+    
+    # Liste des erreurs récentes non résolues
+    recent_unresolved = ErrorEvent.objects.filter(
+        error_type__ticket__statut__in=['OPEN', 'IN_PROGRESS']
+    ).order_by('-timestamp')[:10]
+    
+    context = {
+        'stats': stats,
+        'chart_data': chart_data,
+        'top_errors': top_errors,
+        'recent_unresolved': recent_unresolved,
+    }
+    
+    return render(request, 'errors/dashboard.html', context)
