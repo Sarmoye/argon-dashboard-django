@@ -82,6 +82,7 @@ from django.db.models import Count, Avg, F, ExpressionWrapper, fields, Q
 from django.utils import timezone
 from datetime import timedelta
 import json
+from django.db.models.functions import Cast
 
 def dashboard(request):
     """Vue pour le tableau de bord de suivi des erreurs"""
@@ -139,7 +140,7 @@ def dashboard(request):
         date_resolution__isnull=False
     ).values('priorite').annotate(
         avg_hours=Avg(ExpressionWrapper(
-             (F('date_resolution') - F('date_creation')).seconds / 3600.0,
+            Cast(F('date_resolution') - F('date_creation'), output_field=fields.FloatField()) / 3600.0,
             output_field=fields.FloatField()
         ))
     ).order_by('priorite'))
