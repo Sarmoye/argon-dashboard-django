@@ -48,7 +48,7 @@
                     {% endif %}
                 </td>
                 <td>
-                    <a href="{% url 'error_detail' event.reference_id %}" class="btn btn-sm btn-info">Détails</a>
+                    <a href="{% url 'ems_app:error_detail' event.reference_id %}" class="btn btn-sm btn-info">Détails</a>
                 </td>
             </tr>
             {% empty %}
