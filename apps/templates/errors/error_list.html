@@ -1,0 +1,61 @@
+<!-- templates/errors/error_list.html -->
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Liste des erreurs récentes</h2>
+    
+    <div class="mb-3">
+        <a href="{% url 'report_error' %}" class="btn btn-primary">Signaler une nouvelle erreur</a>
+    </div>
+    
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Référence</th>
+                <th>Système</th>
+                <th>Erreur</th>
+                <th>Date</th>
+                <th>Statut</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for event in events %}
+            <tr>
+                <td>{{ event.reference_id }}</td>
+                <td>{{ event.error_type.system_name }}</td>
+                <td>{{ event.error_type.error_reason|truncatechars:50 }}</td>
+                <td>{{ event.timestamp|date:"d/m/Y H:i" }}</td>
+                <td>
+                    {% if event.error_type.ticket %}
+                        <span class="badge {% if event.error_type.ticket.statut == 'RESOLVED' %}bg-success{% elif event.error_type.ticket.statut == 'OPEN' %}bg-danger{% else %}bg-warning{% endif %}">
+                            {{ event.error_type.ticket.get_statut_display }}
+                        </span>
+                    {% else %}
+                        <span class="badge bg-secondary">Sans ticket</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="{% url 'error_detail' event.reference_id %}" class="btn btn-sm btn-info">Détails</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6" class="text-center">Aucune erreur enregistrée</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

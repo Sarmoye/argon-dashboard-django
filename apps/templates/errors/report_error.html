@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Signaler une erreur</h2>
+    
+    <form method="post" action="{% url 'report_error' %}">
+        {% csrf_token %}
+        
+        <div class="form-group mb-3">
+            <label for="system_name">Nom du système*</label>
+            <input type="text" class="form-control" id="system_name" name="system_name" required>
+        </div>
+        
+        <div class="form-group mb-3">
+            <label for="service_type">Type de service*</label>
+            <input type="text" class="form-control" id="service_type" name="service_type" required>
+        </div>
+        
+        <div class="form-group mb-3">
+            <label for="service_name">Nom du service*</label>
+            <input type="text" class="form-control" id="service_name" name="service_name" required>
+        </div>
+        
+        <div class="form-group mb-3">
+            <label for="error_reason">Raison de l'erreur*</label>
+            <textarea class="form-control" id="error_reason" name="error_reason" rows="3" required></textarea>
+        </div>
+        
+        <div class="form-group mb-3">
+            <label for="code_erreur">Code d'erreur</label>
+            <input type="text" class="form-control" id="code_erreur" name="code_erreur">
+        </div>
+        
+        <div class="form-group mb-3">
+            <label for="error_count">Nombre d'erreurs*</label>
+            <input type="number" class="form-control" id="error_count" name="error_count" value="1" min="1" required>
+        </div>
+        
+        <div class="form-group mb-3">
+            <label for="domain">Domaine*</label>
+            <input type="text" class="form-control" id="domain" name="domain" required>
+        </div>
+        
+        <div class="form-group mb-3">
+            <label for="logs">Messages de logs</label>
+            <textarea class="form-control" id="logs" name="logs" rows="5"></textarea>
+        </div>
+        
+        <div class="form-group mb-3">
+            <label for="version_system">Version du système</label>
+            <input type="text" class="form-control" id="version_system" name="version_system">
+        </div>
+        
+        <div class="form-group mb-3">
+            <label for="comportement_attendu">Comportement attendu</label>
+            <textarea class="form-control" id="comportement_attendu" name="comportement_attendu" rows="3"></textarea>
+        </div>
+        
+        <div class="form-group mb-3">
+            <label for="inserted_by">Enregistré par*</label>
+            <input type="text" class="form-control" id="inserted_by" name="inserted_by" required>
+        </div>
+        
+        <div class="form-group mb-3">
+            <label for="notes">Notes</label>
+            <textarea class="form-control" id="notes" name="notes" rows="3"></textarea>
+        </div>
+        
+        <div class="form-check mb-3">
+            <input type="checkbox" class="form-check-input" id="correction_automatique" name="correction_automatique">
+            <label class="form-check-label" for="correction_automatique">Correction automatique possible</label>
+        </div>
+        
+        <button type="submit" class="btn btn-primary">Enregistrer</button>
+    </form>
+</div>
+{% endblock %}
