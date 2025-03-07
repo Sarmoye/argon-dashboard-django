@@ -104,10 +104,12 @@ def dashboard(request):
                 output_field=fields.DurationField()
             )
         ).aggregate(
-            avg_hours=Avg(ExpressionWrapper(
-                F('resolution_hours') / timedelta(seconds=3600),
-                output_field=fields.FloatField()
-            ))
+            avg_hours=Avg(
+                ExpressionWrapper(
+                    F('resolution_hours') / 3600.0,  # Convertit en heures
+                    output_field=fields.FloatField()
+                )
+            )
         )['avg_hours'] or 0
     }
     
