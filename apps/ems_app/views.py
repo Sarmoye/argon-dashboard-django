@@ -58,7 +58,7 @@ def report_error(request):
         else:
             messages.success(request, f"Erreur enregistrée: {error_event.reference_id}")
         
-        return redirect('error_list')  # Rediriger vers la liste des erreurs
+        return redirect('ems_app:error_list')  # Rediriger vers la liste des erreurs
         
     return render(request, 'errors/report_error.html')
 
