@@ -82,7 +82,7 @@ from django.db.models import Count, Avg, F, ExpressionWrapper, fields, Q
 from django.utils import timezone
 from datetime import timedelta
 import json
-from django.db.models.functions import Cast
+from django.db.models.functions import Cast, Extract
 
 def dashboard(request):
     """Vue pour le tableau de bord de suivi des erreurs"""
@@ -139,10 +139,12 @@ def dashboard(request):
         statut='RESOLVED',
         date_resolution__isnull=False
     ).values('priorite').annotate(
-        avg_hours=Avg(ExpressionWrapper(
-            Cast(F('date_resolution') - F('date_creation'), output_field=fields.FloatField()) / 3600.0,
-            output_field=fields.FloatField()
-        ))
+        avg_hours=Avg(
+            ExpressionWrapper(
+                Extract('date_resolution', 'epoch') - Extract('date_creation', 'epoch'),
+                output_field=fields.FloatField()
+            ) / 3600.0
+        )
     ).order_by('priorite'))
     
     # Top 5 des erreurs les plus fréquentes
