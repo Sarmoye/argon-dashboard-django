@@ -74,4 +74,4 @@ def error_detail(request, reference_id):
         return render(request, 'errors/error_detail.html', {'event': event})
     except ErrorEvent.DoesNotExist:
         messages.error(request, f"Erreur avec référence {reference_id} non trouvée")
-        return redirect('error_list')
+        return redirect('ems_app:error_list')
