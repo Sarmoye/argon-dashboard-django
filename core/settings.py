@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'apps.authentication',
     'apps.sources_data_app',
     'apps.analysis',
+    'apps.ems_app',
 ]
 
 MIDDLEWARE = [
