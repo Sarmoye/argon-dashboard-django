@@ -22,7 +22,7 @@
                     <div class="col-md-6">
                         <div class="form-group mb-3">
                             <label for="{{ form.priorite.id_for_label }}">Priorité*</label>
-                            {{ form.priorite|add_class:"form-control" }}
+                            {{ form.priorite}}
                             {% if form.priorite.errors %}
                             <div class="text-danger">{{ form.priorite.errors }}</div>
                             {% endif %}
@@ -31,7 +31,7 @@
                     <div class="col-md-6">
                         <div class="form-group mb-3">
                             <label for="{{ form.niveau_criticite.id_for_label }}">Niveau de criticité*</label>
-                            {{ form.niveau_criticite|add_class:"form-control" }}
+                            {{ form.niveau_criticite}}
                             {% if form.niveau_criticite.errors %}
                             <div class="text-danger">{{ form.niveau_criticite.errors }}</div>
                             {% endif %}
@@ -41,7 +41,7 @@
                 
                 <div class="form-group mb-3">
                     <label for="{{ form.symptomes.id_for_label }}">Symptômes observés</label>
-                    {{ form.symptomes|add_class:"form-control" }}
+                    {{ form.symptomes}}
                     {% if form.symptomes.errors %}
                     <div class="text-danger">{{ form.symptomes.errors }}</div>
                     {% endif %}
@@ -49,7 +49,7 @@
                 
                 <div class="form-group mb-3">
                     <label for="{{ form.impact.id_for_label }}">Impact utilisateur</label>
-                    {{ form.impact|add_class:"form-control" }}
+                    {{ form.impact}}
                     {% if form.impact.errors %}
                     <div class="text-danger">{{ form.impact.errors }}</div>
                     {% endif %}
@@ -57,7 +57,7 @@
                 
                 <div class="form-group mb-3">
                     <label for="{{ form.services_affectes.id_for_label }}">Services affectés</label>
-                    {{ form.services_affectes|add_class:"form-control" }}
+                    {{ form.services_affectes}}
                     {% if form.services_affectes.errors %}
                     <div class="text-danger">{{ form.services_affectes.errors }}</div>
                     {% endif %}
@@ -65,7 +65,7 @@
                 
                 <div class="form-group mb-3">
                     <label for="{{ form.nombre_utilisateurs.id_for_label }}">Nombre d'utilisateurs impactés</label>
-                    {{ form.nombre_utilisateurs|add_class:"form-control" }}
+                    {{ form.nombre_utilisateurs}}
                     {% if form.nombre_utilisateurs.errors %}
                     <div class="text-danger">{{ form.nombre_utilisateurs.errors }}</div>
                     {% endif %}
@@ -75,7 +75,7 @@
                     <div class="col-md-6">
                         <div class="form-group mb-3">
                             <label for="{{ form.responsable.id_for_label }}">Responsable</label>
-                            {{ form.responsable|add_class:"form-control" }}
+                            {{ form.responsable}}
                             {% if form.responsable.errors %}
                             <div class="text-danger">{{ form.responsable.errors }}</div>
                             {% endif %}
@@ -84,7 +84,7 @@
                     <div class="col-md-6">
                         <div class="form-group mb-3">
                             <label for="{{ form.equipe.id_for_label }}">Équipe assignée</label>
-                            {{ form.equipe|add_class:"form-control" }}
+                            {{ form.equipe}}
                             {% if form.equipe.errors %}
                             <div class="text-danger">{{ form.equipe.errors }}</div>
                             {% endif %}
@@ -94,7 +94,7 @@
                 
                 <div class="form-group mb-3">
                     <label for="{{ form.actions.id_for_label }}">Actions prévues</label>
-                    {{ form.actions|add_class:"form-control" }}
+                    {{ form.actions}}
                     {% if form.actions.errors %}
                     <div class="text-danger">{{ form.actions.errors }}</div>
                     {% endif %}

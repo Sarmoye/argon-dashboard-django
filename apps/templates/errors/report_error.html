@@ -16,7 +16,7 @@
             <div class="card-body">
                 <div class="form-group mb-3">
                     <label for="{{ form.system_name.id_for_label }}">Nom du système*</label>
-                    {{ form.system_name|add_class:"form-control" }}
+                    {{ form.system_name}}
                     {% if form.system_name.errors %}
                     <div class="text-danger">{{ form.system_name.errors }}</div>
                     {% endif %}
@@ -24,7 +24,7 @@
                 
                 <div class="form-group mb-3">
                     <label for="{{ form.service_type.id_for_label }}">Type de service*</label>
-                    {{ form.service_type|add_class:"form-control" }}
+                    {{ form.service_type}}
                     {% if form.service_type.errors %}
                     <div class="text-danger">{{ form.service_type.errors }}</div>
                     {% endif %}
@@ -32,7 +32,7 @@
                 
                 <div class="form-group mb-3">
                     <label for="{{ form.service_name.id_for_label }}">Nom du service*</label>
-                    {{ form.service_name|add_class:"form-control" }}
+                    {{ form.service_name}}
                     {% if form.service_name.errors %}
                     <div class="text-danger">{{ form.service_name.errors }}</div>
                     {% endif %}
@@ -40,7 +40,7 @@
                 
                 <div class="form-group mb-3">
                     <label for="{{ form.error_reason.id_for_label }}">Raison de l'erreur*</label>
-                    {{ form.error_reason|add_class:"form-control" }}
+                    {{ form.error_reason}}
                     {% if form.error_reason.errors %}
                     <div class="text-danger">{{ form.error_reason.errors }}</div>
                     {% endif %}
@@ -48,7 +48,7 @@
                 
                 <div class="form-group mb-3">
                     <label for="{{ form.code_erreur.id_for_label }}">Code d'erreur</label>
-                    {{ form.code_erreur|add_class:"form-control" }}
+                    {{ form.code_erreur}}
                     {% if form.code_erreur.errors %}
                     <div class="text-danger">{{ form.code_erreur.errors }}</div>
                     {% endif %}
@@ -56,7 +56,7 @@
                 
                 <div class="form-group mb-3">
                     <label for="{{ form.comportement_attendu.id_for_label }}">Comportement attendu</label>
-                    {{ form.comportement_attendu|add_class:"form-control" }}
+                    {{ form.comportement_attendu}}
                     {% if form.comportement_attendu.errors %}
                     <div class="text-danger">{{ form.comportement_attendu.errors }}</div>
                     {% endif %}

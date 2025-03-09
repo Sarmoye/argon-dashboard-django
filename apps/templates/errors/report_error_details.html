@@ -20,7 +20,7 @@
             <div class="card-body">
                 <div class="form-group mb-3">
                     <label for="{{ form.error_count.id_for_label }}">Nombre d'erreurs*</label>
-                    {{ form.error_count|add_class:"form-control" }}
+                    {{ form.error_count}}
                     {% if form.error_count.errors %}
                     <div class="text-danger">{{ form.error_count.errors }}</div>
                     {% endif %}
@@ -28,7 +28,7 @@
                 
                 <div class="form-group mb-3">
                     <label for="{{ form.domain.id_for_label }}">Domaine*</label>
-                    {{ form.domain|add_class:"form-control" }}
+                    {{ form.domain}}
                     {% if form.domain.errors %}
                     <div class="text-danger">{{ form.domain.errors }}</div>
                     {% endif %}
@@ -36,7 +36,7 @@
                 
                 <div class="form-group mb-3">
                     <label for="{{ form.logs.id_for_label }}">Messages de logs</label>
-                    {{ form.logs|add_class:"form-control" }}
+                    {{ form.logs}}
                     {% if form.logs.errors %}
                     <div class="text-danger">{{ form.logs.errors }}</div>
                     {% endif %}
@@ -44,7 +44,7 @@
                 
                 <div class="form-group mb-3">
                     <label for="{{ form.version_system.id_for_label }}">Version du système</label>
-                    {{ form.version_system|add_class:"form-control" }}
+                    {{ form.version_system}}
                     {% if form.version_system.errors %}
                     <div class="text-danger">{{ form.version_system.errors }}</div>
                     {% endif %}
@@ -52,7 +52,7 @@
                 
                 <div class="form-group mb-3">
                     <label for="{{ form.inserted_by.id_for_label }}">Signalé par*</label>
-                    {{ form.inserted_by|add_class:"form-control" }}
+                    {{ form.inserted_by}}
                     {% if form.inserted_by.errors %}
                     <div class="text-danger">{{ form.inserted_by.errors }}</div>
                     {% endif %}
@@ -60,7 +60,7 @@
                 
                 <div class="form-group mb-3">
                     <label for="{{ form.notes.id_for_label }}">Notes</label>
-                    {{ form.notes|add_class:"form-control" }}
+                    {{ form.notes}}
                     {% if form.notes.errors %}
                     <div class="text-danger">{{ form.notes.errors }}</div>
                     {% endif %}

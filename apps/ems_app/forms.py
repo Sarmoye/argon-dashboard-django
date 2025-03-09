@@ -8,8 +8,13 @@ class ErrorTypeForm(forms.ModelForm):
         fields = ['system_name', 'service_type', 'service_name', 'error_reason', 
                   'code_erreur', 'comportement_attendu', 'correction_automatique']
         widgets = {
-            'error_reason': forms.Textarea(attrs={'rows': 3}),
-            'comportement_attendu': forms.Textarea(attrs={'rows': 3}),
+            'system_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'service_type': forms.TextInput(attrs={'class': 'form-control'}),
+            'service_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'error_reason': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'code_erreur': forms.TextInput(attrs={'class': 'form-control'}),
+            'comportement_attendu': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'correction_automatique': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
 
 class ErrorEventForm(forms.ModelForm):
@@ -18,8 +23,12 @@ class ErrorEventForm(forms.ModelForm):
         model = ErrorEvent
         fields = ['error_count', 'domain', 'logs', 'version_system', 'inserted_by', 'notes']
         widgets = {
-            'logs': forms.Textarea(attrs={'rows': 5}),
-            'notes': forms.Textarea(attrs={'rows': 3}),
+            'error_count': forms.NumberInput(attrs={'class': 'form-control'}),
+            'domain': forms.TextInput(attrs={'class': 'form-control'}),
+            'logs': forms.Textarea(attrs={'class': 'form-control', 'rows': 5}),
+            'version_system': forms.TextInput(attrs={'class': 'form-control'}),
+            'inserted_by': forms.TextInput(attrs={'class': 'form-control'}),
+            'notes': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
         }
 
 class ErrorTicketForm(forms.ModelForm):
@@ -30,8 +39,13 @@ class ErrorTicketForm(forms.ModelForm):
                  'services_affectes', 'nombre_utilisateurs', 'responsable', 
                  'equipe', 'actions']
         widgets = {
-            'symptomes': forms.Textarea(attrs={'rows': 3}),
-            'impact': forms.Textarea(attrs={'rows': 3}),
-            'services_affectes': forms.Textarea(attrs={'rows': 3}),
-            'actions': forms.Textarea(attrs={'rows': 3}),
+            'priorite': forms.Select(attrs={'class': 'form-control'}),
+            'niveau_criticite': forms.Select(attrs={'class': 'form-control'}),
+            'symptomes': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'impact': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'services_affectes': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'nombre_utilisateurs': forms.NumberInput(attrs={'class': 'form-control'}),
+            'responsable': forms.TextInput(attrs={'class': 'form-control'}),
+            'equipe': forms.TextInput(attrs={'class': 'form-control'}),
+            'actions': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
         }
