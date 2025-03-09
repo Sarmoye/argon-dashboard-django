@@ -1,71 +1,103 @@
 # errors/views.py
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.utils import timezone
 from .models import ErrorEvent, ErrorType, ErrorTicket
+from django.http import HttpResponseRedirect
+from django.urls import reverse
+from .forms import ErrorTypeForm, ErrorEventForm, ErrorTicketForm  # Nous allons créer ces formulaires
 
 def report_error(request):
-    """Vue pour signaler une nouvelle erreur"""
+    """Vue pour la première étape: création du type d'erreur"""
     if request.method == 'POST':
-        # Récupérer les données du formulaire
-        system_name = request.POST.get('system_name')
-        service_type = request.POST.get('service_type')
-        service_name = request.POST.get('service_name')
-        error_reason = request.POST.get('error_reason')
-        code_erreur = request.POST.get('code_erreur', '')
-        error_count = int(request.POST.get('error_count', 1))
-        domain = request.POST.get('domain')
-        logs = request.POST.get('logs', '')
-        version_system = request.POST.get('version_system', '')
-        comportement_attendu = request.POST.get('comportement_attendu', '')
-        inserted_by = request.POST.get('inserted_by')
-        notes = request.POST.get('notes', '')
-        correction_automatique = 'correction_automatique' in request.POST
-        
-        # Chercher ou créer un ErrorType correspondant
-        error_type, created = ErrorType.objects.get_or_create(
-            system_name=system_name,
-            error_reason=error_reason,
-            defaults={
-                'service_type': service_type,
-                'service_name': service_name,
-                'code_erreur': code_erreur,
-                'comportement_attendu': comportement_attendu,
-                'correction_automatique': correction_automatique
-            }
-        )
-        
-        # Créer un ErrorEvent
-        error_event = ErrorEvent.objects.create(
-            error_type=error_type,
-            error_count=error_count,
-            domain=domain,
-            logs=logs,
-            version_system=version_system,
-            inserted_by=inserted_by,
-            notes=notes
-        )
-        
-        # Si on vient de créer un nouveau ErrorType, créer aussi un ErrorTicket associé
-        if created:
-            ErrorTicket.objects.create(
-                error_type=error_type,
-                symptomes=f"Premier signalement: {error_reason}",
-                impact="À déterminer",
-                services_affectes=service_name
-            )
-            messages.success(request, f"Erreur enregistrée avec un nouveau ticket: {error_event.reference_id}")
-        else:
-            messages.success(request, f"Erreur enregistrée: {error_event.reference_id}")
-        
-        return redirect('ems_app:error_list')  # Rediriger vers la liste des erreurs
-        
-    return render(request, 'errors/report_error.html')
+        form = ErrorTypeForm(request.POST)
+        if form.is_valid():
+            error_type = form.save()
+            
+            # Stocker l'ID du type d'erreur en session pour les étapes suivantes
+            request.session['error_type_id'] = str(error_type.id)
+            
+            # Rediriger vers la deuxième étape
+            return redirect('ems_app:report_error_details')
+    else:
+        form = ErrorTypeForm()
+    
+    return render(request, 'errors/report_error.html', {'form': form})
 
-def error_list(request):
-    """Vue pour afficher la liste des erreurs récentes"""
-    events = ErrorEvent.objects.all().order_by('-timestamp')[:50]
-    return render(request, 'errors/error_list.html', {'events': events})
+def report_error_details(request):
+    """Vue pour la deuxième étape: détails de l'événement d'erreur"""
+    # Vérifier que la première étape a été complétée
+    error_type_id = request.session.get('error_type_id')
+    if not error_type_id:
+        messages.error(request, "Veuillez d'abord définir le type d'erreur")
+        return redirect('ems_app:report_error')
+    
+    error_type = get_object_or_404(ErrorType, id=error_type_id)
+    
+    if request.method == 'POST':
+        form = ErrorEventForm(request.POST)
+        if form.is_valid():
+            error_event = form.save(commit=False)
+            error_event.error_type = error_type
+            error_event.save()
+            
+            # Stocker l'ID de l'événement d'erreur pour l'étape suivante
+            request.session['error_event_id'] = str(error_event.id)
+            
+            # Rediriger vers la troisième étape
+            return redirect('ems_app:create_error_ticket')
+    else:
+        form = ErrorEventForm(initial={'inserted_by': request.user.username if request.user.is_authenticated else ''})
+    
+    return render(request, 'errors/report_error_details.html', {'form': form, 'error_type': error_type})
+
+def create_error_ticket(request):
+    """Vue pour la troisième étape: création du ticket d'erreur"""
+    # Vérifier que les étapes précédentes ont été complétées
+    error_type_id = request.session.get('error_type_id')
+    error_event_id = request.session.get('error_event_id')
+    
+    if not error_type_id or not error_event_id:
+        messages.error(request, "Veuillez suivre le processus de signalement depuis le début")
+        return redirect('ems_app:report_error')
+    
+    error_type = get_object_or_404(ErrorType, id=error_type_id)
+    error_event = get_object_or_404(ErrorEvent, id=error_event_id)
+    
+    # Vérifier si un ticket existe déjà pour ce type d'erreur
+    try:
+        ticket = ErrorTicket.objects.get(error_type=error_type)
+        messages.info(request, "Un ticket existe déjà pour ce type d'erreur")
+        
+        # Nettoyer la session et rediriger vers le détail de l'événement
+        del request.session['error_type_id']
+        del request.session['error_event_id']
+        return redirect('ems_app:error_detail', reference_id=error_event.reference_id)
+    except ErrorTicket.DoesNotExist:
+        # Créer un nouveau ticket si nécessaire
+        if request.method == 'POST':
+            form = ErrorTicketForm(request.POST)
+            if form.is_valid():
+                ticket = form.save(commit=False)
+                ticket.error_type = error_type
+                ticket.save()
+                
+                # Nettoyer la session et rediriger vers la page de détails
+                del request.session['error_type_id']
+                del request.session['error_event_id']
+                
+                messages.success(request, f"Erreur enregistrée avec succès: {error_event.reference_id}")
+                return redirect('ems_app:error_detail', reference_id=error_event.reference_id)
+        else:
+            # Préremplir avec les informations disponibles
+            initial_data = {
+                'symptomes': f"Premier signalement: {error_type.error_reason}",
+                'impact': "À déterminer",
+                'services_affectes': error_type.service_name
+            }
+            form = ErrorTicketForm(initial=initial_data)
+    
+    return render(request, 'errors/create_error_ticket.html', {'form': form, 'error_type': error_type})
 
 def error_detail(request, reference_id):
     """Vue pour afficher les détails d'une erreur spécifique"""
@@ -75,6 +107,30 @@ def error_detail(request, reference_id):
     except ErrorEvent.DoesNotExist:
         messages.error(request, f"Erreur avec référence {reference_id} non trouvée")
         return redirect('ems_app:error_list')
+
+def edit_error_details(request, reference_id):
+    """Vue pour modifier les détails d'une erreur"""
+    event = get_object_or_404(ErrorEvent, reference_id=reference_id)
+    error_type = event.error_type
+    
+    if request.method == 'POST':
+        error_type_form = ErrorTypeForm(request.POST, instance=error_type, prefix='type')
+        event_form = ErrorEventForm(request.POST, instance=event, prefix='event')
+        
+        if error_type_form.is_valid() and event_form.is_valid():
+            error_type_form.save()
+            event_form.save()
+            messages.success(request, f"Les détails de l'erreur {reference_id} ont été mis à jour")
+            return redirect('ems_app:error_detail', reference_id=reference_id)
+    else:
+        error_type_form = ErrorTypeForm(instance=error_type, prefix='type')
+        event_form = ErrorEventForm(instance=event, prefix='event')
+    
+    return render(request, 'errors/edit_error_details.html', {
+        'error_type_form': error_type_form,
+        'event_form': event_form,
+        'event': event
+    })
     
 # errors/views.py
 # Ajoutez ces imports en haut du fichier

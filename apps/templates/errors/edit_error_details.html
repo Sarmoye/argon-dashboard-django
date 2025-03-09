@@ -1,0 +1,140 @@
+{% extends 'layouts/base.html' %}
+
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Modifier les détails de l'erreur {{ event.reference_id }}</h2>
+    
+    <form method="post" action="{% url 'ems_app:edit_error_details' event.reference_id %}">
+        {% csrf_token %}
+        
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                Type d'erreur
+            </div>
+            <div class="card-body">
+                <div class="form-group mb-3">
+                    <label for="{{ error_type_form.system_name.id_for_label }}">Nom du système*</label>
+                    {{ error_type_form.system_name|add_class:"form-control" }}
+                    {% if error_type_form.system_name.errors %}
+                    <div class="text-danger">{{ error_type_form.system_name.errors }}</div>
+                    {% endif %}
+                </div>
+                
+                <div class="form-group mb-3">
+                    <label for="{{ error_type_form.service_type.id_for_label }}">Type de service*</label>
+                    {{ error_type_form.service_type|add_class:"form-control" }}
+                    {% if error_type_form.service_type.errors %}
+                    <div class="text-danger">{{ error_type_form.service_type.errors }}</div>
+                    {% endif %}
+                </div>
+                
+                <div class="form-group mb-3">
+                    <label for="{{ error_type_form.service_name.id_for_label }}">Nom du service*</label>
+                    {{ error_type_form.service_name|add_class:"form-control" }}
+                    {% if error_type_form.service_name.errors %}
+                    <div class="text-danger">{{ error_type_form.service_name.errors }}</div>
+                    {% endif %}
+                </div>
+                
+                <div class="form-group mb-3">
+                    <label for="{{ error_type_form.error_reason.id_for_label }}">Raison de l'erreur*</label>
+                    {{ error_type_form.error_reason|add_class:"form-control" }}
+                    {% if error_type_form.error_reason.errors %}
+                    <div class="text-danger">{{ error_type_form.error_reason.errors }}</div>
+                    {% endif %}
+                </div>
+                
+                <div class="form-group mb-3">
+                    <label for="{{ error_type_form.code_erreur.id_for_label }}">Code d'erreur</label>
+                    {{ error_type_form.code_erreur|add_class:"form-control" }}
+                    {% if error_type_form.code_erreur.errors %}
+                    <div class="text-danger">{{ error_type_form.code_erreur.errors }}</div>
+                    {% endif %}
+                </div>
+                
+                <div class="form-group mb-3">
+                    <label for="{{ error_type_form.comportement_attendu.id_for_label }}">Comportement attendu</label>
+                    {{ error_type_form.comportement_attendu|add_class:"form-control" }}
+                    {% if error_type_form.comportement_attendu.errors %}
+                    <div class="text-danger">{{ error_type_form.comportement_attendu.errors }}</div>
+                    {% endif %}
+                </div>
+                
+                <div class="form-check mb-3">
+                    {{ error_type_form.correction_automatique|add_class:"form-check-input" }}
+                    <label class="form-check-label" for="{{ error_type_form.correction_automatique.id_for_label }}">
+                        Correction automatique possible
+                    </label>
+                    {% if error_type_form.correction_automatique.errors %}
+                    <div class="text-danger">{{ error_type_form.correction_automatique.errors }}</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                Détails de l'événement
+            </div>
+            <div class="card-body">
+                <div class="form-group mb-3">
+                    <label for="{{ event_form.error_count.id_for_label }}">Nombre d'erreurs*</label>
+                    {{ event_form.error_count|add_class:"form-control" }}
+                    {% if event_form.error_count.errors %}
+                    <div class="text-danger">{{ event_form.error_count.errors }}</div>
+                    {% endif %}
+                </div>
+                
+                <div class="form-group mb-3">
+                    <label for="{{ event_form.domain.id_for_label }}">Domaine*</label>
+                    {{ event_form.domain|add_class:"form-control" }}
+                    {% if event_form.domain.errors %}
+                    <div class="text-danger">{{ event_form.domain.errors }}</div>
+                    {% endif %}
+                </div>
+                
+                <div class="form-group mb-3">
+                    <label for="{{ event_form.logs.id_for_label }}">Messages de logs</label>
+                    {{ event_form.logs|add_class:"form-control" }}
+                    {% if event_form.logs.errors %}
+                    <div class="text-danger">{{ event_form.logs.errors }}</div>
+                    {% endif %}
+                </div>
+                
+                <div class="form-group mb-3">
+                    <label for="{{ event_form.version_system.id_for_label }}">Version du système</label>
+                    {{ event_form.version_system|add_class:"form-control" }}
+                    {% if event_form.version_system.errors %}
+                    <div class="text-danger">{{ event_form.version_system.errors }}</div>
+                    {% endif %}
+                </div>
+                
+                <div class="form-group mb-3">
+                    <label for="{{ event_form.inserted_by.id_for_label }}">Signalé par*</label>
+                    {{ event_form.inserted_by|add_class:"form-control" }}
+                    {% if event_form.inserted_by.errors %}
+                    <div class="text-danger">{{ event_form.inserted_by.errors }}</div>
+                    {% endif %}
+                </div>
+                
+                <div class="form-group mb-3">
+                    <label for="{{ event_form.notes.id_for_label }}">Notes</label>
+                    {{ event_form.notes|add_class:"form-control" }}
+                    {% if event_form.notes.errors %}
+                    <div class="text-danger">{{ event_form.notes.errors }}</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-12">
+                <button type="submit" class="btn btn-primary">Sauvegarder les modifications</button>
+                <a href="{% url 'ems_app:error_detail' event.reference_id %}" class="btn btn-secondary">Annuler</a>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}

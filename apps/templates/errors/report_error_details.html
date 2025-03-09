@@ -1,0 +1,79 @@
+{% extends 'layouts/base.html' %}
+
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Signaler une erreur - Étape 2: Détails de l'événement</h2>
+    
+    <div class="alert alert-info">
+        <strong>Type d'erreur:</strong> {{ error_type.system_name }} - {{ error_type.error_reason|truncatechars:100 }}
+    </div>
+    
+    <form method="post" action="{% url 'ems_app:report_error_details' %}">
+        {% csrf_token %}
+        
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                Détails de l'occurrence d'erreur
+            </div>
+            <div class="card-body">
+                <div class="form-group mb-3">
+                    <label for="{{ form.error_count.id_for_label }}">Nombre d'erreurs*</label>
+                    {{ form.error_count|add_class:"form-control" }}
+                    {% if form.error_count.errors %}
+                    <div class="text-danger">{{ form.error_count.errors }}</div>
+                    {% endif %}
+                </div>
+                
+                <div class="form-group mb-3">
+                    <label for="{{ form.domain.id_for_label }}">Domaine*</label>
+                    {{ form.domain|add_class:"form-control" }}
+                    {% if form.domain.errors %}
+                    <div class="text-danger">{{ form.domain.errors }}</div>
+                    {% endif %}
+                </div>
+                
+                <div class="form-group mb-3">
+                    <label for="{{ form.logs.id_for_label }}">Messages de logs</label>
+                    {{ form.logs|add_class:"form-control" }}
+                    {% if form.logs.errors %}
+                    <div class="text-danger">{{ form.logs.errors }}</div>
+                    {% endif %}
+                </div>
+                
+                <div class="form-group mb-3">
+                    <label for="{{ form.version_system.id_for_label }}">Version du système</label>
+                    {{ form.version_system|add_class:"form-control" }}
+                    {% if form.version_system.errors %}
+                    <div class="text-danger">{{ form.version_system.errors }}</div>
+                    {% endif %}
+                </div>
+                
+                <div class="form-group mb-3">
+                    <label for="{{ form.inserted_by.id_for_label }}">Signalé par*</label>
+                    {{ form.inserted_by|add_class:"form-control" }}
+                    {% if form.inserted_by.errors %}
+                    <div class="text-danger">{{ form.inserted_by.errors }}</div>
+                    {% endif %}
+                </div>
+                
+                <div class="form-group mb-3">
+                    <label for="{{ form.notes.id_for_label }}">Notes</label>
+                    {{ form.notes|add_class:"form-control" }}
+                    {% if form.notes.errors %}
+                    <div class="text-danger">{{ form.notes.errors }}</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-12">
+                <button type="submit" class="btn btn-primary">Continuer</button>
+                <a href="{% url 'ems_app:report_error' %}" class="btn btn-secondary">Retour</a>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}

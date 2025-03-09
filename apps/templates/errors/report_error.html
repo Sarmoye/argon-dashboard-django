@@ -4,67 +4,82 @@
 
 {% block content %}
 <div class="container mt-4">
-    <h2>Signaler une erreur</h2>
+    <h2>Signaler une erreur - Étape 1: Type d'erreur</h2>
     
     <form method="post" action="{% url 'ems_app:report_error' %}">
         {% csrf_token %}
         
-        <div class="form-group mb-3">
-            <label for="system_name">Nom du système*</label>
-            <input type="text" class="form-control" id="system_name" name="system_name" required>
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                Informations sur le type d'erreur
+            </div>
+            <div class="card-body">
+                <div class="form-group mb-3">
+                    <label for="{{ form.system_name.id_for_label }}">Nom du système*</label>
+                    {{ form.system_name|add_class:"form-control" }}
+                    {% if form.system_name.errors %}
+                    <div class="text-danger">{{ form.system_name.errors }}</div>
+                    {% endif %}
+                </div>
+                
+                <div class="form-group mb-3">
+                    <label for="{{ form.service_type.id_for_label }}">Type de service*</label>
+                    {{ form.service_type|add_class:"form-control" }}
+                    {% if form.service_type.errors %}
+                    <div class="text-danger">{{ form.service_type.errors }}</div>
+                    {% endif %}
+                </div>
+                
+                <div class="form-group mb-3">
+                    <label for="{{ form.service_name.id_for_label }}">Nom du service*</label>
+                    {{ form.service_name|add_class:"form-control" }}
+                    {% if form.service_name.errors %}
+                    <div class="text-danger">{{ form.service_name.errors }}</div>
+                    {% endif %}
+                </div>
+                
+                <div class="form-group mb-3">
+                    <label for="{{ form.error_reason.id_for_label }}">Raison de l'erreur*</label>
+                    {{ form.error_reason|add_class:"form-control" }}
+                    {% if form.error_reason.errors %}
+                    <div class="text-danger">{{ form.error_reason.errors }}</div>
+                    {% endif %}
+                </div>
+                
+                <div class="form-group mb-3">
+                    <label for="{{ form.code_erreur.id_for_label }}">Code d'erreur</label>
+                    {{ form.code_erreur|add_class:"form-control" }}
+                    {% if form.code_erreur.errors %}
+                    <div class="text-danger">{{ form.code_erreur.errors }}</div>
+                    {% endif %}
+                </div>
+                
+                <div class="form-group mb-3">
+                    <label for="{{ form.comportement_attendu.id_for_label }}">Comportement attendu</label>
+                    {{ form.comportement_attendu|add_class:"form-control" }}
+                    {% if form.comportement_attendu.errors %}
+                    <div class="text-danger">{{ form.comportement_attendu.errors }}</div>
+                    {% endif %}
+                </div>
+                
+                <div class="form-check mb-3">
+                    {{ form.correction_automatique|add_class:"form-check-input" }}
+                    <label class="form-check-label" for="{{ form.correction_automatique.id_for_label }}">
+                        Correction automatique possible
+                    </label>
+                    {% if form.correction_automatique.errors %}
+                    <div class="text-danger">{{ form.correction_automatique.errors }}</div>
+                    {% endif %}
+                </div>
+            </div>
         </div>
         
-        <div class="form-group mb-3">
-            <label for="service_type">Type de service*</label>
-            <input type="text" class="form-control" id="service_type" name="service_type" required>
+        <div class="row">
+            <div class="col-12">
+                <button type="submit" class="btn btn-primary">Continuer</button>
+                <a href="{% url 'ems_app:error_list' %}" class="btn btn-secondary">Annuler</a>
+            </div>
         </div>
-        
-        <div class="form-group mb-3">
-            <label for="service_name">Nom du service*</label>
-            <input type="text" class="form-control" id="service_name" name="service_name" required>
-        </div>
-        
-        <div class="form-group mb-3">
-            <label for="error_reason">Raison de l'erreur*</label>
-            <textarea class="form-control" id="error_reason" name="error_reason" rows="3" required></textarea>
-        </div>
-        
-        <div class="form-group mb-3">
-            <label for="code_erreur">Code d'erreur</label>
-            <input type="text" class="form-control" id="code_erreur" name="code_erreur">
-        </div>
-        
-        <div class="form-group mb-3">
-            <label for="error_count">Nombre d'erreurs*</label>
-            <input type="number" class="form-control" id="error_count" name="error_count" value="1" min="1" required>
-        </div>
-        
-        <div class="form-group mb-3">
-            <label for="logs">Messages de logs</label>
-            <textarea class="form-control" id="logs" name="logs" rows="5"></textarea>
-        </div>
-        
-        <div class="form-group mb-3">
-            <label for="version_system">Version du système</label>
-            <input type="text" class="form-control" id="version_system" name="version_system">
-        </div>
-        
-        <div class="form-group mb-3">
-            <label for="comportement_attendu">Comportement attendu</label>
-            <textarea class="form-control" id="comportement_attendu" name="comportement_attendu" rows="3"></textarea>
-        </div>
-        
-        <div class="form-group mb-3">
-            <label for="notes">Notes</label>
-            <textarea class="form-control" id="notes" name="notes" rows="3"></textarea>
-        </div>
-        
-        <div class="form-check mb-3">
-            <input type="checkbox" class="form-check-input" id="correction_automatique" name="correction_automatique">
-            <label class="form-check-label" for="correction_automatique">Correction automatique possible</label>
-        </div>
-        
-        <button type="submit" class="btn btn-primary">Enregistrer</button>
     </form>
 </div>
 {% endblock %}
