@@ -1,3 +1,4 @@
+<!-- errors/templates/errors/error_detail.html -->
 {% extends 'layouts/base.html' %}
 
 {% load static %}
@@ -5,121 +6,179 @@
 {% block content %}
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2>Erreur: {{ event.reference_id }}</h2>
-        <a href="{% url 'ems_app:error_list' %}" class="btn btn-secondary">Retour à la liste</a>
+        <h2>Détails de l'erreur: {{ event.reference_id }}</h2>
+        <div>
+            <!-- Bouton d'édition -->
+            <a href="{% url 'ems_app:edit_error_details' event.reference_id %}" class="btn btn-primary">
+                <i class="fas fa-edit"></i> Modifier
+            </a>
+            <a href="{% url 'ems_app:error_list' %}" class="btn btn-secondary">
+                Retour à la liste
+            </a>
+        </div>
     </div>
     
-    <div class="card mb-4">
-        <div class="card-header bg-primary text-white">
-            <h3 class="card-title">Détails de l'événement</h3>
-        </div>
-        <div class="card-body">
-            <div class="row">
-                <div class="col-md-6">
-                    <p><strong>Date:</strong> {{ event.timestamp|date:"d/m/Y H:i:s" }}</p>
+    <div class="row">
+        <!-- Informations sur le type d'erreur -->
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header bg-primary text-white">
+                    Type d'erreur
+                </div>
+                <div class="card-body">
                     <p><strong>Système:</strong> {{ event.error_type.system_name }}</p>
-                    <p><strong>Service:</strong> {{ event.error_type.service_name }}</p>
+                    <p><strong>Service:</strong> {{ event.error_type.service_name }} ({{ event.error_type.service_type }})</p>
+                    <p><strong>Raison:</strong> {{ event.error_type.error_reason }}</p>
+                    {% if event.error_type.code_erreur %}
+                    <p><strong>Code:</strong> {{ event.error_type.code_erreur }}</p>
+                    {% endif %}
+                    {% if event.error_type.comportement_attendu %}
+                    <p><strong>Comportement attendu:</strong> {{ event.error_type.comportement_attendu }}</p>
+                    {% endif %}
+                    <p><strong>Correction automatique:</strong> 
+                        {% if event.error_type.correction_automatique %}
+                            <span class="badge bg-success">Possible</span>
+                        {% else %}
+                            <span class="badge bg-warning">Non</span>
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Détails de l'événement -->
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header bg-primary text-white">
+                    Détails de l'occurrence
+                </div>
+                <div class="card-body">
+                    <p><strong>Date:</strong> {{ event.timestamp|date:"d/m/Y H:i" }}</p>
                     <p><strong>Nombre d'erreurs:</strong> {{ event.error_count }}</p>
                     <p><strong>Domaine:</strong> {{ event.domain }}</p>
-                </div>
-                <div class="col-md-6">
-                    <p><strong>Version:</strong> {{ event.version_system|default:"Non spécifiée" }}</p>
+                    {% if event.version_system %}
+                    <p><strong>Version du système:</strong> {{ event.version_system }}</p>
+                    {% endif %}
                     <p><strong>Signalé par:</strong> {{ event.inserted_by }}</p>
-                    <p><strong>Code d'erreur:</strong> {{ event.error_type.code_erreur|default:"Non spécifié" }}</p>
-                    <p><strong>Correction auto:</strong> {{ event.error_type.correction_automatique|yesno:"Oui,Non" }}</p>
+                    {% if event.notes %}
+                    <p><strong>Notes:</strong> {{ event.notes }}</p>
+                    {% endif %}
                 </div>
             </div>
-            
-            <div class="mt-3">
-                <h4>Raison de l'erreur</h4>
-                <p>{{ event.error_type.error_reason }}</p>
-            </div>
-            
-            {% if event.logs %}
-            <div class="mt-3">
-                <h4>Logs</h4>
-                <pre class="bg-light p-3">{{ event.logs }}</pre>
-            </div>
-            {% endif %}
-            
-            {% if event.notes %}
-            <div class="mt-3">
-                <h4>Notes</h4>
-                <p>{{ event.notes }}</p>
-            </div>
-            {% endif %}
         </div>
+        
+        <!-- Informations sur le ticket -->
+        {% if event.error_type.ticket %}
+        <div class="col-12 mb-4">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    Ticket de suivi
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Priorité:</strong> 
+                                <span class="badge {% if event.error_type.ticket.priorite == 'P1' %}bg-danger{% elif event.error_type.ticket.priorite == 'P2' %}bg-warning{% elif event.error_type.ticket.priorite == 'P3' %}bg-info{% else %}bg-secondary{% endif %}">
+                                    {{ event.error_type.ticket.get_priorite_display }}
+                                </span>
+                            </p>
+                            <p><strong>Statut:</strong> 
+                                <span class="badge {% if event.error_type.ticket.statut == 'OPEN' %}bg-danger{% elif event.error_type.ticket.statut == 'IN_PROGRESS' %}bg-warning{% elif event.error_type.ticket.statut == 'PENDING' %}bg-info{% elif event.error_type.ticket.statut == 'RESOLVED' %}bg-success{% else %}bg-secondary{% endif %}">
+                                    {{ event.error_type.ticket.get_statut_display }}
+                                </span>
+                            </p>
+                            <p><strong>Criticité:</strong> {{ event.error_type.ticket.niveau_criticite }}/5</p>
+                            <p><strong>Services affectés:</strong> {{ event.error_type.ticket.services_affectes }}</p>
+                            {% if event.error_type.ticket.nombre_utilisateurs %}
+                            <p><strong>Utilisateurs impactés:</strong> {{ event.error_type.ticket.nombre_utilisateurs }}</p>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            {% if event.error_type.ticket.responsable %}
+                            <p><strong>Responsable:</strong> {{ event.error_type.ticket.responsable }}</p>
+                            {% endif %}
+                            {% if event.error_type.ticket.equipe %}
+                            <p><strong>Équipe:</strong> {{ event.error_type.ticket.equipe }}</p>
+                            {% endif %}
+                            {% if event.error_type.ticket.date_creation %}
+                            <p><strong>Créé le:</strong> {{ event.error_type.ticket.date_creation|date:"d/m/Y H:i" }}</p>
+                            {% endif %}
+                            {% if event.error_type.ticket.date_resolution %}
+                            <p><strong>Résolu le:</strong> {{ event.error_type.ticket.date_resolution|date:"d/m/Y H:i" }}</p>
+                            <p><strong>Durée:</strong> {{ event.error_type.ticket.get_duration }} heures</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    {% if event.error_type.ticket.symptomes %}
+                    <div class="mt-3">
+                        <h6>Symptômes:</h6>
+                        <p>{{ event.error_type.ticket.symptomes }}</p>
+                    </div>
+                    {% endif %}
+                    
+                    {% if event.error_type.ticket.impact %}
+                    <div class="mt-3">
+                        <h6>Impact:</h6>
+                        <p>{{ event.error_type.ticket.impact }}</p>
+                    </div>
+                    {% endif %}
+                    
+                    {% if event.error_type.ticket.cause_racine %}
+                    <div class="mt-3">
+                        <h6>Cause racine:</h6>
+                        <p>{{ event.error_type.ticket.cause_racine }}</p>
+                    </div>
+                    {% endif %}
+                    
+                    {% if event.error_type.ticket.actions %}
+                    <div class="mt-3">
+                        <h6>Actions prévues:</h6>
+                        <p>{{ event.error_type.ticket.actions }}</p>
+                    </div>
+                    {% endif %}
+                    
+                    {% if event.error_type.ticket.solution %}
+                    <div class="mt-3">
+                        <h6>Solution implémentée:</h6>
+                        <p>{{ event.error_type.ticket.solution }}</p>
+                    </div>
+                    {% endif %}
+                    
+                    {% if event.error_type.ticket.commentaires %}
+                    <div class="mt-3">
+                        <h6>Commentaires:</h6>
+                        <p>{{ event.error_type.ticket.commentaires }}</p>
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="card-footer">
+                    <a href="#" class="btn btn-sm btn-outline-primary">Modifier le ticket</a>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="col-12 mb-4">
+            <div class="alert alert-warning">
+                Aucun ticket de suivi n'est associé à cette erreur.
+                <a href="#" class="alert-link">Créer un ticket</a>
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- Logs -->
+        {% if event.logs %}
+        <div class="col-12 mb-4">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    Messages de logs
+                </div>
+                <div class="card-body">
+                    <pre class="bg-light p-3 rounded"><code>{{ event.logs }}</code></pre>
+                </div>
+            </div>
+        </div>
+        {% endif %}
     </div>
-    
-    {% if event.error_type.ticket %}
-    <div class="card">
-        <div class="card-header bg-info text-white">
-            <h3 class="card-title">
-                Ticket de suivi 
-                <span class="badge {% if event.error_type.ticket.statut == 'RESOLVED' %}bg-success{% elif event.error_type.ticket.statut == 'OPEN' %}bg-danger{% else %}bg-warning{% endif %}">
-                    {{ event.error_type.ticket.get_statut_display }}
-                </span>
-                <span class="badge bg-secondary">Priorité: {{ event.error_type.ticket.get_priorite_display }}</span>
-            </h3>
-        </div>
-        <div class="card-body">
-            <div class="row">
-                <div class="col-md-6">
-                    <p><strong>Créé le:</strong> {{ event.error_type.ticket.date_creation|date:"d/m/Y H:i" }}</p>
-                    <p><strong>Dernière mise à jour:</strong> {{ event.error_type.ticket.date_modification|date:"d/m/Y H:i" }}</p>
-                    <p><strong>Responsable:</strong> {{ event.error_type.ticket.responsable|default:"Non assigné" }}</p>
-                    <p><strong>Équipe:</strong> {{ event.error_type.ticket.equipe|default:"Non assignée" }}</p>
-                </div>
-                <div class="col-md-6">
-                    <p><strong>Criticité:</strong> {{ event.error_type.ticket.niveau_criticite }}/5</p>
-                    <p><strong>Résolu le:</strong> {{ event.error_type.ticket.date_resolution|date:"d/m/Y H:i"|default:"Non résolu" }}</p>
-                    <p><strong>Durée:</strong> {{ event.error_type.ticket.get_duration }} heures</p>
-                </div>
-            </div>
-            
-            {% if event.error_type.ticket.symptomes %}
-            <div class="mt-3">
-                <h4>Symptômes</h4>
-                <p>{{ event.error_type.ticket.symptomes }}</p>
-            </div>
-            {% endif %}
-            
-            {% if event.error_type.ticket.impact %}
-            <div class="mt-3">
-                <h4>Impact</h4>
-                <p>{{ event.error_type.ticket.impact }}</p>
-            </div>
-            {% endif %}
-            
-            {% if event.error_type.ticket.cause_racine %}
-            <div class="mt-3">
-                <h4>Cause racine</h4>
-                <p>{{ event.error_type.ticket.cause_racine }}</p>
-            </div>
-            {% endif %}
-            
-            {% if event.error_type.ticket.solution %}
-            <div class="mt-3">
-                <h4>Solution</h4>
-                <p>{{ event.error_type.ticket.solution }}</p>
-            </div>
-            {% endif %}
-            
-            {% if event.error_type.ticket.actions %}
-            <div class="mt-3">
-                <h4>Actions</h4>
-                <p>{{ event.error_type.ticket.actions }}</p>
-            </div>
-            {% endif %}
-            
-            {% if event.error_type.ticket.commentaires %}
-            <div class="mt-3">
-                <h4>Commentaires</h4>
-                <p>{{ event.error_type.ticket.commentaires }}</p>
-            </div>
-            {% endif %}
-        </div>
-    </div>
-    {% endif %}
 </div>
 {% endblock %}
