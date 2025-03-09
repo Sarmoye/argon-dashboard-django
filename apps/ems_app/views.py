@@ -131,6 +131,11 @@ def edit_error_details(request, reference_id):
         'event_form': event_form,
         'event': event
     })
+
+def error_list(request):
+    """Vue pour afficher la liste des erreurs récentes"""
+    events = ErrorEvent.objects.all().order_by('-timestamp')[:50]
+    return render(request, 'errors/error_list.html', {'events': events})
     
 # errors/views.py
 # Ajoutez ces imports en haut du fichier
