@@ -208,9 +208,9 @@ class ErrorEvent1(models.Model):
     
     # Lien vers ErrorType pour retrouver tous les événements d'un type d'erreur
     error_type = models.ForeignKey(
-        ErrorType, 
+        ErrorType1, 
         on_delete=models.CASCADE, 
-        related_name='events', 
+        related_name='events1', 
         verbose_name="Type d'erreur"
     )
     
@@ -253,9 +253,9 @@ class ErrorTicket1(models.Model):
     
     # Association One-to-One avec ErrorType
     error_type = models.OneToOneField(
-        ErrorType, 
+        ErrorType1, 
         on_delete=models.CASCADE, 
-        related_name='ticket', 
+        related_name='ticket1', 
         verbose_name="Type d'erreur"
     )
     
