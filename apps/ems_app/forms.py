@@ -49,3 +49,42 @@ class ErrorTicketForm(forms.ModelForm):
             'equipe': forms.TextInput(attrs={'class': 'form-control'}),
             'actions': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
         }
+
+
+from django import forms
+from .models import ErrorType1, ErrorEvent1, ErrorTicket1
+
+class ErrorType1Form(forms.ModelForm):
+    class Meta:
+        model = ErrorType1
+        # On exclut l'id et les métadonnées gérées automatiquement
+        exclude = ['id', 'created_at', 'updated_at']
+        # Vous pouvez aussi choisir d'inclure explicitement les champs :
+        # fields = [
+        #     'system_name', 'service_type', 'service_name', 'error_reason',
+        #     'code_erreur', 'fichiers_impactes', 'description_technique',
+        #     'comportement_attendu', 'procedures_contournement', 'environnement',
+        #     'niveau_severite'
+        # ]
+
+class ErrorEvent1Form(forms.ModelForm):
+    class Meta:
+        model = ErrorEvent1
+        # L'id est généré automatiquement lors de l'enregistrement
+        exclude = ['id']
+        # fields = [
+        #     'error_type', 'system_name', 'service_type', 'service_name',
+        #     'error_reason', 'error_count', 'timestamp', 'inserted_by', 'notes'
+        # ]
+
+class ErrorTicket1Form(forms.ModelForm):
+    class Meta:
+        model = ErrorTicket1
+        # On exclut l'id et les dates qui sont gérées automatiquement (date_creation, date_modification)
+        exclude = ['id', 'date_creation', 'date_modification']
+        # fields = [
+        #     'error_type', 'priorite', 'statut', 'niveau_criticite',
+        #     'symptomes', 'impact', 'services_affectes', 'charge_systeme',
+        #     'nombre_utilisateurs', 'cause_racine', 'hypotheses', 'responsable',
+        #     'equipe', 'actions', 'solution', 'date_resolution', 'commentaires', 'historique'
+        # ]

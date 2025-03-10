@@ -4,10 +4,11 @@
 
 {% block content %}
 <div class="container mt-4">
-    <h2>Liste des erreurs récentes</h2>
-    
-    <div class="mb-3">
-        <a href="{% url 'ems_app:report_error' %}" class="btn btn-primary">Signaler une nouvelle erreur</a>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Liste des erreurs</h2>
+        <a href="{% url 'ems_app:report_error' %}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Signaler une erreur
+        </a>
     </div>
     
     {% if messages %}
@@ -20,43 +21,73 @@
     </div>
     {% endif %}
     
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Référence</th>
-                <th>Système</th>
-                <th>Erreur</th>
-                <th>Date</th>
-                <th>Statut</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for event in events %}
-            <tr>
-                <td>{{ event.reference_id }}</td>
-                <td>{{ event.error_type.system_name }}</td>
-                <td>{{ event.error_type.error_reason|truncatechars:50 }}</td>
-                <td>{{ event.timestamp|date:"d/m/Y H:i" }}</td>
-                <td>
-                    {% if event.error_type.ticket %}
-                        <span class="badge {% if event.error_type.ticket.statut == 'RESOLVED' %}bg-success{% elif event.error_type.ticket.statut == 'OPEN' %}bg-danger{% else %}bg-warning{% endif %}">
-                            {{ event.error_type.ticket.get_statut_display }}
-                        </span>
-                    {% else %}
-                        <span class="badge bg-secondary">Sans ticket</span>
-                    {% endif %}
-                </td>
-                <td>
-                    <a href="{% url 'ems_app:error_detail' event.reference_id %}" class="btn btn-sm btn-info">Détails</a>
-                </td>
-            </tr>
-            {% empty %}
-            <tr>
-                <td colspan="6" class="text-center">Aucune erreur enregistrée</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <div class="card">
+        <div class="card-header bg-primary text-white">
+            Types d'erreurs
+        </div>
+        <div class="card-body">
+            {% if error_data %}
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th>Système</th>
+                            <th>Service</th>
+                            <th>Raison de l'erreur</th>
+                            <th>Occurrences</th>
+                            <th>Dernière occurrence</th>
+                            <th>Statut du ticket</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in error_data %}
+                        <tr>
+                            <td>{{ item.type.system_name }}</td>
+                            <td>{{ item.type.service_name }}</td>
+                            <td>{{ item.type.error_reason|truncatechars:50 }}</td>
+                            <td>{{ item.count }}</td>
+                            <td>{{ item.latest.timestamp|date:"d/m/Y H:i" }}</td>
+                            <td>
+                                {% if item.ticket %}
+                                <span class="badge 
+                                    {% if item.ticket.statut == 'OPEN' %}bg-danger{% endif %}
+                                    {% if item.ticket.statut == 'IN_PROGRESS' %}bg-warning{% endif %}
+                                    {% if item.ticket.statut == 'PENDING' %}bg-info{% endif %}
+                                    {% if item.ticket.statut == 'RESOLVED' %}bg-success{% endif %}
+                                    {% if item.ticket.statut == 'CLOSED' %}bg-secondary{% endif %}">
+                                    {{ item.ticket.get_statut_display }}
+                                </span>
+                                {% else %}
+                                <span class="badge bg-secondary">Pas de ticket</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="btn-group">
+                                    <a href="{% url 'ems_app:error_type_detail' type_id=item.type.id %}" class="btn btn-sm btn-info">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="{% url 'ems_app:add_occurrence' type_id=item.type.id %}" class="btn btn-sm btn-success">
+                                        <i class="fas fa-plus"></i>
+                                    </a>
+                                    {% if not item.ticket %}
+                                    <a href="{% url 'ems_app:create_ticket' type_id=item.type.id %}" class="btn btn-sm btn-warning">
+                                        <i class="fas fa-ticket-alt"></i>
+                                    </a>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="alert alert-info">
+                Aucune erreur n'a été signalée pour le moment.
+            </div>
+            {% endif %}
+        </div>
+    </div>
 </div>
 {% endblock %}
