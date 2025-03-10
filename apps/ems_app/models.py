@@ -35,34 +35,38 @@ class ErrorType(models.Model):
 
 
 class ErrorEvent(models.Model):
-    id = models.CharField(primary_key=True, max_length=255, editable=False)
-    error_type = models.ForeignKey(
-        ErrorType,
-        on_delete=models.CASCADE,
-        related_name='events',
-        verbose_name="Type d'erreur"
-    )
-    system_name = models.CharField(max_length=50, verbose_name="Nom du système")
-    service_type = models.CharField(max_length=100, verbose_name="Type de service")
-    service_name = models.CharField(max_length=100, verbose_name="Nom du service")
-    error_reason = models.TextField(verbose_name="Raison de l'erreur")
+    """
+    Enregistrement d'une occurrence spécifique d'erreur.
+    Remplace le modèle SourceData1 original.
+    """
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    error_type = models.ForeignKey(ErrorType, on_delete=models.CASCADE, related_name='events', verbose_name="Type d'erreur")
+    reference_id = models.CharField(max_length=50, unique=True, blank=True, verbose_name="Identifiant unique")
+    
+    # Détails de l'événement
     error_count = models.IntegerField(verbose_name="Nombre d'erreurs")
     timestamp = models.DateTimeField(default=timezone.now, verbose_name="Horodatage")
+    domain = models.CharField(max_length=100, verbose_name="Domaine")
+    logs = models.TextField(blank=True, verbose_name="Messages de logs")
+    version_system = models.CharField(max_length=50, blank=True, verbose_name="Version du système")
+    
+    # Informations complémentaires
     inserted_by = models.CharField(max_length=50, verbose_name="Enregistré par")
     notes = models.TextField(blank=True, null=True, verbose_name="Notes")
-
+    
+    class Meta:
+        verbose_name = "Événement d'erreur"
+        verbose_name_plural = "Événements d'erreurs"
+        ordering = ['-timestamp']
+    
     def save(self, *args, **kwargs):
-        # Générer l'id si non défini, au format "systemname_yyyymmdd"
-        if not self.id:
-            if not self.timestamp:
-                self.timestamp = timezone.now()
-            system_slug = slugify(self.system_name)
-            date_str = self.timestamp.strftime('%Y%m%d')
-            self.id = f"{system_slug}_{date_str}"
+        if not self.reference_id:
+            system = self.error_type.system_name
+            self.reference_id = f"{system}_{uuid.uuid4().hex[:8].upper()}"
         super().save(*args, **kwargs)
-
+    
     def __str__(self):
-        return f"Erreur {self.id} - {self.timestamp.strftime('%d/%m/%Y %H:%M')}"
+        return f"Erreur {self.reference_id} - {self.timestamp.strftime('%d/%m/%Y %H:%M')}"
 
 
 class ErrorTicket(models.Model):
@@ -204,7 +208,7 @@ class ErrorEvent1(models.Model):
     
     # Lien vers ErrorType pour retrouver tous les événements d'un type d'erreur
     error_type = models.ForeignKey(
-        ErrorType1, 
+        ErrorType, 
         on_delete=models.CASCADE, 
         related_name='events', 
         verbose_name="Type d'erreur"
@@ -249,7 +253,7 @@ class ErrorTicket1(models.Model):
     
     # Association One-to-One avec ErrorType
     error_type = models.OneToOneField(
-        ErrorType1, 
+        ErrorType, 
         on_delete=models.CASCADE, 
         related_name='ticket', 
         verbose_name="Type d'erreur"
