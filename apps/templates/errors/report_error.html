@@ -4,19 +4,23 @@
 
 {% block content %}
 <div class="container mt-4">
-    <h2>Signaler une erreur - Étape 1: Type d'erreur</h2>
+    <h2>Signaler une erreur</h2>
+    
+    <div class="alert alert-info">
+        <p>Cette page vous permet de signaler une erreur. Le système déterminera automatiquement s'il s'agit d'une nouvelle erreur ou d'une erreur déjà connue.</p>
+    </div>
     
     <form method="post" action="{% url 'ems_app:report_error' %}">
         {% csrf_token %}
         
         <div class="card mb-4">
             <div class="card-header bg-primary text-white">
-                Informations sur le type d'erreur
+                Informations sur l'erreur
             </div>
             <div class="card-body">
                 <div class="form-group mb-3">
                     <label for="{{ form.system_name.id_for_label }}">Nom du système*</label>
-                    {{ form.system_name}}
+                    {{ form.system_name }}
                     {% if form.system_name.errors %}
                     <div class="text-danger">{{ form.system_name.errors }}</div>
                     {% endif %}
@@ -24,7 +28,7 @@
                 
                 <div class="form-group mb-3">
                     <label for="{{ form.service_type.id_for_label }}">Type de service*</label>
-                    {{ form.service_type}}
+                    {{ form.service_type }}
                     {% if form.service_type.errors %}
                     <div class="text-danger">{{ form.service_type.errors }}</div>
                     {% endif %}
@@ -32,7 +36,7 @@
                 
                 <div class="form-group mb-3">
                     <label for="{{ form.service_name.id_for_label }}">Nom du service*</label>
-                    {{ form.service_name}}
+                    {{ form.service_name }}
                     {% if form.service_name.errors %}
                     <div class="text-danger">{{ form.service_name.errors }}</div>
                     {% endif %}
@@ -40,35 +44,33 @@
                 
                 <div class="form-group mb-3">
                     <label for="{{ form.error_reason.id_for_label }}">Raison de l'erreur*</label>
-                    {{ form.error_reason}}
+                    {{ form.error_reason }}
                     {% if form.error_reason.errors %}
                     <div class="text-danger">{{ form.error_reason.errors }}</div>
                     {% endif %}
                 </div>
                 
                 <div class="form-group mb-3">
-                    <label for="{{ form.code_erreur.id_for_label }}">Code d'erreur</label>
-                    {{ form.code_erreur}}
-                    {% if form.code_erreur.errors %}
-                    <div class="text-danger">{{ form.code_erreur.errors }}</div>
+                    <label for="{{ form.error_count.id_for_label }}">Nombre d'erreurs*</label>
+                    {{ form.error_count }}
+                    {% if form.error_count.errors %}
+                    <div class="text-danger">{{ form.error_count.errors }}</div>
                     {% endif %}
                 </div>
                 
                 <div class="form-group mb-3">
-                    <label for="{{ form.comportement_attendu.id_for_label }}">Comportement attendu</label>
-                    {{ form.comportement_attendu}}
-                    {% if form.comportement_attendu.errors %}
-                    <div class="text-danger">{{ form.comportement_attendu.errors }}</div>
+                    <label for="{{ form.inserted_by.id_for_label }}">Signalé par*</label>
+                    {{ form.inserted_by }}
+                    {% if form.inserted_by.errors %}
+                    <div class="text-danger">{{ form.inserted_by.errors }}</div>
                     {% endif %}
                 </div>
                 
-                <div class="form-check mb-3">
-                    {{ form.correction_automatique}}
-                    <label class="form-check-label" for="{{ form.correction_automatique.id_for_label }}">
-                        Correction automatique possible
-                    </label>
-                    {% if form.correction_automatique.errors %}
-                    <div class="text-danger">{{ form.correction_automatique.errors }}</div>
+                <div class="form-group mb-3">
+                    <label for="{{ form.notes.id_for_label }}">Notes</label>
+                    {{ form.notes }}
+                    {% if form.notes.errors %}
+                    <div class="text-danger">{{ form.notes.errors }}</div>
                     {% endif %}
                 </div>
             </div>
@@ -76,7 +78,7 @@
         
         <div class="row">
             <div class="col-12">
-                <button type="submit" class="btn btn-primary">Continuer</button>
+                <button type="submit" class="btn btn-primary">Signaler l'erreur</button>
                 <a href="{% url 'ems_app:error_list' %}" class="btn btn-secondary">Annuler</a>
             </div>
         </div>
