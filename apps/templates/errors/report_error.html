@@ -93,7 +93,8 @@
     // Ajouter ce code à la fin de votre template report_error.html juste avant la fermeture de la balise </body>
 $(document).ready(function() {
     // Sélectionner le formulaire
-    const $errorForm = $('form[action="{% url \'ems_app:report_error\' %}"]');
+    const reportErrorUrl = "{% url 'ems_app:report_error' %}";
+    const $errorForm = $('form[action="' + reportErrorUrl + '"]');
     
     // Ajouter un gestionnaire d'événement pour la soumission du formulaire
     $errorForm.on('submit', function(e) {
