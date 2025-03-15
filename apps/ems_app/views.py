@@ -113,7 +113,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.utils import timezone
 from .models import ErrorEvent1, ErrorType1, ErrorTicket1
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, JsonResponse
 from django.urls import reverse
 from .forms import ErrorType1Form, ErrorEvent1Form, ErrorTicket1Form
 import hashlib
@@ -131,14 +131,12 @@ def report_error(request):
             error_reason = event_form.cleaned_data['error_reason']
             
             # Vérifier si un ErrorType similaire existe déjà
-            # La logique de correspondance utilise le system_name et error_reason comme dans le modèle
             try:
                 # Essayer de trouver un type d'erreur similaire
                 error_type = ErrorType1.objects.get(
                     system_name=system_name,
                     error_reason=error_reason
                 )
-                # Type d'erreur existant, on enregistre juste l'occurrence
                 is_new_type = False
             except ErrorType1.DoesNotExist:
                 # Aucun type similaire, créer un nouveau ErrorType
@@ -147,7 +145,6 @@ def report_error(request):
                     service_type=service_type,
                     service_name=service_name,
                     error_reason=error_reason,
-                    # D'autres champs optionnels peuvent être ajoutés ici
                 )
                 error_type.save()
                 is_new_type = True
@@ -178,14 +175,32 @@ def report_error(request):
                     symptomes=f"Premier signalement: {error_reason}",
                     impact="À déterminer",
                     services_affectes=service_name,
-                    # D'autres champs peuvent être initialisés ici
                 )
                 ticket.save()
-                messages.success(request, f"Nouvelle erreur enregistrée avec succès. ID: {error_event.id}")
+                message = f"Nouvelle erreur enregistrée avec succès. ID: {error_event.id}"
             else:
-                messages.info(request, f"Une erreur similaire a déjà été signalée. Votre occurrence a été enregistrée avec l'ID {error_event.id}")
+                message = f"Une erreur similaire a déjà été signalée. Votre occurrence a été enregistrée avec l'ID {error_event.id}"
             
-            return redirect('ems_app:error_detail', error_id=error_event.id)
+            # Vérifier si la requête est AJAX
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'success': True,
+                    'is_new_type': is_new_type,
+                    'message': message,
+                    'error_id': str(error_event.id),
+                    'redirect_url': reverse('ems_app:error_detail', kwargs={'error_id': error_event.id})
+                })
+            else:
+                # Pour les requêtes non-AJAX, utiliser le comportement habituel
+                messages.success(request, message)
+                return redirect('ems_app:error_detail', error_id=error_event.id)
+        else:
+            # Le formulaire n'est pas valide
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'success': False,
+                    'errors': event_form.errors.as_json()
+                }, status=400)
     else:
         # Formulaire vide pour un nouvel événement
         event_form = ErrorEvent1Form(initial={'inserted_by': request.user.username if request.user.is_authenticated else ''})
