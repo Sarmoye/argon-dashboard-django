@@ -7,11 +7,14 @@
     <h1 class="mb-4 text-center">Liste des Événements d'Erreur</h1>
 
     <div class="card mb-4">
-        <div class="card-header bg-light">
-            Filtrer les Événements
+        <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+            <span class="fw-bold">Filtrer les Événements</span>
+            <button class="btn btn-sm btn-outline-light" type="button" data-bs-toggle="collapse" data-bs-target="#filterCollapse" aria-expanded="true" aria-controls="filterCollapse">
+                Afficher/Masquer
+            </button>
         </div>
-        <div class="card-body">
-            <form method="get" class="row g-3">
+        <div class="card-body collapse show" id="filterCollapse">
+            <form method="get" class="row g-3 align-items-end">
                 <div class="col-md-3">
                     <label for="system" class="form-label">Système:</label>
                     <select name="system" class="form-select">
