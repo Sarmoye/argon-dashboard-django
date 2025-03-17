@@ -3,45 +3,57 @@
 {% load static %}
 
 {% block content %}
-  <h1>Détails de l'Événement d'Erreur</h1>
+  <div class="container mt-5">
+    <div class="card shadow-sm p-4">
+      <h2 class="mb-4 text-primary">Détails de l'Événement d'Erreur</h2>
+      
+      <ul class="list-group list-group-flush">
+        <li class="list-group-item"><strong>ID:</strong> {{ event.id }}</li>
+        <li class="list-group-item"><strong>Système:</strong> {{ event.system_name }}</li>
+        <li class="list-group-item"><strong>Service:</strong> {{ event.service_name }}</li>
+        <li class="list-group-item"><strong>Raison de l'Erreur:</strong> {{ event.error_reason }}</li>
+        <li class="list-group-item"><strong>Timestamp:</strong> {{ event.timestamp }}</li>
+        <li class="list-group-item"><strong>Nombre d'Erreurs:</strong> {{ event.error_count }}</li>
+        <li class="list-group-item"><strong>Inséré par:</strong> {{ event.inserted_by }}</li>
+        <li class="list-group-item"><strong>Notes:</strong> {{ event.notes }}</li>
+      </ul>
+    </div>
 
-  <p><strong>ID:</strong> {{ event.id }}</p>
-  <p><strong>Système:</strong> {{ event.system_name }}</p>
-  <p><strong>Service:</strong> {{ event.service_name }}</p>
-  <p><strong>Raison de l'Erreur:</strong> {{ event.error_reason }}</p>
-  <p><strong>Timestamp:</strong> {{ event.timestamp }}</p>
-  <p><strong>Nombre d'Erreurs:</strong> {{ event.error_count }}</p>
-  <p><strong>Inséré par:</strong> {{ event.inserted_by }}</p>
-  <p><strong>Notes:</strong> {{ event.notes }}</p>
+    <div class="card shadow-sm p-4 mt-4">
+      <h3 class="mb-3">Événements Associés</h3>
+      <table class="table table-striped">
+        <thead class="table-dark">
+          <tr>
+            <th>ID</th>
+            <th>Timestamp</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for related_event in related_events %}
+            <tr>
+              <td>{{ related_event.id }}</td>
+              <td>{{ related_event.timestamp }}</td>
+              <td>
+                <a href="{% url 'error_management_systems:event_detail' related_event.id %}" class="btn btn-sm btn-primary">Détails</a>
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="3" class="text-center">Aucun événement associé trouvé.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
 
-  <h2>Événements Associés</h2>
-  <table>
-    <thead>
-      <tr>
-        <th>ID</th>
-        <th>Timestamp</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for related_event in related_events %}
-        <tr>
-          <td>{{ related_event.id }}</td>
-          <td>{{ related_event.timestamp }}</td>
-          <td><a href="{% url 'error_management_systems:event_detail' related_event.id %}">Détails</a></td>
-        </tr>
-      {% empty %}
-        <tr>
-          <td colspan="3">Aucun événement associé trouvé.</td>
-        </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-    
-    {% if has_ticket %}
-        <h2>Ticket Associé</h2>
-        <a href="{% url 'error_management_systems:ticket_detail' ticket.id %}">Voir le ticket associé ({{ ticket.ticket_reference }})</a>
-    {% else %}
-        <p>Aucun ticket associé à ce type d'erreur.</p>
-    {% endif %}
+    <div class="card shadow-sm p-4 mt-4">
+      {% if has_ticket %}
+        <h3 class="mb-3">Ticket Associé</h3>
+        <a href="{% url 'error_management_systems:ticket_detail' ticket.id %}" class="btn btn-info">Voir le ticket associé ({{ ticket.ticket_reference }})</a>
+      {% else %}
+        <p class="text-muted">Aucun ticket associé à ce type d'erreur.</p>
+      {% endif %}
+    </div>
+  </div>
 {% endblock %}
