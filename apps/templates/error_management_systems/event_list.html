@@ -14,32 +14,40 @@
             </button>
         </div>
         <div class="card-body collapse show" id="filterCollapse">
-            <form method="get" class="row g-3 align-items-end">
+            <form method="get" class="row g-3">
                 <div class="col-md-3">
-                    <label for="system" class="form-label">Système:</label>
-                    <select name="system" class="form-select">
-                        <option value="">Tous</option>
-                        {% for system in systems %}
-                            <option value="{{ system }}" {% if request.GET.system == system %}selected{% endif %}>{{ system }}</option>
-                        {% endfor %}
-                    </select>
+                    <div class="mb-3">
+                        <label for="system" class="form-label">Système:</label>
+                        <select name="system" class="form-select">
+                            <option value="">Tous</option>
+                            {% for system in systems %}
+                                <option value="{{ system }}" {% if request.GET.system == system %}selected{% endif %}>{{ system }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
                 </div>
                 <div class="col-md-3">
-                    <label for="service" class="form-label">Service:</label>
-                    <select name="service" class="form-select">
-                        <option value="">Tous</option>
-                        {% for service in services %}
-                            <option value="{{ service }}" {% if request.GET.service == service %}selected{% endif %}>{{ service }}</option>
-                        {% endfor %}
-                    </select>
+                    <div class="mb-3">
+                        <label for="service" class="form-label">Service:</label>
+                        <select name="service" class="form-select">
+                            <option value="">Tous</option>
+                            {% for service in services %}
+                                <option value="{{ service }}" {% if request.GET.service == service %}selected{% endif %}>{{ service }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
                 </div>
                 <div class="col-md-3">
-                    <label for="date_from" class="form-label">Date de début:</label>
-                    <input type="date" name="date_from" value="{{ request.GET.date_from }}" class="form-control">
+                    <div class="mb-3">
+                        <label for="date_from" class="form-label">Date de début:</label>
+                        <input type="date" name="date_from" value="{{ request.GET.date_from }}" class="form-control">
+                    </div>
                 </div>
                 <div class="col-md-3">
-                    <label for="date_to" class="form-label">Date de fin:</label>
-                    <input type="date" name="date_to" value="{{ request.GET.date_to }}" class="form-control">
+                    <div class="mb-3">
+                        <label for="date_to" class="form-label">Date de fin:</label>
+                        <input type="date" name="date_to" value="{{ request.GET.date_to }}" class="form-control">
+                    </div>
                 </div>
                 <div class="col-12 text-end">
                     <button type="submit" class="btn btn-primary">Filtrer</button>
