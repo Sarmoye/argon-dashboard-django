@@ -3,60 +3,77 @@
 {% load static %}
 
 {% block content %}
-  <h1>Liste des Événements d'Erreur</h1>
+<div class="container mt-4">
+    <h1 class="mb-4">Liste des Événements d'Erreur</h1>
 
-  <form method="get">
-    <label for="system">Système:</label>
-    <select name="system">
-      <option value="">Tous</option>
-      {% for system in systems %}
-        <option value="{{ system }}" {% if request.GET.system == system %}selected{% endif %}>{{ system }}</option>
-      {% endfor %}
-    </select>
+    <form method="get" class="mb-4 p-3 border rounded bg-light">
+        <div class="row g-3">
+            <div class="col-md-3">
+                <label for="system" class="form-label">Système:</label>
+                <select name="system" class="form-select">
+                    <option value="">Tous</option>
+                    {% for system in systems %}
+                        <option value="{{ system }}" {% if request.GET.system == system %}selected{% endif %}>{{ system }}</option>
+                    {% endfor %}
+                </select>
+            </div>
 
-    <label for="service">Service:</label>
-    <select name="service">
-      <option value="">Tous</option>
-      {% for service in services %}
-        <option value="{{ service }}" {% if request.GET.service == service %}selected{% endif %}>{{ service }}</option>
-      {% endfor %}
-    </select>
+            <div class="col-md-3">
+                <label for="service" class="form-label">Service:</label>
+                <select name="service" class="form-select">
+                    <option value="">Tous</option>
+                    {% for service in services %}
+                        <option value="{{ service }}" {% if request.GET.service == service %}selected{% endif %}>{{ service }}</option>
+                    {% endfor %}
+                </select>
+            </div>
 
-    <label for="date_from">Date de début:</label>
-    <input type="date" name="date_from" value="{{ request.GET.date_from }}">
+            <div class="col-md-3">
+                <label for="date_from" class="form-label">Date de début:</label>
+                <input type="date" name="date_from" value="{{ request.GET.date_from }}" class="form-control">
+            </div>
 
-    <label for="date_to">Date de fin:</label>
-    <input type="date" name="date_to" value="{{ request.GET.date_to }}">
+            <div class="col-md-3">
+                <label for="date_to" class="form-label">Date de fin:</label>
+                <input type="date" name="date_to" value="{{ request.GET.date_to }}" class="form-control">
+            </div>
+        </div>
+        <div class="mt-3 text-end">
+            <button type="submit" class="btn btn-primary">Filtrer</button>
+        </div>
+    </form>
 
-    <button type="submit">Filtrer</button>
-  </form>
-
-  <table>
-    <thead>
-      <tr>
-        <th>ID</th>
-        <th>Système</th>
-        <th>Service</th>
-        <th>Raison de l'erreur</th>
-        <th>Timestamp</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for event in events %}
-        <tr>
-          <td>{{ event.id }}</td>
-          <td>{{ event.system_name }}</td>
-          <td>{{ event.service_name }}</td>
-          <td>{{ event.error_reason }}</td>
-          <td>{{ event.timestamp }}</td>
-          <td><a href="{% url 'error_management_systems:event_detail' event.id %}">Détails</a></td>
-        </tr>
-      {% empty %}
-        <tr>
-          <td colspan="6">Aucun événement trouvé.</td>
-        </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover">
+            <thead class="table-dark">
+                <tr>
+                    <th>ID</th>
+                    <th>Système</th>
+                    <th>Service</th>
+                    <th>Raison de l'erreur</th>
+                    <th>Timestamp</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for event in events %}
+                    <tr>
+                        <td>{{ event.id }}</td>
+                        <td>{{ event.system_name }}</td>
+                        <td>{{ event.service_name }}</td>
+                        <td>{{ event.error_reason }}</td>
+                        <td>{{ event.timestamp }}</td>
+                        <td>
+                            <a href="{% url 'error_management_systems:event_detail' event.id %}" class="btn btn-sm btn-info">Détails</a>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center">Aucun événement trouvé.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
 {% endblock %}
