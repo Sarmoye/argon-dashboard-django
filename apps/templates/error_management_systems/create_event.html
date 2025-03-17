@@ -3,40 +3,64 @@
 {% load static %}
 
 {% block content %}
-  <h1>Créer un Nouvel Événement d'Erreur</h1>
-
-  <form method="post">
-    {% csrf_token %}
-    <label for="system_name">Système:</label>
-    <input type="text" name="system_name" required>
-
-    <label for="service_name">Service:</label>
-    <input type="text" name="service_name" required>
-
-    <label for="service_type">Type de Service:</label>
-    <input type="text" name="service_type" required>
-
-    <label for="error_reason">Raison de l'Erreur:</label>
-    <input type="text" name="error_reason" required>
-
-    <label for="code_erreur">Code d'Erreur (optionnel):</label>
-    <input type="text" name="code_erreur">
-
-    <label for="fichiers_impactes">Fichiers Impactés (optionnel):</label>
-    <input type="text" name="fichiers_impactes">
-
-    <label for="logs">Logs (optionnel):</label>
-    <textarea name="logs"></textarea>
-
-    <label for="error_count">Nombre d'Erreurs:</label>
-    <input type="number" name="error_count" value="1" required>
-
-    <label for="inserted_by">Inséré par:</label>
-    <input type="text" name="inserted_by" required>
-
-    <label for="notes">Notes (optionnel):</label>
-    <textarea name="notes"></textarea>
-
-    <button type="submit">Créer l'Événement</button>
-  </form>
+  <div class="container mt-5">
+    <div class="card shadow-sm p-4">
+      <h2 class="mb-4 text-primary">Créer un Nouvel Événement d'Erreur</h2>
+      <form method="post">
+        {% csrf_token %}
+        
+        <div class="mb-3">
+          <label for="system_name" class="form-label">Système:</label>
+          <input type="text" class="form-control" name="system_name" required>
+        </div>
+        
+        <div class="mb-3">
+          <label for="service_name" class="form-label">Service:</label>
+          <input type="text" class="form-control" name="service_name" required>
+        </div>
+        
+        <div class="mb-3">
+          <label for="service_type" class="form-label">Type de Service:</label>
+          <input type="text" class="form-control" name="service_type" required>
+        </div>
+        
+        <div class="mb-3">
+          <label for="error_reason" class="form-label">Raison de l'Erreur:</label>
+          <input type="text" class="form-control" name="error_reason" required>
+        </div>
+        
+        <div class="mb-3">
+          <label for="code_erreur" class="form-label">Code d'Erreur (optionnel):</label>
+          <input type="text" class="form-control" name="code_erreur">
+        </div>
+        
+        <div class="mb-3">
+          <label for="fichiers_impactes" class="form-label">Fichiers Impactés (optionnel):</label>
+          <input type="text" class="form-control" name="fichiers_impactes">
+        </div>
+        
+        <div class="mb-3">
+          <label for="logs" class="form-label">Logs (optionnel):</label>
+          <textarea class="form-control" name="logs" rows="3"></textarea>
+        </div>
+        
+        <div class="mb-3">
+          <label for="error_count" class="form-label">Nombre d'Erreurs:</label>
+          <input type="number" class="form-control" name="error_count" value="1" required>
+        </div>
+        
+        <div class="mb-3">
+          <label for="inserted_by" class="form-label">Inséré par:</label>
+          <input type="text" class="form-control" name="inserted_by" required>
+        </div>
+        
+        <div class="mb-3">
+          <label for="notes" class="form-label">Notes (optionnel):</label>
+          <textarea class="form-control" name="notes" rows="3"></textarea>
+        </div>
+        
+        <button type="submit" class="btn btn-primary w-100">Créer l'Événement</button>
+      </form>
+    </div>
+  </div>
 {% endblock %}
