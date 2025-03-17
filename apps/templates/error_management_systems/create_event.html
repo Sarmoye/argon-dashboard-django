@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h1>Créer un Nouvel Événement d'Erreur</h1>
+
+  <form method="post">
+    {% csrf_token %}
+    <label for="system_name">Système:</label>
+    <input type="text" name="system_name" required>
+
+    <label for="service_name">Service:</label>
+    <input type="text" name="service_name" required>
+
+    <label for="service_type">Type de Service:</label>
+    <input type="text" name="service_type" required>
+
+    <label for="error_reason">Raison de l'Erreur:</label>
+    <input type="text" name="error_reason" required>
+
+    <label for="code_erreur">Code d'Erreur (optionnel):</label>
+    <input type="text" name="code_erreur">
+
+    <label for="fichiers_impactes">Fichiers Impactés (optionnel):</label>
+    <input type="text" name="fichiers_impactes">
+
+    <label for="logs">Logs (optionnel):</label>
+    <textarea name="logs"></textarea>
+
+    <label for="error_count">Nombre d'Erreurs:</label>
+    <input type="number" name="error_count" value="1" required>
+
+    <label for="inserted_by">Inséré par:</label>
+    <input type="text" name="inserted_by" required>
+
+    <label for="notes">Notes (optionnel):</label>
+    <textarea name="notes"></textarea>
+
+    <button type="submit">Créer l'Événement</button>
+  </form>
+{% endblock %}

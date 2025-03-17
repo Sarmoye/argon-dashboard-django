@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h1>Liste des Tickets</h1>
+
+  <form method="get">
+    <label for="status">Statut:</label>
+    <select name="status">
+      <option value="">Tous</option>
+      {% for value, display in status_choices %}
+        <option value="{{ value }}" {% if request.GET.status == value %}selected{% endif %}>{{ display }}</option>
+      {% endfor %}
+    </select>
+
+    <label for="priority">Priorité:</label>
+    <select name="priority">
+      <option value="">Toutes</option>
+      {% for value, display in priority_choices %}
+        <option value="{{ value }}" {% if request.GET.priority == value %}selected{% endif %}>{{ display }}</option>
+      {% endfor %}
+    </select>
+
+    <label for="system">Système:</label>
+    <select name="system">
+      <option value="">Tous</option>
+      {% for system in systems %}
+        <option value="{{ system }}" {% if request.GET.system == system %}selected{% endif %}>{{ system }}</option>
+      {% endfor %}
+    </select>
+
+    <button type="submit">Filtrer</button>
+  </form>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Référence</th>
+        <th>Système</th>
+        <th>Priorité</th>
+        <th>Statut</th>
+        <th>Date de création</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for ticket in tickets %}
+        <tr>
+          <td>{{ ticket.ticket_reference }}</td>
+          <td>{{ ticket.error_type.system_name }}</td>
+          <td>{{ ticket.get_priorite_display }}</td>
+          <td>{{ ticket.get_statut_display }}</td>
+          <td>{{ ticket.date_creation }}</td>
+          <td><a href="{% url 'error_management_systems:ticket_detail' ticket.id %}">Détails</a> | <a href="{% url 'error_management_systems:edit_ticket' ticket.id %}">Modifier</a></td>
+        </tr>
+      {% empty %}
+        <tr>
+          <td colspan="6">Aucun ticket trouvé.</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}

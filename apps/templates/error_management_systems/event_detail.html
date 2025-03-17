@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h1>Détails de l'Événement d'Erreur</h1>
+
+  <p><strong>ID:</strong> {{ event.id }}</p>
+  <p><strong>Système:</strong> {{ event.system_name }}</p>
+  <p><strong>Service:</strong> {{ event.service_name }}</p>
+  <p><strong>Raison de l'Erreur:</strong> {{ event.error_reason }}</p>
+  <p><strong>Timestamp:</strong> {{ event.timestamp }}</p>
+  <p><strong>Nombre d'Erreurs:</strong> {{ event.error_count }}</p>
+  <p><strong>Inséré par:</strong> {{ event.inserted_by }}</p>
+  <p><strong>Notes:</strong> {{ event.notes }}</p>
+
+  <h2>Événements Associés</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Timestamp</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for related_event in related_events %}
+        <tr>
+          <td>{{ related_event.id }}</td>
+          <td>{{ related_event.timestamp }}</td>
+          <td><a href="{% url 'error_management_systems:event_detail' related_event.id %}">Détails</a></td>
+        </tr>
+      {% empty %}
+        <tr>
+          <td colspan="3">Aucun événement associé trouvé.</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+    
+    {% if has_ticket %}
+        <h2>Ticket Associé</h2>
+        <a href="{% url 'error_management_systems:ticket_detail' ticket.id %}">Voir le ticket associé ({{ ticket.ticket_reference }})</a>
+    {% else %}
+        <p>Aucun ticket associé à ce type d'erreur.</p>
+    {% endif %}
+{% endblock %}

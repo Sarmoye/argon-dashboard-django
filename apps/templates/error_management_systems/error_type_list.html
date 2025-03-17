@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h1>Liste des Types d'Erreurs</h1>
+
+  <form method="get">
+    <label for="system">Système:</label>
+    <select name="system">
+      <option value="">Tous</option>
+      {% for system in systems %}
+        <option value="{{ system }}" {% if request.GET.system == system %}selected{% endif %}>{{ system }}</option>
+      {% endfor %}
+    </select>
+
+    <label for="service">Service:</label>
+    <select name="service">
+      <option value="">Tous</option>
+      {% for service in services %}
+        <option value="{{ service }}" {% if request.GET.service == service %}selected{% endif %}>{{ service }}</option>
+      {% endfor %}
+    </select>
+
+    <button type="submit">Filtrer</button>
+  </form>
+
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Système</th>
+        <th>Service</th>
+        <th>Raison de l'erreur</th>
+        <th>Nombre d'événements</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for error_type in error_types %}
+        <tr>
+          <td>{{ error_type.id }}</td>
+          <td>{{ error_type.system_name }}</td>
+          <td>{{ error_type.service_name }}</td>
+          <td>{{ error_type.error_reason }}</td>
+          <td>{{ error_type.event_count }}</td>
+          <td><a href="{% url 'error_management_systems:error_type_detail' error_type.id %}">Détails</a> | <a href="{% url 'error_management_systems:edit_error_type' error_type.id %}">Modifier</a></td>
+        </tr>
+      {% empty %}
+        <tr>
+          <td colspan="6">Aucun type d'erreur trouvé.</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}
