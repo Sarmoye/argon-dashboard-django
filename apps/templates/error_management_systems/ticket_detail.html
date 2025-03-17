@@ -3,64 +3,85 @@
 {% load static %}
 
 {% block content %}
-  <h1>Détails du Ticket</h1>
+<div class="container mt-4">
+  <div class="card shadow-sm">
+    <div class="card-header bg-primary text-white">
+      <h2 class="mb-0">Détails du Ticket</h2>
+    </div>
+    <div class="card-body">
+      <p><strong>Référence du Ticket:</strong> {{ ticket.ticket_reference }}</p>
+      <p><strong>Système:</strong> {{ error_type.system_name }}</p>
+      <p><strong>Priorité:</strong> {{ ticket.get_priorite_display }}</p>
+      <p><strong>Statut:</strong> {{ ticket.get_statut_display }}</p>
+      <p><strong>Niveau de Criticité:</strong> {{ ticket.niveau_criticite }}</p>
+      <p><strong>Symptômes:</strong> {{ ticket.symptomes }}</p>
+      <p><strong>Impact:</strong> {{ ticket.impact }}</p>
+      <p><strong>Services Affectés:</strong> {{ ticket.services_affectes }}</p>
+      <p><strong>Nombre d'Utilisateurs:</strong> {{ ticket.nombre_utilisateurs }}</p>
+      <p><strong>Charge Système:</strong> {{ ticket.charge_systeme }}</p>
+      <p><strong>Responsable:</strong> {{ ticket.responsable }}</p>
+      <p><strong>Équipe:</strong> {{ ticket.equipe }}</p>
+      <p><strong>Commentaires:</strong> {{ ticket.commentaires }}</p>
+      <p><strong>Durée du Ticket:</strong> {{ ticket_duration }}</p>
+    </div>
+  </div>
 
-  <p><strong>Référence du Ticket:</strong> {{ ticket.ticket_reference }}</p>
-  <p><strong>Système:</strong> {{ error_type.system_name }}</p>
-  <p><strong>Priorité:</strong> {{ ticket.get_priorite_display }}</p>
-  <p><strong>Statut:</strong> {{ ticket.get_statut_display }}</p>
-  <p><strong>Niveau de Criticité:</strong> {{ ticket.niveau_criticite }}</p>
-  <p><strong>Symptômes:</strong> {{ ticket.symptomes }}</p>
-  <p><strong>Impact:</strong> {{ ticket.impact }}</p>
-  <p><strong>Services Affectés:</strong> {{ ticket.services_affectes }}</p>
-  <p><strong>Nombre d'Utilisateurs:</strong> {{ ticket.nombre_utilisateurs }}</p>
-  <p><strong>Charge Système:</strong> {{ ticket.charge_systeme }}</p>
-  <p><strong>Responsable:</strong> {{ ticket.responsable }}</p>
-  <p><strong>Équipe:</strong> {{ ticket.equipe }}</p>
-  <p><strong>Commentaires:</strong> {{ ticket.commentaires }}</p>
-  <p><strong>Durée du Ticket:</strong> {{ ticket_duration }}</p>
+  <div class="card mt-4 shadow-sm">
+    <div class="card-header bg-secondary text-white">
+      <h3 class="mb-0">Historique du Ticket</h3>
+    </div>
+    <div class="card-body">
+      {% if ticket.historique %}
+        <p><strong>Création:</strong> {{ ticket.historique.creation.timestamp }}</p>
+        <ul>
+          {% for change in ticket.historique.changes %}
+            <li>
+              {{ change.timestamp }}:
+              {% if change.status_change %}
+                Statut changé de <strong>{{ change.status_change.from }}</strong> à <strong>{{ change.status_change.to }}</strong>.
+              {% endif %}
+              {% if change.priority_change %}
+                Priorité changée de <strong>{{ change.priority_change.from }}</strong> à <strong>{{ change.priority_change.to }}</strong>.
+              {% endif %}
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p>Aucun historique disponible.</p>
+      {% endif %}
+    </div>
+  </div>
 
-  <h2>Historique du Ticket</h2>
-  {% if ticket.historique %}
-    <p><strong>Création:</strong> {{ ticket.historique.creation.timestamp }}</p>
-    <ul>
-      {% for change in ticket.historique.changes %}
-        <li>
-          {{ change.timestamp }}:
-          {% if change.status_change %}
-            Statut changé de {{ change.status_change.from }} à {{ change.status_change.to }}.
-          {% endif %}
-          {% if change.priority_change %}
-            Priorité changée de {{ change.priority_change.from }} à {{ change.priority_change.to }}.
-          {% endif %}
-        </li>
-      {% endfor %}
-    </ul>
-  {% else %}
-    <p>Aucun historique disponible.</p>
-  {% endif %}
-
-  <h2>Événements Associés</h2>
-  <table>
-    <thead>
-      <tr>
-        <th>ID</th>
-        <th>Timestamp</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for event in events %}
-        <tr>
-          <td>{{ event.id }}</td>
-          <td>{{ event.timestamp }}</td>
-          <td><a href="{% url 'error_management_systems:event_detail' event.id %}">Détails</a></td>
-        </tr>
-      {% empty %}
-        <tr>
-          <td colspan="3">Aucun événement associé trouvé.</td>
-        </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+  <div class="card mt-4 shadow-sm">
+    <div class="card-header bg-dark text-white">
+      <h3 class="mb-0">Événements Associés</h3>
+    </div>
+    <div class="card-body">
+      <table class="table table-striped table-dark">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Timestamp</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for event in events %}
+            <tr>
+              <td>{{ event.id }}</td>
+              <td>{{ event.timestamp }}</td>
+              <td>
+                <a href="{% url 'error_management_systems:event_detail' event.id %}" class="btn btn-info btn-sm">Détails</a>
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="3" class="text-center">Aucun événement associé trouvé.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
 {% endblock %}
