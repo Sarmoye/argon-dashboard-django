@@ -82,34 +82,13 @@ def event_detail(request, event_id):
 def create_event(request):
     """Création d'un nouvel événement d'erreur"""
     if request.method == 'POST':
-        # Vérifier si un ErrorType existe déjà ou en créer un nouveau
         system_name = request.POST.get('system_name')
         service_name = request.POST.get('service_name')
         service_type = request.POST.get('service_type')
         error_reason = request.POST.get('error_reason')
         
-        try:
-            # Rechercher un type d'erreur existant
-            error_type = ErrorType.objects.get(
-                system_name=system_name,
-                service_name=service_name,
-                error_reason=error_reason
-            )
-        except ErrorType.DoesNotExist:
-            # Créer un nouveau type d'erreur
-            error_type = ErrorType.objects.create(
-                system_name=system_name,
-                service_name=service_name,
-                service_type=service_type,
-                error_reason=error_reason,
-                code_erreur=request.POST.get('code_erreur', ''),
-                fichiers_impactes=request.POST.get('fichiers_impactes', ''),
-                logs=request.POST.get('logs', '')
-            )
-        
         # Créer l'événement d'erreur
         event = ErrorEvent(
-            error_type=error_type,
             system_name=system_name,
             service_type=service_type,
             service_name=service_name,
@@ -120,8 +99,33 @@ def create_event(request):
         )
         event.save()
         
-        messages.success(request, f"Événement d'erreur créé avec succès: {event.id}")
-        return redirect('error_management_systems:event_detail', event_id=event.id)
+        # Vérifier si le ErrorType existe
+        try:
+            error_type = ErrorType.objects.get(
+                system_name=system_name,
+                service_name=service_name,
+                error_reason=error_reason
+            )
+            
+            # ErrorType existe, demander si modifier les détails ou le ticket
+            return render(request, 'error_management_systems/event_exist_options.html', {
+                'error_type': error_type,
+                'event': event
+            })
+        except ErrorType.DoesNotExist:
+            # ErrorType n'existe pas, créer automatiquement un ErrorType et un ticket
+            error_type = ErrorType.objects.create(
+                system_name=system_name,
+                service_name=service_name,
+                service_type=service_type,
+                error_reason=error_reason,
+                code_erreur=request.POST.get('code_erreur', ''),
+                fichiers_impactes=request.POST.get('fichiers_impactes', ''),
+                logs=request.POST.get('logs', '')
+            )
+            ErrorTicket.objects.create(error_type=error_type)
+            messages.success(request, f"Événement d'erreur créé avec succès, nouveau type d'erreur et ticket créés: {event.id}")
+            return redirect('error_management_systems:event_detail', event_id=event.id)
     
     # Pour le formulaire GET initial
     error_types = ErrorType.objects.all().order_by('system_name', 'service_name')
@@ -136,6 +140,52 @@ def create_event(request):
     }
     
     return render(request, 'error_management_systems/create_event.html', context)
+
+def modify_error_type_details(request, event_id, error_type_id):
+    """Modifier les détails du type d'erreur après la création de l'événement"""
+    error_type = get_object_or_404(ErrorType, id=error_type_id)
+    event = get_object_or_404(ErrorEvent, id=event_id)
+    
+    if request.method == 'POST':
+        form = ErrorTypeForm(request.POST, instance=error_type)
+        if form.is_valid():
+            form.save()
+            messages.success(request, f"Type d'erreur mis à jour: {error_type.id}")
+            return redirect('error_management_systems:event_detail', event_id=event.id)
+    else:
+        form = ErrorTypeForm(instance=error_type)
+    
+    context = {
+        'form': form,
+        'error_type': error_type,
+        'event': event
+    }
+    
+    return render(request, 'error_management_systems/edit_error_type.html', context)
+
+def modify_error_ticket_details(request, event_id, error_type_id):
+    """Modifier les détails du ticket après la création de l'événement"""
+    error_type = get_object_or_404(ErrorType, id=error_type_id)
+    event = get_object_or_404(ErrorEvent, id=event_id)
+    ticket = get_object_or_404(ErrorTicket, error_type=error_type)
+    
+    if request.method == 'POST':
+        form = ErrorTicketForm(request.POST, instance=ticket)
+        if form.is_valid():
+            form.save()
+            messages.success(request, f"Ticket mis à jour: {ticket.ticket_reference}")
+            return redirect('error_management_systems:event_detail', event_id=event.id)
+    else:
+        form = ErrorTicketForm(instance=ticket)
+    
+    context = {
+        'form': form,
+        'ticket': ticket,
+        'error_type': error_type,
+        'event': event
+    }
+    
+    return render(request, 'error_management_systems/edit_ticket.html', context)
 
 # ---- ErrorType Views ----
 
