@@ -26,6 +26,59 @@ def home(request):
 
 # ---- ErrorEvent Views ----
 
+def event_list(request):
+    """Liste des événements d'erreur avec filtres"""
+    events = ErrorEvent.objects.all().order_by('-timestamp')
+    
+    # Filtres
+    system_filter = request.GET.get('system')
+    service_filter = request.GET.get('service')
+    date_from = request.GET.get('date_from')
+    date_to = request.GET.get('date_to')
+    
+    if system_filter:
+        events = events.filter(system_name__icontains=system_filter)
+    if service_filter:
+        events = events.filter(service_name__icontains=service_filter)
+    if date_from:
+        events = events.filter(timestamp__gte=date_from)
+    if date_to:
+        events = events.filter(timestamp__lte=date_to)
+    
+    # Liste des systèmes et services pour les filtres
+    systems = ErrorEvent.objects.values_list('system_name', flat=True).distinct()
+    services = ErrorEvent.objects.values_list('service_name', flat=True).distinct()
+    
+    context = {
+        'events': events,
+        'systems': systems,
+        'services': services,
+    }
+    
+    return render(request, 'error_management_systems/event_list.html', context)
+
+def event_detail(request, event_id):
+    """Détail d'un événement d'erreur"""
+    event = get_object_or_404(ErrorEvent, id=event_id)
+    related_events = ErrorEvent.objects.filter(error_type=event.error_type).exclude(id=event_id).order_by('-timestamp')[:5]
+    
+    # Vérifier si un ticket existe pour ce type d'erreur
+    try:
+        ticket = event.error_type.ticket
+        has_ticket = True
+    except ErrorTicket.DoesNotExist:
+        ticket = None
+        has_ticket = False
+    
+    context = {
+        'event': event,
+        'related_events': related_events,
+        'ticket': ticket,
+        'has_ticket': has_ticket
+    }
+    
+    return render(request, 'error_management_systems/event_detail.html', context)
+
 def create_event(request):
     """Création d'un nouvel événement d'erreur"""
     if request.method == 'POST':
@@ -82,7 +135,6 @@ def create_event(request):
     }
 
     return render(request, 'error_management_systems/create_event.html', context)
-
 
 def modify_error_type_details(request, event_id, error_type_id):
     """Modifier les détails du type d'erreur après la création de l'événement"""
