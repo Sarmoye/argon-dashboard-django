@@ -39,7 +39,7 @@ class ErrorType(models.Model):
         constraints = [
             models.UniqueConstraint(
                 fields=['system_name', 'service_name', 'error_reason'], 
-                name='unique_system_error_reason1'
+                name='1unique_system_error_reason'
             )
         ]
     
