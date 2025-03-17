@@ -26,59 +26,6 @@ def home(request):
 
 # ---- ErrorEvent Views ----
 
-def event_list(request):
-    """Liste des événements d'erreur avec filtres"""
-    events = ErrorEvent.objects.all().order_by('-timestamp')
-    
-    # Filtres
-    system_filter = request.GET.get('system')
-    service_filter = request.GET.get('service')
-    date_from = request.GET.get('date_from')
-    date_to = request.GET.get('date_to')
-    
-    if system_filter:
-        events = events.filter(system_name__icontains=system_filter)
-    if service_filter:
-        events = events.filter(service_name__icontains=service_filter)
-    if date_from:
-        events = events.filter(timestamp__gte=date_from)
-    if date_to:
-        events = events.filter(timestamp__lte=date_to)
-    
-    # Liste des systèmes et services pour les filtres
-    systems = ErrorEvent.objects.values_list('system_name', flat=True).distinct()
-    services = ErrorEvent.objects.values_list('service_name', flat=True).distinct()
-    
-    context = {
-        'events': events,
-        'systems': systems,
-        'services': services,
-    }
-    
-    return render(request, 'error_management_systems/event_list.html', context)
-
-def event_detail(request, event_id):
-    """Détail d'un événement d'erreur"""
-    event = get_object_or_404(ErrorEvent, id=event_id)
-    related_events = ErrorEvent.objects.filter(error_type=event.error_type).exclude(id=event_id).order_by('-timestamp')[:5]
-    
-    # Vérifier si un ticket existe pour ce type d'erreur
-    try:
-        ticket = event.error_type.ticket
-        has_ticket = True
-    except ErrorTicket.DoesNotExist:
-        ticket = None
-        has_ticket = False
-    
-    context = {
-        'event': event,
-        'related_events': related_events,
-        'ticket': ticket,
-        'has_ticket': has_ticket
-    }
-    
-    return render(request, 'error_management_systems/event_detail.html', context)
-
 def create_event(request):
     """Création d'un nouvel événement d'erreur"""
     if request.method == 'POST':
@@ -86,60 +33,56 @@ def create_event(request):
         service_name = request.POST.get('service_name')
         service_type = request.POST.get('service_type')
         error_reason = request.POST.get('error_reason')
-        
-        # Créer l'événement d'erreur
+
+        # Vérifier si le ErrorType existe
+        error_type, created = ErrorType.objects.get_or_create(
+            system_name=system_name,
+            service_name=service_name,
+            error_reason=error_reason,
+            defaults={
+                'service_type': service_type,
+                'code_erreur': request.POST.get('code_erreur', ''),
+                'fichiers_impactes': request.POST.get('fichiers_impactes', ''),
+                'logs': request.POST.get('logs', '')
+            }
+        )
+
+        # Créer l'événement d'erreur en associant l'error_type
         event = ErrorEvent(
             system_name=system_name,
             service_type=service_type,
             service_name=service_name,
             error_reason=error_reason,
+            error_type=error_type,  # Ajout de l'association
             error_count=request.POST.get('error_count', 1),
             inserted_by=request.POST.get('inserted_by'),
             notes=request.POST.get('notes', '')
         )
         event.save()
-        
-        # Vérifier si le ErrorType existe
-        try:
-            error_type = ErrorType.objects.get(
-                system_name=system_name,
-                service_name=service_name,
-                error_reason=error_reason
-            )
-            
-            # ErrorType existe, demander si modifier les détails ou le ticket
-            return render(request, 'error_management_systems/event_exist_options.html', {
-                'error_type': error_type,
-                'event': event
-            })
-        except ErrorType.DoesNotExist:
-            # ErrorType n'existe pas, créer automatiquement un ErrorType et un ticket
-            error_type = ErrorType.objects.create(
-                system_name=system_name,
-                service_name=service_name,
-                service_type=service_type,
-                error_reason=error_reason,
-                code_erreur=request.POST.get('code_erreur', ''),
-                fichiers_impactes=request.POST.get('fichiers_impactes', ''),
-                logs=request.POST.get('logs', '')
-            )
+
+        # Si un nouvel ErrorType a été créé, créer aussi un ticket
+        if created:
             ErrorTicket.objects.create(error_type=error_type)
             messages.success(request, f"Événement d'erreur créé avec succès, nouveau type d'erreur et ticket créés: {event.id}")
-            return redirect('error_management_systems:event_detail', event_id=event.id)
-    
+        else:
+            messages.success(request, f"Événement d'erreur créé avec succès: {event.id}")
+
+        return redirect('error_management_systems:event_detail', event_id=event.id)
+
     # Pour le formulaire GET initial
     error_types = ErrorType.objects.all().order_by('system_name', 'service_name')
     systems = ErrorType.objects.values_list('system_name', flat=True).distinct()
     services = ErrorType.objects.values_list('service_name', flat=True).distinct()
-    
+
     context = {
         'error_types': error_types,
         'systems': systems,
         'services': services,
         'form': ErrorEventForm()
     }
-    
+
     return render(request, 'error_management_systems/create_event.html', context)
+
 
 def modify_error_type_details(request, event_id, error_type_id):
     """Modifier les détails du type d'erreur après la création de l'événement"""
