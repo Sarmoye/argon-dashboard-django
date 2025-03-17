@@ -18,23 +18,27 @@
                 <div class="col-md-3">
                     <div class="mb-3">
                         <label for="system" class="form-label">Système:</label>
-                        <select name="system" class="form-select">
-                            <option value="">Tous</option>
-                            {% for system in systems %}
-                                <option value="{{ system }}" {% if request.GET.system == system %}selected{% endif %}>{{ system }}</option>
-                            {% endfor %}
-                        </select>
+                        <div class="input-group">
+                            <select name="system" class="form-select">
+                                <option value="">Tous</option>
+                                {% for system in systems %}
+                                    <option value="{{ system }}" {% if request.GET.system == system %}selected{% endif %}>{{ system }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
                     </div>
                 </div>
                 <div class="col-md-3">
                     <div class="mb-3">
                         <label for="service" class="form-label">Service:</label>
-                        <select name="service" class="form-select">
-                            <option value="">Tous</option>
-                            {% for service in services %}
-                                <option value="{{ service }}" {% if request.GET.service == service %}selected{% endif %}>{{ service }}</option>
-                            {% endfor %}
-                        </select>
+                        <div class="input-group">
+                            <select name="service" class="form-select">
+                                <option value="">Tous</option>
+                                {% for service in services %}
+                                    <option value="{{ service }}" {% if request.GET.service == service %}selected{% endif %}>{{ service }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
                     </div>
                 </div>
                 <div class="col-md-3">
