@@ -1,10 +1,10 @@
-<nav class="sidenav navbar navbar-vertical  fixed-left  navbar-expand-xs navbar-light bg-white" id="sidenav-main">
+<nav class="sidenav navbar navbar-vertical fixed-left navbar-expand-xs navbar-light bg-white" id="sidenav-main">
   <div class="scrollbar-inner">
     <!-- Brand -->
-    <div class="sidenav-header  align-items-center">
-      <a class="navbar-brand" href="/">
-        <img src="/static/assets/img/brand/blue1.png" class="navbar-brand-img" alt="Argon Design - Jinja Template Logo.">
-        EMS
+    <div class="sidenav-header d-flex align-items-center justify-content-center py-4">
+      <a class="navbar-brand d-flex align-items-center" href="/">
+        <img src="/static/assets/img/brand/blue1.png" class="navbar-brand-img mr-2" alt="Logo">
+        <span class="font-weight-bold text-primary">EMS</span>
       </a>
     </div>
     <div class="navbar-inner">
@@ -18,127 +18,78 @@
               <span class="nav-link-text">Dashboard</span>
             </a>
           </li>
-          <!-- <li class="nav-item">
-            <a class="nav-link {% if 'icons' in segment %} active {% endif %}" href="/icons.html">
-              <i class="ni ni-planet text-orange"></i>
-              <span class="nav-link-text">Icons</span>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link {% if 'map' in segment %} active {% endif %}" href="/map.html">
-              <i class="ni ni-pin-3 text-primary"></i>
-              <span class="nav-link-text">Google</span>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link {% if 'profile' in segment %} active {% endif %}" href="/profile.html">
-              <i class="ni ni-single-02 text-yellow"></i>
-              <span class="nav-link-text">Profile</span>
-            </a>
-          </li> -->
-          <!-- <li class="nav-item">
-            <a class="nav-link {% if 'tables' in segment %} active {% endif %}" href="/tables.html">
-              <i class="ni ni-bullet-list-67 text-default"></i>
-              <span class="nav-link-text">Tables</span>
-            </a>
-          </li> -->
 
           {% if user.is_authenticated %}
             {% if user.role == 'admin' or user.role == 'superadmin' %}
               <li class="nav-item">
-                  <a class="nav-link {% if 'sources_home' in segment %} active {% endif %}" href="{% url 'sources_data_app:index' %}">
-                      <i class="fa fa-database text-default"></i>
-                      <span class="nav-link-text">Sources</span>
-                  </a>
+                <a class="nav-link {% if 'sources_home' in segment %} active {% endif %}" href="{% url 'sources_data_app:index' %}">
+                  <i class="fa fa-database text-info"></i>
+                  <span class="nav-link-text">Sources</span>
+                </a>
               </li>
             {% endif %}
           {% endif %}
+          
           {% if user.is_authenticated %}
-              {% if user.role == 'admin' or user.role == 'superadmin' or user.role == 'analyst' %}
-                <li class="nav-item">
-                  <a class="nav-link {% if 'sources_home' in segment %} active {% endif %}" href="{% url 'analysis:index' %}">
-                      <i class="ni ni-bullet-list-67 text-default"></i>
-                      <span class="nav-link-text">Analysis</span>
-                  </a>
-                </li>
-              {% endif %}
+            {% if user.role == 'admin' or user.role == 'superadmin' or user.role == 'analyst' %}
+              <li class="nav-item">
+                <a class="nav-link {% if 'sources_home' in segment %} active {% endif %}" href="{% url 'analysis:index' %}">
+                  <i class="ni ni-bullet-list-67 text-success"></i>
+                  <span class="nav-link-text">Analysis</span>
+                </a>
+              </li>
+            {% endif %}
           {% endif %}
 
           {% if user.is_authenticated %}
-              {% if user.role == 'admin' or user.role == 'superadmin' or user.role == 'analyst' or user.role == 'viewer' %}
-                <li class="nav-item">
-                  <a class="nav-link {% if 'sources_home' in segment %} active {% endif %}" href="{% url 'visualization:index' %}">
-                      <i class="ni ni-chart-bar-32 text-default"></i>
-                      <span class="nav-link-text">Visualization</span>
-                  </a>
-                </li>
-              {% endif %}
+            {% if user.role == 'admin' or user.role == 'superadmin' or user.role == 'analyst' or user.role == 'viewer' %}
+              <li class="nav-item">
+                <a class="nav-link {% if 'sources_home' in segment %} active {% endif %}" href="{% url 'visualization:index' %}">
+                  <i class="ni ni-chart-bar-32 text-warning"></i>
+                  <span class="nav-link-text">Visualization</span>
+                </a>
+              </li>
+            {% endif %}
           {% endif %}
 
           {% if user.is_authenticated %}
-              {% if user.role == 'admin' or user.role == 'superadmin' or user.role == 'analyst' or user.role == 'viewer' %}
-                <li class="nav-item">
-                  <a class="nav-link {% if 'sources_home' in segment %} active {% endif %}" href="{% url 'irm_dashboard:home' %}">
-                      <i class="ni ni-chart-bar-32 text-default"></i>
-                      <span class="nav-link-text">IRM Dashboard</span>
-                  </a>
-                </li>
-              {% endif %}
+            {% if user.role == 'admin' or user.role == 'superadmin' or user.role == 'analyst' or user.role == 'viewer' %}
+              <li class="nav-item">
+                <a class="nav-link {% if 'sources_home' in segment %} active {% endif %}" href="{% url 'irm_dashboard:home' %}">
+                  <i class="ni ni-chart-pie-35 text-danger"></i>
+                  <span class="nav-link-text">IRM Dashboard</span>
+                </a>
+              </li>
+            {% endif %}
           {% endif %}
-          <!-- <li class="nav-item">
-            <a class="nav-link" href="/login.html">
-              <i class="ni ni-key-25 text-info"></i>
-              <span class="nav-link-text">Login (template)</span>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="/register.html">
-              <i class="ni ni-circle-08 text-pink"></i>
-              <span class="nav-link-text">Register (template)</span>
-            </a>
-          </li> -->
 
-          <li class="nav-item">
-            <a class="nav-link" href="{% url 'logout' %}">
+          <li class="nav-item mt-3">
+            <a class="nav-link d-flex align-items-center" href="{% url 'logout' %}">
               <i class="ni ni-user-run text-red"></i>
               <span class="nav-link-text">Logout</span>
             </a>
           </li>            
         </ul>
+        
         <!-- Divider -->
         <hr class="my-3">
-        <!-- Heading -->
-        <!-- <h6 class="navbar-heading p-0 text-muted">
-          <span class="docs-normal">Resources</span>
-        </h6> -->
+        
         <!-- Navigation -->
         <ul class="navbar-nav mb-md-3">
-
-          <!-- <li class="nav-item">
-            <a class="nav-link" 
-               target="_blank" 
-               href="https://appseed.us/admin-dashboards/django-dashboard-argon">
-              <i class="ni ni-archive-2"></i>
-              <span class="nav-link-text">Product Page</span>
-            </a>
-          </li>
-
           <li class="nav-item">
-            <a class="nav-link" 
-               target="_blank" 
-               href="https://appseed.us/admin-dashboards/django-dashboard-argon-pro">
-              <i class="ni ni-spaceship text-red"></i>
-              <span class="nav-link-text text-red">PRO Version</span>
-            </a>
-          </li> -->
-
-          <li class="nav-item">
-            <a class="nav-link active active-pro" 
-               target="_blank" 
-               href="#">
-              <i class="ni ni-send text-dark"></i>
-              <span class="nav-link-text">IT Systems Error Analysis</span>
-            </a>
+            <div class="card bg-gradient-primary shadow-sm mb-2 mx-3">
+              <div class="card-body py-3">
+                <div class="d-flex align-items-center">
+                  <div class="icon icon-shape bg-white text-primary rounded-circle shadow">
+                    <i class="ni ni-settings"></i>
+                  </div>
+                  <div class="ml-3">
+                    <h5 class="text-white mb-0">IT Systems</h5>
+                    <p class="text-white mb-0 text-xs">Error Analysis</p>
+                  </div>
+                </div>
+              </div>
+            </div>
           </li>
         </ul>
       </div>
