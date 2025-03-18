@@ -331,18 +331,24 @@
       form.addEventListener('submit', function(event) {
         event.preventDefault();
         
+        // Check if form is valid
         if (!form.checkValidity()) {
           event.stopPropagation();
           form.classList.add('was-validated');
           return;
         }
+
+        // Ask for confirmation before submitting
+        const userConfirmed = window.confirm("Voulez vous enregistrer ?");
         
-        // Simulate form submission (replace with actual submission)
-        const successToast = new bootstrap.Toast(document.getElementById('successToast'));
-        successToast.show();
-        
-        // In a real application, you would submit the form here
-        form.submit();
+        if (userConfirmed) {
+          // Simulate form submission (replace with actual submission)
+          const successToast = new bootstrap.Toast(document.getElementById('successToast'));
+          successToast.show();
+          
+          // In a real application, you would submit the form here
+          form.submit();
+        }
       });
     });
     
@@ -352,5 +358,5 @@
       now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
       document.getElementById('date_heure').value = now.toISOString().slice(0,16);
     }
-  </script>
+</script>
   {% endblock javascripts %}
