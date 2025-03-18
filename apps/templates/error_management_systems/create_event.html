@@ -1,11 +1,12 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+{% extends 'layouts/base.html' %}
+
+{% load static %}
+
+{% block content %}
   <title>Créer un Nouvel Événement d'Erreur</title>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  {% block extrastyle %}
   <style>
     :root {
       --primary-color: #4361ee;
@@ -153,6 +154,7 @@
       animation: fadeIn 0.4s ease forwards;
     }
   </style>
+  {% endblock extrastyle %}
 </head>
 <body>
   <!-- Toast for success message -->
@@ -314,7 +316,8 @@
       </div>
     </div>
   </div>
-
+  {% endblock %}
+  {% block javascripts %}
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
   <script>
     // Set default datetime to now
@@ -350,5 +353,4 @@
       document.getElementById('date_heure').value = now.toISOString().slice(0,16);
     }
   </script>
-</body>
-</html>
+  {% endblock javascripts %}
