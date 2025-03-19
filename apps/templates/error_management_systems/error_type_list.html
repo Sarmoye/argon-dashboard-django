@@ -31,37 +31,38 @@
             <button type="submit" class="btn btn-primary">Filter</button>
         </div>
     </form>
-
-    <table class="table table-striped table-hover">
-        <thead class="table-dark">
-            <tr>
-                <th>ID</th>
-                <th>System</th>
-                <th>Service</th>
-                <th>Error Reason</th>
-                <th>Event Count</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for error_type in error_types %}
-            <tr>
-                <td>{{ error_type.id }}</td>
-                <td>{{ error_type.system_name }}</td>
-                <td>{{ error_type.service_name }}</td>
-                <td>{{ error_type.error_reason }}</td>
-                <td>{{ error_type.event_count }}</td>
-                <td>
-                    <a href="{% url 'error_management_systems:error_type_detail' error_type.id %}" class="btn btn-info btn-sm">Details</a>
-                    <a href="{% url 'error_management_systems:edit_error_type' error_type.id %}" class="btn btn-warning btn-sm">Edit</a>
-                </td>
-            </tr>
-            {% empty %}
-            <tr>
-                <td colspan="6" class="text-center">No error types found.</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <div class="table-responsive">
+      <table class="table table-striped table-hover">
+          <thead class="table-dark">
+              <tr>
+                  <th>ID</th>
+                  <th>System</th>
+                  <th>Service</th>
+                  <th>Error Reason</th>
+                  <th>Event Count</th>
+                  <th>Actions</th>
+              </tr>
+          </thead>
+          <tbody>
+              {% for error_type in error_types %}
+              <tr>
+                  <td>{{ error_type.id }}</td>
+                  <td>{{ error_type.system_name }}</td>
+                  <td>{{ error_type.service_name }}</td>
+                  <td>{{ error_type.error_reason }}</td>
+                  <td>{{ error_type.event_count }}</td>
+                  <td>
+                      <a href="{% url 'error_management_systems:error_type_detail' error_type.id %}" class="btn btn-info btn-sm">Details</a>
+                      <a href="{% url 'error_management_systems:edit_error_type' error_type.id %}" class="btn btn-warning btn-sm">Edit</a>
+                  </td>
+              </tr>
+              {% empty %}
+              <tr>
+                  <td colspan="6" class="text-center">No error types found.</td>
+              </tr>
+              {% endfor %}
+          </tbody>
+      </table>
+    </div>
 </div>
 {% endblock %}
