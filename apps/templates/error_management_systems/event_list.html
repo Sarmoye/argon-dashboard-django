@@ -65,6 +65,7 @@
                     <th>System</th>
                     <th>Service</th>
                     <th>Error Reason</th>
+                    <th>Error Count</th>
                     <th>Timestamp</th>
                     <th>Actions</th>
                 </tr>
@@ -76,6 +77,7 @@
                         <td>{{ event.system_name }}</td>
                         <td>{{ event.service_name }}</td>
                         <td>{{ event.error_reason|truncatechars:100 }}</td>
+                        <td>{{ event.error_count }}</td>
                         <td>{{ event.timestamp }}</td>
                         <td>
                             <a href="{% url 'error_management_systems:event_detail' event.id %}" class="btn btn-sm btn-info">Details</a>
