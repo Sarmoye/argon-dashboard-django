@@ -47,8 +47,9 @@ class ErrorType(models.Model):
         if not self.id:
             # Create an id by combining a slugified version of the system name with a short hash of the error
             system_slug = slugify(self.system_name)
+            service_slug = slugify(self.service_name)
             error_hash = hashlib.md5(self.error_reason.encode('utf-8')).hexdigest()[:6].upper()
-            self.id = f"{system_slug}_{error_hash}"
+            self.id = f"{system_slug}_{service_slug}_{error_hash}"
         super().save(*args, **kwargs)
     
     def __str__(self):
@@ -171,8 +172,8 @@ class ErrorTicket(models.Model):
         if not self.ticket_reference:
             system_slug = slugify(self.error_type.system_name)
             service_slug = slugify(self.error_type.service_name)
-            reason_slug = slugify(self.error_type.error_reason)[:20]
-            self.ticket_reference = f"{system_slug}_{service_slug}_{reason_slug}"
+            error_hash = hashlib.md5(self.error_reason.encode('utf-8')).hexdigest()[:6].upper()
+            self.ticket_reference = f"{system_slug}_{service_slug}_{error_hash}"
         
         # Manage the resolution date
         if self.statut == 'RESOLVED' and not self.date_resolution:
