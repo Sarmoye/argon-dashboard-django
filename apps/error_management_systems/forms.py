@@ -6,7 +6,7 @@ class ErrorTypeForm(forms.ModelForm):
     class Meta:
         model = ErrorType
         fields = ['system_name', 'service_type', 'service_name', 'error_reason', 
-                  'code_erreur', 'comportement_attendu', 'correction_automatique']
+                  'code_erreur', 'comportement_attendu']
         widgets = {
             'system_name': forms.TextInput(attrs={'class': 'form-control'}),
             'service_type': forms.TextInput(attrs={'class': 'form-control'}),
@@ -14,7 +14,6 @@ class ErrorTypeForm(forms.ModelForm):
             'error_reason': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
             'code_erreur': forms.TextInput(attrs={'class': 'form-control'}),
             'comportement_attendu': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
-            'correction_automatique': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
 
 class ErrorEventForm(forms.ModelForm):
