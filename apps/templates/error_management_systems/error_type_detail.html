@@ -19,6 +19,11 @@
         <p><strong>Workaround Procedures:</strong> {{ error_type.procedures_contournement }}</p>
         <p><strong>Environment:</strong> {{ error_type.environnement }}</p>
         <p><strong>Severity Level:</strong> {{ error_type.niveau_severite }}</p>
+
+        <!-- Modify Button -->
+        <a href="{% url 'error_management_systems:edit_error_type' error_type.id %}" class="btn btn-warning mt-3">
+          Modify
+      </a>
     </div>
 
     <h2 class="mb-3">Associated Events</h2>

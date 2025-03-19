@@ -23,6 +23,11 @@
             <p><strong>Team:</strong> {{ ticket.equipe }}</p>
             <p><strong>Comments:</strong> {{ ticket.commentaires }}</p>
             <p><strong>Ticket Duration:</strong> {{ ticket_duration }}</p>
+
+            <!-- Modify Button -->
+        <a href="{% url 'error_management_systems:edit_ticket' ticket.id %}" class="btn btn-warning mt-3">
+          Modify
+      </a>
         </div>
     </div>
 
