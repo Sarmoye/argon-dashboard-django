@@ -113,6 +113,9 @@
         </table>
     </div>
 </div>
+{% endblock %}
+
+{% block javascripts %}
 <script>
     $(document).ready(function() {
         $('#errorsTable').DataTable({
@@ -130,4 +133,4 @@
         });
     });
 </script>
-{% endblock %}
+{% endblock javascripts %}
