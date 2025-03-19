@@ -92,7 +92,7 @@ class ErrorEvent(models.Model):
         if not self.id:
             system_slug = slugify(self.system_name)
             service_slug = slugify(self.service_name)
-            date_str = self.date_creation.strftime('%Y%m%d%H%M%S') if self.date_creation else timezone.now().strftime('%Y%m%d%H%M%S')
+            date_str = self.timestamp.strftime('%Y%m%d%H%M%S') if self.timestamp else timezone.now().strftime('%Y%m%d%H%M%S')
             error_hash = hashlib.md5(self.error_reason.encode('utf-8')).hexdigest()[:6].upper()
             self.id = f"{system_slug}_{service_slug}_{error_hash}_{date_str}"
         super().save(*args, **kwargs)
