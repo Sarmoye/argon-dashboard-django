@@ -6,51 +6,46 @@
 <div class="container mt-5">
     <h1 class="mb-4 text-center">List of Error Events</h1>
 
-    <div class="container-fluid px-0">
-        
-        <div class="card shadow-sm mb-4 border-0">
-          <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center py-2">
-            <span class="fw-semibold">Filter Events</span>
-            <button class="btn btn-sm btn-outline-light" type="button" data-bs-toggle="collapse" data-bs-target="#filterCollapse" aria-expanded="true" aria-controls="filterCollapse">
-              <i class="bi bi-funnel"></i>
-            </button>
-          </div>
-          <div class="card-body collapse show p-3" id="filterCollapse">
-            <form method="get">
-              <div class="row g-3">
-                <div class="col-md-6 col-lg-3">
-                  <label for="system" class="form-label small mb-1">System</label>
-                  <select name="system" id="system" class="form-select">
-                    <option value="">All Systems</option>
-                    {% for system in systems %}
-                      <option value="{{ system }}" {% if request.GET.system == system %}selected{% endif %}>{{ system }}</option>
-                    {% endfor %}
-                  </select>
-                </div>
-                <div class="col-md-6 col-lg-3">
-                  <label for="service" class="form-label small mb-1">Service</label>
-                  <select name="service" id="service" class="form-select">
-                    <option value="">All Services</option>
-                    {% for service in services %}
-                      <option value="{{ service }}" {% if request.GET.service == service %}selected{% endif %}>{{ service }}</option>
-                    {% endfor %}
-                  </select>
-                </div>
-                <div class="col-md-6 col-lg-3">
-                  <label for="date_from" class="form-label small mb-1">From</label>
-                  <input type="date" name="date_from" id="date_from" value="{{ request.GET.date_from }}" class="form-control" placeholder="mm/dd/yyyy">
-                </div>
-                <div class="col-md-6 col-lg-3">
-                  <label for="date_to" class="form-label small mb-1">To</label>
-                  <input type="date" name="date_to" id="date_to" value="{{ request.GET.date_to }}" class="form-control" placeholder="mm/dd/yyyy">
-                </div>
-              </div>
-              <div class="d-flex justify-content-end gap-2 mt-3">
-                <a href="{% url 'error_management_systems:event_list' %}" class="btn btn-outline-secondary">Reset</a>
-                <button type="submit" class="btn btn-primary">Apply Filters</button>
-              </div>
-            </form>
-          </div>
+    <div class="card shadow-sm mb-4 border-0">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center py-2">
+          <span class="fw-semibold fs-5">Filter Events</span>
+          <button class="btn btn-sm btn-outline-light" type="button" data-bs-toggle="collapse" data-bs-target="#filterCollapse" aria-expanded="true" aria-controls="filterCollapse">
+            <i class="bi bi-funnel"></i>
+          </button>
+        </div>
+        <div class="card-body collapse show p-3" id="filterCollapse">
+          <form method="get" class="row g-3">
+            <div class="col-md-6 col-lg-3">
+              <label for="system" class="form-label small fw-medium d-block mb-2">System</label>
+              <select name="system" id="system" class="form-select">
+                <option value="">All Systems</option>
+                {% for system in systems %}
+                  <option value="{{ system }}" {% if request.GET.system == system %}selected{% endif %}>{{ system }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-md-6 col-lg-3">
+              <label for="service" class="form-label small fw-medium d-block mb-2">Service</label>
+              <select name="service" id="service" class="form-select">
+                <option value="">All Services</option>
+                {% for service in services %}
+                  <option value="{{ service }}" {% if request.GET.service == service %}selected{% endif %}>{{ service }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-md-6 col-lg-3">
+              <label for="date_from" class="form-label small fw-medium d-block mb-2">From</label>
+              <input type="date" name="date_from" id="date_from" value="{{ request.GET.date_from }}" class="form-control" placeholder="mm/dd/yyyy">
+            </div>
+            <div class="col-md-6 col-lg-3">
+              <label for="date_to" class="form-label small fw-medium d-block mb-2">To</label>
+              <input type="date" name="date_to" id="date_to" value="{{ request.GET.date_to }}" class="form-control" placeholder="mm/dd/yyyy">
+            </div>
+            <div class="col-12 d-flex justify-content-end gap-2 mt-3">
+              <a href="{% url 'error_management_systems:event_list' %}" class="btn btn-outline-secondary">Reset</a>
+              <button type="submit" class="btn btn-primary">Apply Filters</button>
+            </div>
+          </form>
         </div>
       </div>
 
