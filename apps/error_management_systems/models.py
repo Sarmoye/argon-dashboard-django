@@ -5,47 +5,47 @@ from django.utils.text import slugify
 import hashlib
 
 #######################
-# Modèle ErrorType
+# ErrorType Model
 #######################
 class ErrorType(models.Model):
-    # Pour ErrorType, l'id est un CharField qui combine le nom du système et un hash court de la raison d'erreur
+    # For ErrorType, the id is a CharField that combines the system name and a short hash of the error reason
     id = models.CharField(primary_key=True, max_length=255, editable=False)
     
     # Identification
-    system_name = models.CharField(max_length=50, verbose_name="Nom du système")
-    service_type = models.CharField(max_length=100, verbose_name="Type de service")
-    service_name = models.CharField(max_length=100, verbose_name="Nom du service")
-    error_reason = models.TextField(verbose_name="Raison de l'erreur")
+    system_name = models.CharField(max_length=50, verbose_name="System Name")
+    service_type = models.CharField(max_length=100, verbose_name="Service Type")
+    service_name = models.CharField(max_length=100, verbose_name="Service Name")
+    error_reason = models.TextField(verbose_name="Error Reason")
     
-    # Informations techniques
-    code_erreur = models.CharField(max_length=50, blank=True, verbose_name="Code d’erreur")
-    fichiers_impactes = models.TextField(blank=True, verbose_name="Fichiers/modules impactés")
+    # Technical Information
+    code_erreur = models.CharField(max_length=50, blank=True, verbose_name="Error Code")
+    fichiers_impactes = models.TextField(blank=True, verbose_name="Impacted Files/Modules")
     
-    # Suggestions supplémentaires
-    logs = models.TextField(blank=True, verbose_name="Messages de logs")
-    description_technique = models.TextField(blank=True, verbose_name="Description technique détaillée")
-    comportement_attendu = models.TextField(blank=True, verbose_name="Comportement attendu")
-    procedures_contournement = models.TextField(blank=True, verbose_name="Procédures de contournement")
-    environnement = models.CharField(max_length=100, blank=True, verbose_name="Environnement (OS, version, etc.)")
-    niveau_severite = models.PositiveSmallIntegerField(blank=True, null=True, verbose_name="Niveau de sévérité (1-5)")
+    # Additional Suggestions
+    logs = models.TextField(blank=True, verbose_name="Log Messages")
+    description_technique = models.TextField(blank=True, verbose_name="Detailed Technical Description")
+    comportement_attendu = models.TextField(blank=True, verbose_name="Expected Behavior")
+    procedures_contournement = models.TextField(blank=True, verbose_name="Workaround Procedures")
+    environnement = models.CharField(max_length=100, blank=True, verbose_name="Environment (OS, version, etc.)")
+    niveau_severite = models.PositiveSmallIntegerField(blank=True, null=True, verbose_name="Severity Level (1-5)")
     
-    # Métadonnées
-    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Date de création")
-    updated_at = models.DateTimeField(auto_now=True, verbose_name="Dernière mise à jour")
+    # Metadata
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Creation Date")
+    updated_at = models.DateTimeField(auto_now=True, verbose_name="Last Updated")
     
     class Meta:
-        verbose_name = "Type d'erreur"
-        verbose_name_plural = "Types d'erreurs"
+        verbose_name = "Error Type"
+        verbose_name_plural = "Error Types"
         constraints = [
             models.UniqueConstraint(
                 fields=['system_name', 'service_name', 'error_reason'], 
-                name='1unique_system_error_reason'  
+                name='1unique_system_error_reason'
             )
         ]
     
     def save(self, *args, **kwargs):
         if not self.id:
-            # On crée un id en combinant une version slugifiée du nom du système et un hash court de l'erreur
+            # Create an id by combining a slugified version of the system name with a short hash of the error
             system_slug = slugify(self.system_name)
             error_hash = hashlib.md5(self.error_reason.encode('utf-8')).hexdigest()[:6].upper()
             self.id = f"{system_slug}_{error_hash}"
@@ -55,131 +55,126 @@ class ErrorType(models.Model):
         return f"{self.system_name}: {self.error_reason[:50]}"
 
 #######################
-# Modèle ErrorEvent
+# ErrorEvent Model
 #######################
 class ErrorEvent(models.Model):
-    # Pour ErrorEvent, l'id inclut le nom du système, la date (yyyymmdd) et un suffixe unique
+    # For ErrorEvent, the id includes the system name, the date (yyyymmdd) and a unique suffix
     id = models.CharField(primary_key=True, max_length=255, editable=False)
     
-    # Lien vers ErrorType pour retrouver tous les événements d'un type d'erreur
+    # Link to ErrorType to retrieve all events of a specific error type
     error_type = models.ForeignKey(
         ErrorType, 
         on_delete=models.CASCADE, 
         related_name='events', 
-        verbose_name="Type d'erreur"
+        verbose_name="Error Type"
     )
     
-    # On garde aussi les informations de base, même si elles sont redondantes avec ErrorType, pour faciliter les recherches ou historiques
-    system_name = models.CharField(max_length=50, verbose_name="Nom du système")
-    service_type = models.CharField(max_length=100, verbose_name="Type de service")
-    service_name = models.CharField(max_length=100, verbose_name="Nom du service")
-    error_reason = models.TextField(verbose_name="Raison de l'erreur")
-    error_count = models.IntegerField(verbose_name="Nombre d'erreurs")
+    # Also keep basic information, even if it is redundant with ErrorType, to facilitate searches or historical records
+    system_name = models.CharField(max_length=50, verbose_name="System Name")
+    service_type = models.CharField(max_length=100, verbose_name="Service Type")
+    service_name = models.CharField(max_length=100, verbose_name="Service Name")
+    error_reason = models.TextField(verbose_name="Error Reason")
+    error_count = models.IntegerField(verbose_name="Error Count")
     
-    timestamp = models.DateTimeField(default=timezone.now, verbose_name="Horodatage")
+    timestamp = models.DateTimeField(default=timezone.now, verbose_name="Timestamp")
     
-    # Informations complémentaires
-    inserted_by = models.CharField(max_length=50, verbose_name="Enregistré par")
+    # Additional Information
+    inserted_by = models.CharField(max_length=50, verbose_name="Inserted by")
     notes = models.TextField(blank=True, null=True, verbose_name="Notes")
     
     class Meta:
-        verbose_name = "Événement d'erreur"
-        verbose_name_plural = "Événements d'erreurs"
+        verbose_name = "Error Event"
+        verbose_name_plural = "Error Events"
         ordering = ['-timestamp']
     
     def save(self, *args, **kwargs):
         if not self.id:
             system_slug = slugify(self.system_name)
             service_slug = slugify(self.service_name)
-            # On récupère une version courte de error_reason pour éviter un id trop long.
-            reason_slug = slugify(self.error_reason)[:20]
+            date_str = self.date_creation.strftime('%Y%m%d%H%M%S') if self.date_creation else timezone.now().strftime('%Y%m%d%H%M%S')
             error_hash = hashlib.md5(self.error_reason.encode('utf-8')).hexdigest()[:6].upper()
-            self.id = f"{system_slug}_{service_slug}_{reason_slug}_{error_hash}"
+            self.id = f"{system_slug}_{service_slug}_{error_hash}_{date_str}"
         super().save(*args, **kwargs)
-
-
     
     def __str__(self):
-        return f"Erreur {self.id} - {self.timestamp.strftime('%d/%m/%Y %H:%M')}"
+        return f"Error {self.id} - {self.timestamp.strftime('%d/%m/%Y %H:%M')}"
 
 #######################
-# Modèle ErrorTicket
+# ErrorTicket Model
 #######################
 class ErrorTicket(models.Model):
-    # Clé primaire conservée en UUID
+    # Primary key maintained as UUID
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     
-    # Association One-to-One avec ErrorType
+    # One-to-One association with ErrorType
     error_type = models.OneToOneField(
         ErrorType, 
         on_delete=models.CASCADE, 
         related_name='ticket', 
-        verbose_name="Type d'erreur"
+        verbose_name="Error Type"
     )
     
-    # Nouveau champ de référence pour la traçabilité
+    # New reference field for traceability
     ticket_reference = models.CharField(max_length=255, editable=False, blank=True, null=True)
     
-    # États et priorités
+    # States and Priorities
     PRIORITY_CHOICES = [
-        ('P1', 'Critique'),
-        ('P2', 'Haute'),
-        ('P3', 'Normale'),
-        ('P4', 'Basse')
+        ('P1', 'Critical'),
+        ('P2', 'High'),
+        ('P3', 'Normal'),
+        ('P4', 'Low')
     ]
     STATUS_CHOICES = [
-        ('OPEN', 'Ouvert'),
-        ('IN_PROGRESS', 'En cours'),
-        ('PENDING', 'En attente'),
-        ('RESOLVED', 'Résolu'),
-        ('CLOSED', 'Fermé')
+        ('OPEN', 'Open'),
+        ('IN_PROGRESS', 'In Progress'),
+        ('PENDING', 'Pending'),
+        ('RESOLVED', 'Resolved'),
+        ('CLOSED', 'Closed')
     ]
     
-    priorite = models.CharField(max_length=2, choices=PRIORITY_CHOICES, default="P3", verbose_name="Priorité")
-    statut = models.CharField(max_length=15, choices=STATUS_CHOICES, default="OPEN", verbose_name="Statut")
-    niveau_criticite = models.IntegerField(default=3, choices=[(i, str(i)) for i in range(1, 6)], verbose_name="Criticité (1-5)")
+    priorite = models.CharField(max_length=2, choices=PRIORITY_CHOICES, default="P3", verbose_name="Priority")
+    statut = models.CharField(max_length=15, choices=STATUS_CHOICES, default="OPEN", verbose_name="Status")
+    niveau_criticite = models.IntegerField(default=3, choices=[(i, str(i)) for i in range(1, 6)], verbose_name="Criticality Level (1-5)")
     
-    # Analyse de l'erreur
-    symptomes = models.TextField(blank=True, verbose_name="Symptômes observés")
-    impact = models.TextField(blank=True, verbose_name="Impact utilisateur")
-    services_affectes = models.TextField(blank=True, verbose_name="Services affectés")
-    charge_systeme = models.IntegerField(blank=True, null=True, verbose_name="Charge système")
-    nombre_utilisateurs = models.IntegerField(blank=True, null=True, verbose_name="Utilisateurs impactés")
+    # Error Analysis
+    symptomes = models.TextField(blank=True, verbose_name="Observed Symptoms")
+    impact = models.TextField(blank=True, verbose_name="User Impact")
+    services_affectes = models.TextField(blank=True, verbose_name="Affected Services")
+    charge_systeme = models.IntegerField(blank=True, null=True, verbose_name="System Load")
+    nombre_utilisateurs = models.IntegerField(blank=True, null=True, verbose_name="Impacted Users")
     
-    # Analyse et diagnostic
-    cause_racine = models.TextField(blank=True, verbose_name="Cause racine")
-    hypotheses = models.TextField(blank=True, verbose_name="Hypothèses")
+    # Analysis and Diagnosis
+    cause_racine = models.TextField(blank=True, verbose_name="Root Cause")
+    hypotheses = models.TextField(blank=True, verbose_name="Hypotheses")
     
-    # Résolution
-    responsable = models.CharField(max_length=100, blank=True, verbose_name="Responsable")
-    equipe = models.CharField(max_length=100, blank=True, verbose_name="Équipe assignée")
-    actions = models.TextField(blank=True, verbose_name="Actions prévues")
-    solution = models.TextField(blank=True, verbose_name="Solution implémentée")
+    # Resolution
+    responsable = models.CharField(max_length=100, blank=True, verbose_name="Responsible")
+    equipe = models.CharField(max_length=100, blank=True, verbose_name="Assigned Team")
+    actions = models.TextField(blank=True, verbose_name="Planned Actions")
+    solution = models.TextField(blank=True, verbose_name="Implemented Solution")
     
-    # Suivi temporel
-    date_creation = models.DateTimeField(auto_now_add=True, verbose_name="Date de création")
-    date_modification = models.DateTimeField(auto_now=True, verbose_name="Dernière modification")
-    date_resolution = models.DateTimeField(null=True, blank=True, verbose_name="Date de résolution")
+    # Time Tracking
+    date_creation = models.DateTimeField(auto_now_add=True, verbose_name="Creation Date")
+    date_modification = models.DateTimeField(auto_now=True, verbose_name="Last Modified")
+    date_resolution = models.DateTimeField(null=True, blank=True, verbose_name="Resolution Date")
     
-    # Commentaires et historique
-    commentaires = models.TextField(blank=True, verbose_name="Commentaires")
-    historique = models.JSONField(default=dict, blank=True, verbose_name="Historique des modifications")
+    # Comments and History
+    commentaires = models.TextField(blank=True, verbose_name="Comments")
+    historique = models.JSONField(default=dict, blank=True, verbose_name="Modification History")
     
     class Meta:
-        verbose_name = "Ticket d'erreur"
-        verbose_name_plural = "Tickets d'erreurs"
+        verbose_name = "Error Ticket"
+        verbose_name_plural = "Error Tickets"
     
     def save(self, *args, **kwargs):
-        # Génération du ticket_reference si non défini
+        # Generate the ticket_reference if not defined
         if not self.ticket_reference:
             system_slug = slugify(self.error_type.system_name)
             service_slug = slugify(self.error_type.service_name)
             reason_slug = slugify(self.error_type.error_reason)[:20]
-            # Format complet de la date pour le ticket (YYYYMMDDHHMMSS)
-            date_str = self.date_creation.strftime('%Y%m%d%H%M%S') if self.date_creation else timezone.now().strftime('%Y%m%d%H%M%S')
-            self.ticket_reference = f"{system_slug}_{service_slug}_{reason_slug}_{date_str}"
+            self.ticket_reference = f"{system_slug}_{service_slug}_{reason_slug}"
         
-        # Gestion de la date de résolution
+        # Manage the resolution date
         if self.statut == 'RESOLVED' and not self.date_resolution:
             self.date_resolution = timezone.now()
         
