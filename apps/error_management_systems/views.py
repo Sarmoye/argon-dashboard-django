@@ -24,6 +24,20 @@ def home(request):
     
     return render(request, 'error_management_systems/home.html', {'stats': stats})
 
+def home1(request):
+    """Page d'accueil avec statistiques générales et derniers événements"""
+    # Statistiques globales
+    stats = {
+        'total_error_types': ErrorType.objects.count(),
+        'total_error_events': ErrorEvent.objects.count(),
+        'open_tickets': ErrorTicket.objects.filter(statut__in=['OPEN', 'IN_PROGRESS']).count(),
+        'recent_events': ErrorEvent.objects.order_by('-timestamp')[:5],
+        'top_errors': ErrorType.objects.annotate(event_count=Count('events')).order_by('-event_count')[:5],
+        'critical_tickets': ErrorTicket.objects.filter(priorite='P1', statut__in=['OPEN', 'IN_PROGRESS']).order_by('date_creation')[:5]
+    }
+    
+    return render(request, 'error_management_systems/home1.html', {'stats': stats})
+
 # ---- ErrorEvent Views ----
 
 def event_list(request):
