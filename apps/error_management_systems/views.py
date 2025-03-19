@@ -46,8 +46,8 @@ def event_list(request):
         events = events.filter(timestamp__lte=date_to)
     
     # Liste des systèmes et services pour les filtres
-    systems = ErrorEvent.objects.values_list('system_name', flat=True).distinct()
-    services = ErrorEvent.objects.values_list('service_name', flat=True).distinct()
+    systems = ErrorType.objects.values_list('system_name', flat=True).distinct()
+    services = ErrorType.objects.values_list('service_name', flat=True).distinct()
     
     context = {
         'events': events,
