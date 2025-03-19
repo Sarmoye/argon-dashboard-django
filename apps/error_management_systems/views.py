@@ -17,7 +17,7 @@ def home(request):
         'total_error_types': ErrorType.objects.count(),
         'total_error_events': ErrorEvent.objects.count(),
         'open_tickets': ErrorTicket.objects.filter(statut__in=['OPEN', 'IN_PROGRESS']).count(),
-        'recent_events': ErrorEvent.objects.order_by('-timestamp')[:10],
+        'recent_events': ErrorEvent.objects.order_by('-timestamp')[:5],
         'top_errors': ErrorType.objects.annotate(event_count=Count('events')).order_by('-event_count')[:5],
         'critical_tickets': ErrorTicket.objects.filter(priorite='P1', statut__in=['OPEN', 'IN_PROGRESS']).order_by('date_creation')[:5]
     }
