@@ -3,7 +3,7 @@
 {% load static %}
 
 {% block content %}
-  <title>Créer un Nouvel Événement d'Erreur</title>
+  <title>Create a New Error Event</title>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   {% block extrastyle %}
@@ -162,11 +162,11 @@
     <div id="successToast" class="toast bg-white" role="alert" aria-live="assertive" aria-atomic="true">
       <div class="toast-header bg-success text-white">
         <i class="fas fa-check-circle me-2"></i>
-        <strong class="me-auto">Succès</strong>
+        <strong class="me-auto">Success</strong>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
       </div>
       <div class="toast-body">
-        Événement d'erreur créé avec succès!
+        Error event created successfully!
       </div>
     </div>
   </div>
@@ -176,8 +176,8 @@
       <div class="d-flex align-items-center">
         <i class="fas fa-exclamation-triangle fs-1 me-3"></i>
         <div>
-          <h1 class="mb-0">Système de Suivi d'Erreurs</h1>
-          <p class="mb-0 opacity-75">Enregistrer et suivre les événements d'erreur</p>
+          <h1 class="mb-0">Error Tracking System</h1>
+          <p class="mb-0 opacity-75">Record and track error events</p>
         </div>
       </div>
     </div>
@@ -189,9 +189,9 @@
         <div class="card form-card animate-fade-in">
           <div class="card-header d-flex justify-content-between align-items-center">
             <h3 class="card-title mb-0 text-primary">
-              <i class="fas fa-plus-circle me-2"></i>Créer un Nouvel Événement d'Erreur
+              <i class="fas fa-plus-circle me-2"></i>Create a New Error Event
             </h3>
-            <span class="badge bg-primary rounded-pill px-3 py-2">Nouveau</span>
+            <span class="badge bg-primary rounded-pill px-3 py-2">New</span>
           </div>
           <div class="card-body p-4">
             <form id="errorEventForm" method="post">
@@ -200,39 +200,39 @@
               <div class="row g-3 mb-4">
                 <div class="col-md-4">
                   <div class="form-floating">
-                    <input type="text" class="form-control" id="system_name" name="system_name" placeholder="Nom du système" required>
-                    <label for="system_name" class="required-field">Système</label>
+                    <input type="text" class="form-control" id="system_name" name="system_name" placeholder="System name" required>
+                    <label for="system_name" class="required-field">System</label>
                   </div>
                 </div>
                 <div class="col-md-4">
                   <div class="form-floating">
-                    <input type="text" class="form-control" id="service_name" name="service_name" placeholder="Nom du service" required>
+                    <input type="text" class="form-control" id="service_name" name="service_name" placeholder="Service name" required>
                     <label for="service_name" class="required-field">Service</label>
                   </div>
                 </div>
                 <div class="col-md-4">
                   <div class="form-floating">
-                    <input type="text" class="form-control" id="service_type" name="service_type" placeholder="Type de service" required>
-                    <label for="service_type" class="required-field">Type de Service</label>
+                    <input type="text" class="form-control" id="service_type" name="service_type" placeholder="Service type" required>
+                    <label for="service_type" class="required-field">Service Type</label>
                   </div>
                 </div>
               </div>
               
               <div class="section-divider">
-                <span>DÉTAILS DE L'ERREUR</span>
+                <span>ERROR DETAILS</span>
               </div>
               
               <div class="row g-3 mb-4">
                 <div class="col-md-8">
                   <div class="form-floating">
-                    <input type="text" class="form-control" id="error_reason" name="error_reason" placeholder="Raison de l'erreur" required>
-                    <label for="error_reason" class="required-field">Raison de l'Erreur</label>
+                    <input type="text" class="form-control" id="error_reason" name="error_reason" placeholder="Error reason" required>
+                    <label for="error_reason" class="required-field">Error Reason</label>
                   </div>
                 </div>
                 <div class="col-md-4">
                   <div class="form-floating">
-                    <input type="text" class="form-control" id="code_erreur" name="code_erreur" placeholder="Code d'erreur">
-                    <label for="code_erreur">Code d'Erreur</label>
+                    <input type="text" class="form-control" id="code_erreur" name="code_erreur" placeholder="Error code">
+                    <label for="code_erreur">Error Code</label>
                   </div>
                 </div>
               </div>
@@ -240,14 +240,14 @@
               <div class="row g-3 mb-4">
                 <div class="col-md-8">
                   <div class="form-floating">
-                    <input type="text" class="form-control" id="fichiers_impactes" name="fichiers_impactes" placeholder="Fichiers impactés">
-                    <label for="fichiers_impactes">Fichiers Impactés</label>
+                    <input type="text" class="form-control" id="fichiers_impactes" name="fichiers_impactes" placeholder="Impacted files">
+                    <label for="fichiers_impactes">Impacted Files</label>
                   </div>
                 </div>
                 <div class="col-md-4">
                   <div class="form-floating">
-                    <input type="number" class="form-control" id="error_count" name="error_count" value="1" min="1" placeholder="Nombre d'erreurs" required>
-                    <label for="error_count" class="required-field">Nombre d'Erreurs</label>
+                    <input type="number" class="form-control" id="error_count" name="error_count" value="1" min="1" placeholder="Number of errors" required>
+                    <label for="error_count" class="required-field">Number of Errors</label>
                   </div>
                 </div>
               </div>
@@ -258,25 +258,25 @@
                   <label for="logs">Logs</label>
                 </div>
                 <div class="form-text">
-                  <i class="fas fa-info-circle me-1"></i>Copiez-collez les logs pertinents pour aider à l'analyse
+                  <i class="fas fa-info-circle me-1"></i>Copy and paste the relevant logs to assist with analysis
                 </div>
               </div>
               
               <div class="section-divider">
-                <span>INFORMATIONS ADDITIONNELLES</span>
+                <span>ADDITIONAL INFORMATION</span>
               </div>
               
               <div class="row g-3 mb-4">
                 <div class="col-md-6">
                   <div class="form-floating">
-                    <input type="text" class="form-control" id="inserted_by" name="inserted_by" placeholder="Inséré par" required>
-                    <label for="inserted_by" class="required-field">Inséré par</label>
+                    <input type="text" class="form-control" id="inserted_by" name="inserted_by" placeholder="Inserted by" required>
+                    <label for="inserted_by" class="required-field">Inserted by</label>
                   </div>
                 </div>
                 <div class="col-md-6">
                   <div class="form-floating">
                     <input type="datetime-local" class="form-control" id="date_heure" name="date_heure" value="">
-                    <label for="date_heure">Date et Heure</label>
+                    <label for="date_heure">Date and Time</label>
                   </div>
                 </div>
               </div>
@@ -295,8 +295,8 @@
                       <i class="fas fa-lightbulb text-warning fs-2"></i>
                     </div>
                     <div>
-                      <h5 class="card-title mb-2">Conseils pour un rapport efficace</h5>
-                      <p class="card-text mb-0">Détaillez autant que possible les conditions dans lesquelles l'erreur s'est produite. Incluez les étapes précises pour reproduire l'erreur si possible.</p>
+                      <h5 class="card-title mb-2">Tips for an Effective Report</h5>
+                      <p class="card-text mb-0">Provide as much detail as possible about the conditions under which the error occurred. Include precise steps to reproduce the error if possible.</p>
                     </div>
                   </div>
                 </div>
@@ -304,10 +304,10 @@
               
               <div class="d-grid gap-2 d-md-flex justify-content-md-end">
                 <button type="button" class="btn btn-outline-secondary me-md-2" onclick="resetForm()">
-                  <i class="fas fa-undo me-2"></i>Réinitialiser
+                  <i class="fas fa-undo me-2"></i>Reset
                 </button>
                 <button type="submit" class="btn btn-primary">
-                  <i class="fas fa-save me-2"></i>Créer l'Événement
+                  <i class="fas fa-save me-2"></i>Create Event
                 </button>
               </div>
             </form>
@@ -339,7 +339,7 @@
         }
 
         // Ask for confirmation before submitting
-        const userConfirmed = window.confirm("Voulez vous enregistrer ?");
+        const userConfirmed = window.confirm("Do you want to save?");
         
         if (userConfirmed) {
           // Simulate form submission (replace with actual submission)
@@ -358,5 +358,5 @@
       now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
       document.getElementById('date_heure').value = now.toISOString().slice(0,16);
     }
-</script>
+  </script>
   {% endblock javascripts %}
