@@ -3,16 +3,16 @@
 {% load static %}
 
 {% block content %}
-    <h1>Le type d'erreur existe déjà</h1>
-    <p>Un type d'erreur correspondant a été trouvé :</p>
+    <h1>Error Type Already Exists</h1>
+    <p>A matching error type was found:</p>
     <ul>
-        <li><strong>Système :</strong> {{ error_type.system_name }}</li>
-        <li><strong>Service :</strong> {{ error_type.service_name }}</li>
-        <li><strong>Raison de l'erreur :</strong> {{ error_type.error_reason }}</li>
+        <li><strong>System:</strong> {{ error_type.system_name }}</li>
+        <li><strong>Service:</strong> {{ error_type.service_name }}</li>
+        <li><strong>Error Reason:</strong> {{ error_type.error_reason }}</li>
     </ul>
 
-    <p>Que souhaitez-vous faire ?</p>
+    <p>What would you like to do?</p>
 
-    <a href="{% url 'error_management_systems:modify_error_type_details' event_id=event.id error_type_id=error_type.id %}">Modifier les détails du type d'erreur</a>
-    <a href="{% url 'error_management_systems:modify_error_ticket_details' event_id=event.id error_type_id=error_type.id %}">Modifier les détails du ticket d'erreur</a>
+    <a href="{% url 'error_management_systems:modify_error_type_details' event_id=event.id error_type_id=error_type.id %}">Modify Error Type Details</a>
+    <a href="{% url 'error_management_systems:modify_error_ticket_details' event_id=event.id error_type_id=error_type.id %}">Modify Error Ticket Details</a>
 {% endblock %}

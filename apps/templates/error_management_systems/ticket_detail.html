@@ -4,84 +4,84 @@
 
 {% block content %}
 <div class="container mt-4">
-  <div class="card shadow-sm">
-    <div class="card-header bg-primary text-white">
-      <h2 class="mb-0">Détails du Ticket</h2>
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h2 class="mb-0">Ticket Details</h2>
+        </div>
+        <div class="card-body">
+            <p><strong>Ticket Reference:</strong> {{ ticket.ticket_reference }}</p>
+            <p><strong>System:</strong> {{ error_type.system_name }}</p>
+            <p><strong>Priority:</strong> {{ ticket.get_priorite_display }}</p>
+            <p><strong>Status:</strong> {{ ticket.get_statut_display }}</p>
+            <p><strong>Criticality Level:</strong> {{ ticket.niveau_criticite }}</p>
+            <p><strong>Symptoms:</strong> {{ ticket.symptomes }}</p>
+            <p><strong>Impact:</strong> {{ ticket.impact }}</p>
+            <p><strong>Affected Services:</strong> {{ ticket.services_affectes }}</p>
+            <p><strong>Number of Users:</strong> {{ ticket.nombre_utilisateurs }}</p>
+            <p><strong>System Load:</strong> {{ ticket.charge_systeme }}</p>
+            <p><strong>Responsible:</strong> {{ ticket.responsable }}</p>
+            <p><strong>Team:</strong> {{ ticket.equipe }}</p>
+            <p><strong>Comments:</strong> {{ ticket.commentaires }}</p>
+            <p><strong>Ticket Duration:</strong> {{ ticket_duration }}</p>
+        </div>
     </div>
-    <div class="card-body">
-      <p><strong>Référence du Ticket:</strong> {{ ticket.ticket_reference }}</p>
-      <p><strong>Système:</strong> {{ error_type.system_name }}</p>
-      <p><strong>Priorité:</strong> {{ ticket.get_priorite_display }}</p>
-      <p><strong>Statut:</strong> {{ ticket.get_statut_display }}</p>
-      <p><strong>Niveau de Criticité:</strong> {{ ticket.niveau_criticite }}</p>
-      <p><strong>Symptômes:</strong> {{ ticket.symptomes }}</p>
-      <p><strong>Impact:</strong> {{ ticket.impact }}</p>
-      <p><strong>Services Affectés:</strong> {{ ticket.services_affectes }}</p>
-      <p><strong>Nombre d'Utilisateurs:</strong> {{ ticket.nombre_utilisateurs }}</p>
-      <p><strong>Charge Système:</strong> {{ ticket.charge_systeme }}</p>
-      <p><strong>Responsable:</strong> {{ ticket.responsable }}</p>
-      <p><strong>Équipe:</strong> {{ ticket.equipe }}</p>
-      <p><strong>Commentaires:</strong> {{ ticket.commentaires }}</p>
-      <p><strong>Durée du Ticket:</strong> {{ ticket_duration }}</p>
-    </div>
-  </div>
 
-  <div class="card mt-4 shadow-sm">
-    <div class="card-header bg-secondary text-white">
-      <h3 class="mb-0">Historique du Ticket</h3>
+    <div class="card mt-4 shadow-sm">
+        <div class="card-header bg-secondary text-white">
+            <h3 class="mb-0">Ticket History</h3>
+        </div>
+        <div class="card-body">
+            {% if ticket.historique %}
+            <p><strong>Creation:</strong> {{ ticket.historique.creation.timestamp }}</p>
+            <ul>
+                {% for change in ticket.historique.changes %}
+                <li>
+                    {{ change.timestamp }}:
+                    {% if change.status_change %}
+                    Status changed from <strong>{{ change.status_change.from }}</strong> to <strong>{{ change.status_change.to }}</strong>.
+                    {% endif %}
+                    {% if change.priority_change %}
+                    Priority changed from <strong>{{ change.priority_change.from }}</strong> to <strong>{{ change.priority_change.to }}</strong>.
+                    {% endif %}
+                </li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <p>No history available.</p>
+            {% endif %}
+        </div>
     </div>
-    <div class="card-body">
-      {% if ticket.historique %}
-        <p><strong>Création:</strong> {{ ticket.historique.creation.timestamp }}</p>
-        <ul>
-          {% for change in ticket.historique.changes %}
-            <li>
-              {{ change.timestamp }}:
-              {% if change.status_change %}
-                Statut changé de <strong>{{ change.status_change.from }}</strong> à <strong>{{ change.status_change.to }}</strong>.
-              {% endif %}
-              {% if change.priority_change %}
-                Priorité changée de <strong>{{ change.priority_change.from }}</strong> à <strong>{{ change.priority_change.to }}</strong>.
-              {% endif %}
-            </li>
-          {% endfor %}
-        </ul>
-      {% else %}
-        <p>Aucun historique disponible.</p>
-      {% endif %}
-    </div>
-  </div>
 
-  <div class="card mt-4 shadow-sm">
-    <div class="card-header bg-dark text-white">
-      <h3 class="mb-0">Événements Associés</h3>
+    <div class="card mt-4 shadow-sm">
+        <div class="card-header bg-dark text-white">
+            <h3 class="mb-0">Associated Events</h3>
+        </div>
+        <div class="card-body">
+            <table class="table table-striped table-dark">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Timestamp</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for event in events %}
+                    <tr>
+                        <td>{{ event.id }}</td>
+                        <td>{{ event.timestamp }}</td>
+                        <td>
+                            <a href="{% url 'error_management_systems:event_detail' event.id %}" class="btn btn-info btn-sm">Details</a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="3" class="text-center">No associated events found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
-    <div class="card-body">
-      <table class="table table-striped table-dark">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Timestamp</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for event in events %}
-            <tr>
-              <td>{{ event.id }}</td>
-              <td>{{ event.timestamp }}</td>
-              <td>
-                <a href="{% url 'error_management_systems:event_detail' event.id %}" class="btn btn-info btn-sm">Détails</a>
-              </td>
-            </tr>
-          {% empty %}
-            <tr>
-              <td colspan="3" class="text-center">Aucun événement associé trouvé.</td>
-            </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
-  </div>
 </div>
 {% endblock %}

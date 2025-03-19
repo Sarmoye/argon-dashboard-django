@@ -2,7 +2,7 @@
 
 {% load static %}
 
-{% block title %}Accueil - Système de Gestion d'Erreurs{% endblock %}
+{% block title %}Home - Error Management System{% endblock %}
 
 {% block content %}
 <div class="container mt-4">
@@ -10,14 +10,14 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">Tableau de bord - Système de gestion d'erreurs</h5>
+                    <h5 class="mb-0">Dashboard - Error Management System</h5>
                 </div>
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-3 mb-3">
                             <div class="card bg-light">
                                 <div class="card-body text-center">
-                                    <h6 class="card-title">Types d'erreur</h6>
+                                    <h6 class="card-title">Error Types</h6>
                                     <h2 class="text-primary">{{ stats.total_error_types }}</h2>
                                 </div>
                             </div>
@@ -25,7 +25,7 @@
                         <div class="col-md-3 mb-3">
                             <div class="card bg-light">
                                 <div class="card-body text-center">
-                                    <h6 class="card-title">Événements d'erreur</h6>
+                                    <h6 class="card-title">Error Events</h6>
                                     <h2 class="text-primary">{{ stats.total_error_events }}</h2>
                                 </div>
                             </div>
@@ -33,7 +33,7 @@
                         <div class="col-md-3 mb-3">
                             <div class="card bg-light">
                                 <div class="card-body text-center">
-                                    <h6 class="card-title">Tickets ouverts</h6>
+                                    <h6 class="card-title">Open Tickets</h6>
                                     <h2 class="text-warning">{{ stats.open_tickets }}</h2>
                                 </div>
                             </div>
@@ -41,7 +41,7 @@
                         <div class="col-md-3 mb-3">
                             <div class="card bg-light">
                                 <div class="card-body text-center">
-                                    <h6 class="card-title">Tickets critiques</h6>
+                                    <h6 class="card-title">Critical Tickets</h6>
                                     <h2 class="text-danger">{{ stats.critical_tickets|length }}</h2>
                                 </div>
                             </div>
@@ -56,7 +56,7 @@
         <div class="col-md-6">
             <div class="card">
                 <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">Derniers événements d'erreur</h5>
+                    <h5 class="mb-0">Recent Error Events</h5>
                 </div>
                 <div class="card-body">
                     {% if stats.recent_events %}
@@ -64,7 +64,7 @@
                         <table class="table table-striped table-hover">
                             <thead>
                                 <tr>
-                                    <th>Système</th>
+                                    <th>System</th>
                                     <th>Service</th>
                                     <th>Date</th>
                                     <th>Actions</th>
@@ -78,7 +78,7 @@
                                     <td>{{ event.timestamp|date:"d/m/Y H:i" }}</td>
                                     <td>
                                         <a href="{% url 'error_management_systems:event_detail' event_id=event.id %}" class="btn btn-sm btn-info">
-                                            <i class="fas fa-eye"></i> Voir
+                                            <i class="fas fa-eye"></i> View
                                         </a>
                                     </td>
                                 </tr>
@@ -87,10 +87,10 @@
                         </table>
                     </div>
                     <div class="text-end">
-                        <a href="{% url 'error_management_systems:event_list' %}" class="btn btn-outline-primary">Voir tous les événements</a>
+                        <a href="{% url 'error_management_systems:event_list' %}" class="btn btn-outline-primary">View all events</a>
                     </div>
                     {% else %}
-                    <p class="text-center">Aucun événement récent</p>
+                    <p class="text-center">No recent events</p>
                     {% endif %}
                 </div>
             </div>
@@ -99,7 +99,7 @@
         <div class="col-md-6">
             <div class="card">
                 <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">Types d'erreurs les plus fréquents</h5>
+                    <h5 class="mb-0">Most Frequent Error Types</h5>
                 </div>
                 <div class="card-body">
                     {% if stats.top_errors %}
@@ -107,7 +107,7 @@
                         <table class="table table-striped table-hover">
                             <thead>
                                 <tr>
-                                    <th>Système</th>
+                                    <th>System</th>
                                     <th>Service</th>
                                     <th>Occurrences</th>
                                     <th>Actions</th>
@@ -121,7 +121,7 @@
                                     <td>{{ error_type.event_count }}</td>
                                     <td>
                                         <a href="{% url 'error_management_systems:error_type_detail' error_type_id=error_type.id %}" class="btn btn-sm btn-info">
-                                            <i class="fas fa-eye"></i> Voir
+                                            <i class="fas fa-eye"></i> View
                                         </a>
                                     </td>
                                 </tr>
@@ -130,10 +130,10 @@
                         </table>
                     </div>
                     <div class="text-end">
-                        <a href="{% url 'error_management_systems:error_type_list' %}" class="btn btn-outline-primary">Voir tous les types</a>
+                        <a href="{% url 'error_management_systems:error_type_list' %}" class="btn btn-outline-primary">View all types</a>
                     </div>
                     {% else %}
-                    <p class="text-center">Aucun type d'erreur enregistré</p>
+                    <p class="text-center">No error types recorded</p>
                     {% endif %}
                 </div>
             </div>
@@ -144,7 +144,7 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-header bg-danger text-white">
-                    <h5 class="mb-0">Tickets critiques</h5>
+                    <h5 class="mb-0">Critical Tickets</h5>
                 </div>
                 <div class="card-body">
                     {% if stats.critical_tickets %}
@@ -152,11 +152,11 @@
                         <table class="table table-striped table-hover">
                             <thead>
                                 <tr>
-                                    <th>Référence</th>
-                                    <th>Système</th>
-                                    <th>Statut</th>
-                                    <th>Créé le</th>
-                                    <th>Responsable</th>
+                                    <th>Reference</th>
+                                    <th>System</th>
+                                    <th>Status</th>
+                                    <th>Created on</th>
+                                    <th>Responsible</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
@@ -175,10 +175,10 @@
                                         {% endif %}
                                     </td>
                                     <td>{{ ticket.date_creation|date:"d/m/Y H:i" }}</td>
-                                    <td>{{ ticket.responsable|default:"Non assigné" }}</td>
+                                    <td>{{ ticket.responsable|default:"Unassigned" }}</td>
                                     <td>
                                         <a href="{% url 'error_management_systems:ticket_detail' ticket_id=ticket.id %}" class="btn btn-sm btn-info">
-                                            <i class="fas fa-eye"></i> Voir
+                                            <i class="fas fa-eye"></i> View
                                         </a>
                                     </td>
                                 </tr>
@@ -187,10 +187,10 @@
                         </table>
                     </div>
                     <div class="text-end">
-                        <a href="{% url 'error_management_systems:ticket_list' %}?status=OPEN&priority=P1" class="btn btn-outline-danger">Voir tous les tickets critiques</a>
+                        <a href="{% url 'error_management_systems:ticket_list' %}?status=OPEN&priority=P1" class="btn btn-outline-danger">View all critical tickets</a>
                     </div>
                     {% else %}
-                    <p class="text-center">Aucun ticket critique ouvert</p>
+                    <p class="text-center">No open critical tickets</p>
                     {% endif %}
                 </div>
             </div>
@@ -201,23 +201,23 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-header bg-success text-white">
-                    <h5 class="mb-0">Actions rapides</h5>
+                    <h5 class="mb-0">Quick Actions</h5>
                 </div>
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-4 mb-3">
                             <a href="{% url 'error_management_systems:create_event' %}" class="btn btn-primary w-100">
-                                <i class="fas fa-plus-circle"></i> Nouvel événement d'erreur
+                                <i class="fas fa-plus-circle"></i> New Error Event
                             </a>
                         </div>
                         <div class="col-md-4 mb-3">
                             <a href="{% url 'error_management_systems:error_type_list' %}" class="btn btn-secondary w-100">
-                                <i class="fas fa-list"></i> Consulter les types d'erreur
+                                <i class="fas fa-list"></i> View Error Types
                             </a>
                         </div>
                         <div class="col-md-4 mb-3">
                             <a href="{% url 'error_management_systems:ticket_list' %}" class="btn btn-info w-100">
-                                <i class="fas fa-ticket-alt"></i> Gérer les tickets
+                                <i class="fas fa-ticket-alt"></i> Manage Tickets
                             </a>
                         </div>
                     </div>
@@ -231,8 +231,8 @@
 {% block extrajs %}
 <script>
     $(document).ready(function() {
-        // Vous pouvez ajouter ici du code JavaScript supplémentaire pour la page d'accueil
-        // Par exemple, pour rafraîchir automatiquement les données ou ajouter des graphiques
+        // You can add additional JavaScript code here for the homepage
+        // For example, to automatically refresh data or add charts
     });
 </script>
 {% endblock %}
