@@ -173,7 +173,7 @@
             <div class="d-flex align-items-center">
                 <i class="fas fa-exclamation-triangle fs-1 me-3"></i>
                 <div>
-                    <h1 class="mb-0">Système de Suivi des Tickets</h1>
+                    <h1 class="mb-0">Suivi des Tickets</h1>
                     <p class="mb-0 opacity-75">Modifier et suivre les tickets d'erreur</p>
                 </div>
             </div>
@@ -194,15 +194,14 @@
                             {% csrf_token %}
                             <div class="row g-3 mb-4">
                                 <div class="col-md-6">
-                                  <div class="col-md-4 mb-4">
-                                    <label class="font-weight-bold" for="error_type">{{ form.error_type.label }}</label>
-                                    <input type="text" class="form-control" id="error_type" name="error_type" value="{{form.error_type}}" required>
-                                </div>
-                                    
+                                    <div class="form-floating">
+                                      {{ form.error_type|add_class:"form-control" }}
+                                        <label for="{{ form.error_type.id_for_label }}" class="required-field">{{ form.error_type.label }}</label>
+                                    </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-floating">
-                                        {{ form.priorite }}
+                                        {{ form.priorite|add_class:"form-control" }}
                                         <label for="{{ form.priorite.id_for_label }}" class="required-field">{{ form.priorite.label }}</label>
                                     </div>
                                 </div>
@@ -210,90 +209,90 @@
                             <div class="row g-3 mb-4">
                                 <div class="col-md-6">
                                     <div class="form-floating">
-                                        {{ form.statut }}
+                                        {{ form.statut|add_class:"form-control" }}
                                         <label for="{{ form.statut.id_for_label }}" class="required-field">{{ form.statut.label }}</label>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-floating">
-                                        {{ form.niveau_criticite }}
+                                        {{ form.niveau_criticite|add_class:"form-control" }}
                                         <label for="{{ form.niveau_criticite.id_for_label }}" class="required-field">{{ form.niveau_criticite.label }}</label>
                                     </div>
                                 </div>
                             </div>
                             <div class="mb-4">
                                 <div class="form-floating">
-                                    {{ form.symptomes }}
+                                    {{ form.symptomes|add_class:"form-control" }}
                                     <label for="{{ form.symptomes.id_for_label }}">{{ form.symptomes.label }}</label>
                                 </div>
                             </div>
                             <div class="mb-4">
                               <div class="form-floating">
-                                {{ form.impact }}
+                                {{ form.impact|add_class:"form-control" }}
                                 <label for="{{ form.impact.id_for_label }}">{{ form.impact.label }}</label>
                             </div>
                         </div>
                         <div class="mb-4">
                             <div class="form-floating">
-                                {{ form.services_affectes }}
+                                {{ form.services_affectes|add_class:"form-control" }}
                                 <label for="{{ form.services_affectes.id_for_label }}">{{ form.services_affectes.label }}</label>
                             </div>
                         </div>
                         <div class="row g-3 mb-4">
                             <div class="col-md-6">
                                 <div class="form-floating">
-                                    {{ form.charge_systeme }}
+                                    {{ form.charge_systeme|add_class:"form-control" }}
                                     <label for="{{ form.charge_systeme.id_for_label }}">{{ form.charge_systeme.label }}</label>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-floating">
-                                    {{ form.nombre_utilisateurs }}
+                                    {{ form.nombre_utilisateurs|add_class:"form-control" }}
                                     <label for="{{ form.nombre_utilisateurs.id_for_label }}">{{ form.nombre_utilisateurs.label }}</label>
                                 </div>
                             </div>
                         </div>
                         <div class="mb-4">
                             <div class="form-floating">
-                                {{ form.cause_racine }}
+                                {{ form.cause_racine|add_class:"form-control" }}
                                 <label for="{{ form.cause_racine.id_for_label }}">{{ form.cause_racine.label }}</label>
                             </div>
                         </div>
                         <div class="mb-4">
                             <div class="form-floating">
-                                {{ form.hypotheses }}
+                                {{ form.hypotheses|add_class:"form-control" }}
                                 <label for="{{ form.hypotheses.id_for_label }}">{{ form.hypotheses.label }}</label>
                             </div>
                         </div>
                         <div class="row g-3 mb-4">
                             <div class="col-md-6">
                                 <div class="form-floating">
-                                    {{ form.responsable }}
+                                    {{ form.responsable|add_class:"form-control" }}
                                     <label for="{{ form.responsable.id_for_label }}">{{ form.responsable.label }}</label>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-floating">
-                                    {{ form.equipe }}
+                                    {{ form.equipe|add_class:"form-control" }}
                                     <label for="{{ form.equipe.id_for_label }}">{{ form.equipe.label }}</label>
                                 </div>
                             </div>
                         </div>
                         <div class="mb-4">
                             <div class="form-floating">
-                                {{ form.actions }}
+                                {{ form.actions|add_class:"form-control" }}
                                 <label for="{{ form.actions.id_for_label }}">{{ form.actions.label }}</label>
                             </div>
                         </div>
                         <div class="mb-4">
                             <div class="form-floating">
-                                {{ form.solution }}
+                                {{ form.solution|add_class:"form-control" }}
                                 <label for="{{ form.solution.id_for_label }}">{{ form.solution.label }}</label>
                             </div>
                         </div>
                         <div class="mb-4">
                             <div class="form-floating">
-                                {{ form.commentaires }}
+                                {{ form.commentaires|add_class:"form-control" }}
                                 <label for="{{ form.commentaires.id_for_label }}">{{ form.commentaires.label }}</label>
                             </div>
                         </div>
