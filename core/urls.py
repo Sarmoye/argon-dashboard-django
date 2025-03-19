@@ -16,5 +16,5 @@ urlpatterns = [
     path("visualization/", include("apps.visualization.urls")),
     path("irm_dashboard/", include("apps.irm_dashboard.urls")),
     path("error/", include("apps.ems_app.urls")),
-    path("/", include("apps.error_management_systems.urls")),
+    path("errors/", include("apps.error_management_systems.urls")),
 ]
