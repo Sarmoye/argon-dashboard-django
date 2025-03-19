@@ -3,93 +3,93 @@
 {% load static %}
 
 {% block content %}
-<div class="container my-5">
-  <h1 class="mb-5 text-center fw-light">Événements d'erreur</h1>
+<div class="container mt-5">
+    <h1 class="mb-4 text-center">List of Error Events</h1>
 
-  <!-- Filtres -->
-  <div class="card shadow-sm mb-4 border-0">
-    <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
-      <span class="text-secondary">Filtres</span>
-      <button class="btn btn-sm btn-outline-secondary rounded-pill" type="button" data-bs-toggle="collapse" data-bs-target="#filterCollapse" aria-expanded="false">
-        <i class="bi bi-funnel"></i> <span class="d-none d-md-inline">Filtrer</span>
-      </button>
+    <div class="card mb-4">
+        <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+            <span class="fw-bold">Filter Events</span>
+            <button class="btn btn-sm btn-outline-light" type="button" data-bs-toggle="collapse" data-bs-target="#filterCollapse" aria-expanded="true" aria-controls="filterCollapse">
+                Show/Hide
+            </button>
+        </div>
+        <div class="card-body collapse show" id="filterCollapse">
+            <form method="get" class="row g-3 align-items-end">
+                <div class="col-md-3">
+                    <div class="mb-3">
+                        <label for="system" class="form-label">System:</label>
+                        <select name="system" class="form-select">
+                            <option value="">All</option>
+                            {% for system in systems %}
+                                <option value="{{ system }}" {% if request.GET.system == system %}selected{% endif %}>{{ system }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="mb-3">
+                        <label for="service" class="form-label">Service:</label>
+                        <select name="service" class="form-select">
+                            <option value="">All</option>
+                            {% for service in services %}
+                                <option value="{{ service }}" {% if request.GET.service == service %}selected{% endif %}>{{ service }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="mb-3">
+                        <label for="date_from" class="form-label">Start Date:</label>
+                        <input type="date" name="date_from" value="{{ request.GET.date_from }}" class="form-control">
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="mb-3">
+                        <label for="date_to" class="form-label">End Date:</label>
+                        <input type="date" name="date_to" value="{{ request.GET.date_to }}" class="form-control">
+                    </div>
+                </div>
+                <div class="col-12 text-end">
+                    <button type="submit" class="btn btn-primary">Filter</button>
+                    <a href="{% url 'error_management_systems:event_list' %}" class="btn btn-secondary">Reset</a>
+                </div>
+            </form>
+        </div>
     </div>
-    <div class="card-body collapse" id="filterCollapse">
-      <form method="get" class="row g-3">
-        <div class="col-md-6 col-lg-3">
-          <label for="system" class="form-label small text-muted">Système</label>
-          <select name="system" class="form-select form-select-sm border-0 bg-light">
-            <option value="">Tous</option>
-            {% for system in systems %}
-              <option value="{{ system }}" {% if request.GET.system == system %}selected{% endif %}>{{ system }}</option>
-            {% endfor %}
-          </select>
-        </div>
-        <div class="col-md-6 col-lg-3">
-          <label for="service" class="form-label small text-muted">Service</label>
-          <select name="service" class="form-select form-select-sm border-0 bg-light">
-            <option value="">Tous</option>
-            {% for service in services %}
-              <option value="{{ service }}" {% if request.GET.service == service %}selected{% endif %}>{{ service }}</option>
-            {% endfor %}
-          </select>
-        </div>
-        <div class="col-md-6 col-lg-3">
-          <label for="date_from" class="form-label small text-muted">Date début</label>
-          <input type="date" name="date_from" value="{{ request.GET.date_from }}" class="form-control form-control-sm border-0 bg-light">
-        </div>
-        <div class="col-md-6 col-lg-3">
-          <label for="date_to" class="form-label small text-muted">Date fin</label>
-          <input type="date" name="date_to" value="{{ request.GET.date_to }}" class="form-control form-control-sm border-0 bg-light">
-        </div>
-        <div class="col-12 d-flex gap-2 justify-content-end mt-3">
-          <a href="{% url 'error_management_systems:event_list' %}" class="btn btn-sm btn-outline-secondary">Réinitialiser</a>
-          <button type="submit" class="btn btn-sm btn-primary px-3">Appliquer</button>
-        </div>
-      </form>
-    </div>
-  </div>
 
-  <!-- Tableau des événements -->
-  <div class="card border-0 shadow-sm">
     <div class="table-responsive">
-      <table class="table table-hover mb-0">
-        <thead class="table-light">
-          <tr>
-            <th class="py-3 fw-normal text-secondary">ID</th>
-            <th class="py-3 fw-normal text-secondary">Système</th>
-            <th class="py-3 fw-normal text-secondary">Service</th>
-            <th class="py-3 fw-normal text-secondary">Erreur</th>
-            <th class="py-3 fw-normal text-secondary">Nombre</th>
-            <th class="py-3 fw-normal text-secondary">Horodatage</th>
-            <th class="py-3 fw-normal text-secondary text-end">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for event in events %}
-            <tr>
-              <td class="align-middle">{{ event.id }}</td>
-              <td class="align-middle">{{ event.system_name }}</td>
-              <td class="align-middle">{{ event.service_name }}</td>
-              <td class="align-middle text-truncate" style="max-width: 250px;">{{ event.error_reason }}</td>
-              <td class="align-middle">
-                <span class="badge bg-light text-dark">{{ event.error_count }}</span>
-              </td>
-              <td class="align-middle small text-muted">{{ event.timestamp }}</td>
-              <td class="align-middle text-end">
-                <a href="{% url 'error_management_systems:event_detail' event.id %}" class="btn btn-sm btn-outline-primary rounded-pill">
-                  <i class="bi bi-info-circle"></i> <span class="d-none d-md-inline">Détails</span>
-                </a>
-              </td>
-            </tr>
-          {% empty %}
-            <tr>
-              <td colspan="7" class="text-center py-4 text-muted">Aucun événement trouvé</td>
-            </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+        <table class="table table-striped table-bordered">
+            <thead class="table-dark">
+                <tr>
+                    <th>ID</th>
+                    <th>System</th>
+                    <th>Service</th>
+                    <th>Error Reason</th>
+                    <th>Error Count</th>
+                    <th>Timestamp</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for event in events %}
+                    <tr>
+                        <td>{{ event.id }}</td>
+                        <td>{{ event.system_name }}</td>
+                        <td>{{ event.service_name }}</td>
+                        <td>{{ event.error_reason|truncatechars:100 }}</td>
+                        <td>{{ event.error_count }}</td>
+                        <td>{{ event.timestamp }}</td>
+                        <td>
+                            <a href="{% url 'error_management_systems:event_detail' event.id %}" class="btn btn-sm btn-info">Details</a>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center">No events found.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
-  </div>
 </div>
 {% endblock %}
