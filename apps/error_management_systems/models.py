@@ -170,10 +170,8 @@ class ErrorTicket(models.Model):
     def save(self, *args, **kwargs):
         # Generate the ticket_reference if not defined
         if not self.ticket_reference:
-            system_slug = slugify(self.error_type.system_name)
-            service_slug = slugify(self.error_type.service_name)
-            error_hash = hashlib.md5(self.error_reason.encode('utf-8')).hexdigest()[:6].upper()
-            self.ticket_reference = f"{system_slug}_{service_slug}_{error_hash}"
+            type_id = slugify(self.error_type.id)
+            self.ticket_reference = f"{type_id}"
         
         # Manage the resolution date
         if self.statut == 'RESOLVED' and not self.date_resolution:
