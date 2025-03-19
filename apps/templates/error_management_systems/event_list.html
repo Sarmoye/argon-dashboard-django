@@ -34,7 +34,7 @@
                         <label for="date_to" class="form-label small mb-1">To</label>
                     </div>
                 </div>
-
+    
                 <div class="row mb-3">
                     <div class="col-md-3">
                         <select name="system" id="system" class="form-select">
@@ -45,12 +45,14 @@
                         </select>
                     </div>
                     <div class="col-md-3">
-                        <select name="service" id="service" class="form-select text-truncate">
-                            <option value="">All Services</option>
-                            {% for service in services %}
-                                <option value="{{ service }}" {% if request.GET.service == service %}selected{% endif %} title="{{ service }}">{{ service }}</option>
-                            {% endfor %}
-                        </select>
+                        <div class="text-truncate" style="max-width: 100%;">
+                            <select name="service" id="service" class="form-select">
+                                <option value="">All Services</option>
+                                {% for service in services %}
+                                    <option value="{{ service }}" {% if request.GET.service == service %}selected{% endif %} title="{{ service }}">{{ service }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
                     </div>
                     <div class="col-md-3">
                         <input type="date" name="date_from" id="date_from" value="{{ request.GET.date_from }}" class="form-control" placeholder="mm/dd/yyyy">
@@ -59,7 +61,7 @@
                         <input type="date" name="date_to" id="date_to" value="{{ request.GET.date_to }}" class="form-control" placeholder="mm/dd/yyyy">
                     </div>
                 </div>
-
+    
                 <div class="d-flex justify-content-end gap-2">
                     <a href="{% url 'error_management_systems:event_list' %}" class="btn btn-outline-secondary">Reset</a>
                     <button type="submit" class="btn btn-primary">Apply Filters</button>
