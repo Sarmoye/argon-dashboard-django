@@ -9,22 +9,211 @@
     <form method="post" class="mt-4">
         {% csrf_token %}
         <div class="row">
-            {% for field in form %}
             <div class="col-md-6 mb-3">
-                <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
-                {{ field }}
-                {% if field.errors %}
+                <label for="{{ form.error_type.id_for_label }}" class="form-label">{{ form.error_type.label }}</label>
+                {{ form.error_type }}
+                {% if form.error_type.errors %}
                 <div class="invalid-feedback d-block">
-                    {{ field.errors|join:", " }}
+                    {{ form.error_type.errors|join:", " }}
                 </div>
                 {% endif %}
-                {% if field.help_text %}
-                <small class="form-text text-muted">{{ field.help_text }}</small>
+                {% if form.error_type.help_text %}
+                <small class="form-text text-muted">{{ form.error_type.help_text }}</small>
                 {% endif %}
             </div>
-            {% endfor %}
+
+            <div class="col-md-6 mb-3">
+                <label for="{{ form.priorite.id_for_label }}" class="form-label">{{ form.priorite.label }}</label>
+                {{ form.priorite }}
+                {% if form.priorite.errors %}
+                <div class="invalid-feedback d-block">
+                    {{ form.priorite.errors|join:", " }}
+                </div>
+                {% endif %}
+                {% if form.priorite.help_text %}
+                <small class="form-text text-muted">{{ form.priorite.help_text }}</small>
+                {% endif %}
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <label for="{{ form.statut.id_for_label }}" class="form-label">{{ form.statut.label }}</label>
+                {{ form.statut }}
+                {% if form.statut.errors %}
+                <div class="invalid-feedback d-block">
+                    {{ form.statut.errors|join:", " }}
+                </div>
+                {% endif %}
+                {% if form.statut.help_text %}
+                <small class="form-text text-muted">{{ form.statut.help_text }}</small>
+                {% endif %}
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <label for="{{ form.niveau_criticite.id_for_label }}" class="form-label">{{ form.niveau_criticite.label }}</label>
+                {{ form.niveau_criticite }}
+                {% if form.niveau_criticite.errors %}
+                <div class="invalid-feedback d-block">
+                    {{ form.niveau_criticite.errors|join:", " }}
+                </div>
+                {% endif %}
+                {% if form.niveau_criticite.help_text %}
+                <small class="form-text text-muted">{{ form.niveau_criticite.help_text }}</small>
+                {% endif %}
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <label for="{{ form.symptomes.id_for_label }}" class="form-label">{{ form.symptomes.label }}</label>
+                {{ form.symptomes }}
+                {% if form.symptomes.errors %}
+                <div class="invalid-feedback d-block">
+                    {{ form.symptomes.errors|join:", " }}
+                </div>
+                {% endif %}
+                {% if form.symptomes.help_text %}
+                <small class="form-text text-muted">{{ form.symptomes.help_text }}</small>
+                {% endif %}
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <label for="{{ form.impact.id_for_label }}" class="form-label">{{ form.impact.label }}</label>
+                {{ form.impact }}
+                {% if form.impact.errors %}
+                <div class="invalid-feedback d-block">
+                    {{ form.impact.errors|join:", " }}
+                </div>
+                {% endif %}
+                {% if form.impact.help_text %}
+                <small class="form-text text-muted">{{ form.impact.help_text }}</small>
+                {% endif %}
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <label for="{{ form.services_affectes.id_for_label }}" class="form-label">{{ form.services_affectes.label }}</label>
+                {{ form.services_affectes }}
+                {% if form.services_affectes.errors %}
+                <div class="invalid-feedback d-block">
+                    {{ form.services_affectes.errors|join:", " }}
+                </div>
+                {% endif %}
+                {% if form.services_affectes.help_text %}
+                <small class="form-text text-muted">{{ form.services_affectes.help_text }}</small>
+                {% endif %}
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <label for="{{ form.charge_systeme.id_for_label }}" class="form-label">{{ form.charge_systeme.label }}</label>
+                {{ form.charge_systeme }}
+                {% if form.charge_systeme.errors %}
+                <div class="invalid-feedback d-block">
+                    {{ form.charge_systeme.errors|join:", " }}
+                </div>
+                {% endif %}
+                {% if form.charge_systeme.help_text %}
+                <small class="form-text text-muted">{{ form.charge_systeme.help_text }}</small>
+                {% endif %}
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <label for="{{ form.nombre_utilisateurs.id_for_label }}" class="form-label">{{ form.nombre_utilisateurs.label }}</label>
+                {{ form.nombre_utilisateurs }}
+                {% if form.nombre_utilisateurs.errors %}
+                <div class="invalid-feedback d-block">
+                    {{ form.nombre_utilisateurs.errors|join:", " }}
+                </div>
+                {% endif %}
+                {% if form.nombre_utilisateurs.help_text %}
+                <small class="form-text text-muted">{{ form.nombre_utilisateurs.help_text }}</small>
+                {% endif %}
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <label for="{{ form.cause_racine.id_for_label }}" class="form-label">{{ form.cause_racine.label }}</label>
+                {{ form.cause_racine }}
+                {% if form.cause_racine.errors %}
+                <div class="invalid-feedback d-block">
+                    {{ form.cause_racine.errors|join:", " }}
+                </div>
+                {% endif %}
+                {% if form.cause_racine.help_text %}
+                <small class="form-text text-muted">{{ form.cause_racine.help_text }}</small>
+                {% endif %}
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <label for="{{ form.hypotheses.id_for_label }}" class="form-label">{{ form.hypotheses.label }}</label>
+                {{ form.hypotheses }}
+                {% if form.hypotheses.errors %}
+                <div class="invalid-feedback d-block">
+                    {{ form.hypotheses.errors|join:", " }}
+                </div>
+                {% endif %}
+                {% if form.hypotheses.help_text %}
+                <small class="form-text text-muted">{{ form.hypotheses.help_text }}</small>
+                {% endif %}
+            </div>
+            <div class="col-md-6 mb-3">
+                <label for="{{ form.responsable.id_for_label }}" class="form-label">{{ form.responsable.label }}</label>
+                {{ form.responsable }}
+                {% if form.responsable.errors %}
+                <div class="invalid-feedback d-block">
+                    {{ form.responsable.errors|join:", " }}
+                </div>
+                {% endif %}
+                {% if form.responsable.help_text %}
+                <small class="form-text text-muted">{{ form.responsable.help_text }}</small>
+                {% endif %}
+            </div>
+            <div class="col-md-6 mb-3">
+                <label for="{{ form.equipe.id_for_label }}" class="form-label">{{ form.equipe.label }}</label>
+                {{ form.equipe }}
+                {% if form.equipe.errors %}
+                <div class="invalid-feedback d-block">
+                    {{ form.equipe.errors|join:", " }}
+                </div>
+                {% endif %}
+                {% if form.equipe.help_text %}
+                <small class="form-text text-muted">{{ form.equipe.help_text }}</small>
+                {% endif %}
+            </div>
+            <div class="col-md-6 mb-3">
+                <label for="{{ form.actions.id_for_label }}" class="form-label">{{ form.actions.label }}</label>
+                {{ form.actions }}
+                {% if form.actions.errors %}
+                <div class="invalid-feedback d-block">
+                    {{ form.actions.errors|join:", " }}
+                </div>
+                {% endif %}
+                {% if form.actions.help_text %}
+                <small class="form-text text-muted">{{ form.actions.help_text }}</small>
+                {% endif %}
+            </div>
+            <div class="col-md-6 mb-3">
+                <label for="{{ form.solution.id_for_label }}" class="form-label">{{ form.solution.label }}</label>
+                {{ form.solution }}
+                {% if form.solution.errors %}
+                <div class="invalid-feedback d-block">
+                    {{ form.solution.errors|join:", " }}
+                </div>
+                {% endif %}
+                {% if form.solution.help_text %}
+                <small class="form-text text-muted">{{ form.solution.help_text }}</small>
+                {% endif %}
+            </div>
+            <div class="col-md-6 mb-3">
+                <label for="{{ form.commentaires.id_for_label }}" class="form-label">{{ form.commentaires.label }}</label>
+                {{ form.commentaires }}
+                {% if form.commentaires.errors %}
+                <div class="invalid-feedback d-block">
+                    {{ form.commentaires.errors|join:", " }}
+                </div>
+                {% endif %}
+                {% if form.commentaires.help_text %}
+                <small class="form-text text-muted">{{ form.commentaires.help_text }}</small>
+                {% endif %}
+            </div>
         </div>
         <button type="submit" class="btn btn-primary">Sauvegarder les Modifications</button>
+        <a href="{% url 'ticket_list' %}" class="btn btn-secondary">Annuler</a>
     </form>
 </div>
 
