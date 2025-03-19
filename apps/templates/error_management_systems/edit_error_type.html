@@ -3,11 +3,13 @@
 {% load static %}
 
 {% block content %}
-  <h1>Modifier le Type d'Erreur</h1>
+  <h1>Modify Error Details</h1>
 
   <form method="post">
     {% csrf_token %}
     {{ form.as_p }}
-    <button type="submit">Sauvegarder les Modifications</button>
+    <button type="submit" class="btn btn-outline-secondary">
+      <i class="fas fa-save me-2"></i>Save
+    </button>
   </form>
 {% endblock %}

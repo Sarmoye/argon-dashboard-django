@@ -2,9 +2,20 @@ from django import forms
 from .models import ErrorType, ErrorEvent, ErrorTicket
 
 class ErrorTypeForm(forms.ModelForm):
+    """Formulaire pour la création/modification du type d'erreur"""
     class Meta:
         model = ErrorType
-        fields = '__all__'
+        fields = ['system_name', 'service_type', 'service_name', 'error_reason', 
+                  'code_erreur', 'comportement_attendu', 'correction_automatique']
+        widgets = {
+            'system_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'service_type': forms.TextInput(attrs={'class': 'form-control'}),
+            'service_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'error_reason': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'code_erreur': forms.TextInput(attrs={'class': 'form-control'}),
+            'comportement_attendu': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'correction_automatique': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        }
 
 class ErrorEventForm(forms.ModelForm):
     class Meta:
