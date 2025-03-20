@@ -87,6 +87,77 @@ def dashboard2(request):
 
     return render(request, 'error_management_systems/dashboard2.html', {'stats': stats})
 
+from django.shortcuts import render
+from django.db.models import Count
+from .models import ErrorType, ErrorEvent, ErrorTicket
+from django.utils import timezone
+@login_required(login_url='/authentication/login/')
+def professional_dashboard(request):
+    """
+    View for the professional dashboard, providing an overview of Error Types,
+    Error Events, and Error Tickets.
+    """
+
+    # Error Type Overview (Widget 1)
+    total_error_types = ErrorType.objects.count()
+    error_type_categories = ErrorType.objects.values('error_category').annotate(count=Count('error_category'))
+    error_type_impact_levels = ErrorType.objects.values('impact_level').annotate(count=Count('impact_level'))
+    expected_vs_unexpected = ErrorType.objects.values('type_error').annotate(count=Count('type_error'))
+
+    # Error Type List (Widget 2)
+    error_types = ErrorType.objects.all()
+
+    # Error Event Overview (Widget 3)
+    total_error_events = ErrorEvent.objects.count()
+    error_events_time_series = ErrorEvent.objects.values('timestamp__date').annotate(count=Count('id')).order_by('timestamp__date')
+    top_systems_events = ErrorEvent.objects.values('system_name').annotate(count=Count('id')).order_by('-count')[:5]
+    top_services_events = ErrorEvent.objects.values('service_name').annotate(count=Count('id')).order_by('-count')[:5]
+
+    # Error Event List (Widget 4)
+    error_events = ErrorEvent.objects.all()
+
+    # Error Ticket Overview (Widget 5)
+    total_error_tickets = ErrorTicket.objects.count()
+    error_ticket_statuses = ErrorTicket.objects.values('statut').annotate(count=Count('statut'))
+    error_ticket_priorities = ErrorTicket.objects.values('priorite').annotate(count=Count('priorite'))
+    
+    # Calculate average ticket resolution time
+    resolved_tickets = ErrorTicket.objects.filter(statut='RESOLVED', date_resolution__isnull=False)
+    if resolved_tickets.exists():
+        total_duration = sum([(ticket.date_resolution - ticket.date_creation).total_seconds() for ticket in resolved_tickets])
+        average_resolution_time = total_duration / resolved_tickets.count() / 3600 # in hours
+    else:
+        average_resolution_time = 0
+
+    # Error Ticket List (Widget 8)
+    error_tickets = ErrorTicket.objects.all()
+
+    context = {
+        # Widget 1
+        'total_error_types': total_error_types,
+        'error_type_categories': error_type_categories,
+        'error_type_impact_levels': error_type_impact_levels,
+        'expected_vs_unexpected': expected_vs_unexpected,
+        # Widget 2
+        'error_types': error_types,
+        # Widget 3
+        'total_error_events': total_error_events,
+        'error_events_time_series': error_events_time_series,
+        'top_systems_events': top_systems_events,
+        'top_services_events': top_services_events,
+        # Widget 4
+        'error_events': error_events,
+        # Widget 5
+        'total_error_tickets': total_error_tickets,
+        'error_ticket_statuses': error_ticket_statuses,
+        'error_ticket_priorities': error_ticket_priorities,
+        'average_resolution_time': average_resolution_time,
+        # Widget 8
+        'error_tickets': error_tickets,
+    }
+
+    return render(request, 'error_management_systems/professional_dashboard.html', context)
+
 # ---- ErrorEvent Views ----
 @login_required(login_url='/authentication/login/')
 def event_list(request):

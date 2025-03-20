@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Professional Dashboard</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container mt-4">
+        <h1>Professional Dashboard</h1>
+
+        <div class="card mb-4">
+            <div class="card-header">Error Type Overview</div>
+            <div class="card-body">
+                <p>Total Error Types: {{ total_error_types }}</p>
+                <div class="row">
+                    <div class="col-md-4">
+                        <canvas id="errorCategoryChart" data-labels="{% for item in error_type_categories %}{{ item.error_category }},{% endfor %}" data-data="{% for item in error_type_categories %}{{ item.count }},{% endfor %}"></canvas>
+                    </div>
+                    <div class="col-md-4">
+                        <canvas id="impactLevelChart" data-labels="{% for item in error_type_impact_levels %}{{ item.impact_level }},{% endfor %}" data-data="{% for item in error_type_impact_levels %}{{ item.count }},{% endfor %}"></canvas>
+                    </div>
+                    <div class="col-md-4">
+                        <canvas id="expectedVsUnexpectedChart" data-labels="{% for item in expected_vs_unexpected %}{{ item.type_error }},{% endfor %}" data-data="{% for item in expected_vs_unexpected %}{{ item.count }},{% endfor %}"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">Error Type List</div>
+            <div class="card-body">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>System Name</th>
+                            <th>Service Name</th>
+                            <th>Error Reason</th>
+                            <th>Category</th>
+                            <th>Impact Level</th>
+                            <th>Type Error</th>
+                            <th>Created At</th>
+                            <th>Details</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for error_type in error_types %}
+                        <tr>
+                            <td>{{ error_type.system_name }}</td>
+                            <td>{{ error_type.service_name }}</td>
+                            <td>{{ error_type.error_reason|truncatechars:50 }}</td>
+                            <td>{{ error_type.error_category }}</td>
+                            <td>{{ error_type.impact_level }}</td>
+                            <td>{{ error_type.type_error }}</td>
+                            <td>{{ error_type.created_at }}</td>
+                            <td><a href="{% url 'error_type_detail' error_type.id %}">View Details</a></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">Error Event Overview</div>
+            <div class="card-body">
+                <p>Total Error Events: {{ total_error_events }}</p>
+                <div class="row">
+                    <div class="col-md-6">
+                        <canvas id="errorEventsTimeSeriesChart" data-labels="{% for item in error_events_time_series %}{{ item.timestamp__date }},{% endfor %}" data-data="{% for item in error_events_time_series %}{{ item.count }},{% endfor %}"></canvas>
+                    </div>
+                    <div class="col-md-6">
+                        <canvas id="topSystemsChart" data-labels="{% for item in top_systems_events %}{{ item.system_name }},{% endfor %}" data-data="{% for item in top_systems_events %}{{ item.count }},{% endfor %}"></canvas>
+                    </div>
+                    <div class="col-md-6">
+                         <canvas id="topServicesChart" data-labels="{% for item in top_services_events %}{{ item.service_name }},{% endfor %}" data-data="{% for item in top_services_events %}{{ item.count }},{% endfor %}"></canvas>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">Error Event List</div>
+            <div class="card-body">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>System Name</th>
+                            <th>Service Name</th>
+                            <th>Error Reason</th>
+                            <th>Timestamp</th>
+                            <th>Error Count</th>
+                            <th>Inserted By</th>
+                            <th>Details</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for error_event in error_events %}
+                        <tr>
+                            <td>{{ error_event.id }}</td>
+                            <td>{{ error_event.system_name }}</td>
+                            <td>{{ error_event.service_name }}</td>
+                            <td>{{ error_event.error_reason|truncatechars:50 }}</td>
+                            <td>{{ error_event.timestamp }}</td>
+                            <td>{{ error_event.error_count }}</td>
+                            <td>{{ error_event.inserted_by }}</td>
+                            <td><a href="{% url 'error_event_detail' error_event.id %}">View Details</a></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">Error Ticket Overview</div>
+            <div class="card-body">
+                <p>Total Error Tickets: {{ total_error_tickets }}</p>
+                <p>Average Resolution Time: {{ average_resolution_time|floatformat:2 }} hours</p>
+                <div class="row">
+                    <div class="col-md-6">
+                        <canvas id="ticketStatusChart" data-labels="{% for item in error_ticket_statuses %}{{ item.statut }},{% endfor %}" data-data="{% for item in error_ticket_statuses %}{{ item.count }},{% endfor %}"></canvas>
+                    </div>
+                    <div class="col-md-6">
+                        <canvas id="ticketPriorityChart" data-labels="{% for item in error_ticket_priorities %}{{ item.priorite }},{% endfor %}" data-data="{% for item in error_ticket_priorities %}{{ item.count }},{% endfor %}"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">Error Ticket List</div>
+            <div class="card-body">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Ticket Reference</th>
+                            <th>System Name</th>
+                            <th>Status</th>
+                            <th>Priority</th>
+                            <th>Creation Date</th>
+                            <th>Resolution Date</th>
+                            <th>Duration</th>
+                            <th>Details</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for ticket in error_tickets %}
+                        <tr>
+                            <td>{{ ticket.ticket_reference }}</td>
+                            <td>{{ ticket.error_type.system_name }}</td>
+                            <td>{{ ticket.get_statut_display }}</td>
+                            <td>{{ ticket.get_priorite_display }}</td>
+                            <td>{{ ticket.date_creation }}</td>
+                            <td>{{ ticket.date_resolution }}</td>
+                            <td>{{ ticket.get_duration|floatformat:2 }} hours</td>
+                            <td><a href="{% url 'error_management_systems:ticket_detail' ticket.id %}">View Details</a></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        function createChart(canvasId) {
+            const canvas = document.getElementById(canvasId);
+            const labels = canvas.dataset.labels.split(',').filter(label => label.trim() !== '');
+            const data = canvas.dataset.data.split(',').filter(value => value.trim() !== '').map(Number);
+
+            new Chart(canvas, {
+                type: canvasId.includes('Chart') ? 'pie' : 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: canvasId.includes('TimeSeries') ? 'Error Events Over Time' : canvasId.includes('Systems') ? 'Top Systems by Error Events' : canvasId.includes('Services') ? 'Top Services by Error Events' : '',
+                        data: data,
+                        backgroundColor: canvasId.includes('Chart') ? ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#E7E9ED'] : canvasId.includes('Systems') ? '#4BC0C0' : canvasId.includes('Services') ? '#FFCE56' : canvasId.includes('TimeSeries') ? '#36A2EB' : ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0'],
+                        borderColor: canvasId.includes('TimeSeries') ? '#36A2EB' : null,
+                        fill: false
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        createChart('errorCategoryChart');
+        createChart('impactLevelChart');
+        createChart('expectedVsUnexpectedChart');
+        createChart('errorEventsTimeSeriesChart');
+        createChart('topSystemsChart');
+        createChart('topServicesChart');
+        createChart('ticketStatusChart');
+        createChart('ticketPriorityChart');
+    </script>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
