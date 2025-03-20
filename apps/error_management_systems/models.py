@@ -18,7 +18,7 @@ class ErrorType(models.Model):
     error_reason = models.TextField(verbose_name="Error Reason")
     
     # Catégorisation
-    error_type = models.CharField(
+    type_error = models.CharField(
         max_length=50, 
         choices=[('expected', 'Expected'), ('unexpected', 'Unexpected')], 
         default='unexpected', 

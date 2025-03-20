@@ -10,7 +10,7 @@ class ErrorTypeForm(forms.ModelForm):
         model = ErrorType
         fields = [
             'system_name', 'service_type', 'service_name', 'error_reason',
-            'error_type', 'error_category', 'impact_level', 'trigger_event',
+            'type_error', 'error_category', 'impact_level', 'trigger_event',
             'occurred_at', 'source_component', 'code_erreur', 'fichiers_impactes',
             'request_payload', 'stack_trace'
         ]
@@ -19,7 +19,7 @@ class ErrorTypeForm(forms.ModelForm):
             'service_type': forms.TextInput(attrs={'class': 'form-control'}),
             'service_name': forms.TextInput(attrs={'class': 'form-control'}),
             'error_reason': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
-            'error_type': forms.Select(attrs={'class': 'form-control'}),
+            'type_error': forms.Select(attrs={'class': 'form-control'}),
             'error_category': forms.Select(attrs={'class': 'form-control'}),
             'impact_level': forms.Select(attrs={'class': 'form-control'}),
             'trigger_event': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
