@@ -108,7 +108,7 @@
                             <td>{{ error_event.timestamp }}</td>
                             <td>{{ error_event.error_count }}</td>
                             <td>{{ error_event.inserted_by }}</td>
-                            <td><a href="{% url 'error_management_systems:event_detail' event.id %}">View Details</a></td>
+                            <td><a href="{% url 'error_management_systems:event_detail' error_event.id %}">View Details</a></td>
                         </tr>
                         {% endfor %}
                     </tbody>
