@@ -34,12 +34,14 @@ class ErrorType(models.Model):
             ('data', 'Data'), 
             ('configuration', 'Configuration')
         ], 
-        verbose_name="Error Category"
+        verbose_name="Error Category",
+        default='logic'
     )
     impact_level = models.CharField(
         max_length=20, 
         choices=[('low', 'Low'), ('medium', 'Medium'), ('high', 'High'), ('critical', 'Critical')], 
-        verbose_name="Impact Level"
+        verbose_name="Impact Level",
+        default='low'
     )
 
     # Contexte
