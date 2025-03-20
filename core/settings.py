@@ -52,8 +52,8 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'core.urls'
-LOGIN_REDIRECT_URL = "/"  # Route defined in home/urls.py
-LOGOUT_REDIRECT_URL = "/"  # Route defined in home/urls.py
+LOGIN_REDIRECT_URL = '/errors/dashboard1/'  # Redirect to dashboard1 after login
+LOGOUT_REDIRECT_URL = '/errors/dashboard1/'  # Redirect to dashboard1 after logout
 LOGIN_URL = '/authentication/login/'
 TEMPLATE_DIR = os.path.join(CORE_DIR, "apps/templates")  # ROOT dir for templates
 
