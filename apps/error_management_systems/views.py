@@ -173,7 +173,8 @@ def create_event(request):
             error_type=error_type,  # Ajout de l'association
             error_count=request.POST.get('error_count', 1),
             inserted_by=request.user.username,
-            notes=request.POST.get('notes', '')
+            notes=request.POST.get('notes', ''),
+            logs=request.POST.get('logs', '')
         )
         event.save()
 

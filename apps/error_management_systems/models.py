@@ -102,7 +102,7 @@ class ErrorEvent(models.Model):
     service_name = models.CharField(max_length=100, verbose_name="Service Name")
     error_reason = models.TextField(verbose_name="Error Reason")
     error_count = models.IntegerField(verbose_name="Error Count")
-    
+    logs = models.TextField(blank=True, verbose_name="Messages de logs")
     timestamp = models.DateTimeField(default=timezone.now, verbose_name="Timestamp")
     
     # Additional Information
