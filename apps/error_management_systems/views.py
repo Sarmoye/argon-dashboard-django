@@ -157,8 +157,7 @@ def create_event(request):
             defaults={
                 'service_type': service_type,
                 'code_erreur': request.POST.get('code_erreur', ''),
-                'fichiers_impactes': request.POST.get('fichiers_impactes', ''),
-                'logs': request.POST.get('logs', '')
+                'fichiers_impactes': request.POST.get('fichiers_impactes', '')
             }
         )
 
