@@ -10,7 +10,7 @@ from .models import ErrorType, ErrorEvent, ErrorTicket
 from .forms import ErrorTypeForm, ErrorEventForm, ErrorTicketForm
 
 # Page d'accueil
-def home(request):
+def dashboard1(request):
     """Page d'accueil avec statistiques générales et derniers événements"""
     # Statistiques globales
     stats = {
@@ -30,7 +30,7 @@ from .models import ErrorType, ErrorEvent, ErrorTicket
 from django.utils import timezone
 from django.db import models
 
-def home1(request):
+def dashboard2(request):
     """Page d'accueil avec statistiques générales et derniers événements"""
 
     # Statistiques globales

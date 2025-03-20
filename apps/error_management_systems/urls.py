@@ -6,8 +6,8 @@ app_name = 'error_management_systems'
 
 urlpatterns = [
     # Pages principales
-    path('', views.home, name='home'),
-    path('home1/', views.home1, name='home1'),
+    path('dashboard1/', views.dashboard1, name='dashboard1'),
+    path('dashboard2/', views.dashboard2, name='dashboard2'),
     
     # ErrorEvent
     path('events/', views.event_list, name='event_list'),
