@@ -34,7 +34,22 @@ class ErrorTypeForm(forms.ModelForm):
 class ErrorEventForm(forms.ModelForm):
     class Meta:
         model = ErrorEvent
-        fields = ['error_type', 'error_count', 'inserted_by', 'notes']
+        fields = [
+            'error_type', 'system_name', 'service_type', 'service_name', 
+            'error_reason', 'error_count', 'timestamp', 'inserted_by', 
+            'notes'
+        ]
+        widgets = {
+            'error_type': forms.Select(attrs={'class': 'form-control'}),
+            'system_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'service_type': forms.TextInput(attrs={'class': 'form-control'}),
+            'service_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'error_reason': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'error_count': forms.NumberInput(attrs={'class': 'form-control'}),
+            'timestamp': forms.DateTimeInput(attrs={'class': 'form-control', 'type': 'datetime-local'}),
+            'inserted_by': forms.TextInput(attrs={'class': 'form-control'}),
+            'notes': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+        }
 
 class ErrorTicketForm(forms.ModelForm):
     class Meta:
