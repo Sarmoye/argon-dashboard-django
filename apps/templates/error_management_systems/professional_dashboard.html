@@ -55,7 +55,7 @@
                             <td>{{ error_type.impact_level }}</td>
                             <td>{{ error_type.type_error }}</td>
                             <td>{{ error_type.created_at }}</td>
-                            <td><a href="{% url 'error_type_detail' error_type.id %}">View Details</a></td>
+                            <td><a href="{% url 'error_management_systems:error_type_detail' error_type.id %}">View Details</a></td>
                         </tr>
                         {% endfor %}
                     </tbody>
@@ -108,7 +108,7 @@
                             <td>{{ error_event.timestamp }}</td>
                             <td>{{ error_event.error_count }}</td>
                             <td>{{ error_event.inserted_by }}</td>
-                            <td><a href="{% url 'error_event_detail' error_event.id %}">View Details</a></td>
+                            <td><a href="{% url 'error_management_systems:event_detail' event.id %}">View Details</a></td>
                         </tr>
                         {% endfor %}
                     </tbody>
