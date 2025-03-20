@@ -24,17 +24,32 @@ class ErrorEventForm(forms.ModelForm):
 class ErrorTicketForm(forms.ModelForm):
     class Meta:
         model = ErrorTicket
-        fields = ['priorite', 'niveau_criticite', 'symptomes', 'impact', 
-                 'services_affectes', 'nombre_utilisateurs', 'responsable', 
-                 'equipe', 'actions']
+        fields = [
+            'priorite', 'statut', 'niveau_criticite', 'symptomes', 'impact',
+            'services_affectes', 'charge_systeme', 'nombre_utilisateurs',
+            'cause_racine', 'hypotheses', 'responsable', 'equipe', 'actions',
+            'solution', 'commentaires', 'historique', 'date_resolution',
+            'lessons_learned', 'validation_responsable', 'documented_knowledge_base'
+        ]
         widgets = {
             'priorite': forms.Select(attrs={'class': 'form-control'}),
+            'statut': forms.Select(attrs={'class': 'form-control'}),
             'niveau_criticite': forms.Select(attrs={'class': 'form-control'}),
             'symptomes': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
             'impact': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
             'services_affectes': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'charge_systeme': forms.NumberInput(attrs={'class': 'form-control'}),
             'nombre_utilisateurs': forms.NumberInput(attrs={'class': 'form-control'}),
+            'cause_racine': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'hypotheses': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
             'responsable': forms.TextInput(attrs={'class': 'form-control'}),
             'equipe': forms.TextInput(attrs={'class': 'form-control'}),
             'actions': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'solution': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'commentaires': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'historique': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'date_resolution': forms.DateTimeInput(attrs={'class': 'form-control', 'type': 'datetime-local'}),
+            'lessons_learned': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'validation_responsable': forms.TextInput(attrs={'class': 'form-control'}),
+            'documented_knowledge_base': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }

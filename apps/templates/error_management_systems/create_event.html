@@ -269,7 +269,7 @@
               <div class="row g-3 mb-4">
                 <div class="col-md-6">
                   <div class="form-floating">
-                    <input type="text" class="form-control" id="inserted_by" name="inserted_by" placeholder="Inserted by" required>
+                    <input type="text" class="form-control" id="inserted_by" name="inserted_by" placeholder="{{ request.user.username }}" required disabled>
                     <label for="inserted_by" class="required-field">Inserted by</label>
                   </div>
                 </div>
