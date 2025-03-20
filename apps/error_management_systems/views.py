@@ -22,7 +22,7 @@ def dashboard1(request):
         'critical_tickets': ErrorTicket.objects.filter(priorite='P1', statut__in=['OPEN', 'IN_PROGRESS']).order_by('date_creation')[:5]
     }
     
-    return render(request, 'error_management_systems/home.html', {'stats': stats})
+    return render(request, 'error_management_systems/dashboard1.html', {'stats': stats})
 
 from django.shortcuts import render
 from django.db.models import Count, Avg
@@ -84,7 +84,7 @@ def dashboard2(request):
     severity_distribution = ErrorType.objects.values('niveau_severite').annotate(count=Count('id')).order_by('-count')
     stats['severity_distribution'] = severity_distribution
 
-    return render(request, 'error_management_systems/home1.html', {'stats': stats})
+    return render(request, 'error_management_systems/dashboard2.html', {'stats': stats})
 
 # ---- ErrorEvent Views ----
 
