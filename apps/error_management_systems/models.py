@@ -46,7 +46,7 @@ class ErrorType(models.Model):
 
     # Contexte
     trigger_event = models.TextField(blank=True, verbose_name="Trigger Event")
-    occurred_at = models.DateTimeField(verbose_name="Occurrence Timestamp", blank=True)
+    occurred_at = models.DateTimeField(verbose_name="Occurrence Timestamp", blank=True, default=timezone.now)
     source_component = models.CharField(max_length=100, blank=True, verbose_name="Source Component")
     
     # Données techniques
