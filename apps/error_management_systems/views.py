@@ -5,11 +5,12 @@ from django.db.models import Count, Sum
 from django.utils import timezone
 from django.views.decorators.http import require_POST, require_http_methods
 import json
-
+from django.contrib.auth.decorators import login_required
 from .models import ErrorType, ErrorEvent, ErrorTicket
 from .forms import ErrorTypeForm, ErrorEventForm, ErrorTicketForm
 
 # Page d'accueil
+@login_required(login_url='/authentication/login/')
 def dashboard1(request):
     """Page d'accueil avec statistiques générales et derniers événements"""
     # Statistiques globales
@@ -29,7 +30,7 @@ from django.db.models import Count, Avg
 from .models import ErrorType, ErrorEvent, ErrorTicket
 from django.utils import timezone
 from django.db import models
-
+@login_required(login_url='/authentication/login/')
 def dashboard2(request):
     """Page d'accueil avec statistiques générales et derniers événements"""
 
@@ -87,7 +88,7 @@ def dashboard2(request):
     return render(request, 'error_management_systems/dashboard2.html', {'stats': stats})
 
 # ---- ErrorEvent Views ----
-
+@login_required(login_url='/authentication/login/')
 def event_list(request):
     """Liste des événements d'erreur avec filtres"""
     events = ErrorEvent.objects.all().order_by('-timestamp')
@@ -119,6 +120,7 @@ def event_list(request):
     
     return render(request, 'error_management_systems/event_list.html', context)
 
+@login_required(login_url='/authentication/login/')
 def event_detail(request, event_id):
     """Détail d'un événement d'erreur"""
     event = get_object_or_404(ErrorEvent, id=event_id)
@@ -141,6 +143,7 @@ def event_detail(request, event_id):
     
     return render(request, 'error_management_systems/event_detail.html', context)
 
+@login_required(login_url='/authentication/login/')
 def create_event(request):
     """Création d'un nouvel événement d'erreur"""
     if request.method == 'POST':
@@ -197,6 +200,7 @@ def create_event(request):
 
     return render(request, 'error_management_systems/create_event.html', context)
 
+@login_required(login_url='/authentication/login/')
 def modify_error_type_details(request, event_id, error_type_id):
     """Modifier les détails du type d'erreur après la création de l'événement"""
     error_type = get_object_or_404(ErrorType, id=error_type_id)
@@ -219,6 +223,7 @@ def modify_error_type_details(request, event_id, error_type_id):
     
     return render(request, 'error_management_systems/edit_error_type.html', context)
 
+@login_required(login_url='/authentication/login/')
 def modify_error_ticket_details(request, event_id, error_type_id):
     """Modifier les détails du ticket après la création de l'événement"""
     error_type = get_object_or_404(ErrorType, id=error_type_id)
@@ -244,7 +249,7 @@ def modify_error_ticket_details(request, event_id, error_type_id):
     return render(request, 'error_management_systems/edit_ticket.html', context)
 
 # ---- ErrorType Views ----
-
+@login_required(login_url='/authentication/login/')
 def error_type_list(request):
     """Liste des types d'erreurs avec filtres et statistiques"""
     error_types = ErrorType.objects.annotate(event_count=Count('events')).order_by('-event_count')
@@ -270,6 +275,7 @@ def error_type_list(request):
     
     return render(request, 'error_management_systems/error_type_list.html', context)
 
+@login_required(login_url='/authentication/login/')
 def error_type_detail(request, error_type_id):
     """Détail d'un type d'erreur avec ses événements associés"""
     error_type = get_object_or_404(ErrorType, id=error_type_id)
@@ -294,6 +300,7 @@ def error_type_detail(request, error_type_id):
     
     return render(request, 'error_management_systems/error_type_detail.html', context)
 
+@login_required(login_url='/authentication/login/')
 def edit_error_type(request, error_type_id):
     """Édition d'un type d'erreur"""
     error_type = get_object_or_404(ErrorType, id=error_type_id)
@@ -315,7 +322,7 @@ def edit_error_type(request, error_type_id):
     return render(request, 'error_management_systems/edit_error_type.html', context)
 
 # ---- ErrorTicket Views ----
-
+@login_required(login_url='/authentication/login/')
 def ticket_list(request):
     """Liste des tickets avec filtres"""
     tickets = ErrorTicket.objects.all().order_by('-date_creation')
@@ -344,6 +351,7 @@ def ticket_list(request):
     
     return render(request, 'error_management_systems/ticket_list.html', context)
 
+@login_required(login_url='/authentication/login/')
 def ticket_detail(request, ticket_id):
     """Détail d'un ticket"""
     ticket = get_object_or_404(ErrorTicket, id=ticket_id)
@@ -360,6 +368,7 @@ def ticket_detail(request, ticket_id):
     
     return render(request, 'error_management_systems/ticket_detail.html', context)
 
+@login_required(login_url='/authentication/login/')
 def edit_ticket(request, ticket_id):
     """Édition d'un ticket"""
     ticket = get_object_or_404(ErrorTicket, id=ticket_id)
