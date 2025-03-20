@@ -1,19 +1,34 @@
 from django import forms
 from .models import ErrorType, ErrorEvent, ErrorTicket
 
+from django import forms
+from .models import ErrorType
+
 class ErrorTypeForm(forms.ModelForm):
     """Formulaire pour la création/modification du type d'erreur"""
     class Meta:
         model = ErrorType
-        fields = ['system_name', 'service_type', 'service_name', 'error_reason', 
-                  'code_erreur', 'comportement_attendu']
+        fields = [
+            'system_name', 'service_type', 'service_name', 'error_reason',
+            'error_type', 'error_category', 'impact_level', 'trigger_event',
+            'occurred_at', 'source_component', 'code_erreur', 'fichiers_impactes',
+            'request_payload', 'stack_trace'
+        ]
         widgets = {
             'system_name': forms.TextInput(attrs={'class': 'form-control'}),
             'service_type': forms.TextInput(attrs={'class': 'form-control'}),
             'service_name': forms.TextInput(attrs={'class': 'form-control'}),
             'error_reason': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'error_type': forms.Select(attrs={'class': 'form-control'}),
+            'error_category': forms.Select(attrs={'class': 'form-control'}),
+            'impact_level': forms.Select(attrs={'class': 'form-control'}),
+            'trigger_event': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'occurred_at': forms.DateTimeInput(attrs={'class': 'form-control', 'type': 'datetime-local'}),
+            'source_component': forms.TextInput(attrs={'class': 'form-control'}),
             'code_erreur': forms.TextInput(attrs={'class': 'form-control'}),
-            'comportement_attendu': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'fichiers_impactes': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'request_payload': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'stack_trace': forms.Textarea(attrs={'class': 'form-control', 'rows': 5}),
         }
 
 class ErrorEventForm(forms.ModelForm):
