@@ -1,5 +1,10 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends 'layouts/base.html' %}
+
+{% load static %}
+
+{% block title %}Home - Error Management System{% endblock %}
+
+{% block content %}
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -167,47 +172,48 @@
         </div>
 
     </div>
+{% endblock %}
 
-    <script>
-        function createChart(canvasId) {
-            const canvas = document.getElementById(canvasId);
-            const labels = canvas.dataset.labels.split(',').filter(label => label.trim() !== '');
-            const data = canvas.dataset.data.split(',').filter(value => value.trim() !== '').map(Number);
+{% block extrajs %}
+<script>
+    function createChart(canvasId) {
+        const canvas = document.getElementById(canvasId);
+        const labels = canvas.dataset.labels.split(',').filter(label => label.trim() !== '');
+        const data = canvas.dataset.data.split(',').filter(value => value.trim() !== '').map(Number);
 
-            new Chart(canvas, {
-                type: canvasId.includes('Chart') ? 'pie' : 'line',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: canvasId.includes('TimeSeries') ? 'Error Events Over Time' : canvasId.includes('Systems') ? 'Top Systems by Error Events' : canvasId.includes('Services') ? 'Top Services by Error Events' : '',
-                        data: data,
-                        backgroundColor: canvasId.includes('Chart') ? ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#E7E9ED'] : canvasId.includes('Systems') ? '#4BC0C0' : canvasId.includes('Services') ? '#FFCE56' : canvasId.includes('TimeSeries') ? '#36A2EB' : ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0'],
-                        borderColor: canvasId.includes('TimeSeries') ? '#36A2EB' : null,
-                        fill: false
-                    }]
-                },
-                options: {
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
+        new Chart(canvas, {
+            type: canvasId.includes('Chart') ? 'pie' : 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: canvasId.includes('TimeSeries') ? 'Error Events Over Time' : canvasId.includes('Systems') ? 'Top Systems by Error Events' : canvasId.includes('Services') ? 'Top Services by Error Events' : '',
+                    data: data,
+                    backgroundColor: canvasId.includes('Chart') ? ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#E7E9ED'] : canvasId.includes('Systems') ? '#4BC0C0' : canvasId.includes('Services') ? '#FFCE56' : canvasId.includes('TimeSeries') ? '#36A2EB' : ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0'],
+                    borderColor: canvasId.includes('TimeSeries') ? '#36A2EB' : null,
+                    fill: false
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
                     }
                 }
-            });
-        }
+            }
+        });
+    }
 
-        createChart('errorCategoryChart');
-        createChart('impactLevelChart');
-        createChart('expectedVsUnexpectedChart');
-        createChart('errorEventsTimeSeriesChart');
-        createChart('topSystemsChart');
-        createChart('topServicesChart');
-        createChart('ticketStatusChart');
-        createChart('ticketPriorityChart');
-    </script>
+    createChart('errorCategoryChart');
+    createChart('impactLevelChart');
+    createChart('expectedVsUnexpectedChart');
+    createChart('errorEventsTimeSeriesChart');
+    createChart('topSystemsChart');
+    createChart('topServicesChart');
+    createChart('ticketStatusChart');
+    createChart('ticketPriorityChart');
+</script>
 
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-</body>
-</html>
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+{% endblock %}
