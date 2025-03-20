@@ -22,7 +22,7 @@ class ErrorType(models.Model):
         max_length=50, 
         choices=[('expected', 'Expected'), ('unexpected', 'Unexpected')], 
         default='unexpected', 
-        verbose_name="Error Type"
+        verbose_name="Type Error"
     )
     error_category = models.CharField(
         max_length=50, 
