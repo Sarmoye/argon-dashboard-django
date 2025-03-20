@@ -1,6 +1,10 @@
 # apps/analysis/urls.py
 from django.urls import path
 from . import views
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+    TokenRefreshView,
+)
 
 app_name = 'error_management_systems'
 
@@ -24,8 +28,13 @@ urlpatterns = [
     path('tickets/<uuid:ticket_id>/', views.ticket_detail, name='ticket_detail'),
     path('tickets/<uuid:ticket_id>/edit/', views.edit_ticket, name='edit_ticket'),
     
-    # API AJAX
+    # API
     path('api/check-error-type/', views.check_error_type_exists, name='check_error_type'),
     path('api/create-error-type/', views.create_error_type_ajax, name='create_error_type_ajax'),
     path('api/create-ticket/', views.create_ticket_ajax, name='create_ticket_ajax'),
+
+    # CREATE EVENT API
+    path('api/create-event/', views.create_event_api, name='create_event_api'),
+    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 ]

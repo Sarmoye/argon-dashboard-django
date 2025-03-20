@@ -701,3 +701,84 @@ def create_ticket_ajax(request):
             'success': False,
             'message': f'Erreur: {str(e)}'
         }, status=500)
+    
+
+from rest_framework import status, permissions
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.response import Response
+from rest_framework.authtoken.models import Token
+from django.contrib.auth import authenticate
+from .models import ErrorEvent, ErrorType, ErrorTicket
+from .serializers import ErrorEventSerializer
+from rest_framework.throttling import UserRateThrottle
+
+class CustomUserRateThrottle(UserRateThrottle):
+    rate = '1000/day'  # Adjust as needed
+
+@api_view(['POST'])
+def get_auth_token(request):
+    """API endpoint to obtain an authentication token."""
+    username = request.data.get('username')
+    password = request.data.get('password')
+
+    if not username or not password:
+        return Response({'error': 'Please provide username and password.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    user = authenticate(username=username, password=password)
+
+    if user:
+        token, created = Token.objects.get_or_create(user=user)
+        return Response({'token': token.key})
+    else:
+        return Response({'error': 'Invalid credentials.'}, status=status.HTTP_401_UNAUTHORIZED)
+
+@api_view(['POST'])
+@permission_classes([permissions.IsAuthenticated])
+def create_event_api(request):
+    """API endpoint to create a new error event."""
+    throttle_classes = [CustomUserRateThrottle]
+    system_name = request.data.get('system_name')
+    service_name = request.data.get('service_name')
+    service_type = request.data.get('service_type')
+    error_reason = request.data.get('error_reason')
+    error_count = request.data.get('error_count', 1)
+    notes = request.data.get('notes', '')
+    logs = request.data.get('logs', '')
+    code_erreur = request.data.get('code_erreur', '')
+    fichiers_impactes = request.data.get('fichiers_impactes', '')
+
+    if not all([system_name, service_name, service_type, error_reason]):
+        return Response({"error": "Missing required fields."}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        error_type, created = ErrorType.objects.get_or_create(
+            system_name=system_name,
+            service_name=service_name,
+            error_reason=error_reason,
+            defaults={
+                'service_type': service_type,
+                'code_erreur': code_erreur,
+                'fichiers_impactes': fichiers_impactes,
+            }
+        )
+
+        event = ErrorEvent.objects.create(
+            system_name=system_name,
+            service_type=service_type,
+            service_name=service_name,
+            error_reason=error_reason,
+            error_type=error_type,
+            error_count=error_count,
+            inserted_by=request.user.username,
+            notes=notes,
+            logs=logs,
+        )
+
+        if created:
+            ErrorTicket.objects.create(error_type=error_type)
+
+        serializer = ErrorEventSerializer(event)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    except Exception as e:
+        return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
