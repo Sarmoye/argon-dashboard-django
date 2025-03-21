@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse, HttpResponse
 from django.contrib import messages
-from django.db.models import Count, Sum
+from django.db.models import Count, Sum, Q
 from django.utils import timezone
 from django.views.decorators.http import require_POST, require_http_methods
 import json
@@ -44,8 +44,29 @@ def dashboard2(request):
     # Error Event Overview (Widget 3)
     total_error_events = ErrorEvent.objects.count()
     error_events_time_series = ErrorEvent.objects.values('timestamp__date').annotate(count=Count('id')).order_by('timestamp__date')
+    
     top_systems_events = ErrorEvent.objects.values('system_name').annotate(count=Count('id')).order_by('-count')[:5]
     top_services_events = ErrorEvent.objects.values('service_name').annotate(count=Count('id')).order_by('-count')[:5]
+
+    # Additional System Insights
+    most_error_prone_system = ErrorEvent.objects.values('system_name').annotate(count=Count('id')).order_by('-count').first()
+    most_error_prone_service = ErrorEvent.objects.values('service_name').annotate(count=Count('id')).order_by('-count').first()
+
+    most_common_errors = ErrorType.objects.values('error_reason').annotate(count=Count('id')).order_by('-count')[:5]
+
+    most_impactful_systems = (
+        ErrorType.objects.filter(impact_level__in=['critical', 'high'])
+        .values('system_name')
+        .annotate(count=Count('id'))
+        .order_by('-count')[:5]
+    )
+
+    top_impacted_components = (
+        ErrorType.objects.exclude(source_component="")
+        .values('source_component')
+        .annotate(count=Count('id'))
+        .order_by('-count')[:5]
+    )
 
     # Error Event List (Widget 4)
     error_events = ErrorEvent.objects.all()
@@ -59,7 +80,7 @@ def dashboard2(request):
     resolved_tickets = ErrorTicket.objects.filter(statut='RESOLVED', date_resolution__isnull=False)
     if resolved_tickets.exists():
         total_duration = sum([(ticket.date_resolution - ticket.date_creation).total_seconds() for ticket in resolved_tickets])
-        average_resolution_time = total_duration / resolved_tickets.count() / 3600 # in hours
+        average_resolution_time = total_duration / resolved_tickets.count() / 3600  # in hours
     else:
         average_resolution_time = 0
 
@@ -88,9 +109,16 @@ def dashboard2(request):
         'average_resolution_time': average_resolution_time,
         # Widget 8
         'error_tickets': error_tickets,
+        # New Insights
+        'most_error_prone_system': most_error_prone_system,
+        'most_error_prone_service': most_error_prone_service,
+        'most_common_errors': most_common_errors,
+        'most_impactful_systems': most_impactful_systems,
+        'top_impacted_components': top_impacted_components,
     }
 
     return render(request, 'error_management_systems/dashboard2.html', context)
+
 
 # ---- ErrorEvent Views ----
 @login_required(login_url='/authentication/login/')

@@ -173,6 +173,43 @@ a:hover {
 {% block content %}
     <div class="container mt-4">
         <h1>Dashboard - Systems Errors Tracker</h1>
+        <div class="card mb-4">
+            <div class="card-header">System Error Insights</div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <h5>Most Error-Prone System</h5>
+                        <p>{{ most_error_prone_system.system_name }} ({{ most_error_prone_system.count }} errors)</p>
+                    </div>
+                    <div class="col-md-4">
+                        <h5>Most Error-Prone Service</h5>
+                        <p>{{ most_error_prone_service.service_name }} ({{ most_error_prone_service.count }} errors)</p>
+                    </div>
+                    <div class="col-md-4">
+                        <h5>Most Frequent Error Reasons</h5>
+                        <ul>
+                            {% for error in most_common_errors %}
+                                <li>{{ error.error_reason }} ({{ error.count }} occurrences)</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-md-6">
+                        <canvas id="mostImpactfulSystemsChart" 
+                                data-labels="{% for item in most_impactful_systems %}{{ item.system_name }},{% endfor %}"
+                                data-data="{% for item in most_impactful_systems %}{{ item.count }},{% endfor %}">
+                        </canvas>
+                    </div>
+                    <div class="col-md-6">
+                        <canvas id="topImpactedComponentsChart" 
+                                data-labels="{% for item in top_impacted_components %}{{ item.source_component }},{% endfor %}"
+                                data-data="{% for item in top_impacted_components %}{{ item.count }},{% endfor %}">
+                        </canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <div class="card mb-4">
             <div class="card-header">Error Type Overview</div>
@@ -627,6 +664,10 @@ document.addEventListener('DOMContentLoaded', function() {
   createAreaChart('errorEventsTimeSeriesChart', 'Error Events Over Time');
   createBarChart('topSystemsChart', 'Top Systems by Error Events');
   createBarChart('topServicesChart', 'Top Services by Error Events');
+
+  // New System Error Insights Section
+  createBarChart('mostImpactfulSystemsChart', 'Most Impactful Systems');
+  createBarChart('topImpactedComponentsChart', 'Top Impacted Components');
   
   // Error Ticket Overview Section
   createDonutChart('ticketStatusChart', 'Ticket Status Distribution');
@@ -659,6 +700,18 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 });
 </script>
+<script>
+    $(document).ready(function() {
+      $('.table').DataTable({
+                dom: 'Bfrtip',
+                buttons: [
+                    'copy', 'csv', 'excel', 'pdf', 'print'
+                ],
+                "pageLength": 10,
+                "lengthMenu": [10, 25, 50, 100],
+            });
+    });
+  </script>
 
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
