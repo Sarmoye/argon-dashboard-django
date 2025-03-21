@@ -2,237 +2,666 @@
 
 {% load static %}
 
-{% block title %}Home - Error Management System{% endblock %}
+{% block title %}Professional Dashboard {% endblock %}
+
+{% block stylesheets %}
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+
+<style>
+    /* Modern Dashboard Styling */
+.dashboard-container {
+  font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif;
+}
+
+/* Card styling */
+.card {
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  margin-bottom: 24px;
+  overflow: hidden;
+}
+
+.card:hover {
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+.card-header {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  padding: 16px 20px;
+  font-weight: 600;
+  font-size: 1.1rem;
+  color: #343a40;
+}
+
+.card-body {
+  padding: 24px;
+  background-color: #ffffff;
+}
+
+/* Chart containers */
+.chart-container {
+  position: relative;
+  height: 300px;
+  margin-bottom: 20px;
+}
+
+/* Metrics display */
+.metrics-overview {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.metric-card {
+  flex: 1;
+  min-width: 200px;
+  background: white;
+  border-radius: 10px;
+  padding: 16px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.metric-title {
+  font-size: 0.9rem;
+  color: #6c757d;
+  margin-bottom: 8px;
+}
+
+.metric-value {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #3a86ff;
+}
+
+/* Status indicators */
+.status-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 50px;
+  font-weight: 500;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+}
+
+.status-open {
+  background-color: #ebf5ff;
+  color: #3a86ff;
+}
+
+.status-in-progress {
+  background-color: #fff3cd;
+  color: #ff9f1c;
+}
+
+.status-resolved {
+  background-color: #d1e7dd;
+  color: #2ec4b6;
+}
+
+.status-closed {
+  background-color: #e2e3e5;
+  color: #6c757d;
+}
+
+/* Priority indicators */
+.priority-high {
+  background-color: #f8d7da;
+  color: #e71d36;
+}
+
+.priority-medium {
+  background-color: #fff3cd;
+  color: #ff9f1c;
+}
+
+.priority-low {
+  background-color: #d1e7dd;
+  color: #2ec4b6;
+}
+
+/* Links styling */
+a {
+  color: #3a86ff;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+a:hover {
+  color: #4361ee;
+  text-decoration: none;
+}
+
+/* Responsive adjustments */
+@media (max-width: 992px) {
+  .metric-card {
+    min-width: 150px;
+  }
+  
+  .chart-container {
+    height: 250px;
+  }
+}
+
+@media (max-width: 768px) {
+  .card-body {
+    padding: 16px;
+  }
+  
+  .chart-container {
+    height: 220px;
+  }
+  
+  .metrics-overview {
+    flex-direction: column;
+  }
+  
+  .metric-card {
+    width: 100%;
+  }
+}
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">Dashboard - Systems Errors Tracker</h5>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-3 mb-3">
-                            <div class="card bg-light">
-                                <div class="card-body text-center">
-                                    <h6 class="card-title">Error Types</h6>
-                                    <h2 class="text-primary">{{ stats.total_error_types }}</h2>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-3 mb-3">
-                            <div class="card bg-light">
-                                <div class="card-body text-center">
-                                    <h6 class="card-title">Error Events</h6>
-                                    <h2 class="text-primary">{{ stats.total_error_events }}</h2>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-3 mb-3">
-                            <div class="card bg-light">
-                                <div class="card-body text-center">
-                                    <h6 class="card-title">Open Tickets</h6>
-                                    <h2 class="text-warning">{{ stats.open_tickets }}</h2>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-3 mb-3">
-                            <div class="card bg-light">
-                                <div class="card-body text-center">
-                                    <h6 class="card-title">Critical Tickets</h6>
-                                    <h2 class="text-danger">{{ stats.critical_tickets|length }}</h2>
-                                </div>
-                            </div>
-                        </div>
+    <div class="container mt-4">
+        <h1>Dashboard - Systems Errors Tracker</h1>
+
+        <div class="card mb-4">
+            <div class="card-header">Error Type Overview</div>
+            <div class="card-body">
+                <p>Total Error Types: {{ total_error_types }}</p>
+                <div class="row">
+                    <div class="col-md-4">
+                        <canvas id="errorCategoryChart" data-labels="{% for item in error_type_categories %}{{ item.error_category }},{% endfor %}" data-data="{% for item in error_type_categories %}{{ item.count }},{% endfor %}"></canvas>
+                    </div>
+                    <div class="col-md-4">
+                        <canvas id="impactLevelChart" data-labels="{% for item in error_type_impact_levels %}{{ item.impact_level }},{% endfor %}" data-data="{% for item in error_type_impact_levels %}{{ item.count }},{% endfor %}"></canvas>
+                    </div>
+                    <div class="col-md-4">
+                        <canvas id="expectedVsUnexpectedChart" data-labels="{% for item in expected_vs_unexpected %}{{ item.type_error }},{% endfor %}" data-data="{% for item in expected_vs_unexpected %}{{ item.count }},{% endfor %}"></canvas>
                     </div>
                 </div>
             </div>
         </div>
+
+        <div class="card mb-4">
+            <div class="card-header">Error Type List</div>
+            <div class="card-body">
+                <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>System Name</th>
+                            <th>Service Name</th>
+                            <th>Error Reason</th>
+                            <th>Category</th>
+                            <th>Impact Level</th>
+                            <th>Type Error</th>
+                            <th>Created At</th>
+                            <th>Details</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for error_type in error_types %}
+                        <tr>
+                            <td>{{ error_type.system_name }}</td>
+                            <td>{{ error_type.service_name }}</td>
+                            <td>{{ error_type.error_reason|truncatechars:50 }}</td>
+                            <td>{{ error_type.error_category }}</td>
+                            <td>{{ error_type.impact_level }}</td>
+                            <td>{{ error_type.type_error }}</td>
+                            <td>{{ error_type.created_at }}</td>
+                            <td><a href="{% url 'error_management_systems:error_type_detail' error_type.id %}">View Details</a></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">Error Event Overview</div>
+            <div class="card-body">
+                <p>Total Error Events: {{ total_error_events }}</p>
+                <div class="row">
+                    <div class="col-md-6">
+                        <canvas id="errorEventsTimeSeriesChart" data-labels="{% for item in error_events_time_series %}{{ item.timestamp__date }},{% endfor %}" data-data="{% for item in error_events_time_series %}{{ item.count }},{% endfor %}"></canvas>
+                    </div>
+                    <div class="col-md-6">
+                        <canvas id="topSystemsChart" data-labels="{% for item in top_systems_events %}{{ item.system_name }},{% endfor %}" data-data="{% for item in top_systems_events %}{{ item.count }},{% endfor %}"></canvas>
+                    </div>
+                    <div class="col-md-6">
+                         <canvas id="topServicesChart" data-labels="{% for item in top_services_events %}{{ item.service_name }},{% endfor %}" data-data="{% for item in top_services_events %}{{ item.count }},{% endfor %}"></canvas>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">Error Event List</div>
+            <div class="card-body">
+                <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>System Name</th>
+                            <th>Service Name</th>
+                            <th>Error Reason</th>
+                            <th>Timestamp</th>
+                            <th>Error Count</th>
+                            <th>Inserted By</th>
+                            <th>Details</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for error_event in error_events %}
+                        <tr>
+                            <td>{{ error_event.id }}</td>
+                            <td>{{ error_event.system_name }}</td>
+                            <td>{{ error_event.service_name }}</td>
+                            <td>{{ error_event.error_reason|truncatechars:50 }}</td>
+                            <td>{{ error_event.timestamp }}</td>
+                            <td>{{ error_event.error_count }}</td>
+                            <td>{{ error_event.inserted_by }}</td>
+                            <td><a href="{% url 'error_management_systems:event_detail' error_event.id %}">View Details</a></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">Error Ticket Overview</div>
+            <div class="card-body">
+                <p>Total Error Tickets: {{ total_error_tickets }}</p>
+                <p>Average Resolution Time: {{ average_resolution_time|floatformat:2 }} hours</p>
+                <div class="row">
+                    <div class="col-md-6">
+                        <canvas id="ticketStatusChart" data-labels="{% for item in error_ticket_statuses %}{{ item.statut }},{% endfor %}" data-data="{% for item in error_ticket_statuses %}{{ item.count }},{% endfor %}"></canvas>
+                    </div>
+                    <div class="col-md-6">
+                        <canvas id="ticketPriorityChart" data-labels="{% for item in error_ticket_priorities %}{{ item.priorite }},{% endfor %}" data-data="{% for item in error_ticket_priorities %}{{ item.count }},{% endfor %}"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">Error Ticket List</div>
+            <div class="card-body">
+                <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Ticket Reference</th>
+                            <th>System Name</th>
+                            <th>Status</th>
+                            <th>Priority</th>
+                            <th>Creation Date</th>
+                            <th>Resolution Date</th>
+                            <th>Duration</th>
+                            <th>Details</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for ticket in error_tickets %}
+                        <tr>
+                            <td>{{ ticket.ticket_reference }}</td>
+                            <td>{{ ticket.error_type.system_name }}</td>
+                            <td>{{ ticket.get_statut_display }}</td>
+                            <td>{{ ticket.get_priorite_display }}</td>
+                            <td>{{ ticket.date_creation }}</td>
+                            <td>{{ ticket.date_resolution }}</td>
+                            <td>{{ ticket.get_duration|floatformat:2 }} hours</td>
+                            <td><a href="{% url 'error_management_systems:ticket_detail' ticket.id %}">View Details</a></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                </div>
+            </div>
+        </div>
+
     </div>
-    
-    <div class="row mb-4">
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">Recent Error Events</h5>
-                </div>
-                <div class="card-body">
-                    {% if stats.recent_events %}
-                    <div class="table-responsive">
-                        <table class="table table-striped table-hover">
-                            <thead>
-                                <tr>
-                                    <th>System</th>
-                                    <th>Service</th>
-                                    <th>Date</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for event in stats.recent_events %}
-                                <tr>
-                                    <td>{{ event.system_name }}</td>
-                                    <td>{{ event.service_name }}</td>
-                                    <td>{{ event.timestamp|date:"d/m/Y H:i" }}</td>
-                                    <td>
-                                        <a href="{% url 'error_management_systems:event_detail' event_id=event.id %}" class="btn btn-sm btn-info">
-                                            <i class="fas fa-eye"></i> View
-                                        </a>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                    <div class="text-end">
-                        <a href="{% url 'error_management_systems:event_list' %}" class="btn btn-outline-primary">View all events</a>
-                    </div>
-                    {% else %}
-                    <p class="text-center">No recent events</p>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-        
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">Most Frequent Error Types</h5>
-                </div>
-                <div class="card-body">
-                    {% if stats.top_errors %}
-                    <div class="table-responsive">
-                        <table class="table table-striped table-hover">
-                            <thead>
-                                <tr>
-                                    <th>System</th>
-                                    <th>Service</th>
-                                    <th>Occurrences</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for error_type in stats.top_errors %}
-                                <tr>
-                                    <td>{{ error_type.system_name }}</td>
-                                    <td>{{ error_type.service_name }}</td>
-                                    <td>{{ error_type.event_count }}</td>
-                                    <td>
-                                        <a href="{% url 'error_management_systems:error_type_detail' error_type_id=error_type.id %}" class="btn btn-sm btn-info">
-                                            <i class="fas fa-eye"></i> View
-                                        </a>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                    <div class="text-end">
-                        <a href="{% url 'error_management_systems:error_type_list' %}" class="btn btn-outline-primary">View all types</a>
-                    </div>
-                    {% else %}
-                    <p class="text-center">No error types recorded</p>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header bg-danger text-white">
-                    <h5 class="mb-0">Critical Tickets</h5>
-                </div>
-                <div class="card-body">
-                    {% if stats.critical_tickets %}
-                    <div class="table-responsive">
-                        <table class="table table-striped table-hover">
-                            <thead>
-                                <tr>
-                                    <th>Reference</th>
-                                    <th>System</th>
-                                    <th>Status</th>
-                                    <th>Created on</th>
-                                    <th>Responsible</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for ticket in stats.critical_tickets %}
-                                <tr>
-                                    <td>{{ ticket.ticket_reference }}</td>
-                                    <td>{{ ticket.error_type.system_name }}</td>
-                                    <td>
-                                        {% if ticket.statut == 'OPEN' %}
-                                        <span class="badge bg-danger">{{ ticket.get_statut_display }}</span>
-                                        {% elif ticket.statut == 'IN_PROGRESS' %}
-                                        <span class="badge bg-warning">{{ ticket.get_statut_display }}</span>
-                                        {% else %}
-                                        <span class="badge bg-secondary">{{ ticket.get_statut_display }}</span>
-                                        {% endif %}
-                                    </td>
-                                    <td>{{ ticket.date_creation|date:"d/m/Y H:i" }}</td>
-                                    <td>{{ ticket.responsable|default:"Unassigned" }}</td>
-                                    <td>
-                                        <a href="{% url 'error_management_systems:ticket_detail' ticket_id=ticket.id %}" class="btn btn-sm btn-info">
-                                            <i class="fas fa-eye"></i> View
-                                        </a>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                    <div class="text-end">
-                        <a href="{% url 'error_management_systems:ticket_list' %}?status=OPEN&priority=P1" class="btn btn-outline-danger">View all critical tickets</a>
-                    </div>
-                    {% else %}
-                    <p class="text-center">No open critical tickets</p>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header bg-success text-white">
-                    <h5 class="mb-0">Quick Actions</h5>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-4 mb-3">
-                            <a href="{% url 'error_management_systems:create_event' %}" class="btn btn-primary w-100">
-                                <i class="fas fa-plus-circle"></i> New Error Event
-                            </a>
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            <a href="{% url 'error_management_systems:error_type_list' %}" class="btn btn-secondary w-100">
-                                <i class="fas fa-list"></i> View Error Types
-                            </a>
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            <a href="{% url 'error_management_systems:ticket_list' %}" class="btn btn-info w-100">
-                                <i class="fas fa-ticket-alt"></i> Manage Tickets
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 {% endblock %}
 
-{% block extrajs %}
+{% block javascripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    $(document).ready(function() {
-        // You can add additional JavaScript code here for the homepage
-        // For example, to automatically refresh data or add charts
+    // Enhanced Chart.js configuration with modern styling and interactivity
+document.addEventListener('DOMContentLoaded', function() {
+  // Custom color palette - modern, professional with good contrast
+  const colorPalette = {
+    primary: ['#3a86ff', '#4361ee', '#4895ef', '#4cc9f0', '#560bad', '#7209b7', '#b5179e', '#f72585'],
+    secondary: ['#2ec4b6', '#ff9f1c', '#e71d36', '#011627', '#fdfffc'],
+    backgrounds: ['rgba(58, 134, 255, 0.8)', 'rgba(67, 97, 238, 0.8)', 'rgba(72, 149, 239, 0.8)', 
+                 'rgba(76, 201, 240, 0.8)', 'rgba(86, 11, 173, 0.8)', 'rgba(114, 9, 183, 0.8)', 
+                 'rgba(181, 23, 158, 0.8)', 'rgba(247, 37, 133, 0.8)'],
+    borders: ['rgba(58, 134, 255, 1)', 'rgba(67, 97, 238, 1)', 'rgba(72, 149, 239, 1)', 
+             'rgba(76, 201, 240, 1)', 'rgba(86, 11, 173, 1)', 'rgba(114, 9, 183, 1)', 
+             'rgba(181, 23, 158, 1)', 'rgba(247, 37, 133, 1)'],
+  };
+
+  // Shared chart options for consistency
+  const sharedOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: 'bottom',
+        labels: {
+          font: {
+            family: "'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif",
+            size: 12
+          },
+          usePointStyle: true,
+          padding: 20
+        }
+      },
+      tooltip: {
+        backgroundColor: 'rgba(0, 0, 0, 0.7)',
+        titleFont: {
+          family: "'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif",
+          size: 14,
+          weight: 'bold'
+        },
+        bodyFont: {
+          family: "'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif",
+          size: 13
+        },
+        padding: 12,
+        cornerRadius: 6,
+        callbacks: {
+          label: function(context) {
+            let label = context.dataset.label || '';
+            if (label) {
+              label += ': ';
+            }
+            label += context.parsed.y !== undefined ? context.parsed.y : context.parsed;
+            return label;
+          }
+        }
+      }
+    },
+    animation: {
+      duration: 1000,
+      easing: 'easeOutQuart'
+    }
+  };
+
+  // Function to create modern donut charts (replacement for pie charts)
+  function createDonutChart(canvasId, title) {
+    const canvas = document.getElementById(canvasId);
+    if (!canvas) return;
+    
+    const labels = canvas.dataset.labels.split(',').filter(label => label.trim() !== '');
+    const data = canvas.dataset.data.split(',').filter(value => value.trim() !== '').map(Number);
+    
+    // Generate background colors from our palette
+    const backgroundColors = colorPalette.backgrounds.slice(0, labels.length);
+    const borderColors = colorPalette.borders.slice(0, labels.length);
+    
+    const options = {
+      ...sharedOptions,
+      cutout: '65%', // Creates donut effect
+      plugins: {
+        ...sharedOptions.plugins,
+        title: {
+          display: true,
+          text: title,
+          font: {
+            family: "'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif",
+            size: 16,
+            weight: 'bold'
+          },
+          padding: {
+            top: 10,
+            bottom: 20
+          }
+        },
+        tooltip: {
+          ...sharedOptions.plugins.tooltip,
+          callbacks: {
+            label: function(context) {
+              const value = context.parsed;
+              const total = context.dataset.data.reduce((a, b) => a + b, 0);
+              const percentage = Math.round((value / total) * 100);
+              return `${context.label}: ${value} (${percentage}%)`;
+            }
+          }
+        }
+      }
+    };
+    
+    new Chart(canvas, {
+      type: 'doughnut',
+      data: {
+        labels: labels,
+        datasets: [{
+          data: data,
+          backgroundColor: backgroundColors,
+          borderColor: borderColors,
+          borderWidth: 1,
+          hoverOffset: 15
+        }]
+      },
+      options: options
     });
+  }
+
+  // Function to create modern line charts with area fill
+  function createAreaChart(canvasId, title) {
+    const canvas = document.getElementById(canvasId);
+    if (!canvas) return;
+    
+    const labels = canvas.dataset.labels.split(',').filter(label => label.trim() !== '');
+    const data = canvas.dataset.data.split(',').filter(value => value.trim() !== '').map(Number);
+    
+    const options = {
+      ...sharedOptions,
+      scales: {
+        x: {
+          grid: {
+            display: false
+          },
+          ticks: {
+            font: {
+              family: "'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif",
+              size: 11
+            }
+          }
+        },
+        y: {
+          beginAtZero: true,
+          grid: {
+            color: 'rgba(200, 200, 200, 0.1)'
+          },
+          ticks: {
+            font: {
+              family: "'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif",
+              size: 11
+            },
+            precision: 0
+          }
+        }
+      },
+      plugins: {
+        ...sharedOptions.plugins,
+        title: {
+          display: true,
+          text: title,
+          font: {
+            family: "'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif",
+            size: 16,
+            weight: 'bold'
+          },
+          padding: {
+            top: 10,
+            bottom: 20
+          }
+        }
+      },
+      elements: {
+        line: {
+          tension: 0.4 // Smooth curve
+        },
+        point: {
+          radius: 4,
+          hoverRadius: 6
+        }
+      }
+    };
+    
+    new Chart(canvas, {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: title,
+          data: data,
+          borderColor: colorPalette.borders[0],
+          backgroundColor: 'rgba(58, 134, 255, 0.2)',
+          fill: true,
+          pointBackgroundColor: colorPalette.borders[0]
+        }]
+      },
+      options: options
+    });
+  }
+
+  // Function to create modern bar charts
+  function createBarChart(canvasId, title) {
+    const canvas = document.getElementById(canvasId);
+    if (!canvas) return;
+    
+    const labels = canvas.dataset.labels.split(',').filter(label => label.trim() !== '');
+    const data = canvas.dataset.data.split(',').filter(value => value.trim() !== '').map(Number);
+    
+    const options = {
+      ...sharedOptions,
+      indexAxis: 'y', // Horizontal bar chart
+      scales: {
+        x: {
+          beginAtZero: true,
+          grid: {
+            color: 'rgba(200, 200, 200, 0.1)'
+          },
+          ticks: {
+            font: {
+              family: "'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif",
+              size: 11
+            },
+            precision: 0
+          }
+        },
+        y: {
+          grid: {
+            display: false
+          },
+          ticks: {
+            font: {
+              family: "'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif",
+              size: 11
+            }
+          }
+        }
+      },
+      plugins: {
+        ...sharedOptions.plugins,
+        title: {
+          display: true,
+          text: title,
+          font: {
+            family: "'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif",
+            size: 16,
+            weight: 'bold'
+          },
+          padding: {
+            top: 10,
+            bottom: 20
+          }
+        }
+      },
+      barThickness: 20,
+      maxBarThickness: 30
+    };
+    
+    // Create gradient fills for bars
+    new Chart(canvas, {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: title,
+          data: data,
+          backgroundColor: labels.map((_, i) => colorPalette.backgrounds[i % colorPalette.backgrounds.length]),
+          borderColor: labels.map((_, i) => colorPalette.borders[i % colorPalette.borders.length]),
+          borderWidth: 1,
+          borderRadius: 4
+        }]
+      },
+      options: options
+    });
+  }
+
+  // Apply chart styles to dashboard sections
+  // Error Type Overview Section
+  createDonutChart('errorCategoryChart', 'Error Categories');
+  createDonutChart('impactLevelChart', 'Impact Levels');
+  createDonutChart('expectedVsUnexpectedChart', 'Expected vs Unexpected Errors');
+  
+  // Error Event Overview Section
+  createAreaChart('errorEventsTimeSeriesChart', 'Error Events Over Time');
+  createBarChart('topSystemsChart', 'Top Systems by Error Events');
+  createBarChart('topServicesChart', 'Top Services by Error Events');
+  
+  // Error Ticket Overview Section
+  createDonutChart('ticketStatusChart', 'Ticket Status Distribution');
+  createDonutChart('ticketPriorityChart', 'Ticket Priority Distribution');
+
+  // Add resize handler for responsiveness
+  window.addEventListener('resize', function() {
+    Chart.instances.forEach(instance => {
+      instance.resize();
+    });
+  });
+
+  // Add interactive features to charts
+  document.querySelectorAll('canvas').forEach(canvas => {
+    canvas.style.height = '300px';
+    
+    // Add subtle hover effects to chart containers
+    const cardBody = canvas.closest('.card-body');
+    if (cardBody) {
+      cardBody.style.transition = 'all 0.3s ease';
+      
+      cardBody.addEventListener('mouseenter', function() {
+        this.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.1)';
+      });
+      
+      cardBody.addEventListener('mouseleave', function() {
+        this.style.boxShadow = 'none';
+      });
+    }
+  });
+});
 </script>
-{% endblock %}
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+{% endblock javascripts %}

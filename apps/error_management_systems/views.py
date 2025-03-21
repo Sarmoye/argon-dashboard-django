@@ -25,74 +25,8 @@ def dashboard1(request):
     
     return render(request, 'error_management_systems/dashboard1.html', {'stats': stats})
 
-from django.shortcuts import render
-from django.db.models import Count, Avg
-from .models import ErrorType, ErrorEvent, ErrorTicket
-from django.utils import timezone
-from django.db import models
 @login_required(login_url='/authentication/login/')
 def dashboard2(request):
-    """Page d'accueil avec statistiques générales et derniers événements"""
-
-    # Statistiques globales
-    stats = {
-        'total_error_types': ErrorType.objects.count(),
-        'total_error_events': ErrorEvent.objects.count(),
-        'open_tickets': ErrorTicket.objects.filter(statut__in=['OPEN', 'IN_PROGRESS']).count(),
-        'resolved_tickets': ErrorTicket.objects.filter(statut__in=['RESOLVED', 'CLOSED']).count(),
-        'recent_events': ErrorEvent.objects.order_by('-timestamp')[:5],
-        'top_errors': ErrorType.objects.annotate(event_count=Count('events')).order_by('-event_count')[:5],
-        'critical_tickets': ErrorTicket.objects.filter(priorite='P1', statut__in=['OPEN', 'IN_PROGRESS']).order_by('date_creation')[:5],
-    }
-
-    # Average Resolution Time
-    resolved_tickets = ErrorTicket.objects.filter(statut__in=['RESOLVED', 'CLOSED'], date_resolution__isnull=False)
-    if resolved_tickets.exists():
-        average_resolution_time = resolved_tickets.annotate(duration=models.ExpressionWrapper(
-            models.F('date_resolution') - models.F('date_creation'),
-            output_field=models.DurationField()
-        )).aggregate(avg_duration=Avg('duration'))['avg_duration']
-
-        if average_resolution_time:
-            stats['average_resolution_time'] = round(average_resolution_time.total_seconds() / 3600, 1) # Hours
-        else:
-            stats['average_resolution_time'] = "N/A"
-    else:
-        stats['average_resolution_time'] = "N/A"
-
-    # Error Event Trend (Last 7 Days)
-    today = timezone.now().date()
-    last_7_days = [today - timezone.timedelta(days=i) for i in range(7)]
-    event_trend = []
-    for day in last_7_days:
-        count = ErrorEvent.objects.filter(timestamp__date=day).count()
-        event_trend.append({'date': day.strftime('%Y-%m-%d'), 'count': count})
-    stats['event_trend'] = reversed(event_trend) # reverse to display from oldest to newest
-
-    # Error Type Distribution (by System Name)
-    error_type_distribution = ErrorType.objects.values('system_name').annotate(count=Count('id')).order_by('-count')
-    stats['error_type_distribution'] = error_type_distribution
-
-    # Priority Breakdown
-    priority_breakdown = ErrorTicket.objects.values('priorite').annotate(count=Count('id')).order_by('-count')
-    stats['priority_breakdown'] = priority_breakdown
-
-    # Ticket Status Breakdown
-    status_breakdown = ErrorTicket.objects.values('statut').annotate(count=Count('id')).order_by('-count')
-    stats['status_breakdown'] = status_breakdown
-
-    # Severity Distribution of Error Types.
-    severity_distribution = ErrorType.objects.values('niveau_severite').annotate(count=Count('id')).order_by('-count')
-    stats['severity_distribution'] = severity_distribution
-
-    return render(request, 'error_management_systems/dashboard2.html', {'stats': stats})
-
-from django.shortcuts import render
-from django.db.models import Count
-from .models import ErrorType, ErrorEvent, ErrorTicket
-from django.utils import timezone
-@login_required(login_url='/authentication/login/')
-def professional_dashboard(request):
     """
     View for the professional dashboard, providing an overview of Error Types,
     Error Events, and Error Tickets.
