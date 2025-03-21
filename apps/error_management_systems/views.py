@@ -90,7 +90,7 @@ def dashboard2(request):
         'error_tickets': error_tickets,
     }
 
-    return render(request, 'error_management_systems/professional_dashboard.html', context)
+    return render(request, 'error_management_systems/dashboard2.html', context)
 
 # ---- ErrorEvent Views ----
 @login_required(login_url='/authentication/login/')
