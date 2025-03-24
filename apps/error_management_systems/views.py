@@ -40,7 +40,7 @@ def dashboard2(request):
     expected_vs_unexpected = ErrorType.objects.values('type_error').annotate(count=Count('type_error'))
 
     # Error Type List (Widget 2)
-    error_types = ErrorType.objects.all()
+    error_types = ErrorType.objects.order_by('-created_at')[:10]
 
     # Error Event Overview (Widget 3)
     total_error_events = ErrorEvent.objects.count()
@@ -70,7 +70,7 @@ def dashboard2(request):
     )
 
     # Error Event List (Widget 4)
-    error_events = ErrorEvent.objects.all()
+    error_events = ErrorEvent.objects.order_by('-timestamp')[:10]
 
     # Error Ticket Overview (Widget 5)
     total_error_tickets = ErrorTicket.objects.count()
@@ -86,7 +86,7 @@ def dashboard2(request):
         average_resolution_time = 0
 
     # Error Ticket List (Widget 8)
-    error_tickets = ErrorTicket.objects.all()
+    error_tickets = ErrorTicket.objects.order_by('-date_creation')[:10]
 
     context = {
         # Widget 1

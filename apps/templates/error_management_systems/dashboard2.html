@@ -207,7 +207,10 @@ a:hover {
         </div>
 
         <div class="card mb-4">
-            <div class="card-header">Error Event List</div>
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <span>Error Event List</span>
+            <a href="{% url 'error_management_systems:event_list' %}" class="btn btn-primary btn-sm">View All Events</a>
+          </div>
             <div class="card-body">
                 <div class="table-responsive">
                 <table class="table table-striped">
@@ -261,7 +264,10 @@ a:hover {
         </div>
 
         <div class="card mb-4">
-            <div class="card-header">Error Type List</div>
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <span>Error Type List</span>
+            <a href="{% url 'error_management_systems:error_type_list' %}" class="btn btn-primary btn-sm">View All Types</a>
+          </div>
             <div class="card-body">
                 <div class="table-responsive">
                 <table class="table table-striped">
@@ -313,40 +319,43 @@ a:hover {
         </div>
 
         <div class="card mb-4">
-            <div class="card-header">Error Ticket List</div>
-            <div class="card-body">
-                <div class="table-responsive">
-                <table class="table table-striped">
-                    <thead>
-                        <tr>
-                            <th>Ticket Reference</th>
-                            <th>System Name</th>
-                            <th>Status</th>
-                            <th>Priority</th>
-                            <th>Creation Date</th>
-                            <th>Resolution Date</th>
-                            <th>Duration</th>
-                            <th>Details</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for ticket in error_tickets %}
-                        <tr>
-                            <td>{{ ticket.ticket_reference }}</td>
-                            <td>{{ ticket.error_type.system_name }}</td>
-                            <td>{{ ticket.get_statut_display }}</td>
-                            <td>{{ ticket.get_priorite_display }}</td>
-                            <td>{{ ticket.date_creation }}</td>
-                            <td>{{ ticket.date_resolution }}</td>
-                            <td>{{ ticket.get_duration|floatformat:2 }} hours</td>
-                            <td><a href="{% url 'error_management_systems:ticket_detail' ticket.id %}">View Details</a></td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-                </div>
-            </div>
-        </div>
+          <div class="card-header d-flex justify-content-between align-items-center">
+              <span>Error Ticket List</span>
+              <a href="{% url 'error_management_systems:ticket_list' %}" class="btn btn-primary btn-sm">View All Tickets</a>
+          </div>
+          <div class="card-body">
+              <div class="table-responsive">
+                  <table class="table table-striped">
+                      <thead>
+                          <tr>
+                              <th>Ticket Reference</th>
+                              <th>System Name</th>
+                              <th>Status</th>
+                              <th>Priority</th>
+                              <th>Creation Date</th>
+                              <th>Resolution Date</th>
+                              <th>Duration</th>
+                              <th>Details</th>
+                          </tr>
+                      </thead>
+                      <tbody>
+                          {% for ticket in error_tickets %}
+                          <tr>
+                              <td>{{ ticket.ticket_reference }}</td>
+                              <td>{{ ticket.error_type.system_name }}</td>
+                              <td>{{ ticket.get_statut_display }}</td>
+                              <td>{{ ticket.get_priorite_display }}</td>
+                              <td>{{ ticket.date_creation }}</td>
+                              <td>{{ ticket.date_resolution }}</td>
+                              <td>{{ ticket.get_duration|floatformat:2 }} hours</td>
+                              <td><a href="{% url 'error_management_systems:ticket_detail' ticket.id %}">View Details</a></td>
+                          </tr>
+                          {% endfor %}
+                      </tbody>
+                  </table>
+              </div>
+          </div>
+        </div>      
 
 
         <div class="card mb-4 shadow">
