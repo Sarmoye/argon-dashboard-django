@@ -111,8 +111,18 @@ def dashboard1(request):
         'top_impacted_components': top_impacted_components,
     }
 
+    # Statistiques globales
+    stats = {
+        'total_error_types': ErrorType.objects.count(),
+        'total_error_events': ErrorEvent.objects.count(),
+        'open_tickets': ErrorTicket.objects.filter(statut__in=['OPEN', 'IN_PROGRESS']).count(),
+        'recent_events': ErrorEvent.objects.order_by('-timestamp')[:5],
+        'top_errors': ErrorType.objects.annotate(event_count=Count('events')).order_by('-event_count')[:5],
+        'critical_tickets': ErrorTicket.objects.filter(priorite='P1', statut__in=['OPEN', 'IN_PROGRESS']).order_by('date_creation')[:5]
+    }
+
     
-    return render(request, 'error_management_systems/dashboard1.html', {'context': context})
+    return render(request, 'error_management_systems/dashboard1.html', {'context': context, 'stats' : stats})
 
 @login_required(login_url='/authentication/login/')
 def dashboard2(request):
