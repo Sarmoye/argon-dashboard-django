@@ -185,59 +185,183 @@ a:hover {
     <div class="container mt-4">
         <h1 class="mb-4 text-center text-primary">Systems Errors Tracker Dashboard</h1>
 
-        <div class="card mb-4">
-            <div class="card-header">Error Event Overview</div>
-            <div class="card-body">
-                <p>Total Error Events: {{ total_error_events }}</p>
-                <div class="row">
-                    <div class="col-md-6">
-                        <canvas id="errorEventsTimeSeriesChart" data-labels="{% for item in error_events_time_series %}{{ item.timestamp__date }},{% endfor %}" data-data="{% for item in error_events_time_series %}{{ item.count }},{% endfor %}"></canvas>
-                    </div>
-                    <div class="col-md-6">
-                        <canvas id="topSystemsChart" data-labels="{% for item in top_systems_events %}{{ item.system_name }},{% endfor %}" data-data="{% for item in top_systems_events %}{{ item.count }},{% endfor %}"></canvas>
-                    </div>
-                    <div class="col-md-6">
-                         <canvas id="topServicesChart" data-labels="{% for item in top_services_events %}{{ item.service_name }},{% endfor %}" data-data="{% for item in top_services_events %}{{ item.count }},{% endfor %}"></canvas>
-                    </div>
-
-                </div>
-            </div>
+        <!-- Error Event Overview Card -->
+        <div class="card shadow-sm mb-4 border-0 rounded-lg">
+          <div class="card-header bg-white border-bottom p-3 d-flex justify-content-between align-items-center">
+              <h5 class="mb-0 text-primary fw-bold">Error Event Overview</h5>
+              <div class="dropdown">
+                  <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="timeRangeDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                      Last 7 Days
+                  </button>
+                  <ul class="dropdown-menu" aria-labelledby="timeRangeDropdown">
+                      <li><a class="dropdown-item" href="#">Last 24 Hours</a></li>
+                      <li><a class="dropdown-item" href="#">Last 7 Days</a></li>
+                      <li><a class="dropdown-item" href="#">Last 30 Days</a></li>
+                      <li><a class="dropdown-item" href="#">Custom Range</a></li>
+                  </ul>
+              </div>
+          </div>
+          <div class="card-body p-4">
+              <div class="row mb-4">
+                  <div class="col-md-3">
+                      <div class="card border-0 bg-light rounded-lg p-3 h-100">
+                          <div class="d-flex flex-column">
+                              <span class="text-muted small">Total Error Events</span>
+                              <h3 class="mt-2 text-dark fw-bold">{{ total_error_events }}</h3>
+                              <span class="small mt-2">
+                                  {% if error_change_percentage > 0 %}
+                                  <span class="text-danger"><i class="fas fa-arrow-up me-1"></i>{{ error_change_percentage }}%</span>
+                                  {% else %}
+                                  <span class="text-success"><i class="fas fa-arrow-down me-1"></i>{{ error_change_percentage|abs }}%</span>
+                                  {% endif %}
+                                  since last period
+                              </span>
+                          </div>
+                      </div>
+                  </div>
+                  <div class="col-md-9">
+                      <div class="card border-0 rounded-lg p-3 h-100">
+                          <h6 class="text-muted small mb-3">Error Trend</h6>
+                          <canvas id="errorEventsTimeSeriesChart" 
+                              data-labels="{% for item in error_events_time_series %}{{ item.timestamp__date }},{% endfor %}" 
+                              data-data="{% for item in error_events_time_series %}{{ item.count }},{% endfor %}">
+                          </canvas>
+                      </div>
+                  </div>
+              </div>
+              <div class="row">
+                  <div class="col-md-6">
+                      <div class="card border-0 rounded-lg p-3 h-100">
+                          <h6 class="text-muted small mb-3">Top Error Systems</h6>
+                          <canvas id="topSystemsChart" 
+                              data-labels="{% for item in top_systems_events %}{{ item.system_name }},{% endfor %}" 
+                              data-data="{% for item in top_systems_events %}{{ item.count }},{% endfor %}">
+                          </canvas>
+                      </div>
+                  </div>
+                  <div class="col-md-6">
+                      <div class="card border-0 rounded-lg p-3 h-100">
+                          <h6 class="text-muted small mb-3">Top Error Services</h6>
+                          <canvas id="topServicesChart" 
+                              data-labels="{% for item in top_services_events %}{{ item.service_name }},{% endfor %}" 
+                              data-data="{% for item in top_services_events %}{{ item.count }},{% endfor %}">
+                          </canvas>
+                      </div>
+                  </div>
+              </div>
+          </div>
         </div>
 
-        <div class="card mb-4">
-            <div class="card-header">Error Event List</div>
-            <div class="card-body">
-                <div class="table-responsive">
-                <table class="table table-striped">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>System Name</th>
-                            <th>Service Name</th>
-                            <th>Error Reason</th>
-                            <th>Timestamp</th>
-                            <th>Error Count</th>
-                            <th>Inserted By</th>
-                            <th>Details</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for error_event in error_events %}
-                        <tr>
-                            <td>{{ error_event.id }}</td>
-                            <td>{{ error_event.system_name }}</td>
-                            <td>{{ error_event.service_name }}</td>
-                            <td>{{ error_event.error_reason|truncatechars:50 }}</td>
-                            <td>{{ error_event.timestamp }}</td>
-                            <td>{{ error_event.error_count }}</td>
-                            <td>{{ error_event.inserted_by }}</td>
-                            <td><a href="{% url 'error_management_systems:event_detail' error_event.id %}">View Details</a></td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-                </div>
-            </div>
+        <!-- Error Event List Card -->
+        <div class="card shadow-sm mb-4 border-0 rounded-lg">
+          <div class="card-header bg-white border-bottom p-3 d-flex justify-content-between align-items-center">
+              <h5 class="mb-0 text-primary fw-bold">Error Event List</h5>
+              <div class="d-flex gap-2">
+                  <div class="input-group">
+                      <input type="text" class="form-control form-control-sm" placeholder="Search errors..." id="errorSearchInput">
+                      <button class="btn btn-outline-secondary btn-sm" type="button"><i class="fas fa-search"></i></button>
+                  </div>
+                  <button class="btn btn-sm btn-primary" id="exportErrorsBtn">
+                      <i class="fas fa-download me-1"></i> Export
+                  </button>
+              </div>
+          </div>
+          <div class="card-body p-0">
+              <div class="table-responsive">
+                  <table class="table table-hover mb-0" id="errorEventsTable">
+                      <thead class="table-light">
+                          <tr>
+                              <th class="px-3 py-3">ID</th>
+                              <th class="px-3 py-3">System Name</th>
+                              <th class="px-3 py-3">Service Name</th>
+                              <th class="px-3 py-3">Error Reason</th>
+                              <th class="px-3 py-3">Timestamp</th>
+                              <th class="px-3 py-3">Error Count</th>
+                              <th class="px-3 py-3">Inserted By</th>
+                              <th class="px-3 py-3">Severity</th>
+                              <th class="px-3 py-3">Actions</th>
+                          </tr>
+                      </thead>
+                      <tbody>
+                          {% for error_event in error_events %}
+                          <tr class="align-middle {% if error_event.severity == 'critical' %}table-danger{% elif error_event.severity == 'high' %}table-warning{% endif %}">
+                              <td class="px-3 py-2 text-nowrap">{{ error_event.id }}</td>
+                              <td class="px-3 py-2">{{ error_event.system_name }}</td>
+                              <td class="px-3 py-2">{{ error_event.service_name }}</td>
+                              <td class="px-3 py-2 text-truncate" style="max-width: 200px;">{{ error_event.error_reason }}</td>
+                              <td class="px-3 py-2 text-nowrap">{{ error_event.timestamp|date:"M d, Y H:i" }}</td>
+                              <td class="px-3 py-2 text-center">
+                                  <span class="badge bg-secondary rounded-pill">{{ error_event.error_count }}</span>
+                              </td>
+                              <td class="px-3 py-2">{{ error_event.inserted_by }}</td>
+                              <td class="px-3 py-2">
+                                  {% if error_event.severity == 'critical' %}
+                                      <span class="badge bg-danger">Critical</span>
+                                  {% elif error_event.severity == 'high' %}
+                                      <span class="badge bg-warning text-dark">High</span>
+                                  {% elif error_event.severity == 'medium' %}
+                                      <span class="badge bg-info">Medium</span>
+                                  {% else %}
+                                      <span class="badge bg-secondary">Low</span>
+                                  {% endif %}
+                              </td>
+                              <td class="px-3 py-2">
+                                  <div class="dropdown">
+                                      <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                          Actions
+                                      </button>
+                                      <ul class="dropdown-menu">
+                                          <li><a class="dropdown-item" href="{% url 'error_management_systems:event_detail' error_event.id %}">
+                                              <i class="fas fa-eye me-1"></i> View Details
+                                          </a></li>
+                                          <li><a class="dropdown-item" href="#">
+                                              <i class="fas fa-check-circle me-1"></i> Mark as Resolved
+                                          </a></li>
+                                          <li><a class="dropdown-item" href="#">
+                                              <i class="fas fa-user-plus me-1"></i> Assign
+                                          </a></li>
+                                          <li><hr class="dropdown-divider"></li>
+                                          <li><a class="dropdown-item text-danger" href="#">
+                                              <i class="fas fa-trash-alt me-1"></i> Delete
+                                          </a></li>
+                                      </ul>
+                                  </div>
+                              </td>
+                          </tr>
+                          {% empty %}
+                          <tr>
+                              <td colspan="9" class="text-center py-4">
+                                  <div class="text-muted">
+                                      <i class="fas fa-check-circle fa-2x mb-3"></i>
+                                      <p>No error events found for the selected time period.</p>
+                                  </div>
+                              </td>
+                          </tr>
+                          {% endfor %}
+                      </tbody>
+                  </table>
+              </div>
+          </div>
+          <div class="card-footer bg-white border-top p-3">
+              <div class="d-flex justify-content-between align-items-center">
+                  <div>
+                      <span class="text-muted small">Showing {{ error_events|length }} of {{ total_error_events }} error events</span>
+                  </div>
+                  <nav aria-label="Error event pagination">
+                      <ul class="pagination pagination-sm mb-0">
+                          <li class="page-item disabled">
+                              <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Previous</a>
+                          </li>
+                          <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                          <li class="page-item"><a class="page-link" href="#">2</a></li>
+                          <li class="page-item"><a class="page-link" href="#">3</a></li>
+                          <li class="page-item">
+                              <a class="page-link" href="#">Next</a>
+                          </li>
+                      </ul>
+                  </nav>
+              </div>
+          </div>
         </div>
 
         <div class="card mb-4">
@@ -696,9 +820,9 @@ document.addEventListener('DOMContentLoaded', function() {
   createDonutChart('expectedVsUnexpectedChart', 'Expected vs Unexpected Errors');
   
   // Error Event Overview Section
-  createAreaChart('errorEventsTimeSeriesChart', 'Error Events Over Time');
-  createBarChart('topSystemsChart', 'Top Systems by Error Events');
-  createBarChart('topServicesChart', 'Top Services by Error Events');
+  //createAreaChart('errorEventsTimeSeriesChart', 'Error Events Over Time');
+  //createBarChart('topSystemsChart', 'Top Systems by Error Events');
+  //createBarChart('topServicesChart', 'Top Services by Error Events');
 
   // New System Error Insights Section
   createBarChart('mostImpactfulSystemsChart', 'Most Impactful Systems');
@@ -746,6 +870,162 @@ document.addEventListener('DOMContentLoaded', function() {
                 "lengthMenu": [10, 25, 50, 100],
             });
     });
+  </script>
+
+  <!-- JavaScript for initializing the charts and interactive features -->
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+      // Initialize time series chart
+      const timeSeriesCtx = document.getElementById('errorEventsTimeSeriesChart').getContext('2d');
+      const timeSeriesLabels = document.getElementById('errorEventsTimeSeriesChart').dataset.labels.split(',').filter(Boolean);
+      const timeSeriesData = document.getElementById('errorEventsTimeSeriesChart').dataset.data.split(',').filter(Boolean).map(Number);
+      
+      new Chart(timeSeriesCtx, {
+          type: 'line',
+          data: {
+              labels: timeSeriesLabels,
+              datasets: [{
+                  label: 'Error Events',
+                  data: timeSeriesData,
+                  backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                  borderColor: 'rgba(75, 192, 192, 1)',
+                  borderWidth: 2,
+                  pointBackgroundColor: 'rgba(75, 192, 192, 1)',
+                  pointRadius: 3,
+                  tension: 0.3,
+                  fill: true
+              }]
+          },
+          options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: {
+                  legend: {
+                      display: false
+                  },
+                  tooltip: {
+                      mode: 'index',
+                      intersect: false,
+                      backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                      titleColor: '#fff',
+                      bodyColor: '#fff',
+                      borderColor: 'rgba(255, 255, 255, 0.2)',
+                      borderWidth: 1
+                  }
+              },
+              scales: {
+                  x: {
+                      grid: {
+                          display: false
+                      }
+                  },
+                  y: {
+                      beginAtZero: true,
+                      ticks: {
+                          precision: 0
+                      }
+                  }
+              }
+          }
+      });
+  
+      // Initialize top systems chart
+      const systemsCtx = document.getElementById('topSystemsChart').getContext('2d');
+      const systemsLabels = document.getElementById('topSystemsChart').dataset.labels.split(',').filter(Boolean);
+      const systemsData = document.getElementById('topSystemsChart').dataset.data.split(',').filter(Boolean).map(Number);
+      
+      new Chart(systemsCtx, {
+          type: 'doughnut',
+          data: {
+              labels: systemsLabels,
+              datasets: [{
+                  data: systemsData,
+                  backgroundColor: [
+                      'rgba(255, 99, 132, 0.7)',
+                      'rgba(54, 162, 235, 0.7)',
+                      'rgba(255, 206, 86, 0.7)',
+                      'rgba(75, 192, 192, 0.7)',
+                      'rgba(153, 102, 255, 0.7)'
+                  ],
+                  borderColor: [
+                      'rgba(255, 99, 132, 1)',
+                      'rgba(54, 162, 235, 1)',
+                      'rgba(255, 206, 86, 1)',
+                      'rgba(75, 192, 192, 1)',
+                      'rgba(153, 102, 255, 1)'
+                  ],
+                  borderWidth: 1
+              }]
+          },
+          options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: {
+                  legend: {
+                      position: 'right',
+                      labels: {
+                          boxWidth: 12,
+                          padding: 10
+                      }
+                  }
+              }
+          }
+      });
+  
+      // Initialize top services chart
+      const servicesCtx = document.getElementById('topServicesChart').getContext('2d');
+      const servicesLabels = document.getElementById('topServicesChart').dataset.labels.split(',').filter(Boolean);
+      const servicesData = document.getElementById('topServicesChart').dataset.data.split(',').filter(Boolean).map(Number);
+      
+      new Chart(servicesCtx, {
+          type: 'bar',
+          data: {
+              labels: servicesLabels,
+              datasets: [{
+                  label: 'Error Count',
+                  data: servicesData,
+                  backgroundColor: 'rgba(54, 162, 235, 0.7)',
+                  borderColor: 'rgba(54, 162, 235, 1)',
+                  borderWidth: 1
+              }]
+          },
+          options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              indexAxis: 'y',
+              plugins: {
+                  legend: {
+                      display: false
+                  }
+              },
+              scales: {
+                  x: {
+                      beginAtZero: true,
+                      ticks: {
+                          precision: 0
+                      }
+                  }
+              }
+          }
+      });
+  
+      // Initialize search functionality
+      document.getElementById('errorSearchInput').addEventListener('keyup', function() {
+          const searchTerm = this.value.toLowerCase();
+          const rows = document.querySelectorAll('#errorEventsTable tbody tr');
+          
+          rows.forEach(row => {
+              const text = row.textContent.toLowerCase();
+              row.style.display = text.includes(searchTerm) ? '' : 'none';
+          });
+      });
+  
+      // Initialize export button
+      document.getElementById('exportErrorsBtn').addEventListener('click', function() {
+          alert('Exporting error data...');
+          // You would implement the actual export functionality here
+      });
+  });
   </script>
 
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
