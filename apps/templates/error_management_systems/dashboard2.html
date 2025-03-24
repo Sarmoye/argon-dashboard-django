@@ -212,7 +212,7 @@ a:hover {
                                   {% if error_change_percentage > 0 %}
                                   <span class="text-danger"><i class="fas fa-arrow-up me-1"></i>{{ error_change_percentage }}%</span>
                                   {% else %}
-                                  <span class="text-success"><i class="fas fa-arrow-down me-1"></i>{{ error_change_percentage|abs }}%</span>
+                                  <span class="text-success"><i class="fas fa-arrow-down me-1"></i>{{ error_change_percentage|cut:"-" }}%</span>
                                   {% endif %}
                                   since last period
                               </span>
