@@ -623,11 +623,12 @@ document.addEventListener('DOMContentLoaded', function() {
     
     const labels = canvas.dataset.labels.split(',').filter(label => label.trim() !== '');
     const data = canvas.dataset.data.split(',').filter(value => value.trim() !== '').map(Number);
+    console.log(data);
     
     const options = {
       ...sharedOptions,
       indexAxis: 'y', // Horizontal bar chart
-      scales: {
+      scales: { 
         x: {
           beginAtZero: true,
           grid: {
