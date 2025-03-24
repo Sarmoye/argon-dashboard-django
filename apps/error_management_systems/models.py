@@ -16,6 +16,37 @@ class ErrorType(models.Model):
     service_type = models.CharField(max_length=100, verbose_name="Service Type")
     service_name = models.CharField(max_length=100, verbose_name="Service Name")
     error_reason = models.TextField(verbose_name="Error Reason")
+
+    # Nouvelle classification
+    SYSTEM_CLASSIFICATION_CHOICES = [
+        ('A', 'A'),
+        ('B', 'B'),
+        ('C', 'C'),
+        ('D', 'D')
+    ]
+
+    system_classification = models.CharField(
+        max_length=1,
+        choices=SYSTEM_CLASSIFICATION_CHOICES,
+        verbose_name="System Classification",
+        blank=True,
+        null=True
+    )
+
+    SERVICE_CLASSIFICATION_CHOICES = [
+        ('primary', 'Primary Service'),
+        ('secondary', 'Secondary Service'),
+        ('tertiary', 'Tertiary Service'),
+        ('external', 'External Service'),
+    ]
+
+    service_classification = models.CharField(
+        max_length=50, 
+        choices=SERVICE_CLASSIFICATION_CHOICES,
+        verbose_name="Service Classification",
+        blank=True,
+        null=True
+    )
     
     # Catégorisation
     type_error = models.CharField(

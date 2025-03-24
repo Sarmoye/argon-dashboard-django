@@ -282,6 +282,8 @@ def create_event(request):
         system_name = request.POST.get('system_name')
         service_name = request.POST.get('service_name')
         service_type = request.POST.get('service_type')
+        system_classification = request.POST.get('system_classification', '')
+        service_classification = request.POST.get('service_classification', '')
         error_reason = request.POST.get('error_reason')
 
         # Vérifier si le ErrorType existe ou le créer
@@ -292,7 +294,9 @@ def create_event(request):
             defaults={
                 'service_type': service_type,
                 'code_erreur': request.POST.get('code_erreur', ''),
-                'fichiers_impactes': request.POST.get('fichiers_impactes', '')
+                'fichiers_impactes': request.POST.get('fichiers_impactes', ''),
+                'system_classification' : system_classification,
+                'service_classification' : service_classification,
             }
         )
 
