@@ -364,7 +364,7 @@ a:hover {
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for error_type in context.top_errors %}
+                                {% for error_type in top_errors %}
                                 <tr>
                                     <td>{{ error_type.system_name }}</td>
                                     <td>{{ error_type.service_name }}</td>
@@ -466,7 +466,7 @@ a:hover {
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for ticket in context.critical_tickets %}
+                                {% for ticket in critical_tickets %}
                                 <tr>
                                     <td>{{ ticket.ticket_reference }}</td>
                                     <td>{{ ticket.error_type.system_name }}</td>
