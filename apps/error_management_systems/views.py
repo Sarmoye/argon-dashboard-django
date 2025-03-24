@@ -275,6 +275,8 @@ def event_detail(request, event_id):
     
     return render(request, 'error_management_systems/event_detail.html', context)
 
+from django.db import transaction
+
 @login_required(login_url='/authentication/login/')
 def create_event(request):
     """Création d'un nouvel événement d'erreur"""
@@ -286,48 +288,54 @@ def create_event(request):
         service_classification = request.POST.get('service_classification', '')
         error_reason = request.POST.get('error_reason')
 
-        # Vérifier si le ErrorType existe ou le créer
-        error_type, created = ErrorType.objects.get_or_create(
-            system_name=system_name,
-            service_name=service_name,
-            error_reason=error_reason,
-            defaults={
-                'service_type': service_type,
-                'code_erreur': request.POST.get('code_erreur', ''),
-                'fichiers_impactes': request.POST.get('fichiers_impactes', ''),
-                'system_classification': system_classification,
-                'service_classification': service_classification,
-            }
-        )
-        error_type.save() #ensure the errortype is saved.
+        try:
+            with transaction.atomic():
+                # Step 1: Create or get ErrorType
+                error_type, created = ErrorType.objects.get_or_create(
+                    system_name=system_name,
+                    service_name=service_name,
+                    error_reason=error_reason,
+                    defaults={
+                        'service_type': service_type,
+                        'code_erreur': request.POST.get('code_erreur', ''),
+                        'fichiers_impactes': request.POST.get('fichiers_impactes', ''),
+                        'system_classification': system_classification,
+                        'service_classification': service_classification,
+                    }
+                )
 
-        # Créer l'événement d'erreur en associant l'error_type
-        event = ErrorEvent(
-            system_name=system_name,
-            service_type=service_type,
-            service_name=service_name,
-            error_reason=error_reason,
-            error_type=error_type,  # Ajout de l'association
-            error_count=request.POST.get('error_count', 1),
-            inserted_by=request.user.username,
-            notes=request.POST.get('notes', ''),
-            logs=request.POST.get('logs', '')
-        )
-        event.save()
+                # Step 2: Create ErrorEvent
+                event = ErrorEvent(
+                    system_name=system_name,
+                    service_type=service_type,
+                    service_name=service_name,
+                    error_reason=error_reason,
+                    error_type=error_type,
+                    error_count=request.POST.get('error_count', 1),
+                    inserted_by=request.user.username,
+                    notes=request.POST.get('notes', ''),
+                    logs=request.POST.get('logs', '')
+                )
+                event.save()
 
-        # Créer ou mettre à jour le ticket pour l'error_type avec statut 'OPEN'
-        ticket, ticket_created = ErrorTicket.objects.get_or_create(
-            error_type=error_type,
-            defaults={'statut': 'OPEN'}
-        )
-        if not ticket_created:
-            # Si le ticket existe déjà, on le met à jour pour que son statut soit 'OPEN'
-            ticket.statut = 'OPEN'
-            ticket.save()
+                # Step 3: Create or update ErrorTicket
+                ticket, ticket_created = ErrorTicket.objects.get_or_create(
+                    error_type=error_type,
+                    defaults={'statut': 'OPEN'}
+                )
+                if not ticket_created:
+                    ticket.statut = 'OPEN'
+                    ticket.save()
 
-        messages.success(request, f"Événement d'erreur créé avec succès et ticket ouvert: {event.id}")
+                messages.success(request, f"Événement d'erreur créé avec succès et ticket ouvert: {event.id}")
+                return redirect('error_management_systems:event_detail', event_id=event.id)
 
-        return redirect('error_management_systems:event_detail', event_id=event.id)
+        except Exception as e:
+            messages.error(request, f"Une erreur est survenue lors de la création de l'événement: {e}")
+            # Log the exception for debugging
+            import logging
+            logging.exception("Error during create_event")
+            return redirect('error_management_systems:create_event') #or render with form errors.
 
     # Pour le formulaire GET initial
     error_types = ErrorType.objects.all().order_by('system_name', 'service_name')
