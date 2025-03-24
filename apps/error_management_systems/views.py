@@ -14,17 +14,101 @@ from django.db.models.functions import TruncDate
 @login_required(login_url='/authentication/login/')
 def dashboard1(request):
     """Page d'accueil avec statistiques générales et derniers événements"""
-    # Statistiques globales
-    stats = {
+    # Error Type Overview (Widget 1)
+    total_error_types = ErrorType.objects.count()
+    error_type_categories = ErrorType.objects.values('error_category').annotate(count=Count('error_category'))
+    error_type_impact_levels = ErrorType.objects.values('impact_level').annotate(count=Count('impact_level'))
+    expected_vs_unexpected = ErrorType.objects.values('type_error').annotate(count=Count('type_error'))
+
+    # Error Type List (Widget 2)
+    error_types = ErrorType.objects.order_by('-created_at')[:10]
+
+    # Error Event Overview (Widget 3)
+    total_error_events = ErrorEvent.objects.count()
+    error_events_time_series = (ErrorEvent.objects.annotate(date=TruncDate('timestamp')).values('date').annotate(count=Count('id')).order_by('date'))
+    
+    top_systems_events = ErrorEvent.objects.values('system_name').annotate(count=Count('id')).order_by('-count')[:5]
+    top_services_events = ErrorEvent.objects.values('service_name').annotate(count=Count('id')).order_by('-count')[:5]
+
+    # Additional System Insights
+    most_error_prone_system = ErrorEvent.objects.values('system_name').annotate(count=Count('id')).order_by('-count').first()
+    most_error_prone_service = ErrorEvent.objects.values('service_name').annotate(count=Count('id')).order_by('-count').first()
+
+    most_common_errors = ErrorType.objects.values('error_reason').annotate(count=Count('id')).order_by('-count')[:5]
+
+    most_impactful_systems = (
+        ErrorType.objects.filter(impact_level__in=['critical', 'high'])
+        .values('system_name')
+        .annotate(count=Count('id'))
+        .order_by('-count')[:5]
+    )
+
+    top_impacted_components = (
+        ErrorType.objects.exclude(source_component="")
+        .values('source_component')
+        .annotate(count=Count('id'))
+        .order_by('-count')[:5]
+    )
+
+    # Error Event List (Widget 4)
+    error_events = ErrorEvent.objects.order_by('-timestamp')[:10]
+
+    # Error Ticket Overview (Widget 5)
+    total_error_tickets = ErrorTicket.objects.count()
+    error_ticket_statuses = ErrorTicket.objects.values('statut').annotate(count=Count('statut'))
+    error_ticket_priorities = ErrorTicket.objects.values('priorite').annotate(count=Count('priorite'))
+    
+    # Calculate average ticket resolution time
+    resolved_tickets = ErrorTicket.objects.filter(statut='RESOLVED', date_resolution__isnull=False)
+    if resolved_tickets.exists():
+        total_duration = sum([(ticket.date_resolution - ticket.date_creation).total_seconds() for ticket in resolved_tickets])
+        average_resolution_time = total_duration / resolved_tickets.count() / 3600  # in hours
+    else:
+        average_resolution_time = 0
+
+    # Error Ticket List (Widget 8)
+    error_tickets = ErrorTicket.objects.order_by('-date_creation')[:10]
+
+    context = {
+        # Widget 1
+        'total_error_types': total_error_types,
+        'error_type_categories': error_type_categories,
+        'error_type_impact_levels': error_type_impact_levels,
+        'expected_vs_unexpected': expected_vs_unexpected,
+        # Widget 2
+        'error_types': error_types,
+        # Widget 3
+        'total_error_events': total_error_events,
+        'error_events_time_series': error_events_time_series,
+        'top_systems_events': top_systems_events,
+        'top_services_events': top_services_events,
+        # Widget 4
+        'error_events': error_events,
+        # Widget 5
+        'total_error_tickets': total_error_tickets,
+        'error_ticket_statuses': error_ticket_statuses,
+        'error_ticket_priorities': error_ticket_priorities,
+        'average_resolution_time': average_resolution_time,
+        # Widget 8
+        'error_tickets': error_tickets,
+
         'total_error_types': ErrorType.objects.count(),
         'total_error_events': ErrorEvent.objects.count(),
         'open_tickets': ErrorTicket.objects.filter(statut__in=['OPEN', 'IN_PROGRESS']).count(),
         'recent_events': ErrorEvent.objects.order_by('-timestamp')[:5],
         'top_errors': ErrorType.objects.annotate(event_count=Count('events')).order_by('-event_count')[:5],
-        'critical_tickets': ErrorTicket.objects.filter(priorite='P1', statut__in=['OPEN', 'IN_PROGRESS']).order_by('date_creation')[:5]
+        'critical_tickets': ErrorTicket.objects.filter(priorite='P1', statut__in=['OPEN', 'IN_PROGRESS']).order_by('date_creation')[:5],
+
+        # New Insights
+        'most_error_prone_system': most_error_prone_system,
+        'most_error_prone_service': most_error_prone_service,
+        'most_common_errors': most_common_errors,
+        'most_impactful_systems': most_impactful_systems,
+        'top_impacted_components': top_impacted_components,
     }
+
     
-    return render(request, 'error_management_systems/dashboard1.html', {'stats': stats})
+    return render(request, 'error_management_systems/dashboard1.html', {'context': context})
 
 @login_required(login_url='/authentication/login/')
 def dashboard2(request):
