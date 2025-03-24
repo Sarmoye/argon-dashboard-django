@@ -69,6 +69,13 @@ def dashboard1(request):
     # Error Ticket List (Widget 8)
     error_tickets = ErrorTicket.objects.order_by('-date_creation')[:10]
 
+    total_error_types = ErrorType.objects.count()
+    total_error_events = ErrorEvent.objects.count()
+    open_tickets = ErrorTicket.objects.filter(statut__in=['OPEN', 'IN_PROGRESS']).count()
+    recent_events = ErrorEvent.objects.order_by('-timestamp')[:5]
+    top_errors = ErrorType.objects.annotate(event_count=Count('events')).order_by('-event_count')[:5],
+    critical_tickets = ErrorTicket.objects.filter(priorite='P1', statut__in=['OPEN', 'IN_PROGRESS']).order_by('date_creation')[:5],
+
     context = {
         # Widget 1
         'total_error_types': total_error_types,
@@ -91,13 +98,10 @@ def dashboard1(request):
         'average_resolution_time': average_resolution_time,
         # Widget 8
         'error_tickets': error_tickets,
-
-        'total_error_types': ErrorType.objects.count(),
-        'total_error_events': ErrorEvent.objects.count(),
-        'open_tickets': ErrorTicket.objects.filter(statut__in=['OPEN', 'IN_PROGRESS']).count(),
-        'recent_events': ErrorEvent.objects.order_by('-timestamp')[:5],
-        'top_errors': ErrorType.objects.annotate(event_count=Count('events')).order_by('-event_count')[:5],
-        'critical_tickets': ErrorTicket.objects.filter(priorite='P1', statut__in=['OPEN', 'IN_PROGRESS']).order_by('date_creation')[:5],
+        'open_tickets': open_tickets,
+        'recent_events': recent_events,
+        'top_errors': top_errors,
+        'critical_tickets': critical_tickets,
 
         # New Insights
         'most_error_prone_system': most_error_prone_system,
