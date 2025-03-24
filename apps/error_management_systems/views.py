@@ -295,10 +295,11 @@ def create_event(request):
                 'service_type': service_type,
                 'code_erreur': request.POST.get('code_erreur', ''),
                 'fichiers_impactes': request.POST.get('fichiers_impactes', ''),
-                'system_classification' : system_classification,
-                'service_classification' : service_classification,
+                'system_classification': system_classification,
+                'service_classification': service_classification,
             }
         )
+        error_type.save() #ensure the errortype is saved.
 
         # Créer l'événement d'erreur en associant l'error_type
         event = ErrorEvent(
@@ -315,13 +316,13 @@ def create_event(request):
         event.save()
 
         # Créer ou mettre à jour le ticket pour l'error_type avec statut 'OPEN'
-        try:
-            ticket, ticket_created = ErrorTicket.objects.get_or_create(
-                error_type=error_type,
-                defaults={'statut': 'OPEN'}
-            )
-        except ErrorTicket.DoesNotExist:
-            ticket = ErrorTicket(error_type=error_type, statut='OPEN')
+        ticket, ticket_created = ErrorTicket.objects.get_or_create(
+            error_type=error_type,
+            defaults={'statut': 'OPEN'}
+        )
+        if not ticket_created:
+            # Si le ticket existe déjà, on le met à jour pour que son statut soit 'OPEN'
+            ticket.statut = 'OPEN'
             ticket.save()
 
         messages.success(request, f"Événement d'erreur créé avec succès et ticket ouvert: {event.id}")
