@@ -257,7 +257,17 @@ a:hover {
             </div>
           </div>
         </div>
-        
+
+        <div class="card mb-4">
+          <div class="card-header">Error Trends</div>
+          <div class="card-body">
+            <canvas id="errorTrendsChart" 
+              data-labels="{% for label in error_trends.labels %}{{ label }},{% endfor %}"
+              data-data="{% for count in error_trends.data %}{{ count }},{% endfor %}">
+            </canvas>
+            <p class="text-center mt-2">Tendances des erreurs dans le temps</p>
+          </div>
+        </div>
   
         <div class="row mt-4">
           <div class="col-md-6 mb-4">
@@ -283,16 +293,6 @@ a:hover {
         </div>
       </div>
 
-    <div class="card mb-4">
-      <div class="card-header">Error Trends</div>
-      <div class="card-body">
-        <canvas id="errorTrendsChart" 
-          data-labels="{% for label in error_trends.labels %}{{ label }},{% endfor %}"
-          data-data="{% for count in error_trends.data %}{{ count }},{% endfor %}">
-        </canvas>
-        <p class="text-center mt-2">Tendances des erreurs dans le temps</p>
-      </div>
-    </div>
 
     <div class="card mb-4">
       <div class="card-header">Critical Vs Non Critical Chart</div>
