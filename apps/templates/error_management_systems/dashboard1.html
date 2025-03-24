@@ -352,7 +352,7 @@ a:hover {
                     <h5 class="mb-0">Most Frequent Error Types</h5>
                 </div>
                 <div class="card-body">
-                    {% if top_errors %}
+                    {% if stats.top_errors %}
                     <div class="table-responsive">
                         <table class="table table-striped table-hover">
                             <thead>
@@ -364,7 +364,7 @@ a:hover {
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for error_type in top_errors %}
+                                {% for error_type in stats.top_errors %}
                                 <tr>
                                     <td>{{ error_type.system_name }}</td>
                                     <td>{{ error_type.service_name }}</td>
