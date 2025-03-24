@@ -233,18 +233,19 @@ a:hover {
         <div class="card-body">
             <p>Total Error Events: {{ context.total_error_events }}</p>
             <div class="row">
-                <div class="col-md-6">
+                <div class="col-md-12">
                   <canvas id="errorEventsTimeSeriesChart" 
                   data-labels="{% for item in context.error_events_time_series %}{{ item.date|date:"Y-m-d" }},{% endfor %}" 
                   data-data="{% for item in context.error_events_time_series %}{{ item.count }},{% endfor %}"></canvas>                  
                 </div>
+            </div>
+            <div class="row">
                 <div class="col-md-6">
                     <canvas id="topSystemsChart" data-labels="{% for item in context.top_systems_events %}{{ item.system_name }},{% endfor %}" data-data="{% for item in context.top_systems_events %}{{ item.count }},{% endfor %}"></canvas>
                 </div>
                 <div class="col-md-6">
                      <canvas id="topServicesChart" data-labels="{% for item in context.top_services_events %}{{ item.service_name }},{% endfor %}" data-data="{% for item in context.top_services_events %}{{ item.count }},{% endfor %}"></canvas>
                 </div>
-
             </div>
         </div>
     </div>
