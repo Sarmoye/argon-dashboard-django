@@ -351,48 +351,6 @@ def create_event(request):
 
     return render(request, 'error_management_systems/create_event.html', context)
 
-from datetime import timedelta
-
-@login_required(login_url='/authentication/login/')
-def error_trends(request):
-    system_name = request.GET.get('system_name')
-    system_classification = request.GET.get('system_classification')
-
-    # Filtres de base
-    events = ErrorEvent.objects.all()
-
-    # Appliquer les filtres si présents
-    if system_name:
-        events = events.filter(system_name=system_name)
-    if system_classification:
-        events = events.filter(error_type__system_classification=system_classification)
-
-    # Calcul des tendances par jour
-    today = timezone.now().replace(hour=0, minute=0, second=0, microsecond=0)
-    days = [(today - timedelta(days=i)).date() for i in range(7)]  # 7 derniers jours
-
-    error_trends_data = []
-    error_trends_labels = []
-
-    for day in days:
-        count = events.filter(timestamp__date=day).count()
-        error_trends_data.append(count)
-        error_trends_labels.append(day.strftime('%Y-%m-%d'))
-
-    # Inverser les listes pour avoir le plus récent en dernier
-    error_trends_data.reverse()
-    error_trends_labels.reverse()
-
-    context = {
-        'error_trends': {
-            'labels': error_trends_labels,
-            'data': error_trends_data,
-        },
-        'system_names': ErrorEvent.objects.values_list('system_name', flat=True).distinct(),
-        'system_classifications': ErrorType.objects.values_list('system_classification', flat=True).distinct()
-    }
-
-    return render(request, 'error_trends.html', context)
 
 @login_required(login_url='/authentication/login/')
 def modify_error_type_details(request, event_id, error_type_id):

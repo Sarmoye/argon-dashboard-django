@@ -12,7 +12,6 @@ urlpatterns = [
     # Pages principales
     path('dashboard1/', views.dashboard1, name='dashboard1'),
     path('dashboard2/', views.dashboard2, name='dashboard2'),
-    path('error_trends/', views.error_trends, name='error_trends'),
     
     # ErrorEvent
     path('events/', views.event_list, name='event_list'),
