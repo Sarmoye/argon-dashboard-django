@@ -9,137 +9,137 @@
 
 <style>
     /* Modern Dashboard Styling */
-.dashboard-container {
-  font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif;
-}
+    .dashboard-container {
+      font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif;
+    }
 
-/* Card styling */
-.card {
-  border: none;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  transition: all 0.3s ease;
-  margin-bottom: 24px;
-  overflow: hidden;
-}
+    /* Card styling */
+    .card {
+      border: none;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      transition: all 0.3s ease;
+      margin-bottom: 24px;
+      overflow: hidden;
+    }
 
-.card:hover {
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
-  transform: translateY(-2px);
-}
+    .card:hover {
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+      transform: translateY(-2px);
+    }
 
-.card-header {
-  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
-  padding: 16px 20px;
-  font-weight: 600;
-  font-size: 1.1rem;
-  color: #343a40;
-}
+    .card-header {
+      background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+      border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+      padding: 16px 20px;
+      font-weight: 600;
+      font-size: 1.1rem;
+      color: #343a40;
+    }
 
-.card-body {
-  padding: 24px;
-  background-color: #ffffff;
-}
+    .card-body {
+      padding: 24px;
+      background-color: #ffffff;
+    }
 
-/* Chart containers */
-.chart-container {
-  position: relative;
-  height: 300px;
-  margin-bottom: 20px;
-}
+    /* Chart containers */
+    .chart-container {
+      position: relative;
+      height: 300px;
+      margin-bottom: 20px;
+    }
 
-/* Metrics display */
-.metrics-overview {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 16px;
-  margin-bottom: 24px;
-}
+    /* Metrics display */
+    .metrics-overview {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
 
-.metric-card {
-  flex: 1;
-  min-width: 200px;
-  background: white;
-  border-radius: 10px;
-  padding: 16px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
+    .metric-card {
+      flex: 1;
+      min-width: 200px;
+      background: white;
+      border-radius: 10px;
+      padding: 16px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
 
-.metric-title {
-  font-size: 0.9rem;
-  color: #6c757d;
-  margin-bottom: 8px;
-}
+    .metric-title {
+      font-size: 0.9rem;
+      color: #6c757d;
+      margin-bottom: 8px;
+    }
 
-.metric-value {
-  font-size: 1.8rem;
-  font-weight: 700;
-  color: #3a86ff;
-}
+    .metric-value {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #3a86ff;
+    }
 
-/* Status indicators */
-.status-badge {
-  display: inline-block;
-  padding: 4px 10px;
-  border-radius: 50px;
-  font-weight: 500;
-  font-size: 0.75rem;
-  text-transform: uppercase;
-}
+    /* Status indicators */
+    .status-badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 50px;
+      font-weight: 500;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+    }
 
-.status-open {
-  background-color: #ebf5ff;
-  color: #3a86ff;
-}
+    .status-open {
+      background-color: #ebf5ff;
+      color: #3a86ff;
+    }
 
-.status-in-progress {
-  background-color: #fff3cd;
-  color: #ff9f1c;
-}
+    .status-in-progress {
+      background-color: #fff3cd;
+      color: #ff9f1c;
+    }
 
-.status-resolved {
-  background-color: #d1e7dd;
-  color: #2ec4b6;
-}
+    .status-resolved {
+      background-color: #d1e7dd;
+      color: #2ec4b6;
+    }
 
-.status-closed {
-  background-color: #e2e3e5;
-  color: #6c757d;
-}
+    .status-closed {
+      background-color: #e2e3e5;
+      color: #6c757d;
+    }
 
-/* Priority indicators */
-.priority-high {
-  background-color: #f8d7da;
-  color: #e71d36;
-}
+    /* Priority indicators */
+    .priority-high {
+      background-color: #f8d7da;
+      color: #e71d36;
+    }
 
-.priority-medium {
-  background-color: #fff3cd;
-  color: #ff9f1c;
-}
+    .priority-medium {
+      background-color: #fff3cd;
+      color: #ff9f1c;
+    }
 
-.priority-low {
-  background-color: #d1e7dd;
-  color: #2ec4b6;
-}
+    .priority-low {
+      background-color: #d1e7dd;
+      color: #2ec4b6;
+    }
 
-/* Links styling */
-a {
-  color: #3a86ff;
-  text-decoration: none;
-  transition: all 0.2s ease;
-}
+    /* Links styling */
+    a {
+      color: #3a86ff;
+      text-decoration: none;
+      transition: all 0.2s ease;
+    }
 
-a:hover {
-  color: #4361ee;
-  text-decoration: none;
-}
+    a:hover {
+      color: #4361ee;
+      text-decoration: none;
+    }
 
-.text-sm {
+    .text-sm {
         font-size: 0.8rem;
     }
     .badge-secondary {
@@ -150,459 +150,476 @@ a:hover {
         font-weight: 600;
     }
 
-/* Responsive adjustments */
-@media (max-width: 992px) {
-  .metric-card {
-    min-width: 150px;
-  }
-  
-  .chart-container {
-    height: 250px;
-  }
-}
+    /* Responsive adjustments */
+    @media (max-width: 992px) {
+      .metric-card {
+        min-width: 150px;
+      }
+      
+      .chart-container {
+        height: 250px;
+      }
+    }
 
-@media (max-width: 768px) {
-  .card-body {
-    padding: 16px;
-  }
-  
-  .chart-container {
-    height: 220px;
-  }
-  
-  .metrics-overview {
-    flex-direction: column;
-  }
-  
-  .metric-card {
-    width: 100%;
-  }
-}
+    @media (max-width: 768px) {
+      .card-body {
+        padding: 16px;
+      }
+      
+      .chart-container {
+        height: 220px;
+      }
+      
+      .metrics-overview {
+        flex-direction: column;
+      }
+      
+      .metric-card {
+        width: 100%;
+      }
+    }
 </style>
 {% endblock %}
 
 {% block content %}
-    <div class="container mt-4">
-        <h1 class="mb-4 text-center text-primary">Systems Errors Tracker Dashboard</h1>
+<div class="container mt-4">
+    <h1 class="mb-4 text-center text-primary">Systems Errors Tracker Dashboard</h1>
 
-        <div class="card mb-4 shadow">
-            <div class="card-header bg-light">
-                <h5 class="mb-0">System Error Insights</h5>
+    <!-- Section: Vue d'ensemble des Systèmes -->
+    <div class="card mb-4 shadow">
+        <div class="card-header bg-light">
+            <h5 class="mb-0">Vue d'ensemble des Systèmes</h5>
+        </div>
+        <div class="card-body">
+            <!-- Placeholder: Tableau récapitulatif des systèmes -->
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Système</th>
+                            <th>Nombre d'erreurs</th>
+                            <th>Status</th>
+                            <th>Dernière erreur</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Exemple de ligne statique ; à remplacer par vos données -->
+                        <tr>
+                            <td>Système A</td>
+                            <td>25</td>
+                            <td><span class="badge badge-danger">Critique</span></td>
+                            <td>2025-03-23 14:32</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-4 mb-3">
-                        <div class="border rounded p-3 h-100 d-flex flex-column justify-content-center align-items-center">
-                            <h6 class="text-muted mb-2">Most Error-Prone System</h6>
-                            <h4 class="mb-0 text-primary">{{ most_error_prone_system.system_name }}</h4>
-                            <p class="mb-0 text-sm">({{ most_error_prone_system.count }} errors)</p>
-                        </div>
+        </div>
+    </div>
+
+    <!-- Section existante: System Error Insights -->
+    <div class="card mb-4 shadow">
+        <div class="card-header bg-light">
+            <h5 class="mb-0">System Error Insights</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <div class="border rounded p-3 h-100 d-flex flex-column justify-content-center align-items-center">
+                        <h6 class="text-muted mb-2">Most Error-Prone System</h6>
+                        <h4 class="mb-0 text-primary">{{ most_error_prone_system.system_name }}</h4>
+                        <p class="mb-0 text-sm">({{ most_error_prone_system.count }} errors)</p>
                     </div>
-                    <div class="col-md-4 mb-3">
-                        <div class="border rounded p-3 h-100 d-flex flex-column justify-content-center align-items-center">
-                            <h6 class="text-muted mb-2">Most Error-Prone Service</h6>
-                            <h4 class="mb-0 text-primary">{{ most_error_prone_service.service_name }}</h4>
-                            <p class="mb-0 text-sm">({{ most_error_prone_service.count }} errors)</p>
-                        </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <div class="border rounded p-3 h-100 d-flex flex-column justify-content-center align-items-center">
+                        <h6 class="text-muted mb-2">Most Error-Prone Service</h6>
+                        <h4 class="mb-0 text-primary">{{ most_error_prone_service.service_name }}</h4>
+                        <p class="mb-0 text-sm">({{ most_error_prone_service.count }} errors)</p>
                     </div>
-                    <div class="col-md-4 mb-3">
-                        <div class="border rounded p-3 h-100">
-                            <h6 class="text-muted mb-2">Most Frequent Error Reasons</h6>
-                            <ul class="list-unstyled mb-0">
-                                {% for error in most_common_errors %}
-                                    <li class="mb-1">
-                                        <span class="badge badge-secondary mr-2">{{ error.count }}</span>
-                                        {{ error.error_reason }}
-                                    </li>
-                                {% endfor %}
-                            </ul>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <div class="border rounded p-3 h-100">
+                        <h6 class="text-muted mb-2">Most Frequent Error Reasons</h6>
+                        <ul class="list-unstyled mb-0">
+                            {% for error in most_common_errors %}
+                                <li class="mb-1">
+                                    <span class="badge badge-secondary mr-2">{{ error.count }}</span>
+                                    {{ error.error_reason }}
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mt-4">
+                <div class="col-md-6 mb-4">
+                    <div class="card shadow-sm">
+                        <div class="card-body">
+                            <canvas id="mostImpactfulSystemsChart" 
+                                    data-labels="{% for item in most_impactful_systems %}{{ item.system_name }},{% endfor %}"
+                                    data-data="{% for item in most_impactful_systems %}{{ item.count }},{% endfor %}">
+                            </canvas>
                         </div>
                     </div>
                 </div>
-    
-                <div class="row mt-4">
-                    <div class="col-md-6 mb-4">
-                        <div class="card shadow-sm">
-                            <div class="card-body">
-                                <canvas id="mostImpactfulSystemsChart" 
-                                        data-labels="{% for item in most_impactful_systems %}{{ item.system_name }},{% endfor %}"
-                                        data-data="{% for item in most_impactful_systems %}{{ item.count }},{% endfor %}">
-                                </canvas>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6 mb-4">
-                        <div class="card shadow-sm">
-                            <div class="card-body">
-                                <canvas id="topImpactedComponentsChart" 
-                                        data-labels="{% for item in top_impacted_components %}{{ item.source_component }},{% endfor %}"
-                                        data-data="{% for item in top_impacted_components %}{{ item.count }},{% endfor %}">
-                                </canvas>
-                            </div>
+                <div class="col-md-6 mb-4">
+                    <div class="card shadow-sm">
+                        <div class="card-body">
+                            <canvas id="topImpactedComponentsChart" 
+                                    data-labels="{% for item in top_impacted_components %}{{ item.source_component }},{% endfor %}"
+                                    data-data="{% for item in top_impacted_components %}{{ item.count }},{% endfor %}">
+                            </canvas>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-
     </div>
+
+    <!-- Nouvelle Section: Insights Complémentaires -->
+    <div class="card mb-4 shadow">
+        <div class="card-header bg-light">
+            <h5 class="mb-0">Insights Complémentaires</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <!-- Tendances des erreurs dans le temps -->
+                <div class="col-md-6 mb-4">
+                    <div class="card shadow-sm">
+                        <div class="card-body">
+                            <canvas id="errorTrendsChart" 
+                                    data-labels="{% for label in error_trends.labels %}{{ label }},{% endfor %}"
+                                    data-data="{% for count in error_trends.data %}{{ count }},{% endfor %}">
+                            </canvas>
+                            <p class="text-center mt-2">Tendances des erreurs dans le temps</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- Erreurs critiques vs non critiques -->
+                <div class="col-md-6 mb-4">
+                    <div class="card shadow-sm">
+                        <div class="card-body">
+                            <canvas id="criticalVsNonCriticalChart" 
+                                    data-labels="Critiques,Non Critiques"
+                                    data-data="{{ critical_count }},{{ non_critical_count }}">
+                            </canvas>
+                            <p class="text-center mt-2">Ratio erreurs critiques vs non critiques</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <!-- Disponibilité des systèmes -->
+                <div class="col-md-6 mb-4">
+                    <div class="card shadow-sm">
+                        <div class="card-body">
+                            <canvas id="systemUptimeChart" 
+                                    data-labels="{% for system in systems_uptime %}{{ system.name }},{% endfor %}"
+                                    data-data="{% for system in systems_uptime %}{{ system.uptime_percentage }},{% endfor %}">
+                            </canvas>
+                            <p class="text-center mt-2">Disponibilité des systèmes (%)</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- Temps moyen de résolution -->
+                <div class="col-md-6 mb-4">
+                    <div class="card shadow-sm">
+                        <div class="card-body">
+                            <canvas id="resolutionTimeChart" 
+                                    data-labels="{% for system in resolution_times %}{{ system.name }},{% endfor %}"
+                                    data-data="{% for system in resolution_times %}{{ system.avg_resolution_time }},{% endfor %}">
+                            </canvas>
+                            <p class="text-center mt-2">Temps moyen de résolution (heures)</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
 {% endblock %}
 
 {% block javascripts %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    // Enhanced Chart.js configuration with modern styling and interactivity
-document.addEventListener('DOMContentLoaded', function() {
-  // Custom color palette - modern, professional with good contrast
-  const colorPalette = {
-    primary: ['#3a86ff', '#4361ee', '#4895ef', '#4cc9f0', '#560bad', '#7209b7', '#b5179e', '#f72585'],
-    secondary: ['#2ec4b6', '#ff9f1c', '#e71d36', '#011627', '#fdfffc'],
-    backgrounds: ['rgba(58, 134, 255, 0.8)', 'rgba(67, 97, 238, 0.8)', 'rgba(72, 149, 239, 0.8)', 
-                 'rgba(76, 201, 240, 0.8)', 'rgba(86, 11, 173, 0.8)', 'rgba(114, 9, 183, 0.8)', 
-                 'rgba(181, 23, 158, 0.8)', 'rgba(247, 37, 133, 0.8)'],
-    borders: ['rgba(58, 134, 255, 1)', 'rgba(67, 97, 238, 1)', 'rgba(72, 149, 239, 1)', 
-             'rgba(76, 201, 240, 1)', 'rgba(86, 11, 173, 1)', 'rgba(114, 9, 183, 1)', 
-             'rgba(181, 23, 158, 1)', 'rgba(247, 37, 133, 1)'],
-  };
+    // Configuration et fonctions Chart.js déjà présentes
+    document.addEventListener('DOMContentLoaded', function() {
+      // Palette de couleurs et options partagées (les mêmes que dans votre code)
+      const colorPalette = {
+        primary: ['#3a86ff', '#4361ee', '#4895ef', '#4cc9f0', '#560bad', '#7209b7', '#b5179e', '#f72585'],
+        secondary: ['#2ec4b6', '#ff9f1c', '#e71d36', '#011627', '#fdfffc'],
+        backgrounds: ['rgba(58, 134, 255, 0.8)', 'rgba(67, 97, 238, 0.8)', 'rgba(72, 149, 239, 0.8)', 
+                     'rgba(76, 201, 240, 0.8)', 'rgba(86, 11, 173, 0.8)', 'rgba(114, 9, 183, 0.8)', 
+                     'rgba(181, 23, 158, 0.8)', 'rgba(247, 37, 133, 0.8)'],
+        borders: ['rgba(58, 134, 255, 1)', 'rgba(67, 97, 238, 1)', 'rgba(72, 149, 239, 1)', 
+                 'rgba(76, 201, 240, 1)', 'rgba(86, 11, 173, 1)', 'rgba(114, 9, 183, 1)', 
+                 'rgba(181, 23, 158, 1)', 'rgba(247, 37, 133, 1)'],
+      };
 
-  // Shared chart options for consistency
-  const sharedOptions = {
-  responsive: true,
-  maintainAspectRatio: false,
-  plugins: {
-    legend: {
-      position: 'bottom',
-      labels: {
-        font: {
-          family: "'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif",
-          size: 12
-        },
-        usePointStyle: true,
-        padding: 20
-      }
-    },
-    tooltip: {
-      backgroundColor: 'rgba(0, 0, 0, 0.7)',
-      titleFont: {
-        family: "'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif",
-        size: 14,
-        weight: 'bold'
-      },
-      bodyFont: {
-        family: "'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif",
-        size: 13
-      },
-      padding: 12,
-      cornerRadius: 6,
-      callbacks: {
-        label: function(context) {
-          let label = context.dataset.label || '';
-          let value = context.raw;
-
-          // Sort data to determine ranking
-          let sortedData = [...context.dataset.data].sort((a, b) => b - a);
-          let rank = sortedData.indexOf(value) + 1; // Get ranking position
-
-          // Add ordinal suffix to ranking (1st, 2nd, 3rd, etc.)
-          const ordinalSuffix = (num) => {
-            if (num > 3 && num < 21) return num + 'th';
-            switch (num % 10) {
-              case 1: return num + 'st';
-              case 2: return num + 'nd';
-              case 3: return num + 'rd';
-              default: return num + 'th';
+      const sharedOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: {
+              font: {
+                family: "'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif",
+                size: 12
+              },
+              usePointStyle: true,
+              padding: 20
             }
-          };
-
-          return `${label} - ${value} (${ordinalSuffix(rank)} place)`;
-        }
-      }
-    }
-  },
-  animation: {
-    duration: 1000,
-    easing: 'easeOutQuart'
-  }
-};
-
-
-  // Function to create modern donut charts (replacement for pie charts)
-  function createDonutChart(canvasId, title) {
-    const canvas = document.getElementById(canvasId);
-    if (!canvas) return;
-    
-    const labels = canvas.dataset.labels.split(',').filter(label => label.trim() !== '');
-    const data = canvas.dataset.data.split(',').filter(value => value.trim() !== '').map(Number);
-    
-    // Generate background colors from our palette
-    const backgroundColors = colorPalette.backgrounds.slice(0, labels.length);
-    const borderColors = colorPalette.borders.slice(0, labels.length);
-    
-    const options = {
-      ...sharedOptions,
-      cutout: '65%', // Creates donut effect
-      plugins: {
-        ...sharedOptions.plugins,
-        title: {
-          display: true,
-          text: title,
-          font: {
-            family: "'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif",
-            size: 16,
-            weight: 'bold'
           },
-          padding: {
-            top: 10,
-            bottom: 20
-          }
-        },
-        tooltip: {
-          ...sharedOptions.plugins.tooltip,
-          callbacks: {
-            label: function(context) {
-              const value = context.parsed;
-              const total = context.dataset.data.reduce((a, b) => a + b, 0);
-              const percentage = Math.round((value / total) * 100);
-              return `${context.label}: ${value} (${percentage}%)`;
-            }
-          }
-        }
-      }
-    };
-    
-    new Chart(canvas, {
-      type: 'doughnut',
-      data: {
-        labels: labels,
-        datasets: [{
-          data: data,
-          backgroundColor: backgroundColors,
-          borderColor: borderColors,
-          borderWidth: 1,
-          hoverOffset: 15
-        }]
-      },
-      options: options
-    });
-  }
-
-  // Function to create modern line charts with area fill
-  function createAreaChart(canvasId, title) {
-    const canvas = document.getElementById(canvasId);
-    if (!canvas) return;
-    
-    const labels = canvas.dataset.labels.split(',').filter(label => label.trim() !== '');
-    const data = canvas.dataset.data.split(',').filter(value => value.trim() !== '').map(Number);
-    
-    const options = {
-      ...sharedOptions,
-      scales: {
-        x: {
-          grid: {
-            display: false
-          },
-          ticks: {
-            font: {
+          tooltip: {
+            backgroundColor: 'rgba(0, 0, 0, 0.7)',
+            titleFont: {
               family: "'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif",
-              size: 11
-            }
-          }
-        },
-        y: {
-          beginAtZero: true,
-          grid: {
-            color: 'rgba(200, 200, 200, 0.1)'
-          },
-          ticks: {
-            font: {
-              family: "'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif",
-              size: 11
+              size: 14,
+              weight: 'bold'
             },
-            precision: 0
-          }
-        }
-      },
-      plugins: {
-        ...sharedOptions.plugins,
-        title: {
-          display: true,
-          text: title,
-          font: {
-            family: "'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif",
-            size: 16,
-            weight: 'bold'
-          },
-          padding: {
-            top: 10,
-            bottom: 20
-          }
-        }
-      },
-      elements: {
-        line: {
-          tension: 0.4 // Smooth curve
-        },
-        point: {
-          radius: 4,
-          hoverRadius: 6
-        }
-      }
-    };
-    
-    new Chart(canvas, {
-      type: 'line',
-      data: {
-        labels: labels,
-        datasets: [{
-          label: title,
-          data: data,
-          borderColor: colorPalette.borders[0],
-          backgroundColor: 'rgba(58, 134, 255, 0.2)',
-          fill: true,
-          pointBackgroundColor: colorPalette.borders[0]
-        }]
-      },
-      options: options
-    });
-  }
-
-  // Function to create modern bar charts
-  function createBarChart(canvasId, title) {
-    const canvas = document.getElementById(canvasId);
-    if (!canvas) return;
-    
-    const labels = canvas.dataset.labels.split(',').filter(label => label.trim() !== '');
-    const data = canvas.dataset.data.split(',').filter(value => value.trim() !== '').map(Number);
-    console.log(data);
-    
-    const options = {
-      ...sharedOptions,
-      indexAxis: 'y', // Horizontal bar chart
-      scales: { 
-        x: {
-          beginAtZero: true,
-          grid: {
-            color: 'rgba(200, 200, 200, 0.1)'
-          },
-          ticks: {
-            font: {
+            bodyFont: {
               family: "'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif",
-              size: 11
+              size: 13
             },
-            precision: 0
+            padding: 12,
+            cornerRadius: 6
           }
         },
-        y: {
-          grid: {
-            display: false
-          },
-          ticks: {
-            font: {
-              family: "'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif",
-              size: 11
+        animation: {
+          duration: 1000,
+          easing: 'easeOutQuart'
+        }
+      };
+
+      // Fonctions de création de graphiques (createDonutChart, createAreaChart, createBarChart)
+      function createDonutChart(canvasId, title) {
+        const canvas = document.getElementById(canvasId);
+        if (!canvas) return;
+        
+        const labels = canvas.dataset.labels.split(',').filter(label => label.trim() !== '');
+        const data = canvas.dataset.data.split(',').filter(value => value.trim() !== '').map(Number);
+        const backgroundColors = colorPalette.backgrounds.slice(0, labels.length);
+        const borderColors = colorPalette.borders.slice(0, labels.length);
+        
+        const options = {
+          ...sharedOptions,
+          cutout: '65%',
+          plugins: {
+            ...sharedOptions.plugins,
+            title: {
+              display: true,
+              text: title,
+              font: {
+                family: "'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif",
+                size: 16,
+                weight: 'bold'
+              },
+              padding: {
+                top: 10,
+                bottom: 20
+              }
+            },
+            tooltip: {
+              ...sharedOptions.plugins.tooltip,
+              callbacks: {
+                label: function(context) {
+                  const value = context.parsed;
+                  const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                  const percentage = Math.round((value / total) * 100);
+                  return `${context.label}: ${value} (${percentage}%)`;
+                }
+              }
             }
           }
-        }
-      },
-      plugins: {
-        ...sharedOptions.plugins,
-        title: {
-          display: true,
-          text: title,
-          font: {
-            family: "'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif",
-            size: 16,
-            weight: 'bold'
+        };
+        
+        new Chart(canvas, {
+          type: 'doughnut',
+          data: {
+            labels: labels,
+            datasets: [{
+              data: data,
+              backgroundColor: backgroundColors,
+              borderColor: borderColors,
+              borderWidth: 1,
+              hoverOffset: 15
+            }]
           },
-          padding: {
-            top: 10,
-            bottom: 20
+          options: options
+        });
+      }
+
+      function createAreaChart(canvasId, title) {
+        const canvas = document.getElementById(canvasId);
+        if (!canvas) return;
+        
+        const labels = canvas.dataset.labels.split(',').filter(label => label.trim() !== '');
+        const data = canvas.dataset.data.split(',').filter(value => value.trim() !== '').map(Number);
+        
+        const options = {
+          ...sharedOptions,
+          scales: {
+            x: {
+              grid: { display: false },
+              ticks: {
+                font: {
+                  family: "'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif",
+                  size: 11
+                }
+              }
+            },
+            y: {
+              beginAtZero: true,
+              grid: { color: 'rgba(200, 200, 200, 0.1)' },
+              ticks: {
+                font: {
+                  family: "'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif",
+                  size: 11
+                },
+                precision: 0
+              }
+            }
+          },
+          plugins: {
+            ...sharedOptions.plugins,
+            title: {
+              display: true,
+              text: title,
+              font: {
+                family: "'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif",
+                size: 16,
+                weight: 'bold'
+              },
+              padding: { top: 10, bottom: 20 }
+            }
+          },
+          elements: {
+            line: { tension: 0.4 },
+            point: { radius: 4, hoverRadius: 6 }
           }
-        }
-      },
-      barThickness: 20,
-      maxBarThickness: 30
-    };
-    
-    // Create gradient fills for bars
-    new Chart(canvas, {
-      type: 'bar',
-      data: {
-        labels: labels,
-        datasets: [{
-          label: title,
-          data: data,
-          backgroundColor: labels.map((_, i) => colorPalette.backgrounds[i % colorPalette.backgrounds.length]),
-          borderColor: labels.map((_, i) => colorPalette.borders[i % colorPalette.borders.length]),
-          borderWidth: 1,
-          borderRadius: 4
-        }]
-      },
-      options: options
-    });
-  }
+        };
+        
+        new Chart(canvas, {
+          type: 'line',
+          data: {
+            labels: labels,
+            datasets: [{
+              label: title,
+              data: data,
+              borderColor: colorPalette.borders[0],
+              backgroundColor: 'rgba(58, 134, 255, 0.2)',
+              fill: true,
+              pointBackgroundColor: colorPalette.borders[0]
+            }]
+          },
+          options: options
+        });
+      }
 
-  // Apply chart styles to dashboard sections
-  // Error Type Overview Section
-  createDonutChart('errorCategoryChart', 'Error Categories');
-  createDonutChart('impactLevelChart', 'Impact Levels');
-  createDonutChart('expectedVsUnexpectedChart', 'Expected vs Unexpected Errors');
-  
-  // Error Event Overview Section
-  createAreaChart('errorEventsTimeSeriesChart', 'Error Events Over Time');
-  createBarChart('topSystemsChart', 'Top Systems by Error Events');
-  createBarChart('topServicesChart', 'Top Services by Error Events');
+      function createBarChart(canvasId, title) {
+        const canvas = document.getElementById(canvasId);
+        if (!canvas) return;
+        
+        const labels = canvas.dataset.labels.split(',').filter(label => label.trim() !== '');
+        const data = canvas.dataset.data.split(',').filter(value => value.trim() !== '').map(Number);
+        
+        const options = {
+          ...sharedOptions,
+          indexAxis: 'y',
+          scales: { 
+            x: {
+              beginAtZero: true,
+              grid: { color: 'rgba(200, 200, 200, 0.1)' },
+              ticks: {
+                font: {
+                  family: "'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif",
+                  size: 11
+                },
+                precision: 0
+              }
+            },
+            y: {
+              grid: { display: false },
+              ticks: {
+                font: {
+                  family: "'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif",
+                  size: 11
+                }
+              }
+            }
+          },
+          plugins: {
+            ...sharedOptions.plugins,
+            title: {
+              display: true,
+              text: title,
+              font: {
+                family: "'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif",
+                size: 16,
+                weight: 'bold'
+              },
+              padding: { top: 10, bottom: 20 }
+            }
+          },
+          barThickness: 20,
+          maxBarThickness: 30
+        };
+        
+        new Chart(canvas, {
+          type: 'bar',
+          data: {
+            labels: labels,
+            datasets: [{
+              label: title,
+              data: data,
+              backgroundColor: labels.map((_, i) => colorPalette.backgrounds[i % colorPalette.backgrounds.length]),
+              borderColor: labels.map((_, i) => colorPalette.borders[i % colorPalette.borders.length]),
+              borderWidth: 1,
+              borderRadius: 4
+            }]
+          },
+          options: options
+        });
+      }
 
-  // New System Error Insights Section
-  createBarChart('mostImpactfulSystemsChart', 'Most Impactful Systems');
-  createBarChart('topImpactedComponentsChart', 'Top Impacted Components');
-  
-  // Error Ticket Overview Section
-  createDonutChart('ticketStatusChart', 'Ticket Status Distribution');
-  createDonutChart('ticketPriorityChart', 'Ticket Priority Distribution');
+      // Initialisation des graphiques pour les sections existantes et les nouvelles sections
+      createDonutChart('mostImpactfulSystemsChart', 'Most Impactful Systems');
+      createBarChart('topImpactedComponentsChart', 'Top Impacted Components');
 
-  // Add resize handler for responsiveness
-  window.addEventListener('resize', function() {
-    Chart.instances.forEach(instance => {
-      instance.resize();
-    });
-  });
+      // Nouveaux graphiques pour Insights Complémentaires
+      createAreaChart('errorTrendsChart', 'Tendances des erreurs');
+      createDonutChart('criticalVsNonCriticalChart', 'Erreurs Critiques vs Non Critiques');
+      createBarChart('systemUptimeChart', 'Disponibilité des systèmes');
+      createBarChart('resolutionTimeChart', 'Temps moyen de résolution');
 
-  // Add interactive features to charts
-  document.querySelectorAll('canvas').forEach(canvas => {
-    canvas.style.height = '300px';
-    
-    // Add subtle hover effects to chart containers
-    const cardBody = canvas.closest('.card-body');
-    if (cardBody) {
-      cardBody.style.transition = 'all 0.3s ease';
-      
-      cardBody.addEventListener('mouseenter', function() {
-        this.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.1)';
+      // Gestion du redimensionnement
+      window.addEventListener('resize', function() {
+        Chart.instances.forEach(instance => {
+          instance.resize();
+        });
       });
       
-      cardBody.addEventListener('mouseleave', function() {
-        this.style.boxShadow = 'none';
+      // Effets de survol pour les conteneurs de graphiques
+      document.querySelectorAll('canvas').forEach(canvas => {
+        canvas.style.height = '300px';
+        const cardBody = canvas.closest('.card-body');
+        if (cardBody) {
+          cardBody.style.transition = 'all 0.3s ease';
+          cardBody.addEventListener('mouseenter', function() {
+            this.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.1)';
+          });
+          cardBody.addEventListener('mouseleave', function() {
+            this.style.boxShadow = 'none';
+          });
+        }
       });
-    }
-  });
-});
+    });
 </script>
-<script>
-    $(document).ready(function() {
-      $('.table').DataTable({
-                dom: 'Bfrtip',
-                buttons: [
-                    'copy', 'csv', 'excel', 'pdf', 'print'
-                ],
-                "pageLength": 10,
-                "lengthMenu": [10, 25, 50, 100],
-            });
-    });
-  </script>
 
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-
 {% endblock javascripts %}
