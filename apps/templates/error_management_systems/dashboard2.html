@@ -182,117 +182,122 @@ a:hover {
 {% endblock %}
 
 {% block content %}
-    <div class="container mt-4">
-        <h1 class="mb-4 text-center text-primary">Systems Errors Tracker Dashboard</h1>
+  <div class="container mt-4">
+    <h1 class="mb-4 text-center text-primary">Systems Errors Tracker Dashboard</h1>
 
-
-        <div class="card mb-4">
-            <div class="card-header">Critical Vs Non Critical Chart</div>
-            <div class="card-body">
-              <canvas id="criticalVsNonCriticalChart" 
-                      data-labels="Critiques,Non Critiques"
-                      data-data="{{ critical_count }},{{ non_critical_count }}">
-              </canvas>
-              <p class="text-center mt-2">Ratio erreurs critiques vs non critiques</p>
+    <div class="card mb-4 shadow">
+      <div class="card-header bg-black">
+        <h5 class="mb-0">System Error Insights</h5>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-4 mb-3">
+            <div class="border rounded p-3 h-100 d-flex flex-column justify-content-center align-items-center">
+              <h6 class="text-muted mb-2">Most Error-Prone System</h6>
+              <h4 class="mb-0 text-primary">{{ most_error_prone_system.system_name }}</h4>
+              <p class="mb-0 text-sm">({{ most_error_prone_system.count }} errors)</p>
+            </div>
+          </div>
+          <div class="col-md-4 mb-3">
+            <div class="border rounded p-3 h-100 d-flex flex-column justify-content-center align-items-center">
+              <h6 class="text-muted mb-2">Most Error-Prone Service</h6>
+              <h4 class="mb-0 text-primary">{{ most_error_prone_service.service_name }}</h4>
+              <p class="mb-0 text-sm">({{ most_error_prone_service.count }} errors)</p>
+            </div>
+          </div>
+          <div class="col-md-4 mb-3">
+            <div class="border rounded p-3 h-100">
+              <h6 class="text-muted mb-2">Most Frequent Error Reasons</h6>
+              <ul class="list-unstyled mb-0">
+              {% for error in most_common_errors %}
+                <li class="mb-1">
+                  <span class="badge badge-secondary mr-2">{{ error.count }}</span>
+                    {{ error.error_reason }}
+                </li>
+              {% endfor %}
+              </ul>
+            </div>
           </div>
         </div>
-
-        <div class="card mb-4">
-            <div class="card-header">Error Trends</div>
-            <div class="card-body">
-              <canvas id="errorTrendsChart" 
-                      data-labels="{% for label in error_trends.labels %}{{ label }},{% endfor %}"
-                      data-data="{% for count in error_trends.data %}{{ count }},{% endfor %}">
-              </canvas>
-              <p class="text-center mt-2">Tendances des erreurs dans le temps</p>
+  
+        <div class="row mt-4">
+          <div class="col-md-6 mb-4">
+            <div class="card shadow-sm">
+              <div class="card-body">
+                <canvas id="mostImpactfulSystemsChart" 
+                  data-labels="{% for item in most_impactful_systems %}{{ item.system_name }},{% endfor %}"
+                  data-data="{% for item in most_impactful_systems %}{{ item.count }},{% endfor %}">
+                </canvas>
+              </div>
+            </div>
           </div>
-        </div>
-
-        <div class="card mb-4">
-          <div class="card-header">Systems Availability</div>
-          <div class="card-body">
-            <canvas id="systemUptimeChart" 
-                    data-labels="{% for system in systems_uptime %}{{ system.name }},{% endfor %}"
-                    data-data="{% for system in systems_uptime %}{{ system.uptime_percentage }},{% endfor %}">
-            </canvas>
-            <p class="text-center mt-2">Disponibilité des systèmes (%)</p>
+          <div class="col-md-6 mb-4">
+            <div class="card shadow-sm">
+              <div class="card-body">
+                <canvas id="topImpactedComponentsChart" 
+                  data-labels="{% for item in top_impacted_components %}{{ item.source_component }},{% endfor %}"
+                  data-data="{% for item in top_impacted_components %}{{ item.count }},{% endfor %}">
+                </canvas>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
-      <div class="card mb-4">
-        <div class="card-header">Resolution Time</div>
-        <div class="card-body">
-          <canvas id="resolutionTimeChart" 
-                  data-labels="{% for system in resolution_times %}{{ system.name }},{% endfor %}"
-                  data-data="{% for system in resolution_times %}{{ system.avg_resolution_time }},{% endfor %}">
-          </canvas>
-          <p class="text-center mt-2">Temps moyen de résolution (heures)</p>
+    <div class="card mb-4">
+      <div class="card-header">Error Trends</div>
+      <div class="card-body">
+        <canvas id="errorTrendsChart" 
+          data-labels="{% for label in error_trends.labels %}{{ label }},{% endfor %}"
+          data-data="{% for count in error_trends.data %}{{ count }},{% endfor %}">
+        </canvas>
+        <p class="text-center mt-2">Tendances des erreurs dans le temps</p>
       </div>
     </div>
 
-
-
-        <div class="card mb-4 shadow">
-            <div class="card-header bg-black">
-                <h5 class="mb-0">System Error Insights</h5>
-            </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-4 mb-3">
-                        <div class="border rounded p-3 h-100 d-flex flex-column justify-content-center align-items-center">
-                            <h6 class="text-muted mb-2">Most Error-Prone System</h6>
-                            <h4 class="mb-0 text-primary">{{ most_error_prone_system.system_name }}</h4>
-                            <p class="mb-0 text-sm">({{ most_error_prone_system.count }} errors)</p>
-                        </div>
-                    </div>
-                    <div class="col-md-4 mb-3">
-                        <div class="border rounded p-3 h-100 d-flex flex-column justify-content-center align-items-center">
-                            <h6 class="text-muted mb-2">Most Error-Prone Service</h6>
-                            <h4 class="mb-0 text-primary">{{ most_error_prone_service.service_name }}</h4>
-                            <p class="mb-0 text-sm">({{ most_error_prone_service.count }} errors)</p>
-                        </div>
-                    </div>
-                    <div class="col-md-4 mb-3">
-                        <div class="border rounded p-3 h-100">
-                            <h6 class="text-muted mb-2">Most Frequent Error Reasons</h6>
-                            <ul class="list-unstyled mb-0">
-                                {% for error in most_common_errors %}
-                                    <li class="mb-1">
-                                        <span class="badge badge-secondary mr-2">{{ error.count }}</span>
-                                        {{ error.error_reason }}
-                                    </li>
-                                {% endfor %}
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-    
-                <div class="row mt-4">
-                    <div class="col-md-6 mb-4">
-                        <div class="card shadow-sm">
-                            <div class="card-body">
-                                <canvas id="mostImpactfulSystemsChart" 
-                                        data-labels="{% for item in most_impactful_systems %}{{ item.system_name }},{% endfor %}"
-                                        data-data="{% for item in most_impactful_systems %}{{ item.count }},{% endfor %}">
-                                </canvas>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6 mb-4">
-                        <div class="card shadow-sm">
-                            <div class="card-body">
-                                <canvas id="topImpactedComponentsChart" 
-                                        data-labels="{% for item in top_impacted_components %}{{ item.source_component }},{% endfor %}"
-                                        data-data="{% for item in top_impacted_components %}{{ item.count }},{% endfor %}">
-                                </canvas>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
+    <div class="card mb-4">
+      <div class="card-header">Critical Vs Non Critical Chart</div>
+      <div class="card-body">
+        <canvas id="criticalVsNonCriticalChart" 
+          data-labels="Critiques,Non Critiques"
+          data-data="{{ critical_count }},{{ non_critical_count }}">
+        </canvas>
+        <p class="text-center mt-2">Ratio erreurs critiques vs non critiques</p>
+      </div>
     </div>
+
+  <div class="card mb-4">
+    <div class="card-header">Systems Availability</div>
+    <div class="card-body">
+      <canvas id="systemUptimeChart" 
+        data-labels="{% for system in systems_uptime %}{{ system.name }},{% endfor %}"
+        data-data="{% for system in systems_uptime %}{{ system.uptime_percentage }},{% endfor %}">
+      </canvas>
+      <p class="text-center mt-2">Disponibilité des systèmes (%)</p>
+    </div>
+  </div>
+
+  <div class="card mb-4">
+    <div class="card-header">Resolution Time</div>
+    <div class="card-body">
+      <canvas id="resolutionTimeChart" 
+        data-labels="{% for system in resolution_times %}{{ system.name }},{% endfor %}"
+        data-data="{% for system in resolution_times %}{{ system.avg_resolution_time }},{% endfor %}">
+      </canvas>
+      <p class="text-center mt-2">Temps moyen de résolution (heures)</p>
+    </div>
+  </div>
+
+        
+
+        
+
+
+
+
+        
+
+  </div>
 {% endblock %}
 
 {% block javascripts %}
