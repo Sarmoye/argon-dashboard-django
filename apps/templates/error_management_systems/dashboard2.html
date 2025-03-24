@@ -431,50 +431,52 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Shared chart options for consistency
   const sharedOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: {
-        position: 'bottom',
-        labels: {
-          font: {
-            family: "'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif",
-            size: 12
-          },
-          usePointStyle: true,
-          padding: 20
-        }
-      },
-      tooltip: {
-        backgroundColor: 'rgba(0, 0, 0, 0.7)',
-        titleFont: {
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: {
+    legend: {
+      position: 'bottom',
+      labels: {
+        font: {
           family: "'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif",
-          size: 14,
-          weight: 'bold'
+          size: 12
         },
-        bodyFont: {
-          family: "'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif",
-          size: 13
-        },
-        padding: 12,
-        cornerRadius: 6,
-        callbacks: {
-          label: function(context) {
-            let label = context.dataset.label || '';
-            if (label) {
-              label += ': ';
-            }
-            label += context.parsed.y !== undefined ? context.parsed.y : context.parsed;
-            return label;
-          }
-        }
+        usePointStyle: true,
+        padding: 20
       }
     },
-    animation: {
-      duration: 1000,
-      easing: 'easeOutQuart'
+    tooltip: {
+      backgroundColor: 'rgba(0, 0, 0, 0.7)',
+      titleFont: {
+        family: "'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif",
+        size: 14,
+        weight: 'bold'
+      },
+      bodyFont: {
+        family: "'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif",
+        size: 13
+      },
+      padding: 12,
+      cornerRadius: 6,
+      callbacks: {
+        label: function(context) {
+          let label = context.dataset.label || '';
+          let value = context.raw;
+
+          // Récupération des données triées pour établir le classement
+          let sortedData = [...context.dataset.data].sort((a, b) => b - a);
+          let rank = sortedData.indexOf(value) + 1; // Classement
+
+          return `${label} - ${value} (${rank}e place)`;
+        }
+      }
     }
-  };
+  },
+  animation: {
+    duration: 1000,
+    easing: 'easeOutQuart'
+  }
+};
 
   // Function to create modern donut charts (replacement for pie charts)
   function createDonutChart(canvasId, title) {
