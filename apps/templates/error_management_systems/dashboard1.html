@@ -588,18 +588,7 @@ document.addEventListener('DOMContentLoaded', function() {
           let sortedData = [...context.dataset.data].sort((a, b) => b - a);
           let rank = sortedData.indexOf(value) + 1; // Get ranking position
 
-          // Add ordinal suffix to ranking (1st, 2nd, 3rd, etc.)
-          const ordinalSuffix = (num) => {
-            if (num > 3 && num < 21) return num + 'th';
-            switch (num % 10) {
-              case 1: return num + 'st';
-              case 2: return num + 'nd';
-              case 3: return num + 'rd';
-              default: return num + 'th';
-            }
-          };
-
-          return `${label} - ${value} (${ordinalSuffix(rank)} place)`;
+          return `${label} - ${value}`;
         }
       }
     }
