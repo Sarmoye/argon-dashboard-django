@@ -419,6 +419,26 @@ document.addEventListener('DOMContentLoaded', function() {
   const colorPalette = {
     primary: ['#3a86ff', '#4361ee', '#4895ef', '#4cc9f0', '#560bad', '#7209b7', '#b5179e', '#f72585'],
     secondary: ['#2ec4b6', '#ff9f1c', '#e71d36', '#011627', '#fdfffc'],
+    gradients: {
+      blue: function(ctx) {
+        const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+        gradient.addColorStop(0, 'rgba(76, 201, 240, 0.9)');
+        gradient.addColorStop(1, 'rgba(67, 97, 238, 0.3)');
+        return gradient;
+      },
+      purple: function(ctx) {
+        const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+        gradient.addColorStop(0, 'rgba(114, 9, 183, 0.9)');
+        gradient.addColorStop(1, 'rgba(247, 37, 133, 0.3)');
+        return gradient;
+      },
+      teal: function(ctx) {
+        const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+        gradient.addColorStop(0, 'rgba(46, 196, 182, 0.9)');
+        gradient.addColorStop(1, 'rgba(58, 134, 255, 0.3)');
+        return gradient;
+      }
+    },
     backgrounds: ['rgba(58, 134, 255, 0.8)', 'rgba(67, 97, 238, 0.8)', 'rgba(72, 149, 239, 0.8)', 
                  'rgba(76, 201, 240, 0.8)', 'rgba(86, 11, 173, 0.8)', 'rgba(114, 9, 183, 0.8)', 
                  'rgba(181, 23, 158, 0.8)', 'rgba(247, 37, 133, 0.8)'],
@@ -427,7 +447,7 @@ document.addEventListener('DOMContentLoaded', function() {
              'rgba(181, 23, 158, 1)', 'rgba(247, 37, 133, 1)'],
   };
 
-  // Shared chart options for consistency
+  // Enhanced shared options with advanced styling
   const sharedOptions = {
     responsive: true,
     maintainAspectRatio: false,
@@ -436,72 +456,117 @@ document.addEventListener('DOMContentLoaded', function() {
         position: 'bottom',
         labels: {
           font: {
-            family: "'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif",
-            size: 12
+            family: "'Poppins', 'Segoe UI', 'Roboto', sans-serif",
+            size: 12,
+            weight: 500
           },
           usePointStyle: true,
-          padding: 20
+          pointStyle: 'rectRounded',
+          padding: 20,
+          color: '#555'
         }
       },
       tooltip: {
-        backgroundColor: 'rgba(0, 0, 0, 0.7)',
+        backgroundColor: 'rgba(20, 20, 30, 0.85)',
         titleFont: {
-          family: "'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif",
+          family: "'Poppins', 'Segoe UI', 'Roboto', sans-serif",
           size: 14,
-          weight: 'bold'
+          weight: 600
         },
         bodyFont: {
-          family: "'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif",
-          size: 13
+          family: "'Poppins', 'Segoe UI', 'Roboto', sans-serif",
+          size: 13,
+          weight: 400
         },
         padding: 12,
-        cornerRadius: 6,
+        cornerRadius: 8,
+        boxPadding: 6,
+        displayColors: true,
+        borderColor: 'rgba(255, 255, 255, 0.2)',
+        borderWidth: 1,
+        animation: {
+          duration: 150
+        },
         callbacks: {
           label: function(context) {
             let label = context.dataset.label || '';
             if (label) {
               label += ': ';
             }
-            label += context.parsed.y !== undefined ? context.parsed.y : context.parsed;
+            label += context.parsed.y !== undefined ? context.parsed.y.toLocaleString() : context.parsed.toLocaleString();
             return label;
           }
         }
+      },
+      datalabels: {
+        display: false // We'll enable this for specific charts
       }
     },
     animation: {
-      duration: 1000,
-      easing: 'easeOutQuart'
+      duration: 1200,
+      easing: 'easeOutQuart',
+      onComplete: function() {
+        // Add subtle subtle shimmer effect on completion
+        const chartInstance = this.chart;
+        const ctx = chartInstance.ctx;
+        ctx.save();
+        ctx.globalCompositeOperation = 'lighter';
+        ctx.globalAlpha = 0.1;
+        ctx.restore();
+      }
+    },
+    layout: {
+      padding: {
+        top: 10,
+        right: 25,
+        bottom: 10,
+        left: 25
+      }
+    },
+    interaction: {
+      mode: 'index',
+      intersect: false
     }
   };
 
+  // Add Chart.js plugin for data labels (for selected charts)
+  Chart.register(ChartDataLabels);
+
   // Function to create modern donut charts (replacement for pie charts)
-  function createDonutChart(canvasId, title) {
+    // Function to create modern donut charts with enhanced interactivity
+    function createDonutChart(canvasId, title) {
     const canvas = document.getElementById(canvasId);
     if (!canvas) return;
     
     const labels = canvas.dataset.labels.split(',').filter(label => label.trim() !== '');
     const data = canvas.dataset.data.split(',').filter(value => value.trim() !== '').map(Number);
     
-    // Generate background colors from our palette
+    // Generate background colors with enhanced saturation
     const backgroundColors = colorPalette.backgrounds.slice(0, labels.length);
     const borderColors = colorPalette.borders.slice(0, labels.length);
     
+    const ctx = canvas.getContext('2d');
+    
+    // Calculate total for percentage display
+    const total = data.reduce((a, b) => a + b, 0);
+    
     const options = {
       ...sharedOptions,
-      cutout: '65%', // Creates donut effect
+      cutout: '70%', // Creates more modern donut effect
       plugins: {
         ...sharedOptions.plugins,
         title: {
           display: true,
           text: title,
           font: {
-            family: "'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif",
-            size: 16,
-            weight: 'bold'
+            family: "'Poppins', 'Segoe UI', 'Roboto', sans-serif",
+            size: 18,
+            weight: 600
           },
+          color: '#333',
           padding: {
-            top: 10,
-            bottom: 20
+            top: 15,
+            bottom: 25
           }
         },
         tooltip: {
@@ -509,16 +574,73 @@ document.addEventListener('DOMContentLoaded', function() {
           callbacks: {
             label: function(context) {
               const value = context.parsed;
-              const total = context.dataset.data.reduce((a, b) => a + b, 0);
               const percentage = Math.round((value / total) * 100);
-              return `${context.label}: ${value} (${percentage}%)`;
+              return `${context.label}: ${value.toLocaleString()} (${percentage}%)`;
             }
+          }
+        },
+        datalabels: {
+          display: true,
+          color: '#fff',
+          font: {
+            weight: 'bold',
+            size: 11,
+            family: "'Poppins', 'Segoe UI', 'Roboto', sans-serif",
+          },
+          formatter: (value, ctx) => {
+            const percentage = Math.round((value / total) * 100);
+            return percentage > 5 ? `${percentage}%` : '';
+          }
+        },
+        // Add center text with total count
+        centerText: {
+          display: true,
+          text: total.toLocaleString(),
+          color: '#333',
+          font: {
+            family: "'Poppins', 'Segoe UI', 'Roboto', sans-serif",
+            size: 20,
+            weight: 'bold'
           }
         }
       }
     };
     
-    new Chart(canvas, {
+    // Register custom plugin for center text in donut charts
+    const centerTextPlugin = {
+      id: 'centerText',
+      afterDraw: function(chart) {
+        if (chart.config.options.plugins.centerText?.display) {
+          const centerX = (chart.chartArea.left + chart.chartArea.right) / 2;
+          const centerY = (chart.chartArea.top + chart.chartArea.bottom) / 2;
+          
+          const ctx = chart.ctx;
+          ctx.save();
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          
+          const centerConfig = chart.config.options.plugins.centerText;
+          
+          // Draw main text
+          ctx.font = `${centerConfig.font.weight} ${centerConfig.font.size}px ${centerConfig.font.family}`;
+          ctx.fillStyle = centerConfig.color;
+          ctx.fillText(centerConfig.text, centerX, centerY);
+          
+          // Draw 'total' label
+          ctx.font = `normal 12px ${centerConfig.font.family}`;
+          ctx.fillStyle = '#888';
+          ctx.fillText('TOTAL', centerX, centerY + 22);
+          
+          ctx.restore();
+        }
+      }
+    };
+    
+    // Register plugin
+    Chart.register(centerTextPlugin);
+    
+    // Create chart with additional event handlers for interactivity
+    const chartInstance = new Chart(canvas, {
       type: 'doughnut',
       data: {
         labels: labels,
@@ -526,12 +648,49 @@ document.addEventListener('DOMContentLoaded', function() {
           data: data,
           backgroundColor: backgroundColors,
           borderColor: borderColors,
-          borderWidth: 1,
-          hoverOffset: 15
+          borderWidth: 2,
+          hoverOffset: 15,
+          borderRadius: 2
         }]
       },
       options: options
     });
+    
+    // Add click handler for drill-down capability
+    canvas.onclick = function(evt) {
+      const points = chartInstance.getElementsAtEventForMode(evt, 'nearest', { intersect: true }, true);
+      
+      if (points.length) {
+        const firstPoint = points[0];
+        const label = chartInstance.data.labels[firstPoint.index];
+        const value = chartInstance.data.datasets[0].data[firstPoint.index];
+        
+        // Show drill-down info in a modal or expander
+        const cardBody = canvas.closest('.card-body');
+        if (cardBody) {
+          const drilldownDiv = cardBody.querySelector('.chart-drilldown') || document.createElement('div');
+          drilldownDiv.className = 'chart-drilldown mt-3 p-3 bg-light rounded';
+          drilldownDiv.innerHTML = `
+            <h6 class="font-weight-bold">${label} Details</h6>
+            <p>Value: ${value.toLocaleString()} (${Math.round((value/total)*100)}% of total)</p>
+            <p>Click on another segment to see details or <a href="#" class="text-primary drill-close">close</a>.</p>
+          `;
+          
+          if (!cardBody.querySelector('.chart-drilldown')) {
+            cardBody.appendChild(drilldownDiv);
+            drilldownDiv.style.animation = 'fadeIn 0.3s ease-in-out';
+          }
+          
+          drilldownDiv.querySelector('.drill-close').onclick = function(e) {
+            e.preventDefault();
+            drilldownDiv.style.animation = 'fadeOut 0.3s ease-in-out';
+            setTimeout(() => drilldownDiv.remove(), 300);
+          };
+        }
+      }
+    };
+    
+    return chartInstance;
   }
 
   // Function to create modern line charts with area fill
@@ -542,31 +701,44 @@ document.addEventListener('DOMContentLoaded', function() {
     const labels = canvas.dataset.labels.split(',').filter(label => label.trim() !== '');
     const data = canvas.dataset.data.split(',').filter(value => value.trim() !== '').map(Number);
     
+    const ctx = canvas.getContext('2d');
+    
     const options = {
       ...sharedOptions,
       scales: {
         x: {
           grid: {
-            display: false
+            display: false,
+            drawBorder: false
           },
           ticks: {
             font: {
-              family: "'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif",
-              size: 11
-            }
+              family: "'Poppins', 'Segoe UI', 'Roboto', sans-serif",
+              size: 11,
+              weight: 500
+            },
+            color: '#666',
+            maxRotation: 45,
+            minRotation: 45
           }
         },
         y: {
           beginAtZero: true,
           grid: {
-            color: 'rgba(200, 200, 200, 0.1)'
+            color: 'rgba(200, 200, 200, 0.1)',
+            drawBorder: false
           },
           ticks: {
             font: {
-              family: "'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif",
-              size: 11
+              family: "'Poppins', 'Segoe UI', 'Roboto', sans-serif",
+              size: 11,
+              weight: 500
             },
-            precision: 0
+            color: '#666',
+            precision: 0,
+            callback: function(value) {
+              return value.toLocaleString();
+            }
           }
         }
       },
@@ -576,28 +748,33 @@ document.addEventListener('DOMContentLoaded', function() {
           display: true,
           text: title,
           font: {
-            family: "'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif",
-            size: 16,
-            weight: 'bold'
+            family: "'Poppins', 'Segoe UI', 'Roboto', sans-serif",
+            size: 18,
+            weight: 600
           },
+          color: '#333',
           padding: {
-            top: 10,
-            bottom: 20
+            top: 15,
+            bottom: 25
           }
         }
       },
       elements: {
         line: {
-          tension: 0.4 // Smooth curve
+          tension: 0.4, // Smooth curve
+          borderWidth: 3
         },
         point: {
-          radius: 4,
-          hoverRadius: 6
+          radius: 3,
+          hoverRadius: 7,
+          borderWidth: 2,
+          backgroundColor: '#fff'
         }
       }
     };
     
-    new Chart(canvas, {
+    // Create chart with interactive features
+    const chartInstance = new Chart(canvas, {
       type: 'line',
       data: {
         labels: labels,
@@ -605,14 +782,71 @@ document.addEventListener('DOMContentLoaded', function() {
           label: title,
           data: data,
           borderColor: colorPalette.borders[0],
-          backgroundColor: 'rgba(58, 134, 255, 0.2)',
+          backgroundColor: colorPalette.gradients.blue(ctx),
           fill: true,
-          pointBackgroundColor: colorPalette.borders[0]
+          pointBackgroundColor: colorPalette.borders[0],
+          pointHoverBackgroundColor: '#fff',
+          pointHoverBorderWidth: 3,
+          pointHoverBorderColor: colorPalette.borders[0]
         }]
       },
       options: options
     });
+    
+    // Add hover effects for improved interactivity
+    canvas.addEventListener('mousemove', function(e) {
+      const activePoints = chartInstance.getElementsAtEventForMode(e, 'nearest', { intersect: true }, false);
+      canvas.style.cursor = activePoints.length ? 'pointer' : 'default';
+    });
+    
+    // Add capability for date range selection
+    const cardBody = canvas.closest('.card-body');
+    if (cardBody) {
+      const rangeControls = document.createElement('div');
+      rangeControls.className = 'chart-range-controls mt-3 d-flex justify-content-end';
+      rangeControls.innerHTML = `
+        <div class="btn-group btn-group-sm" role="group">
+          <button type="button" class="btn btn-outline-primary" data-range="7">7D</button>
+          <button type="button" class="btn btn-outline-primary" data-range="30">30D</button>
+          <button type="button" class="btn btn-primary" data-range="all">All</button>
+        </div>
+      `;
+      
+      if (!cardBody.querySelector('.chart-range-controls')) {
+        cardBody.appendChild(rangeControls);
+        
+        // Add event listeners to range buttons
+        rangeControls.querySelectorAll('button').forEach(btn => {
+          btn.addEventListener('click', function() {
+            // Toggle active state
+            rangeControls.querySelectorAll('button').forEach(b => {
+              b.classList.remove('btn-primary');
+              b.classList.add('btn-outline-primary');
+            });
+            this.classList.remove('btn-outline-primary');
+            this.classList.add('btn-primary');
+            
+            const range = this.dataset.range;
+            
+            // Simulate data filtering (in real app, you'd query for this data)
+            if (range === 'all') {
+              chartInstance.data.labels = labels;
+              chartInstance.data.datasets[0].data = data;
+            } else {
+              const days = parseInt(range);
+              chartInstance.data.labels = labels.slice(-days);
+              chartInstance.data.datasets[0].data = data.slice(-days);
+            }
+            
+            chartInstance.update();
+          });
+        });
+      }
+    }
+    
+    return chartInstance;
   }
+
 
   // Function to create modern bar charts
   function createBarChart(canvasId, title) {
@@ -622,6 +856,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const labels = canvas.dataset.labels.split(',').filter(label => label.trim() !== '');
     const data = canvas.dataset.data.split(',').filter(value => value.trim() !== '').map(Number);
     
+    const ctx = canvas.getContext('2d');
+    
     const options = {
       ...sharedOptions,
       indexAxis: 'y', // Horizontal bar chart
@@ -629,25 +865,34 @@ document.addEventListener('DOMContentLoaded', function() {
         x: {
           beginAtZero: true,
           grid: {
-            color: 'rgba(200, 200, 200, 0.1)'
+            color: 'rgba(200, 200, 200, 0.1)',
+            drawBorder: false
           },
           ticks: {
             font: {
-              family: "'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif",
-              size: 11
+              family: "'Poppins', 'Segoe UI', 'Roboto', sans-serif",
+              size: 11,
+              weight: 500
             },
-            precision: 0
+            color: '#666',
+            precision: 0,
+            callback: function(value) {
+              return value.toLocaleString();
+            }
           }
         },
         y: {
           grid: {
-            display: false
+            display: false,
+            drawBorder: false
           },
           ticks: {
             font: {
-              family: "'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif",
-              size: 11
-            }
+              family: "'Poppins', 'Segoe UI', 'Roboto', sans-serif",
+              size: 11,
+              weight: 600
+            },
+            color: '#444'
           }
         }
       },
@@ -657,36 +902,126 @@ document.addEventListener('DOMContentLoaded', function() {
           display: true,
           text: title,
           font: {
-            family: "'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif",
-            size: 16,
-            weight: 'bold'
+            family: "'Poppins', 'Segoe UI', 'Roboto', sans-serif",
+            size: 18,
+            weight: 600
           },
+          color: '#333',
           padding: {
-            top: 10,
-            bottom: 20
+            top: 15,
+            bottom: 25
+          }
+        },
+        datalabels: {
+          display: true,
+          align: 'end',
+          anchor: 'end',
+          formatter: (value) => value.toLocaleString(),
+          color: '#555',
+          font: {
+            weight: 600,
+            family: "'Poppins', 'Segoe UI', 'Roboto', sans-serif",
           }
         }
       },
-      barThickness: 20,
-      maxBarThickness: 30
+      barThickness: 24,
+      maxBarThickness: 32,
+      barPercentage: 0.8,
+      categoryPercentage: 0.8
     };
     
-    // Create gradient fills for bars
-    new Chart(canvas, {
+    // Create gradient backgrounds for each bar
+    const gradients = labels.map((_, i) => {
+      const gradient = ctx.createLinearGradient(0, 0, 400, 0);
+      const colorIndex = i % colorPalette.backgrounds.length;
+      const color = colorPalette.backgrounds[colorIndex];
+      const colorRGB = color.match(/rgba\((\d+),\s*(\d+),\s*(\d+),\s*[\d.]+\)/);
+      if (colorRGB) {
+        gradient.addColorStop(0, `rgba(${colorRGB[1]}, ${colorRGB[2]}, ${colorRGB[3]}, 0.9)`);
+        gradient.addColorStop(1, `rgba(${colorRGB[1]}, ${colorRGB[2]}, ${colorRGB[3]}, 0.5)`);
+      } else {
+        gradient.addColorStop(0, color);
+        gradient.addColorStop(1, color.replace(/[\d.]+\)$/, '0.5)'));
+      }
+      return gradient;
+    });
+    
+    // Create chart with sorting capability
+    const chartInstance = new Chart(canvas, {
       type: 'bar',
       data: {
         labels: labels,
         datasets: [{
           label: title,
           data: data,
-          backgroundColor: labels.map((_, i) => colorPalette.backgrounds[i % colorPalette.backgrounds.length]),
+          backgroundColor: gradients,
           borderColor: labels.map((_, i) => colorPalette.borders[i % colorPalette.borders.length]),
           borderWidth: 1,
-          borderRadius: 4
+          borderRadius: 6,
+          hoverBorderWidth: 2
         }]
       },
       options: options
     });
+    
+    // Add sorting controls
+    const cardBody = canvas.closest('.card-body');
+    if (cardBody) {
+      const sortControls = document.createElement('div');
+      sortControls.className = 'chart-sort-controls mt-3 d-flex justify-content-end';
+      sortControls.innerHTML = `
+        <div class="btn-group btn-group-sm" role="group">
+          <button type="button" class="btn btn-outline-primary" data-sort="az">A-Z</button>
+          <button type="button" class="btn btn-primary" data-sort="value">Value ↓</button>
+        </div>
+      `;
+      
+      if (!cardBody.querySelector('.chart-sort-controls')) {
+        cardBody.appendChild(sortControls);
+        
+        // Add event listeners to sort buttons
+        sortControls.querySelectorAll('button').forEach(btn => {
+          btn.addEventListener('click', function() {
+            // Toggle active state
+            sortControls.querySelectorAll('button').forEach(b => {
+              b.classList.remove('btn-primary');
+              b.classList.add('btn-outline-primary');
+            });
+            this.classList.remove('btn-outline-primary');
+            this.classList.add('btn-primary');
+            
+            const sortBy = this.dataset.sort;
+            const sortedIndices = [...data.keys()];
+            
+            if (sortBy === 'az') {
+              // Sort alphabetically
+              sortedIndices.sort((a, b) => labels[a].localeCompare(labels[b]));
+            } else {
+              // Sort by value (descending)
+              sortedIndices.sort((a, b) => data[b] - data[a]);
+              
+              // Toggle sort direction if clicked again
+              if (this.textContent.includes('↓')) {
+                this.textContent = 'Value ↑';
+                sortedIndices.reverse();
+              } else {
+                this.textContent = 'Value ↓';
+              }
+            }
+            
+            // Apply the sorting
+            chartInstance.data.labels = sortedIndices.map(i => labels[i]);
+            chartInstance.data.datasets[0].data = sortedIndices.map(i => data[i]);
+            chartInstance.data.datasets[0].backgroundColor = sortedIndices.map(i => gradients[i]);
+            chartInstance.data.datasets[0].borderColor = sortedIndices.map(i => colorPalette.borders[i % colorPalette.borders.length]);
+            
+            chartInstance.update();
+          });
+        });
+      }
+    }
+    
+    return chartInstance;
   }
 
   // Apply chart styles to dashboard sections
@@ -708,11 +1043,15 @@ document.addEventListener('DOMContentLoaded', function() {
   createDonutChart('ticketStatusChart', 'Ticket Status Distribution');
   createDonutChart('ticketPriorityChart', 'Ticket Priority Distribution');
 
-  // Add resize handler for responsiveness
+  // Add enhanced resize handler for responsiveness
+  let resizeTimeout;
   window.addEventListener('resize', function() {
-    Chart.instances.forEach(instance => {
-      instance.resize();
-    });
+    clearTimeout(resizeTimeout);
+    resizeTimeout = setTimeout(function() {
+      Chart.instances.forEach(instance => {
+        instance.resize();
+      });
+    }, 250);  // Debounce to improve performance
   });
 
   // Add interactive features to charts
