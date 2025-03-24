@@ -191,34 +191,40 @@ a:hover {
       </div>
       <div class="card-body">
         <div class="row">
+          <!-- Most Error-Prone System -->
           <div class="col-md-4 mb-3">
-            <div class="border rounded p-3 h-100 d-flex flex-column justify-content-center align-items-center">
+            <div class="border rounded p-4 h-100 d-flex flex-column justify-content-center align-items-center shadow-sm bg-light">
               <h6 class="text-muted mb-2">Most Error-Prone System</h6>
-              <h4 class="mb-0 text-primary">{{ most_error_prone_system.system_name }}</h4>
-              <p class="mb-0 text-sm">({{ most_error_prone_system.count }} errors)</p>
+              <h4 class="mb-0 text-primary font-weight-bold">{{ most_error_prone_system.system_name }}</h4>
+              <p class="mb-0 text-sm text-muted">({{ most_error_prone_system.count }} errors)</p>
             </div>
           </div>
+        
+          <!-- Most Error-Prone Service -->
           <div class="col-md-4 mb-3">
-            <div class="border rounded p-3 h-100 d-flex flex-column justify-content-center align-items-center">
+            <div class="border rounded p-4 h-100 d-flex flex-column justify-content-center align-items-center shadow-sm bg-light">
               <h6 class="text-muted mb-2">Most Error-Prone Service</h6>
-              <h4 class="mb-0 text-primary">{{ most_error_prone_service.service_name }}</h4>
-              <p class="mb-0 text-sm">({{ most_error_prone_service.count }} errors)</p>
+              <h4 class="mb-0 text-primary font-weight-bold">{{ most_error_prone_service.service_name }}</h4>
+              <p class="mb-0 text-sm text-muted">({{ most_error_prone_service.count }} errors)</p>
             </div>
           </div>
+        
+          <!-- Most Frequent Error Reasons -->
           <div class="col-md-4 mb-3">
-            <div class="border rounded p-3 h-100">
+            <div class="border rounded p-4 h-100 shadow-sm bg-light">
               <h6 class="text-muted mb-2">Most Frequent Error Reasons</h6>
               <ul class="list-unstyled mb-0">
-              {% for error in most_common_errors %}
-                <li class="mb-1">
-                  <span class="badge badge-secondary mr-2">{{ error.count }}</span>
+                {% for error in most_common_errors %}
+                  <li class="mb-2">
+                    <span class="badge badge-info mr-2">{{ error.count }}</span>
                     {{ error.error_reason }}
-                </li>
-              {% endfor %}
+                  </li>
+                {% endfor %}
               </ul>
             </div>
           </div>
         </div>
+        
   
         <div class="row mt-4">
           <div class="col-md-6 mb-4">
