@@ -187,14 +187,45 @@ class ErrorTicket(models.Model):
         verbose_name_plural = "Error Tickets"
     
     def save(self, *args, **kwargs):
+        # Vérifier si l'instance existe déjà afin de comparer l'état précédent
+        if self.pk:
+            old_instance = ErrorTicket.objects.get(pk=self.pk)
+            status_changed = old_instance.statut != self.statut
+        else:
+            status_changed = False
+
+        # Gestion de ticket_reference (créé uniquement à la première sauvegarde)
         if not self.ticket_reference:
             type_id = slugify(self.error_type.id)
             self.ticket_reference = f"{type_id}"
-        
-        if self.statut == 'RESOLVED' and not self.date_resolution:
+
+        # Enregistrement de la date de résolution si le statut est RESOLVED
+        # On met à jour la date de résolution à chaque fois que le ticket est résolu
+        if self.statut == 'RESOLVED':
             self.date_resolution = timezone.now()
-        
+        else:
+            # On peut réinitialiser la date de résolution si le ticket est réouvert
+            # (selon la logique métier souhaitée)
+            self.date_resolution = None
+
+        # Si le statut a changé, enregistrer l'événement dans l'historique
+        if status_changed:
+            # Préparer l'entrée historique
+            event = {
+                'old_statut': old_instance.statut,
+                'new_statut': self.statut,
+                'date_modify': timezone.now().isoformat()
+            }
+            # Récupérer l'historique existant (on s'assure qu'il s'agisse d'une liste)
+            historique = self.historique or {}
+            events = historique.get('events', [])
+            events.append(event)
+            historique['events'] = events
+            self.historique = historique
+
+        # La date_modification est gérée automatiquement par auto_now
         super().save(*args, **kwargs)
+
     
     def __str__(self):
         return f"Ticket: {self.error_type.system_name} [{self.get_statut_display()}]"
