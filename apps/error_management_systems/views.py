@@ -284,7 +284,7 @@ def create_event(request):
         service_type = request.POST.get('service_type')
         error_reason = request.POST.get('error_reason')
 
-        # Vérifier si le ErrorType existe
+        # Vérifier si le ErrorType existe ou le créer
         error_type, created = ErrorType.objects.get_or_create(
             system_name=system_name,
             service_name=service_name,
@@ -310,12 +310,17 @@ def create_event(request):
         )
         event.save()
 
-        # Si un nouvel ErrorType a été créé, créer aussi un ticket
-        if created:
-            ErrorTicket.objects.create(error_type=error_type)
-            messages.success(request, f"Événement d'erreur créé avec succès, nouveau type d'erreur et ticket créés: {event.id}")
-        else:
-            messages.success(request, f"Événement d'erreur créé avec succès: {event.id}")
+        # Créer ou mettre à jour le ticket pour l'error_type avec statut 'OPEN'
+        ticket, ticket_created = ErrorTicket.objects.get_or_create(
+            error_type=error_type,
+            defaults={'statut': 'OPEN'}
+        )
+        if not ticket_created:
+            # Si le ticket existe déjà, on le met à jour pour que son statut soit 'OPEN'
+            ticket.statut = 'OPEN'
+            ticket.save()
+
+        messages.success(request, f"Événement d'erreur créé avec succès et ticket ouvert: {event.id}")
 
         return redirect('error_management_systems:event_detail', event_id=event.id)
 
@@ -332,6 +337,7 @@ def create_event(request):
     }
 
     return render(request, 'error_management_systems/create_event.html', context)
+
 
 @login_required(login_url='/authentication/login/')
 def modify_error_type_details(request, event_id, error_type_id):
