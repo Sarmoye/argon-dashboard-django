@@ -370,7 +370,7 @@ a:hover {
                                     <td>{{ error_type.service_name }}</td>
                                     <td>{{ error_type.event_count }}</td>
                                     <td>
-                                        <a href="{% url 'error_management_systems:error_type_detail' error_type_id=error_type.id %}" class="btn btn-sm btn-info">
+                                        <a href="{% url 'error_management_systems:error_type_detail' error_type.id %}" class="btn btn-sm btn-info">
                                             <i class="fas fa-eye"></i> View
                                         </a>
                                     </td>
@@ -482,7 +482,7 @@ a:hover {
                                     <td>{{ ticket.date_creation|date:"d/m/Y H:i" }}</td>
                                     <td>{{ ticket.responsable|default:"Unassigned" }}</td>
                                     <td>
-                                        <a href="{% url 'error_management_systems:ticket_detail' ticket_id=ticket.id %}" class="btn btn-sm btn-info">
+                                        <a href="{% url 'error_management_systems:ticket_detail' ticket.id %}" class="btn btn-sm btn-info">
                                             <i class="fas fa-eye"></i> View
                                         </a>
                                     </td>
