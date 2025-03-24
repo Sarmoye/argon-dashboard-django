@@ -44,7 +44,7 @@ def dashboard2(request):
 
     # Error Event Overview (Widget 3)
     total_error_events = ErrorEvent.objects.count()
-    error_events_time_series = ErrorEvent.objects.values('timestamp__date').annotate(count=Count('id')).order_by('timestamp__date')
+    error_events_time_series = (ErrorEvent.objects.annotate(date=TruncDate('timestamp')).values('date').annotate(count=Count('id')).order_by('date'))
     
     top_systems_events = ErrorEvent.objects.values('system_name').annotate(count=Count('id')).order_by('-count')[:5]
     top_services_events = ErrorEvent.objects.values('service_name').annotate(count=Count('id')).order_by('-count')[:5]
