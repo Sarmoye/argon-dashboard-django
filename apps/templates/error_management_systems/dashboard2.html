@@ -188,13 +188,34 @@ a:hover {
     <div class="card mb-4">
       <div class="card-header">Systems Errors Trends</div>
       <div class="card-body">
-        <canvas id="errorTrendsChart" 
-          data-labels="{% for label in error_trends.labels %}{{ label }},{% endfor %}"
-          data-data="{% for count in error_trends.data %}{{ count }},{% endfor %}">
-        </canvas>
-        <p class="text-center mt-2">Tendances des erreurs dans le temps</p>
+          <form method="get" action="{% url 'error_management_systems:error_trends' %}">
+              <div class="form-group">
+                  <label for="system_name">System Name:</label>
+                  <select name="system_name" id="system_name" class="form-control">
+                      <option value="">All Systems</option>
+                      {% for name in system_names %}
+                          <option value="{{ name }}" {% if request.GET.system_name == name %}selected{% endif %}>{{ name }}</option>
+                      {% endfor %}
+                  </select>
+              </div>
+              <div class="form-group">
+                  <label for="system_classification">System Classification:</label>
+                  <select name="system_classification" id="system_classification" class="form-control">
+                      <option value="">All Classifications</option>
+                      {% for classification in system_classifications %}
+                          <option value="{{ classification }}" {% if request.GET.system_classification == classification %}selected{% endif %}>{{ classification }}</option>
+                      {% endfor %}
+                  </select>
+              </div>
+              <button type="submit" class="btn btn-primary">Filter</button>
+          </form>
+          <canvas id="errorTrendsChart" 
+                  data-labels="{% for label in error_trends.labels %}{{ label }},{% endfor %}"
+                  data-data="{% for count in error_trends.data %}{{ count }},{% endfor %}">
+          </canvas>
+          <p class="text-center mt-2">Tendances des erreurs dans le temps</p>
       </div>
-    </div>
+  </div>
 
     <div class="card mb-4 shadow">
       <div class="card-header bg-black">
@@ -651,6 +672,8 @@ document.addEventListener('DOMContentLoaded', function() {
   // Error Ticket Overview Section
   createDonutChart('ticketStatusChart', 'Ticket Status Distribution');
   createDonutChart('ticketPriorityChart', 'Ticket Priority Distribution');
+
+  createAreaChart('errorTrendsChart', 'Error Trends');
 
   // Add resize handler for responsiveness
   window.addEventListener('resize', function() {
