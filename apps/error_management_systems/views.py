@@ -134,6 +134,8 @@ def dashboard2(request):
     most_error_prone_system_class = ErrorEvent.objects.values('error_type__system_classification').annotate(count=Count('id')).order_by('-count').first()
     most_error_prone_service_class = ErrorEvent.objects.values('error_type__service_classification').annotate(count=Count('id')).order_by('-count').first()
 
+    most_common_errors = ErrorEvent.objects.values('error_reason').annotate(count=Count('id')).order_by('-count')[:10]
+
     # Get the top 10 most common error reasons
     most_common_errors = (
         ErrorType.objects.values('error_reason')
@@ -233,7 +235,6 @@ def dashboard2(request):
         'most_error_prone_service_class': most_error_prone_service_class,
 
         'most_common_errors': most_common_errors,
-        'error_total_counts': error_total_counts,
         'most_impactful_systems': most_impactful_systems,
         'most_impactful_systems_class': most_impactful_systems_class,
         'top_impacted_services': top_impacted_services,
