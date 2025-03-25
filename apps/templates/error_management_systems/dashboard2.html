@@ -466,7 +466,7 @@ a:hover {
       </div>
 
       <div class="card mb-4">
-        <div class="card-header">Critical(High and Critical) Vs Non Critical(Low and Medium) Chart/div>
+        <div class="card-header">Critical(High and Critical) Vs Non Critical(Low and Medium) Chart</div>
         <div class="card-body">
             <div class="row">
                 <div class="col-md-4">
@@ -486,18 +486,7 @@ a:hover {
         <p class="text-center mt-2">Disponibilité des systèmes (%)</p>
       </div>
     </div>
-
-    <div class="card mb-4">
-      <div class="card-header">Resolution Time</div>
-      <div class="card-body">
-        <canvas id="resolutionTimeChart" 
-          data-labels="{% for system in resolution_times %}{{ system.name }},{% endfor %}"
-          data-data="{% for system in resolution_times %}{{ system.avg_resolution_time }},{% endfor %}">
-        </canvas>
-        <p class="text-center mt-2">Temps moyen de résolution (heures)</p>
-      </div>
-    </div> 
-
+    
   </div>
 {% endblock %}
 
