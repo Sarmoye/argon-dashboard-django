@@ -231,19 +231,16 @@ a:hover {
                         {% endfor %}
                     </select>
                 </div>
-                
+
                 <div class="col-md-3">
-                    <label>Service Classification</label>
-                    <select name="service_classification" class="form-control filter-select">
-                        <option value="">All Classifications</option>
-                        {% for classification in context.unique_service_classifications %}
-                        <option value="{{ classification }}" 
-                                {% if classification == selected_service_classification %}selected{% endif %}>
-                            {{ classification }}
-                        </option>
-                        {% endfor %}
-                    </select>
-                </div>
+                  <label>Service Classification</label>
+                  <select name="service_classification" id="service_classification" class="form-select">
+                      <option value="">All Classifications</option>
+                      {% for classification in unique_service_classifications %}
+                          <option value="{{ classification }}" {% if request.GET.classification == classification %}selected{% endif %}>{{ classification }}</option>
+                      {% endfor %}
+                  </select>
+              </div>
             </div>
         </form>
         
