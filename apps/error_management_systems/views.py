@@ -124,6 +124,17 @@ def dashboard1(request):
     
     return render(request, 'error_management_systems/dashboard1.html', {'context': context, 'stats' : stats})
 
+
+from django import template
+
+register = template.Library()
+
+@register.filter
+def get_item(dictionary, key):
+    """Returns the value from the dictionary for the given key."""
+    return dictionary.get(key)
+
+
 @login_required(login_url='/authentication/login/')
 def dashboard2(request):
     """View to render error events time series chart with dynamic filtering."""
