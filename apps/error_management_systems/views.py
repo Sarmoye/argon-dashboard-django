@@ -9,8 +9,34 @@ from django.contrib.auth.decorators import login_required
 from .models import ErrorType, ErrorEvent, ErrorTicket
 from .forms import ErrorTypeForm, ErrorEventForm, ErrorTicketForm
 from django.db.models.functions import TruncDate
+from django.db import transaction
+from django.contrib.auth.decorators import user_passes_test
+
+def check_user_role(user, allowed_roles=None):
+    """
+    Check if user has specified role(s)
+    
+    Args:
+        user: Django user object
+        allowed_roles: List of allowed roles (optional)
+    
+    Returns:
+        Boolean indicating if user has allowed role
+    """
+    if not user.is_authenticated:
+        return False
+    
+    # If no roles specified, return True for authenticated user
+    if allowed_roles is None:
+        return True
+    
+    return user.role in allowed_roles
 
 # Page d'accueil
+@user_passes_test(
+    lambda u: check_user_role(u, ['superadmin', 'admin', 'analyst', 'viewer']), 
+    login_url='/authentication/login/'
+)
 @login_required(login_url='/authentication/login/')
 def dashboard1(request):
     """Page d'accueil avec statistiques générales et derniers événements"""
@@ -124,6 +150,11 @@ def dashboard1(request):
     
     return render(request, 'error_management_systems/dashboard1.html', {'context': context, 'stats' : stats})
 
+
+@user_passes_test(
+    lambda u: check_user_role(u, ['superadmin', 'admin', 'analyst', 'viewer']), 
+    login_url='/authentication/login/'
+)
 @login_required(login_url='/authentication/login/')
 def dashboard2(request):
     """View to render error events time series chart with dynamic filtering."""
@@ -245,6 +276,10 @@ def dashboard2(request):
 
 
 # ---- ErrorEvent Views ----
+@user_passes_test(
+    lambda u: check_user_role(u, ['superadmin', 'admin', 'analyst', 'viewer']), 
+    login_url='/authentication/login/'
+)
 @login_required(login_url='/authentication/login/')
 def event_list(request):
     """Liste des événements d'erreur avec filtres"""
@@ -277,6 +312,10 @@ def event_list(request):
     
     return render(request, 'error_management_systems/event_list.html', context)
 
+@user_passes_test(
+    lambda u: check_user_role(u, ['superadmin', 'admin', 'analyst', 'viewer']), 
+    login_url='/authentication/login/'
+)
 @login_required(login_url='/authentication/login/')
 def event_detail(request, event_id):
     """Détail d'un événement d'erreur"""
@@ -300,6 +339,10 @@ def event_detail(request, event_id):
     
     return render(request, 'error_management_systems/event_detail.html', context)
 
+@user_passes_test(
+    lambda u: check_user_role(u, ['superadmin', 'admin', 'analyst']), 
+    login_url='/authentication/login/'
+)
 @login_required(login_url='/authentication/login/')
 def create_event(request):
     """Création d'un nouvel événement d'erreur"""
@@ -375,6 +418,10 @@ def create_event(request):
     return render(request, 'error_management_systems/create_event.html', context)
 
 
+@user_passes_test(
+    lambda u: check_user_role(u, ['superadmin', 'admin', 'analyst']), 
+    login_url='/authentication/login/'
+)
 @login_required(login_url='/authentication/login/')
 def modify_error_type_details(request, event_id, error_type_id):
     """Modifier les détails du type d'erreur après la création de l'événement"""
@@ -398,6 +445,10 @@ def modify_error_type_details(request, event_id, error_type_id):
     
     return render(request, 'error_management_systems/edit_error_type.html', context)
 
+@user_passes_test(
+    lambda u: check_user_role(u, ['superadmin', 'admin', 'analyst']), 
+    login_url='/authentication/login/'
+)
 @login_required(login_url='/authentication/login/')
 def modify_error_ticket_details(request, event_id, error_type_id):
     """Modifier les détails du ticket après la création de l'événement"""
@@ -424,6 +475,10 @@ def modify_error_ticket_details(request, event_id, error_type_id):
     return render(request, 'error_management_systems/edit_ticket.html', context)
 
 # ---- ErrorType Views ----
+@user_passes_test(
+    lambda u: check_user_role(u, ['superadmin', 'admin', 'analyst', 'viewer']), 
+    login_url='/authentication/login/'
+)
 @login_required(login_url='/authentication/login/')
 def error_type_list(request):
     """Liste des types d'erreurs avec filtres et statistiques"""
@@ -450,6 +505,10 @@ def error_type_list(request):
     
     return render(request, 'error_management_systems/error_type_list.html', context)
 
+@user_passes_test(
+    lambda u: check_user_role(u, ['superadmin', 'admin', 'analyst', 'viewer']), 
+    login_url='/authentication/login/'
+)
 @login_required(login_url='/authentication/login/')
 def error_type_detail(request, error_type_id):
     """Détail d'un type d'erreur avec ses événements associés"""
@@ -475,6 +534,10 @@ def error_type_detail(request, error_type_id):
     
     return render(request, 'error_management_systems/error_type_detail.html', context)
 
+@user_passes_test(
+    lambda u: check_user_role(u, ['superadmin', 'admin', 'analyst']), 
+    login_url='/authentication/login/'
+)
 @login_required(login_url='/authentication/login/')
 def edit_error_type(request, error_type_id):
     """Édition d'un type d'erreur"""
@@ -497,6 +560,10 @@ def edit_error_type(request, error_type_id):
     return render(request, 'error_management_systems/edit_error_type.html', context)
 
 # ---- ErrorTicket Views ----
+@user_passes_test(
+    lambda u: check_user_role(u, ['superadmin', 'admin', 'analyst', 'viewer']), 
+    login_url='/authentication/login/'
+)
 @login_required(login_url='/authentication/login/')
 def ticket_list(request):
     """Liste des tickets avec filtres"""
@@ -526,6 +593,10 @@ def ticket_list(request):
     
     return render(request, 'error_management_systems/ticket_list.html', context)
 
+@user_passes_test(
+    lambda u: check_user_role(u, ['superadmin', 'admin', 'analyst', 'viewer']), 
+    login_url='/authentication/login/'
+)
 @login_required(login_url='/authentication/login/')
 def ticket_detail(request, ticket_id):
     """Détail d'un ticket"""
@@ -543,6 +614,10 @@ def ticket_detail(request, ticket_id):
     
     return render(request, 'error_management_systems/ticket_detail.html', context)
 
+@user_passes_test(
+    lambda u: check_user_role(u, ['superadmin', 'admin', 'analyst']), 
+    login_url='/authentication/login/'
+)
 @login_required(login_url='/authentication/login/')
 def edit_ticket(request, ticket_id):
     """Édition d'un ticket"""
@@ -849,6 +924,8 @@ def create_event_api(request):
     logs = request.data.get('logs', '')
     code_erreur = request.data.get('code_erreur', '')
     fichiers_impactes = request.data.get('fichiers_impactes', '')
+    system_classification = request.POST.get('system_classification', '')
+    service_classification = request.POST.get('service_classification', '')
 
     if not all([system_name, service_name, service_type, error_reason]):
         return Response({"error": "Missing required fields."}, status=status.HTTP_400_BAD_REQUEST)
@@ -862,6 +939,8 @@ def create_event_api(request):
                 'service_type': service_type,
                 'code_erreur': code_erreur,
                 'fichiers_impactes': fichiers_impactes,
+                'system_classification': system_classification,
+                'service_classification': service_classification,
             }
         )
 
