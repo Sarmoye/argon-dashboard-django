@@ -188,11 +188,73 @@ a:hover {
     <div class="card mb-4">
       <div class="card-header">Systems Errors Trends</div>
       <div class="card-body">
-        <canvas id="errorTrendsChart" 
-          data-labels="{% for label in error_trends.labels %}{{ label }},{% endfor %}"
-          data-data="{% for count in error_trends.data %}{{ count }},{% endfor %}">
-        </canvas>
-        <p class="text-center mt-2">Tendances des erreurs dans le temps</p>
+        <h2>Error Events Time Series</h2>
+    
+        <!-- Filter Form -->
+        <form method="get" id="filterForm" class="mb-4">
+            <div class="row">
+                <div class="col-md-3">
+                    <label>System Name</label>
+                    <select name="system_name" class="form-control filter-select">
+                        <option value="">All Systems</option>
+                        {% for system in unique_systems %}
+                        <option value="{{ system }}" 
+                                {% if system == selected_system %}selected{% endif %}>
+                            {{ system }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="col-md-3">
+                    <label>System Classification</label>
+                    <select name="system_classification" class="form-control filter-select">
+                        <option value="">All Classifications</option>
+                        {% for classification in unique_system_classifications %}
+                        <option value="{{ classification }}" 
+                                {% if classification == selected_system_classification %}selected{% endif %}>
+                            {{ classification }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="col-md-3">
+                    <label>Service Name</label>
+                    <select name="service_name" class="form-control filter-select">
+                        <option value="">All Services</option>
+                        {% for service in unique_services %}
+                        <option value="{{ service }}" 
+                                {% if service == selected_service %}selected{% endif %}>
+                            {{ service }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="col-md-3">
+                    <label>Service Classification</label>
+                    <select name="service_classification" class="form-control filter-select">
+                        <option value="">All Classifications</option>
+                        {% for classification in unique_service_classifications %}
+                        <option value="{{ classification }}" 
+                                {% if classification == selected_service_classification %}selected{% endif %}>
+                            {{ classification }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+        </form>
+        
+        <!-- Chart Container -->
+        <div class="card">
+            <div class="card-body">
+                <canvas id="errorEventsChart" 
+                        data-labels="{{ dates|safe }}" 
+                        data-data="{{ counts|safe }}"></canvas>
+            </div>
+        </div>
       </div>
     </div>
 
