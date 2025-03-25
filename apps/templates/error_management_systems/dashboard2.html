@@ -221,6 +221,7 @@ a:hover {
                 
                 <div class="col-md-3">
                     <label>Service Name</label>
+                    <div class="text-truncate" style="max-width: 100%;">
                     <select name="service_name" class="form-select">
                         <option value="">All Services</option>
                         {% for service in unique_services %}
@@ -230,6 +231,7 @@ a:hover {
                         </option>
                         {% endfor %}
                     </select>
+                  </div>
                 </div>
                 
                 <div class="col-md-3">
@@ -456,22 +458,7 @@ document.addEventListener('DOMContentLoaded', function() {
           let label = context.dataset.label || '';
           let value = context.raw;
 
-          // Sort data to determine ranking
-          let sortedData = [...context.dataset.data].sort((a, b) => b - a);
-          let rank = sortedData.indexOf(value) + 1; // Get ranking position
-
-          // Add ordinal suffix to ranking (1st, 2nd, 3rd, etc.)
-          const ordinalSuffix = (num) => {
-            if (num > 3 && num < 21) return num + 'th';
-            switch (num % 10) {
-              case 1: return num + 'st';
-              case 2: return num + 'nd';
-              case 3: return num + 'rd';
-              default: return num + 'th';
-            }
-          };
-
-          return `${label} - ${value} (${ordinalSuffix(rank)} place)`;
+          return `${label} - ${value}`;
         }
       }
     }
@@ -706,7 +693,7 @@ document.addEventListener('DOMContentLoaded', function() {
   createDonutChart('expectedVsUnexpectedChart', 'Expected vs Unexpected Errors');
   
   // Error Event Overview Section
-  createAreaChart('errorEventsTimeSeriesChart', 'Error Events Over Time');
+  createAreaChart('errorEventsChart', 'Error Events Over Time');
   createBarChart('topSystemsChart', 'Top Systems by Error Events');
   createBarChart('topServicesChart', 'Top Services by Error Events');
 
