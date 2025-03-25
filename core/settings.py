@@ -41,7 +41,6 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_simplejwt',
     'rest_framework.authtoken', #keep this for the admin interface.
-    'django.contrib.sessions',
 ]
 
 REST_FRAMEWORK = {
@@ -119,30 +118,6 @@ LOGGING = {
     },
 }
 
-# Configuration du cache Redis
-CACHES = {
-    'default': {
-        'BACKEND': 'django_redis.cache.RedisCache',
-        'LOCATION': 'redis://127.0.0.1:6379/1',  # Base de données Redis 1
-        'OPTIONS': {
-            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
-            'MAX_ENTRIES': 10000,  # Nombre maximum d'entrées en cache
-            'SOCKET_CONNECT_TIMEOUT': 5,  # Timeout de connexion
-            'SOCKET_TIMEOUT': 5,          # Timeout de socket
-            'PASSWORD': 'votreMotDePasse',  # Si un mot de passe a été configuré
-            'COMPRESSOR': 'django_redis.compressors.zlib.ZlibCompressor',
-            'IGNORE_EXCEPTIONS': True,    # Ne pas lever d'exception si le cache échoue
-        },
-        'KEY_PREFIX': 'error_management_',  # Préfixe pour éviter les conflits
-    }
-}
-
-# Configuration de session avec Redis (optionnel mais recommandé)
-SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
-SESSION_CACHE_ALIAS = 'default'
-
-# Timeout global du cache (peut être surchargé par des timeout spécifiques)
-CACHE_MIDDLEWARE_SECONDS = 600  # 10 minutes par défaut
 
 WSGI_APPLICATION = 'core.wsgi.application'
 
