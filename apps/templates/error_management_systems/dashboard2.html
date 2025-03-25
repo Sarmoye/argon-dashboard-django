@@ -432,9 +432,32 @@ a:hover {
           <div class="col-md-6 mb-4">
             <div class="card shadow-sm">
               <div class="card-body">
-                <canvas id="topImpactedComponentsChart" 
-                  data-labels="{% for item in top_impacted_components %}{{ item.source_component }},{% endfor %}"
-                  data-data="{% for item in top_impacted_components %}{{ item.count }},{% endfor %}">
+                <canvas id="mostImpactfulSystemsclassChart" 
+                  data-labels="{% for item in most_impactful_systems_class %}{{ item.system_name }},{% endfor %}"
+                  data-data="{% for item in most_impactful_systems_class %}{{ item.count }},{% endfor %}">
+                </canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row mt-4">
+          <div class="col-md-6 mb-4">
+            <div class="card shadow-sm">
+              <div class="card-body">
+                <canvas id="topImpactedServicesChart" 
+                  data-labels="{% for item in top_impacted_services %}{{ item.service_name }},{% endfor %}"
+                  data-data="{% for item in top_impacted_services %}{{ item.count }},{% endfor %}">
+                </canvas>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6 mb-4">
+            <div class="card shadow-sm">
+              <div class="card-body">
+                <canvas id="topImpactedServicesclassChart" 
+                  data-labels="{% for item in top_impacted_services_class %}{{ item.service_name }},{% endfor %}"
+                  data-data="{% for item in top_impacted_services_class %}{{ item.count }},{% endfor %}">
                 </canvas>
               </div>
             </div>
@@ -770,8 +793,11 @@ document.addEventListener('DOMContentLoaded', function() {
   createBarChart('topServicesChart', 'Top Services by Error Events');
 
   // New System Error Insights Section
-  createBarChart('mostImpactfulSystemsChart', 'Most Impactful Systems');
-  createBarChart('topImpactedComponentsChart', 'Top Impacted Components');
+  createBarChart('mostImpactfulSystemsChart', 'Most Impactful Systems (Critical and High errors type)');
+  createBarChart('topImpactedServicesChart', 'Top Impacted Services (Critical and High errors type)');
+
+  createBarChart('mostImpactfulSystemsclassChart', 'Most Impactful Systems (Critical and High errors type)');
+  createBarChart('topImpactedServicesclassChart', 'Top Impacted Services (Critical and High errors type)');
   
   // Error Ticket Overview Section
   createDonutChart('ticketStatusChart', 'Ticket Status Distribution');

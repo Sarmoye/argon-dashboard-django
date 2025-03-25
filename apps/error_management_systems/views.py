@@ -143,11 +143,29 @@ def dashboard2(request):
         .order_by('-count')[:5]
     )
 
-    top_impacted_components = (
-        ErrorType.objects.exclude(source_component="")
-        .values('source_component')
+    most_impactful_systems_class = (
+        ErrorType.objects.filter(impact_level__in=['critical', 'high'])
+        .values('system_classification')
         .annotate(count=Count('id'))
         .order_by('-count')[:5]
+    )
+
+    top_impacted_services = (
+    ErrorType.objects
+    .filter(impact_level__in=['critical', 'high'])  # (1) Filter by impact level
+    .exclude(service_name="")  # (2) Exclude empty service names
+    .values('service_name')  # (3) Group by service_name
+    .annotate(count=Count('id'))  # (4) Count occurrences
+    .order_by('-count')[:5]  # (5) Order by count (descending) and limit to top 5
+    )
+
+    top_impacted_services_class = (
+    ErrorType.objects
+    .filter(impact_level__in=['critical', 'high'])  # (1) Filter by impact level
+    .exclude(service_classification="")  # (2) Exclude empty service names
+    .values('service_classification')  # (3) Group by service_name
+    .annotate(count=Count('id'))  # (4) Count occurrences
+    .order_by('-count')[:5]  # (5) Order by count (descending) and limit to top 5
     )
 
     # Start with base queryset
@@ -200,7 +218,9 @@ def dashboard2(request):
 
         'most_common_errors': most_common_errors,
         'most_impactful_systems': most_impactful_systems,
-        'top_impacted_components': top_impacted_components,
+        'most_impactful_systems_class': most_impactful_systems_class,
+        'top_impacted_services': top_impacted_services,
+        'top_impacted_services_class': top_impacted_services_class,
 
         'dates': dates,
         'counts': counts,
