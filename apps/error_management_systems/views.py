@@ -905,7 +905,7 @@ from .serializers import ErrorEventSerializer
 from rest_framework.throttling import UserRateThrottle
 
 class CustomUserRateThrottle(UserRateThrottle):
-    rate = '1000/day'  # Adjust as needed
+    rate = '100/minute'  # Adjust as needed
 
 @api_view(['POST'])
 def get_auth_token(request):
