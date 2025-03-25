@@ -465,17 +465,16 @@ a:hover {
         </div>
       </div>
 
-
       <div class="card mb-4">
-        <div class="card-header">Critical(High and Critical) Vs Non Critical(Low and Medium) Chart</div>
+        <div class="card-header">Critical(High and Critical) Vs Non Critical(Low and Medium) Chart/div>
         <div class="card-body">
-          <canvas id="criticalVsNonCriticalChart" 
-            data-labels="Critical,Not Critical"
-            data-data="{{ critical_counts }},{{ non_critical_counts }}">
-          </canvas>
-          <p class="text-center mt-2">Ratio erreurs critiques vs non critiques</p>
+            <div class="row">
+                <div class="col-md-4">
+                    <canvas id="criticalVsNonCriticalChart" data-labels="Critical,Not Critical" data-data="{{ critical_counts }},{{ non_critical_counts }}"></canvas>
+                </div>
+            </div>
         </div>
-      </div>
+    </div>
 
     <div class="card mb-4">
       <div class="card-header">Systems Availability</div>
