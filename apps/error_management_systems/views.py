@@ -136,13 +136,6 @@ def dashboard2(request):
 
     most_common_errors = ErrorEvent.objects.values('error_reason').annotate(count=Count('id')).order_by('-count')[:10]
 
-    # Get the top 10 most common error reasons
-    most_common_errors = (
-        ErrorType.objects.values('error_reason')
-        .annotate(count=Count('id'))
-        .order_by('-count')[:10]
-    )
-
     # Get the total error counts for the most common error reasons
     error_reasons = [error['error_reason'] for error in most_common_errors]
     total_errors_by_reason = (
