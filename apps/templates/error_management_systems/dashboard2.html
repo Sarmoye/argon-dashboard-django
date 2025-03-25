@@ -256,9 +256,9 @@ a:hover {
         <!-- Chart Container -->
         <div class="card">
             <div class="card-body">
-                <canvas id="errorEventsChart"
-                  data-labels="{% for da_te in dates %}{{ da_te|date:"Y-m-d" }},{% endfor %}" 
-                  data-data="{% for co_unt in counts %}{{ co_unt }},{% endfor %}"></canvas> 
+                <canvas id="errorEventsChart" 
+                data-labels="{% for item in error_events_time_series %}{{ item.date|date:"Y-m-d" }},{% endfor %}" 
+                data-data="{% for item in error_events_time_series %}{{ item.count }},{% endfor %}"></canvas>
             </div>
         </div>
       </div>
