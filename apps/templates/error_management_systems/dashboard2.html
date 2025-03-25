@@ -402,7 +402,7 @@ a:hover {
                               <div class="me-3">
                                   <i class="bi bi-exclamation-triangle fs-2 text-warning"></i>
                               </div>
-                              <h4 class="text-muted mb-0 small text-uppercase tracking-wider">Most Frequent Error Reasons</h4>
+                              <h4 class="text-muted mb-0 small text-uppercase tracking-wider">Most Frequent Error Reasons in all Systems</h4>
                           </div>
                           <div class="list-group list-group-flush">
                               {% for error in most_common_errors %}
@@ -467,11 +467,11 @@ a:hover {
 
 
       <div class="card mb-4">
-        <div class="card-header">Critical Vs Non Critical Chart</div>
+        <div class="card-header">Critical(High and Critical) Vs Non Critical(Low and Medium) Chart</div>
         <div class="card-body">
           <canvas id="criticalVsNonCriticalChart" 
-            data-labels="Critiques,Non Critiques"
-            data-data="{{ critical_count }},{{ non_critical_count }}">
+            data-labels="Critical,Not Critical"
+            data-data="{{ critical_counts }},{{ non_critical_counts }}">
           </canvas>
           <p class="text-center mt-2">Ratio erreurs critiques vs non critiques</p>
         </div>
@@ -786,6 +786,7 @@ document.addEventListener('DOMContentLoaded', function() {
   createDonutChart('errorCategoryChart', 'Error Categories');
   createDonutChart('impactLevelChart', 'Impact Levels');
   createDonutChart('expectedVsUnexpectedChart', 'Expected vs Unexpected Errors');
+  createDonutChart('criticalVsNonCriticalChart', 'Critical vs not Critical Errors');
   
   // Error Event Overview Section
   createAreaChart('errorEventsChart', 'Error Events Over Time');
