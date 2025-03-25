@@ -71,9 +71,9 @@ def dashboard1(request):
     counts = [entry['count'] for entry in error_events_time_series]
     
     # Get unique filter options
-    unique_systems = ErrorEvent.objects.values_list('system_name', flat=True).distinct()
+    unique_systems = ErrorType.objects.values_list('system_name', flat=True).distinct()
     unique_system_classifications = ErrorType.objects.values_list('system_classification', flat=True).distinct()
-    unique_services = ErrorEvent.objects.values_list('service_name', flat=True).distinct()
+    unique_services = ErrorType.objects.values_list('service_name', flat=True).distinct()
     unique_service_classifications = ErrorType.objects.values_list('service_classification', flat=True).distinct()
 
     context = {

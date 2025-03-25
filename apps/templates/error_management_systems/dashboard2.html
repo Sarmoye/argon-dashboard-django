@@ -197,7 +197,7 @@ a:hover {
                     <label>System Name</label>
                     <select name="system_name" class="form-control filter-select">
                         <option value="">All Systems</option>
-                        {% for system in unique_systems %}
+                        {% for system in context.unique_systems %}
                         <option value="{{ system }}" 
                                 {% if system == selected_system %}selected{% endif %}>
                             {{ system }}
@@ -210,7 +210,7 @@ a:hover {
                     <label>System Classification</label>
                     <select name="system_classification" class="form-control filter-select">
                         <option value="">All Classifications</option>
-                        {% for classification in unique_system_classifications %}
+                        {% for classification in context.unique_system_classifications %}
                         <option value="{{ classification }}" 
                                 {% if classification == selected_system_classification %}selected{% endif %}>
                             {{ classification }}
@@ -223,7 +223,7 @@ a:hover {
                     <label>Service Name</label>
                     <select name="service_name" class="form-control filter-select">
                         <option value="">All Services</option>
-                        {% for service in unique_services %}
+                        {% for service in context.unique_services %}
                         <option value="{{ service }}" 
                                 {% if service == selected_service %}selected{% endif %}>
                             {{ service }}
@@ -236,7 +236,7 @@ a:hover {
                     <label>Service Classification</label>
                     <select name="service_classification" class="form-control filter-select">
                         <option value="">All Classifications</option>
-                        {% for classification in unique_service_classifications %}
+                        {% for classification in context.unique_service_classifications %}
                         <option value="{{ classification }}" 
                                 {% if classification == selected_service_classification %}selected{% endif %}>
                             {{ classification }}
