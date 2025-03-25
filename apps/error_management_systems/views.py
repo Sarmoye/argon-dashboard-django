@@ -131,20 +131,10 @@ def dashboard2(request):
     # Additional System Insights
     most_error_prone_system = ErrorEvent.objects.values('system_name').annotate(count=Count('id')).order_by('-count').first()
     most_error_prone_service = ErrorEvent.objects.values('service_name').annotate(count=Count('id')).order_by('-count').first()
-    most_error_prone_system_class = (
-    ErrorEvent.objects.values('error_type__system_classification')
-    .annotate(count=Count('id'))
-    .order_by('-count')
-    .first())
+    most_error_prone_system_class = ErrorEvent.objects.values('error_type__system_classification').annotate(count=Count('id')).order_by('-count').first()
+    most_error_prone_service_class = ErrorEvent.objects.values('error_type__service_classification').annotate(count=Count('id')).order_by('-count').first()
 
-    most_error_prone_service_class = (
-    ErrorEvent.objects.values('error_type__service_classification')
-    .annotate(count=Count('id'))
-    .order_by('-count')
-    .first())
-
-
-    most_common_errors = ErrorType.objects.values('error_reason').annotate(count=Count('id')).order_by('-count')[:5]
+    most_common_errors = ErrorType.objects.values('error_reason').annotate(count=Count('id')).order_by('-count')[:10]
 
     most_impactful_systems = (
         ErrorType.objects.filter(impact_level__in=['critical', 'high'])
