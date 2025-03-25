@@ -178,6 +178,8 @@ def dashboard2(request):
         .annotate(count=Count('id'))
         .order_by('date')
     )
+
+    error_events_time_series = (ErrorEvent.objects.annotate(date=TruncDate('timestamp')).values('date').annotate(count=Count('id')).order_by('date'))
     
     # Prepare data for chart
     dates = [entry['date'].strftime('%Y-%m-%d') for entry in error_events_time_series]
