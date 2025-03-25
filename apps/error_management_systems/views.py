@@ -11,10 +11,11 @@ from .forms import ErrorTypeForm, ErrorEventForm, ErrorTicketForm
 from django.db.models.functions import TruncDate
 from django.db import transaction
 from django.contrib.auth.decorators import user_passes_test
+from django.http import HttpResponseForbidden
 
 def check_user_role(user, allowed_roles=None):
     """
-    Check if user has specified role(s)
+    Check if user has specified role(s).
     
     Args:
         user: Django user object
@@ -33,12 +34,13 @@ def check_user_role(user, allowed_roles=None):
     return user.role in allowed_roles
 
 # Page d'accueil
-@user_passes_test(
-    lambda u: check_user_role(u, ['superadmin', 'admin', 'analyst', 'viewer']), 
-    login_url='/authentication/login/'
-)
 @login_required(login_url='/authentication/login/')
 def dashboard1(request):
+    allowed_roles = ['superadmin', 'admin', 'analyst', 'viewer']
+    
+    if not check_user_role(request.user, allowed_roles):
+        return HttpResponseForbidden("You do not have permission to access this page.")
+    
     """Page d'accueil avec statistiques générales et derniers événements"""
     # Error Type Overview (Widget 1)
     total_error_types = ErrorType.objects.count()
@@ -151,12 +153,13 @@ def dashboard1(request):
     return render(request, 'error_management_systems/dashboard1.html', {'context': context, 'stats' : stats})
 
 
-@user_passes_test(
-    lambda u: check_user_role(u, ['superadmin', 'admin', 'analyst', 'viewer']), 
-    login_url='/authentication/login/'
-)
 @login_required(login_url='/authentication/login/')
 def dashboard2(request):
+    allowed_roles = ['superadmin', 'admin', 'analyst', 'viewer']
+    
+    if not check_user_role(request.user, allowed_roles):
+        return HttpResponseForbidden("You do not have permission to access this page.")
+    
     """View to render error events time series chart with dynamic filtering."""
 
     # Additional System Insights
@@ -276,12 +279,13 @@ def dashboard2(request):
 
 
 # ---- ErrorEvent Views ----
-@user_passes_test(
-    lambda u: check_user_role(u, ['superadmin', 'admin', 'analyst', 'viewer']), 
-    login_url='/authentication/login/'
-)
 @login_required(login_url='/authentication/login/')
 def event_list(request):
+    allowed_roles = ['superadmin', 'admin', 'analyst', 'viewer']
+    
+    if not check_user_role(request.user, allowed_roles):
+        return HttpResponseForbidden("You do not have permission to access this page.")
+    
     """Liste des événements d'erreur avec filtres"""
     events = ErrorEvent.objects.all().order_by('-timestamp')
     
@@ -312,12 +316,13 @@ def event_list(request):
     
     return render(request, 'error_management_systems/event_list.html', context)
 
-@user_passes_test(
-    lambda u: check_user_role(u, ['superadmin', 'admin', 'analyst', 'viewer']), 
-    login_url='/authentication/login/'
-)
 @login_required(login_url='/authentication/login/')
 def event_detail(request, event_id):
+    allowed_roles = ['superadmin', 'admin', 'analyst', 'viewer']
+    
+    if not check_user_role(request.user, allowed_roles):
+        return HttpResponseForbidden("You do not have permission to access this page.")
+    
     """Détail d'un événement d'erreur"""
     event = get_object_or_404(ErrorEvent, id=event_id)
     related_events = ErrorEvent.objects.filter(error_type=event.error_type).exclude(id=event_id).order_by('-timestamp')[:5]
@@ -339,12 +344,13 @@ def event_detail(request, event_id):
     
     return render(request, 'error_management_systems/event_detail.html', context)
 
-@user_passes_test(
-    lambda u: check_user_role(u, ['superadmin', 'admin', 'analyst']), 
-    login_url='/authentication/login/'
-)
 @login_required(login_url='/authentication/login/')
 def create_event(request):
+    allowed_roles = ['superadmin', 'admin', 'analyst']
+    
+    if not check_user_role(request.user, allowed_roles):
+        return HttpResponseForbidden("You do not have permission to access this page.")
+    
     """Création d'un nouvel événement d'erreur"""
     if request.method == 'POST':
         system_name = request.POST.get('system_name')
@@ -418,12 +424,13 @@ def create_event(request):
     return render(request, 'error_management_systems/create_event.html', context)
 
 
-@user_passes_test(
-    lambda u: check_user_role(u, ['superadmin', 'admin', 'analyst']), 
-    login_url='/authentication/login/'
-)
 @login_required(login_url='/authentication/login/')
 def modify_error_type_details(request, event_id, error_type_id):
+    allowed_roles = ['superadmin', 'admin', 'analyst']
+    
+    if not check_user_role(request.user, allowed_roles):
+        return HttpResponseForbidden("You do not have permission to access this page.")
+    
     """Modifier les détails du type d'erreur après la création de l'événement"""
     error_type = get_object_or_404(ErrorType, id=error_type_id)
     event = get_object_or_404(ErrorEvent, id=event_id)
@@ -445,12 +452,13 @@ def modify_error_type_details(request, event_id, error_type_id):
     
     return render(request, 'error_management_systems/edit_error_type.html', context)
 
-@user_passes_test(
-    lambda u: check_user_role(u, ['superadmin', 'admin', 'analyst']), 
-    login_url='/authentication/login/'
-)
 @login_required(login_url='/authentication/login/')
 def modify_error_ticket_details(request, event_id, error_type_id):
+    allowed_roles = ['superadmin', 'admin', 'analyst']
+    
+    if not check_user_role(request.user, allowed_roles):
+        return HttpResponseForbidden("You do not have permission to access this page.")
+    
     """Modifier les détails du ticket après la création de l'événement"""
     error_type = get_object_or_404(ErrorType, id=error_type_id)
     event = get_object_or_404(ErrorEvent, id=event_id)
@@ -475,12 +483,13 @@ def modify_error_ticket_details(request, event_id, error_type_id):
     return render(request, 'error_management_systems/edit_ticket.html', context)
 
 # ---- ErrorType Views ----
-@user_passes_test(
-    lambda u: check_user_role(u, ['superadmin', 'admin', 'analyst', 'viewer']), 
-    login_url='/authentication/login/'
-)
 @login_required(login_url='/authentication/login/')
 def error_type_list(request):
+    allowed_roles = ['superadmin', 'admin', 'analyst', 'viewer']
+    
+    if not check_user_role(request.user, allowed_roles):
+        return HttpResponseForbidden("You do not have permission to access this page.")
+    
     """Liste des types d'erreurs avec filtres et statistiques"""
     error_types = ErrorType.objects.annotate(event_count=Count('events')).order_by('-event_count')
     
@@ -505,12 +514,13 @@ def error_type_list(request):
     
     return render(request, 'error_management_systems/error_type_list.html', context)
 
-@user_passes_test(
-    lambda u: check_user_role(u, ['superadmin', 'admin', 'analyst', 'viewer']), 
-    login_url='/authentication/login/'
-)
 @login_required(login_url='/authentication/login/')
 def error_type_detail(request, error_type_id):
+    allowed_roles = ['superadmin', 'admin', 'analyst', 'viewer']
+    
+    if not check_user_role(request.user, allowed_roles):
+        return HttpResponseForbidden("You do not have permission to access this page.")
+    
     """Détail d'un type d'erreur avec ses événements associés"""
     error_type = get_object_or_404(ErrorType, id=error_type_id)
     events = error_type.events.all().order_by('-timestamp')
@@ -534,12 +544,13 @@ def error_type_detail(request, error_type_id):
     
     return render(request, 'error_management_systems/error_type_detail.html', context)
 
-@user_passes_test(
-    lambda u: check_user_role(u, ['superadmin', 'admin', 'analyst']), 
-    login_url='/authentication/login/'
-)
 @login_required(login_url='/authentication/login/')
 def edit_error_type(request, error_type_id):
+    allowed_roles = ['superadmin', 'admin', 'analyst']
+    
+    if not check_user_role(request.user, allowed_roles):
+        return HttpResponseForbidden("You do not have permission to access this page.")
+    
     """Édition d'un type d'erreur"""
     error_type = get_object_or_404(ErrorType, id=error_type_id)
     
@@ -560,12 +571,13 @@ def edit_error_type(request, error_type_id):
     return render(request, 'error_management_systems/edit_error_type.html', context)
 
 # ---- ErrorTicket Views ----
-@user_passes_test(
-    lambda u: check_user_role(u, ['superadmin', 'admin', 'analyst', 'viewer']), 
-    login_url='/authentication/login/'
-)
 @login_required(login_url='/authentication/login/')
 def ticket_list(request):
+    allowed_roles = ['superadmin', 'admin', 'analyst', 'viewer']
+    
+    if not check_user_role(request.user, allowed_roles):
+        return HttpResponseForbidden("You do not have permission to access this page.")
+    
     """Liste des tickets avec filtres"""
     tickets = ErrorTicket.objects.all().order_by('-date_creation')
     
@@ -593,12 +605,14 @@ def ticket_list(request):
     
     return render(request, 'error_management_systems/ticket_list.html', context)
 
-@user_passes_test(
-    lambda u: check_user_role(u, ['superadmin', 'admin', 'analyst', 'viewer']), 
-    login_url='/authentication/login/'
-)
+
 @login_required(login_url='/authentication/login/')
 def ticket_detail(request, ticket_id):
+    allowed_roles = ['superadmin', 'admin', 'analyst', 'viewer']
+    
+    if not check_user_role(request.user, allowed_roles):
+        return HttpResponseForbidden("You do not have permission to access this page.")
+    
     """Détail d'un ticket"""
     ticket = get_object_or_404(ErrorTicket, id=ticket_id)
     events = ticket.error_type.events.all().order_by('-timestamp')
@@ -614,12 +628,12 @@ def ticket_detail(request, ticket_id):
     
     return render(request, 'error_management_systems/ticket_detail.html', context)
 
-@user_passes_test(
-    lambda u: check_user_role(u, ['superadmin', 'admin', 'analyst']), 
-    login_url='/authentication/login/'
-)
 @login_required(login_url='/authentication/login/')
 def edit_ticket(request, ticket_id):
+    allowed_roles = ['superadmin', 'admin', 'analyst']
+    
+    if not check_user_role(request.user, allowed_roles):
+        return HttpResponseForbidden("You do not have permission to access this page.")
     """Édition d'un ticket"""
     ticket = get_object_or_404(ErrorTicket, id=ticket_id)
     
