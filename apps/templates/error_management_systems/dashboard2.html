@@ -257,8 +257,8 @@ a:hover {
         <div class="card">
             <div class="card-body">
                 <canvas id="errorEventsChart" 
-                data-labels="{% for item in context.error_events_time_series %}{{ item.date|date:"Y-m-d" }},{% endfor %}" 
-                data-data="{% for item in context.error_events_time_series %}{{ item.count }},{% endfor %}"></canvas>
+                        data-labels="{{ dates|safe }}" 
+                        data-data="{{ counts|safe }}"></canvas>
             </div>
         </div>
       </div>
