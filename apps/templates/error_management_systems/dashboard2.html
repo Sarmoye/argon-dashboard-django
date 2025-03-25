@@ -179,6 +179,41 @@ a:hover {
   }
 }
 </style>
+<style>
+  .error-monitoring-section {
+      background-color: #f8f9fa;
+      padding: 2rem 0;
+  }
+  .error-card {
+      transition: all 0.3s ease;
+      border-radius: 12px;
+      overflow: hidden;
+  }
+  .error-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 30px rgba(0,0,0,0.1) !important;
+  }
+  .error-card .card-overlay {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      background: linear-gradient(to right, #3b7ddd, #6c757d);
+  }
+  .tracking-wider {
+      letter-spacing: 1px;
+  }
+  .bg-danger-soft {
+      background-color: rgba(220, 53, 69, 0.1);
+  }
+  .bg-info-soft {
+      background-color: rgba(23, 162, 184, 0.1);
+  }
+  .error-icon {
+      opacity: 0.7;
+  }
+</style>
 {% endblock %}
 
 {% block content %}
@@ -269,113 +304,119 @@ a:hover {
         <h5 class="mb-0">System Error Insights</h5>
       </div>
       <div class="card-body">
-        <div class="container">
-          <!-- Most Error-Prone System -->
-          <div class="row mb-4">
-            <div class="col-12">
-              <div class="card border-0 shadow-sm hover-shadow">
-                <div class="card-body p-4">
-                  <div class="d-flex align-items-center">
-                    <div class="me-4">
-                      <i class="bi bi-pc-display fs-2 text-primary"></i>
-                    </div>
-                    <div>
-                      <h6 class="text-muted mb-1">Most Error-Prone System</h6>
-                      <h3 class="card-title fw-bold text-primary mb-0">{{ most_error_prone_system.system_name }}</h3>
-                      <span class="badge bg-danger px-3 py-2 mt-2 rounded-pill">{{ most_error_prone_system.count }} errors events</span>
-                    </div>
+        <div class="container error-monitoring-section">
+          <div class="row g-4">
+              <!-- Most Error-Prone System -->
+              <div class="col-md-6 col-lg-3">
+                  <div class="card error-card border-0 shadow-sm overflow-hidden position-relative">
+                      <div class="card-body p-4">
+                          <div class="d-flex align-items-center">
+                              <div class="me-4">
+                                  <i class="bi bi-pc-display fs-2 text-primary error-icon"></i>
+                              </div>
+                              <div>
+                                  <h6 class="text-muted mb-1 small text-uppercase tracking-wider">Most Error-Prone System</h6>
+                                  <h3 class="card-title fw-bold text-dark mb-0">{{ most_error_prone_system.system_name }}</h3>
+                                  <span class="badge bg-danger-soft text-danger px-3 py-2 mt-2 rounded-pill">
+                                      <i class="bi bi-bug-fill me-1"></i> 
+                                      {{ most_error_prone_system.count }} Error Events
+                                  </span>
+                              </div>
+                          </div>
+                      </div>
+                      <div class="card-overlay"></div>
                   </div>
-                </div>
               </div>
-            </div>
-          </div>
-
-          <!-- Most Error-Prone System Class -->
-          <div class="row mb-4">
-            <div class="col-12">
-              <div class="card border-0 shadow-sm hover-shadow">
-                <div class="card-body p-4">
-                  <div class="d-flex align-items-center">
-                    <div class="me-4">
-                      <i class="bi bi-gear-fill fs-2 text-primary"></i>
-                    </div>
-                    <div>
-                      <h6 class="text-muted mb-1">Most Error-Prone System Class</h6>
-                      <h3 class="card-title fw-bold text-primary mb-0">{{ most_error_prone_system_class.error_type__system_classification }}</h3>
-                      <span class="badge bg-danger px-3 py-2 mt-2 rounded-pill">{{ most_error_prone_system_class.count }} errors events</span>
-                    </div>
+      
+              <!-- Most Error-Prone System Class -->
+              <div class="col-md-6 col-lg-3">
+                  <div class="card error-card border-0 shadow-sm overflow-hidden position-relative">
+                      <div class="card-body p-4">
+                          <div class="d-flex align-items-center">
+                              <div class="me-4">
+                                  <i class="bi bi-layers-half fs-2 text-primary error-icon"></i>
+                              </div>
+                              <div>
+                                  <h6 class="text-muted mb-1 small text-uppercase tracking-wider">Most Error-Prone System Class</h6>
+                                  <h3 class="card-title fw-bold text-dark mb-0">{{ most_error_prone_system_class.error_type__system_classification }}</h3>
+                                  <span class="badge bg-danger-soft text-danger px-3 py-2 mt-2 rounded-pill">
+                                      <i class="bi bi-exclamation-triangle me-1"></i>
+                                      {{ most_error_prone_system_class.count }} Error Events
+                                  </span>
+                              </div>
+                          </div>
+                      </div>
+                      <div class="card-overlay"></div>
                   </div>
-                </div>
               </div>
-            </div>
-          </div>
-          
-          <!-- Most Error-Prone Service -->
-          <div class="row mb-4">
-            <div class="col-12">
-              <div class="card border-0 shadow-sm hover-shadow">
-                <div class="card-body p-4">
-                  <div class="d-flex align-items-center">
-                    <div class="me-4">
-                      <i class="bi bi-gear-fill fs-2 text-primary"></i>
-                    </div>
-                    <div>
-                      <h6 class="text-muted mb-1">Most Error-Prone Service</h6>
-                      <h3 class="card-title fw-bold text-primary mb-0">{{ most_error_prone_service.service_name }}</h3>
-                      <span class="badge bg-danger px-3 py-2 mt-2 rounded-pill">{{ most_error_prone_service.count }} errors events</span>
-                    </div>
+      
+              <!-- Most Error-Prone Service -->
+              <div class="col-md-6 col-lg-3">
+                  <div class="card error-card border-0 shadow-sm overflow-hidden position-relative">
+                      <div class="card-body p-4">
+                          <div class="d-flex align-items-center">
+                              <div class="me-4">
+                                  <i class="bi bi-journals fs-2 text-primary error-icon"></i>
+                              </div>
+                              <div>
+                                  <h6 class="text-muted mb-1 small text-uppercase tracking-wider">Most Error-Prone Service</h6>
+                                  <h3 class="card-title fw-bold text-dark mb-0">{{ most_error_prone_service.service_name }}</h3>
+                                  <span class="badge bg-danger-soft text-danger px-3 py-2 mt-2 rounded-pill">
+                                      <i class="bi bi-server me-1"></i>
+                                      {{ most_error_prone_service.count }} Error Events
+                                  </span>
+                              </div>
+                          </div>
+                      </div>
+                      <div class="card-overlay"></div>
                   </div>
-                </div>
               </div>
-            </div>
-          </div>
-
-          <!-- Most Error-Prone Service Class -->
-          <div class="row mb-4">
-            <div class="col-12">
-              <div class="card border-0 shadow-sm hover-shadow">
-                <div class="card-body p-4">
-                  <div class="d-flex align-items-center">
-                    <div class="me-4">
-                      <i class="bi bi-gear-fill fs-2 text-primary"></i>
-                    </div>
-                    <div>
-                      <h6 class="text-muted mb-1">Most Error-Prone Service Class</h6>
-                      <h3 class="card-title fw-bold text-primary mb-0">{{ most_error_prone_service_class.error_type__service_classification }}</h3>
-                      <span class="badge bg-danger px-3 py-2 mt-2 rounded-pill">{{ most_error_prone_service_class.count }} errors events</span>
-                    </div>
+      
+              <!-- Most Error-Prone Service Class -->
+              <div class="col-md-6 col-lg-3">
+                  <div class="card error-card border-0 shadow-sm overflow-hidden position-relative">
+                      <div class="card-body p-4">
+                          <div class="d-flex align-items-center">
+                              <div class="me-4">
+                                  <i class="bi bi-diagram-3 fs-2 text-primary error-icon"></i>
+                              </div>
+                              <div>
+                                  <h6 class="text-muted mb-1 small text-uppercase tracking-wider">Most Error-Prone Service Class</h6>
+                                  <h3 class="card-title fw-bold text-dark mb-0">{{ most_error_prone_service_class.error_type__service_classification }}</h3>
+                                  <span class="badge bg-danger-soft text-danger px-3 py-2 mt-2 rounded-pill">
+                                      <i class="bi bi-activity me-1"></i>
+                                      {{ most_error_prone_service_class.count }} Error Events
+                                  </span>
+                              </div>
+                          </div>
+                      </div>
+                      <div class="card-overlay"></div>
                   </div>
-                </div>
               </div>
-            </div>
-          </div>
-          
-          <!-- Most Frequent Error Reasons -->
-          <div class="row">
-            <div class="col-12">
-              <div class="card border-0 shadow-sm hover-shadow">
-                <div class="card-body p-4">
-                  <div class="d-flex align-items-center mb-3">
-                    <div class="me-3">
-                      <i class="bi bi-exclamation-triangle-fill fs-2 text-primary"></i>
-                    </div>
-                    <h6 class="text-muted mb-0">Most Frequent Error Reasons</h6>
+      
+              <!-- Most Frequent Error Reasons -->
+              <div class="col-12">
+                  <div class="card border-0 shadow-sm">
+                      <div class="card-body p-4">
+                          <div class="d-flex align-items-center mb-3">
+                              <div class="me-3">
+                                  <i class="bi bi-exclamation-triangle fs-2 text-warning"></i>
+                              </div>
+                              <h4 class="text-muted mb-0 small text-uppercase tracking-wider">Most Frequent Error Reasons</h4>
+                          </div>
+                          <div class="list-group list-group-flush">
+                              {% for error in most_common_errors %}
+                              <div class="list-group-item d-flex justify-content-between align-items-center py-3 px-0">
+                                  <span class="badge bg-info-soft text-info rounded-pill me-3">{{ error.count }}</span>
+                                  <span class="flex-grow-1">{{ error.error_reason }}</span>
+                              </div>
+                              {% endfor %}
+                          </div>
+                      </div>
                   </div>
-                  <ul class="list-group list-group-flush">
-                    {% for error in most_common_errors %}
-                      <li class="list-group-item bg-transparent px-3 py-2 border-bottom">
-                        <div class="d-flex align-items-center">
-                          <span class="badge bg-info rounded-pill me-3">{{ error.count }}</span>
-                          <span>{{ error.error_reason }}</span>
-                        </div>
-                      </li>
-                    {% endfor %}
-                  </ul>
-                </div>
               </div>
-            </div>
           </div>
-        </div>
+      </div>
   
         <div class="row mt-4">
           <div class="col-md-6 mb-4">
@@ -402,47 +443,38 @@ a:hover {
       </div>
 
 
+      <div class="card mb-4">
+        <div class="card-header">Critical Vs Non Critical Chart</div>
+        <div class="card-body">
+          <canvas id="criticalVsNonCriticalChart" 
+            data-labels="Critiques,Non Critiques"
+            data-data="{{ critical_count }},{{ non_critical_count }}">
+          </canvas>
+          <p class="text-center mt-2">Ratio erreurs critiques vs non critiques</p>
+        </div>
+      </div>
+
     <div class="card mb-4">
-      <div class="card-header">Critical Vs Non Critical Chart</div>
+      <div class="card-header">Systems Availability</div>
       <div class="card-body">
-        <canvas id="criticalVsNonCriticalChart" 
-          data-labels="Critiques,Non Critiques"
-          data-data="{{ critical_count }},{{ non_critical_count }}">
+        <canvas id="systemUptimeChart" 
+          data-labels="{% for system in systems_uptime %}{{ system.name }},{% endfor %}"
+          data-data="{% for system in systems_uptime %}{{ system.uptime_percentage }},{% endfor %}">
         </canvas>
-        <p class="text-center mt-2">Ratio erreurs critiques vs non critiques</p>
+        <p class="text-center mt-2">Disponibilité des systèmes (%)</p>
       </div>
     </div>
 
-  <div class="card mb-4">
-    <div class="card-header">Systems Availability</div>
-    <div class="card-body">
-      <canvas id="systemUptimeChart" 
-        data-labels="{% for system in systems_uptime %}{{ system.name }},{% endfor %}"
-        data-data="{% for system in systems_uptime %}{{ system.uptime_percentage }},{% endfor %}">
-      </canvas>
-      <p class="text-center mt-2">Disponibilité des systèmes (%)</p>
-    </div>
-  </div>
-
-  <div class="card mb-4">
-    <div class="card-header">Resolution Time</div>
-    <div class="card-body">
-      <canvas id="resolutionTimeChart" 
-        data-labels="{% for system in resolution_times %}{{ system.name }},{% endfor %}"
-        data-data="{% for system in resolution_times %}{{ system.avg_resolution_time }},{% endfor %}">
-      </canvas>
-      <p class="text-center mt-2">Temps moyen de résolution (heures)</p>
-    </div>
-  </div>
-
-        
-
-        
-
-
-
-
-        
+    <div class="card mb-4">
+      <div class="card-header">Resolution Time</div>
+      <div class="card-body">
+        <canvas id="resolutionTimeChart" 
+          data-labels="{% for system in resolution_times %}{{ system.name }},{% endfor %}"
+          data-data="{% for system in resolution_times %}{{ system.avg_resolution_time }},{% endfor %}">
+        </canvas>
+        <p class="text-center mt-2">Temps moyen de résolution (heures)</p>
+      </div>
+    </div> 
 
   </div>
 {% endblock %}
