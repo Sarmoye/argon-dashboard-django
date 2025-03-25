@@ -131,6 +131,18 @@ def dashboard2(request):
     # Additional System Insights
     most_error_prone_system = ErrorEvent.objects.values('system_name').annotate(count=Count('id')).order_by('-count').first()
     most_error_prone_service = ErrorEvent.objects.values('service_name').annotate(count=Count('id')).order_by('-count').first()
+    most_error_prone_system_class = (
+    ErrorEvent.objects.values('error_type__system_classification')
+    .annotate(count=Count('id'))
+    .order_by('-count')
+    .first())
+
+    most_error_prone_service_class = (
+    ErrorEvent.objects.values('error_type__service_classification')
+    .annotate(count=Count('id'))
+    .order_by('-count')
+    .first())
+
 
     most_common_errors = ErrorType.objects.values('error_reason').annotate(count=Count('id')).order_by('-count')[:5]
 
@@ -193,6 +205,9 @@ def dashboard2(request):
         # Systems Insights
         'most_error_prone_system': most_error_prone_system,
         'most_error_prone_service': most_error_prone_service,
+        'most_error_prone_system_class': most_error_prone_system_class,
+        'most_error_prone_service_class': most_error_prone_service_class,
+
         'most_common_errors': most_common_errors,
         'most_impactful_systems': most_impactful_systems,
         'top_impacted_components': top_impacted_components,

@@ -289,8 +289,48 @@ a:hover {
               </div>
             </div>
           </div>
+
+          <!-- Most Error-Prone System Class -->
+          <div class="row mb-4">
+            <div class="col-12">
+              <div class="card border-0 shadow-sm hover-shadow">
+                <div class="card-body p-4">
+                  <div class="d-flex align-items-center">
+                    <div class="me-4">
+                      <i class="bi bi-gear-fill fs-2 text-primary"></i>
+                    </div>
+                    <div>
+                      <h6 class="text-muted mb-1">Most Error-Prone System Class</h6>
+                      <h3 class="card-title fw-bold text-primary mb-0">{{ most_error_prone_system_class.service_name }}</h3>
+                      <span class="badge bg-danger px-3 py-2 mt-2 rounded-pill">{{ most_error_prone_system_class.count }} errors</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
           
           <!-- Most Error-Prone Service -->
+          <div class="row mb-4">
+            <div class="col-12">
+              <div class="card border-0 shadow-sm hover-shadow">
+                <div class="card-body p-4">
+                  <div class="d-flex align-items-center">
+                    <div class="me-4">
+                      <i class="bi bi-gear-fill fs-2 text-primary"></i>
+                    </div>
+                    <div>
+                      <h6 class="text-muted mb-1">Most Error-Prone Service</h6>
+                      <h3 class="card-title fw-bold text-primary mb-0">{{ most_error_prone_service_class.service_name }}</h3>
+                      <span class="badge bg-danger px-3 py-2 mt-2 rounded-pill">{{ most_error_prone_service_class.count }} errors</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Most Error-Prone Service Class -->
           <div class="row mb-4">
             <div class="col-12">
               <div class="card border-0 shadow-sm hover-shadow">
