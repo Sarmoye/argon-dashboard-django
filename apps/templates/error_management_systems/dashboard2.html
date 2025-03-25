@@ -282,7 +282,7 @@ a:hover {
                     <div>
                       <h6 class="text-muted mb-1">Most Error-Prone System</h6>
                       <h3 class="card-title fw-bold text-primary mb-0">{{ most_error_prone_system.system_name }}</h3>
-                      <span class="badge bg-danger px-3 py-2 mt-2 rounded-pill">{{ most_error_prone_system.count }} errors</span>
+                      <span class="badge bg-danger px-3 py-2 mt-2 rounded-pill">{{ most_error_prone_system.count }} errors events</span>
                     </div>
                   </div>
                 </div>
@@ -302,7 +302,7 @@ a:hover {
                     <div>
                       <h6 class="text-muted mb-1">Most Error-Prone System Class</h6>
                       <h3 class="card-title fw-bold text-primary mb-0">{{ most_error_prone_system_class.error_type__system_classification }}</h3>
-                      <span class="badge bg-danger px-3 py-2 mt-2 rounded-pill">{{ most_error_prone_system_class.count }} errors</span>
+                      <span class="badge bg-danger px-3 py-2 mt-2 rounded-pill">{{ most_error_prone_system_class.count }} errors events</span>
                     </div>
                   </div>
                 </div>
@@ -321,8 +321,8 @@ a:hover {
                     </div>
                     <div>
                       <h6 class="text-muted mb-1">Most Error-Prone Service</h6>
-                      <h3 class="card-title fw-bold text-primary mb-0">{{ most_error_prone_service_class.service_name }}</h3>
-                      <span class="badge bg-danger px-3 py-2 mt-2 rounded-pill">{{ most_error_prone_service_class.count }} errors</span>
+                      <h3 class="card-title fw-bold text-primary mb-0">{{ most_error_prone_service.service_name }}</h3>
+                      <span class="badge bg-danger px-3 py-2 mt-2 rounded-pill">{{ most_error_prone_service.count }} errors events</span>
                     </div>
                   </div>
                 </div>
@@ -340,9 +340,9 @@ a:hover {
                       <i class="bi bi-gear-fill fs-2 text-primary"></i>
                     </div>
                     <div>
-                      <h6 class="text-muted mb-1">Most Error-Prone Service</h6>
-                      <h3 class="card-title fw-bold text-primary mb-0">{{ most_error_prone_service.error_type__service_classification }}</h3>
-                      <span class="badge bg-danger px-3 py-2 mt-2 rounded-pill">{{ most_error_prone_service.count }} errors</span>
+                      <h6 class="text-muted mb-1">Most Error-Prone Service Class</h6>
+                      <h3 class="card-title fw-bold text-primary mb-0">{{ most_error_prone_service_class.error_type__service_classification }}</h3>
+                      <span class="badge bg-danger px-3 py-2 mt-2 rounded-pill">{{ most_error_prone_service_class.count }} errors events</span>
                     </div>
                   </div>
                 </div>
