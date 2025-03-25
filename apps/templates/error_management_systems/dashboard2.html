@@ -1,7 +1,6 @@
 {% extends 'layouts/base.html' %}
 
 {% load static %}
-{% load dict_extras %}
 
 {% block title %}Professional Dashboard {% endblock %}
 
@@ -396,7 +395,6 @@ a:hover {
               </div>
       
               <!-- Most Frequent Error Reasons -->
-              <!-- Most Frequent Error Reasons -->
               <div class="col-12">
                 <div class="card border-0 shadow-sm">
                     <div class="card-body p-4">
@@ -411,15 +409,19 @@ a:hover {
                             <div class="list-group-item d-flex justify-content-between align-items-center py-3 px-0">
                                 <span class="badge bg-info-soft text-info rounded-pill me-3">{{ error.count }}</span>
                                 <span class="flex-grow-1">{{ error.error_reason }}</span>
-                                <span class="badge bg-primary-soft text-primary rounded-pill">
-                                    {{ error_total_counts|get_item:error.error_reason }}
+                                <span class="badge bg-secondary-soft text-secondary rounded-pill">
+                                    {% for total_error in total_errors_by_reason %}
+                                        {% if total_error.error_reason == error.error_reason %}
+                                            {{ total_error.total_count }}
+                                        {% endif %}
+                                    {% endfor %}
                                 </span>
                             </div>
                             {% endfor %}
                         </div>
                     </div>
                 </div>
-              </div>
+            </div>
           </div>
       </div>
   
