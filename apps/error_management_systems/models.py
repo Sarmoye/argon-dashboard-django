@@ -170,6 +170,12 @@ class ErrorTicket(models.Model):
     )
     ticket_reference = models.CharField(max_length=255, editable=False, blank=True, null=True)
     
+    PRIORITY_CHOICES = [
+        ('P1', 'Critical'),
+        ('P2', 'High'),
+        ('P3', 'Normal'),
+        ('P4', 'Low')
+    ]
     STATUS_CHOICES = [
         ('OPEN', 'Open'),
         ('IN_PROGRESS', 'In Progress'),
@@ -177,7 +183,7 @@ class ErrorTicket(models.Model):
         ('RESOLVED', 'Resolved')
     ]
     
-    priorite = models.CharField(max_length=20, editable=False, verbose_name="Priority")
+    priorite = models.CharField(max_length=2, choices=PRIORITY_CHOICES, default="P3", verbose_name="Priority")
     statut = models.CharField(max_length=15, choices=STATUS_CHOICES, default="OPEN", verbose_name="Status")
     
     symptomes = models.TextField(blank=True, verbose_name="Observed Symptoms")
@@ -224,9 +230,6 @@ class ErrorTicket(models.Model):
         if not self.ticket_reference:
             type_id = slugify(self.error_type.id)
             self.ticket_reference = f"{type_id}"
-
-        # La priorité est toujours l'impact_level de error_type
-        self.priorite = self.error_type.impact_level.lower()
 
         # Enregistrement de la date de résolution si le statut est RESOLVED
         if self.statut == 'RESOLVED':

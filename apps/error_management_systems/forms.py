@@ -57,13 +57,14 @@ class ErrorTicketForm(forms.ModelForm):
     class Meta:
         model = ErrorTicket
         fields = [
-            'statut','symptomes', 'impact',
+            'priorite', 'statut','symptomes', 'impact',
             'services_affectes', 'charge_systeme', 'nombre_utilisateurs',
             'cause_racine', 'hypotheses', 'responsable', 'equipe', 'actions',
             'solution', 'commentaires', 'historique', 'date_resolution',
             'lessons_learned', 'validation_responsable', 'documented_knowledge_base'
         ]
         widgets = {
+            'priorite': forms.Select(attrs={'class': 'form-control'}),
             'statut': forms.Select(attrs={'class': 'form-control'}),
             'symptomes': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
             'impact': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
