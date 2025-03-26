@@ -180,8 +180,7 @@ class ErrorTicket(models.Model):
         ('OPEN', 'Open'),
         ('IN_PROGRESS', 'In Progress'),
         ('PENDING', 'Pending'),
-        ('RESOLVED', 'Resolved'),
-        ('CLOSED', 'Closed')
+        ('RESOLVED', 'Resolved')
     ]
     
     priorite = models.CharField(max_length=2, choices=PRIORITY_CHOICES, default="P3", verbose_name="Priority")
