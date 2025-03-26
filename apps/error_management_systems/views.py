@@ -359,6 +359,7 @@ def create_event(request):
         system_classification = request.POST.get('system_classification', '')
         service_classification = request.POST.get('service_classification', '')
         error_reason = request.POST.get('error_reason')
+        impact_level = request.POST.get('impact_level', '')
 
         try:
             with transaction.atomic():
@@ -373,6 +374,7 @@ def create_event(request):
                         'fichiers_impactes': request.POST.get('fichiers_impactes', ''),
                         'system_classification': system_classification,
                         'service_classification': service_classification,
+                        'impact_level': impact_level,
                     }
                 )
 
@@ -940,6 +942,8 @@ def create_event_api(request):
     fichiers_impactes = request.data.get('fichiers_impactes', '')
     system_classification = request.POST.get('system_classification', '')
     service_classification = request.POST.get('service_classification', '')
+    impact_level = request.POST.get('impact_level', '')
+
 
     if not all([system_name, service_name, service_type, error_reason]):
         return Response({"error": "Missing required fields."}, status=status.HTTP_400_BAD_REQUEST)
@@ -955,6 +959,7 @@ def create_event_api(request):
                 'fichiers_impactes': fichiers_impactes,
                 'system_classification': system_classification,
                 'service_classification': service_classification,
+                'impact_level': impact_level,
             }
         )
 
