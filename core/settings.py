@@ -199,5 +199,13 @@ STATICFILES_DIRS = (
 )
 
 
+# Configurations Celery
+CELERY_BROKER_URL = 'redis://localhost:6379/0'  # Utiliser Redis sur localhost, port 6379, base de données 0
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'  # Utilise Redis pour stocker les résultats des tâches
+
+
+
 #############################################################
 #############################################################
