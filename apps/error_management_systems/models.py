@@ -183,7 +183,7 @@ class ErrorTicket(models.Model):
         ('RESOLVED', 'Resolved')
     ]
     
-    priorite = models.CharField(max_length=2, choices=PRIORITY_CHOICES, default="P3", verbose_name="Priority")
+    priorite = models.CharField(max_length=15, choices=PRIORITY_CHOICES, default="P3", verbose_name="Priority")
     statut = models.CharField(max_length=15, choices=STATUS_CHOICES, default="OPEN", verbose_name="Status")
     
     symptomes = models.TextField(blank=True, verbose_name="Observed Symptoms")
