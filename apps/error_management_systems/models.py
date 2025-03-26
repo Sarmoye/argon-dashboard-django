@@ -251,6 +251,17 @@ class ErrorTicket(models.Model):
             historique['events'] = events
             self.historique = historique
 
+         # Vérifier si error_type est défini
+        if self.error_type:
+            impact_mapping = {
+                'low': 'P4',
+                'medium': 'P3',
+                'high': 'P2',
+                'critical': 'P1'
+            }
+            # Mettre à jour la priorité en fonction de l'impact_level du type d'erreur
+            self.priorite = impact_mapping.get(self.error_type.impact_level, 'P3')
+
         super().save(*args, **kwargs)
 
     
