@@ -170,12 +170,6 @@ class ErrorTicket(models.Model):
     )
     ticket_reference = models.CharField(max_length=255, editable=False, blank=True, null=True)
     
-    PRIORITY_CHOICES = [
-        ('P1', 'Critical'),
-        ('P2', 'High'),
-        ('P3', 'Normal'),
-        ('P4', 'Low')
-    ]
     STATUS_CHOICES = [
         ('OPEN', 'Open'),
         ('IN_PROGRESS', 'In Progress'),
@@ -183,9 +177,8 @@ class ErrorTicket(models.Model):
         ('RESOLVED', 'Resolved')
     ]
     
-    priorite = models.CharField(max_length=2, choices=PRIORITY_CHOICES, default="P3", verbose_name="Priority")
+    priorite = models.CharField(max_length=20, editable=False, verbose_name="Priority")
     statut = models.CharField(max_length=15, choices=STATUS_CHOICES, default="OPEN", verbose_name="Status")
-    niveau_criticite = models.IntegerField(default=3, choices=[(i, str(i)) for i in range(1, 6)], verbose_name="Criticality Level (1-5)")
     
     symptomes = models.TextField(blank=True, verbose_name="Observed Symptoms")
     impact = models.TextField(blank=True, verbose_name="User Impact")
@@ -232,6 +225,9 @@ class ErrorTicket(models.Model):
             type_id = slugify(self.error_type.id)
             self.ticket_reference = f"{type_id}"
 
+        # La priorité est toujours l'impact_level de error_type
+        self.priorite = self.error_type.impact_level
+
         # Enregistrement de la date de résolution si le statut est RESOLVED
         if self.statut == 'RESOLVED':
             self.date_resolution = timezone.now()
@@ -250,17 +246,6 @@ class ErrorTicket(models.Model):
             events.append(event)
             historique['events'] = events
             self.historique = historique
-
-         # Vérifier si error_type est défini
-        if self.error_type:
-            impact_mapping = {
-                'low': 'P4',
-                'medium': 'P3',
-                'high': 'P2',
-                'critical': 'P1'
-            }
-            # Mettre à jour la priorité en fonction de l'impact_level du type d'erreur
-            self.priorite = impact_mapping.get(self.error_type.impact_level, 'P3')
 
         super().save(*args, **kwargs)
 
