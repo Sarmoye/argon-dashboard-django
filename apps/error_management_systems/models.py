@@ -226,9 +226,7 @@ class ErrorTicket(models.Model):
             self.ticket_reference = f"{type_id}"
 
         # La priorité est toujours l'impact_level de error_type
-        if not self.priorite:
-            impact = slugify(self.error_type.impact_level)
-            self.priorite = f"{impact}"
+        self.priorite = self.error_type.impact_level
 
         # Enregistrement de la date de résolution si le statut est RESOLVED
         if self.statut == 'RESOLVED':
