@@ -1,262 +1,443 @@
-from django.db import models
 import uuid
+from django.db import models
+from django.db.models import UniqueConstraint, Index
 from django.utils import timezone
-from django.utils.text import slugify
-import hashlib
+from django.core.exceptions import ValidationError
 
-#######################
-# ErrorType Model
-#######################
-class ErrorType(models.Model):
-    # ID automatique basé sur le système, service et erreur
-    id = models.CharField(primary_key=True, max_length=255, editable=False)
-    
-    # Identification
-    system_name = models.CharField(max_length=50, verbose_name="System Name")
-    service_type = models.CharField(max_length=100, verbose_name="Service Type")
-    service_name = models.CharField(max_length=100, verbose_name="Service Name")
-    error_reason = models.TextField(verbose_name="Error Reason")
-
-    # Nouvelle classification
-    SYSTEM_CLASSIFICATION_CHOICES = [
-        ('A', 'A'),
-        ('B', 'B'),
-        ('C', 'C'),
-        ('D', 'D')
-    ]
-
-    system_classification = models.CharField(
-        max_length=1,
-        choices=SYSTEM_CLASSIFICATION_CHOICES,
-        verbose_name="System Classification",
-        blank=True,
-        null=True
-    )
-
-    SERVICE_CLASSIFICATION_CHOICES = [
-        ('primary', 'Primary Service'),
-        ('secondary', 'Secondary Service'),
-        ('tertiary', 'Tertiary Service'),
-        ('external', 'External Service'),
-    ]
-
-    service_classification = models.CharField(
-        max_length=50, 
-        choices=SERVICE_CLASSIFICATION_CHOICES,
-        verbose_name="Service Classification",
-        blank=True,
-        null=True
-    )
-    
-    # Catégorisation
-    type_error = models.CharField(
-        max_length=50, 
-        choices=[('expected', 'Expected'), ('unexpected', 'Unexpected')], 
-        default='unexpected', 
-        verbose_name="Type Error"
-    )
-    error_category = models.CharField(
-        max_length=50, 
+class ErrorCategory(models.Model):
+    """
+    Centralized error category management
+    """
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name = models.CharField(max_length=100, unique=True, db_index=True)
+    description = models.TextField(blank=True)
+    severity_level = models.IntegerField(
         choices=[
-            ('logic', 'Logic'), 
-            ('performance', 'Performance'), 
-            ('security', 'Security'), 
-            ('integration', 'Integration'), 
-            ('data', 'Data'), 
-            ('configuration', 'Configuration')
-        ], 
-        verbose_name="Error Category",
-        default='logic'
-    )
-    impact_level = models.CharField(
-        max_length=20, 
-        choices=[('low', 'Low'), ('medium', 'Medium'), ('high', 'High'), ('critical', 'Critical')], 
-        verbose_name="Impact Level",
-        default='low'
+            (1, 'Low'),
+            (2, 'Medium'),
+            (3, 'High'),
+            (4, 'Critical')
+        ],
+        default=2
     )
 
-    # Contexte
-    trigger_event = models.TextField(blank=True, verbose_name="Trigger Event")
-    occurred_at = models.DateTimeField(verbose_name="Occurrence Timestamp", blank=True, default=timezone.now)
-    source_component = models.CharField(max_length=100, blank=True, verbose_name="Source Component")
+    def __str__(self):
+        return self.name
+
+
+class ErrorType(models.Model):
+    """
+    Comprehensive Error Type Model with Enhanced Tracking
+    """
+    # Unique Identifier
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     
-    # Données techniques
-    code_erreur = models.CharField(max_length=50, blank=True, verbose_name="Error Code")
-    fichiers_impactes = models.TextField(blank=True, verbose_name="Impacted Files/Modules")
-    request_payload = models.JSONField(blank=True, null=True, verbose_name="Request Payload")
-    stack_trace = models.TextField(blank=True, verbose_name="Stack Trace")
+    # Indexed Fields for Performance
+    system_name = models.CharField(max_length=100, db_index=True)
+    service_name = models.CharField(max_length=100, db_index=True)
     
-    # Métadonnées
-    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Creation Date")
-    updated_at = models.DateTimeField(auto_now=True, verbose_name="Last Updated")
+    # Foreign Key with Protected Deletion
+    category = models.ForeignKey(
+        ErrorCategory, 
+        on_delete=models.PROTECT,
+        related_name='error_types',
+        verbose_name="Error Category"
+    )
+    
+    # Error Identification
+    error_code = models.CharField(
+        max_length=50, 
+        unique=True, 
+        db_index=True
+    )
+    error_description = models.TextField()
+    
+    # Logging and Flexibility
+    error_metadata = models.JSONField(
+        blank=True, 
+        null=True, 
+        verbose_name="Detailed Error Metadata"
+    )
+    
+    # Error Occurrence Tracking
+    first_occurrence = models.DateTimeField(auto_now_add=True)
+    last_occurrence = models.DateTimeField(auto_now=True)
+    total_occurrences = models.PositiveIntegerField(default=1)
+    
+    # Performance and Tracking Fields
+    is_active = models.BooleanField(default=True, db_index=True)
     
     class Meta:
-        verbose_name = "Error Type"
-        verbose_name_plural = "Error Types"
+        # Unique Constraints
         constraints = [
-            models.UniqueConstraint(
-                fields=['system_name', 'service_name', 'error_reason'], 
-                name='unique_system_error_reason'
+            UniqueConstraint(
+                fields=['system_name', 'service_name', 'error_code'], 
+                name='unique_error_type'
             )
+        ]
+        
+        # Database Indexing
+        indexes = [
+            Index(fields=['system_name', 'service_name']),
+            Index(fields=['first_occurrence']),
+            Index(fields=['last_occurrence'])
         ]
     
     def save(self, *args, **kwargs):
-        if not self.id:
-            system_slug = slugify(self.system_name)
-            service_slug = slugify(self.service_name)
-            error_hash = hashlib.md5(self.error_reason.encode('utf-8')).hexdigest()[:6].upper()
-            self.id = f"{system_slug}_{service_slug}_{error_hash}"
+        # Ensure error code is unique
+        if not self.error_code:
+            self.error_code = self._generate_unique_error_code()
+        
         super().save(*args, **kwargs)
-
-    def __str__(self):
-        return f"{self.system_name} - {self.error_reason[:50]}"
-
-
-#######################
-# ErrorEvent Model
-#######################
-class ErrorEvent(models.Model):
-    # For ErrorEvent, the id includes the system name, the date (yyyymmdd) and a unique suffix
-    id = models.CharField(primary_key=True, max_length=255, editable=False)
     
-    # Link to ErrorType to retrieve all events of a specific error type
+    def _generate_unique_error_code(self):
+        """
+        Generate a unique error code with counter if needed
+        """
+        base_code = f"{self.system_name[:3]}_{self.service_name[:3]}_{uuid.uuid4().hex[:6]}"
+        counter = 1
+        
+        while ErrorType.objects.filter(error_code=base_code).exists():
+            base_code = f"{self.system_name[:3]}_{self.service_name[:3]}_{uuid.uuid4().hex[:6]}_{counter}"
+            counter += 1
+        
+        return base_code.upper()
+    
+    def increment_occurrence(self):
+        """
+        Increment total occurrences and update last occurrence
+        """
+        self.total_occurrences += 1
+        self.last_occurrence = timezone.now()
+        self.save()
+    
+    def __str__(self):
+        return f"{self.system_name} - {self.error_code}"
+
+
+class ErrorEvent(models.Model):
+    """
+    Detailed Error Event Tracking
+    """
+    # Unique Identifier
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    
+    # Protected Foreign Key
     error_type = models.ForeignKey(
         ErrorType, 
-        on_delete=models.CASCADE, 
-        related_name='events', 
-        verbose_name="Error Type"
+        on_delete=models.PROTECT,
+        related_name='events',
+        verbose_name="Associated Error Type"
     )
     
-    # Also keep basic information, even if it is redundant with ErrorType, to facilitate searches or historical records
-    system_name = models.CharField(max_length=50, verbose_name="System Name")
-    service_type = models.CharField(max_length=100, verbose_name="Service Type")
-    service_name = models.CharField(max_length=100, verbose_name="Service Name")
-    error_reason = models.TextField(verbose_name="Error Reason")
-    error_count = models.IntegerField(verbose_name="Error Count")
-    logs = models.TextField(blank=True, verbose_name="Messages de logs")
-    timestamp = models.DateTimeField(default=timezone.now, verbose_name="Timestamp")
+    # Indexed Fields
+    timestamp = models.DateTimeField(auto_now_add=True, db_index=True)
+    system_name = models.CharField(max_length=100, db_index=True)
+    service_name = models.CharField(max_length=100, db_index=True)
     
-    # Additional Information
-    inserted_by = models.CharField(max_length=50, verbose_name="Inserted by")
-    notes = models.TextField(blank=True, null=True, verbose_name="Notes")
+    # Comprehensive Logging
+    event_log = models.JSONField(
+        blank=True, 
+        null=True, 
+        verbose_name="Detailed Event Logs"
+    )
+    
+    # Error Context
+    source_ip = models.GenericIPAddressField(
+        blank=True, 
+        null=True, 
+        verbose_name="Source IP Address"
+    )
+    user_context = models.JSONField(
+        blank=True, 
+        null=True, 
+        verbose_name="User Context Details"
+    )
+    
+    # Error Count and Tracking
+    error_count = models.PositiveIntegerField(default=1)
     
     class Meta:
-        verbose_name = "Error Event"
-        verbose_name_plural = "Error Events"
-        ordering = ['-timestamp']
+        # Unique Constraints
+        constraints = [
+            UniqueConstraint(
+                fields=['error_type', 'timestamp', 'system_name', 'service_name'], 
+                name='unique_error_event'
+            )
+        ]
+        
+        # Database Indexing
+        indexes = [
+            Index(fields=['timestamp', 'system_name']),
+            Index(fields=['source_ip'])
+        ]
+    
+    def clean(self):
+        """
+        Additional validation
+        """
+        # Prevent excessive error count
+        if self.error_count > 1000:
+            raise ValidationError("Error count cannot exceed 1000")
     
     def save(self, *args, **kwargs):
-        if not self.id:
-            system_slug = slugify(self.system_name)
-            service_slug = slugify(self.service_name)
-            date_str = self.timestamp.strftime('%Y%m%d%H%M%S') if self.timestamp else timezone.now().strftime('%Y%m%d%H%M%S')
-            error_hash = hashlib.md5(self.error_reason.encode('utf-8')).hexdigest()[:6].upper()
-            self.id = f"{system_slug}_{service_slug}_{error_hash}_{date_str}"
+        # Validate before saving
+        self.full_clean()
+        
+        # Update associated error type
+        self.error_type.increment_occurrence()
+        
         super().save(*args, **kwargs)
     
     def __str__(self):
-        return f"Error {self.id} - {self.timestamp.strftime('%d/%m/%Y %H:%M')}"
+        return f"Error Event: {self.error_type.error_code} at {self.timestamp}"
 
-#######################
-# ErrorTicket Model
-#######################
+
 class ErrorTicket(models.Model):
+    """
+    Comprehensive Error Ticket Management Model
+    """
+    # Unique Identifiers
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    error_type = models.OneToOneField(
-        'ErrorType', 
-        on_delete=models.CASCADE, 
-        related_name='ticket', 
-        verbose_name="Error Type"
+    ticket_number = models.CharField(
+        max_length=50, 
+        unique=True, 
+        db_index=True
     )
-    ticket_reference = models.CharField(max_length=255, editable=False, blank=True, null=True)
     
-    PRIORITY_CHOICES = [
-        ('P1', 'Critical'),
-        ('P2', 'High'),
-        ('P3', 'Normal'),
-        ('P4', 'Low')
-    ]
+    # Foreign Key Relationships with Protected Deletion
+    error_type = models.ForeignKey(
+        'ErrorType', 
+        on_delete=models.PROTECT,
+        related_name='tickets',
+        verbose_name="Associated Error Type"
+    )
+    
+    # Status and Priority Management
     STATUS_CHOICES = [
         ('OPEN', 'Open'),
         ('IN_PROGRESS', 'In Progress'),
         ('PENDING', 'Pending'),
-        ('RESOLVED', 'Resolved')
+        ('RESOLVED', 'Resolved'),
+        ('CLOSED', 'Closed'),
+        ('BLOCKED', 'Blocked')
     ]
     
-    priorite = models.CharField(max_length=15, choices=PRIORITY_CHOICES, default="P3", verbose_name="Priority")
-    statut = models.CharField(max_length=15, choices=STATUS_CHOICES, default="OPEN", verbose_name="Status")
+    PRIORITY_CHOICES = [
+        ('P1', 'Critical - Immediate Action Required'),
+        ('P2', 'High - Urgent Resolution'),
+        ('P3', 'Medium - Normal Priority'),
+        ('P4', 'Low - Minor Impact')
+    ]
     
-    symptomes = models.TextField(blank=True, verbose_name="Observed Symptoms")
-    impact = models.TextField(blank=True, verbose_name="User Impact")
-    services_affectes = models.TextField(blank=True, verbose_name="Affected Services")
-    charge_systeme = models.IntegerField(blank=True, null=True, verbose_name="System Load")
-    nombre_utilisateurs = models.IntegerField(blank=True, null=True, verbose_name="Impacted Users")
+    # Indexed Status and Priority Fields
+    status = models.CharField(
+        max_length=20, 
+        choices=STATUS_CHOICES, 
+        default='OPEN',
+        db_index=True
+    )
+    priority = models.CharField(
+        max_length=20, 
+        choices=PRIORITY_CHOICES, 
+        default='P3',
+        db_index=True
+    )
     
-    cause_racine = models.TextField(blank=True, verbose_name="Root Cause")
-    hypotheses = models.TextField(blank=True, verbose_name="Hypotheses")
+    # Comprehensive Ticket Metadata
+    title = models.CharField(max_length=255)
+    description = models.TextField()
     
-    responsable = models.CharField(max_length=100, blank=True, verbose_name="Responsible")
-    equipe = models.CharField(max_length=100, blank=True, verbose_name="Assigned Team")
-    actions = models.TextField(blank=True, verbose_name="Planned Actions")
-    solution = models.TextField(blank=True, verbose_name="Implemented Solution")
+    # Advanced Tracking Fields
+    assigned_to = models.CharField(
+        max_length=100, 
+        blank=True, 
+        null=True,
+        db_index=True
+    )
+    assigned_team = models.CharField(
+        max_length=100, 
+        blank=True, 
+        null=True
+    )
     
-    date_creation = models.DateTimeField(auto_now_add=True, verbose_name="Creation Date")
-    date_modification = models.DateTimeField(auto_now=True, verbose_name="Last Modified")
-    date_resolution = models.DateTimeField(null=True, blank=True, verbose_name="Resolution Date")
+    # Timestamps with Indexing
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    resolved_at = models.DateTimeField(null=True, blank=True)
     
-    commentaires = models.TextField(blank=True, verbose_name="Comments")
-    historique = models.JSONField(default=dict, blank=True, verbose_name="Modification History")
+    # Flexible Metadata Storage
+    ticket_metadata = models.JSONField(
+        blank=True, 
+        null=True, 
+        verbose_name="Additional Ticket Metadata"
+    )
     
-    lessons_learned = models.TextField(blank=True, verbose_name="Lessons Learned")
-    validation_responsable = models.BooleanField(default=False, verbose_name="Validated by Responsible")
-    documented_knowledge_base = models.BooleanField(default=False, verbose_name="Documented in Knowledge Base")
+    # Impact and Business Context
+    business_impact = models.DecimalField(
+        max_digits=10, 
+        decimal_places=2, 
+        null=True, 
+        blank=True,
+        verbose_name="Estimated Business Impact"
+    )
+    impacted_services = models.TextField(
+        blank=True, 
+        verbose_name="Impacted Services/Systems"
+    )
+    
+    # Resolution and Root Cause
+    root_cause = models.TextField(
+        blank=True, 
+        verbose_name="Root Cause Analysis"
+    )
+    resolution_details = models.TextField(
+        blank=True, 
+        verbose_name="Resolution Details"
+    )
+    
+    # Compliance and Tracking
+    compliance_checked = models.BooleanField(default=False)
+    regulatory_impact = models.CharField(
+        max_length=100, 
+        blank=True, 
+        choices=[
+            ('gdpr', 'GDPR'),
+            ('hipaa', 'HIPAA'),
+            ('pci', 'PCI DSS'),
+            ('sox', 'SOX'),
+            ('none', 'No Specific Regulation')
+        ]
+    )
+    
+    # Audit and History
+    modification_history = models.JSONField(
+        default=list, 
+        blank=True, 
+        verbose_name="Ticket Modification History"
+    )
     
     class Meta:
-        verbose_name = "Error Ticket"
-        verbose_name_plural = "Error Tickets"
+        # Unique Constraints
+        constraints = [
+            models.UniqueConstraint(
+                fields=['error_type', 'created_at'], 
+                name='unique_error_ticket'
+            )
+        ]
+        
+        # Database Indexing
+        indexes = [
+            models.Index(fields=['status', 'priority']),
+            models.Index(fields=['created_at', 'resolved_at']),
+            models.Index(fields=['assigned_to'])
+        ]
+        
+        ordering = ['-created_at']
     
     def save(self, *args, **kwargs):
-        # Check if the instance exists before trying to get the old one
+        # Generate Ticket Number if not exists
+        if not self.ticket_number:
+            self.ticket_number = self._generate_ticket_number()
+        
+        # Track status changes
         if self.pk:
-            try:
-                old_instance = ErrorTicket.objects.get(pk=self.pk)
-                status_changed = old_instance.statut != self.statut
-            except ErrorTicket.DoesNotExist:
-                status_changed = False #if the instance does not exists, then it has not changed.
-        else:
-            status_changed = False
-
-        # Gestion de ticket_reference (créé uniquement à la première sauvegarde)
-        if not self.ticket_reference:
-            type_id = slugify(self.error_type.id)
-            self.ticket_reference = f"{type_id}"
-
-        # Enregistrement de la date de résolution si le statut est RESOLVED
-        if self.statut == 'RESOLVED':
-            self.date_resolution = timezone.now()
-        else:
-            self.date_resolution = None
-
-        # Si le statut a changé, enregistrer l'événement dans l'historique
-        if status_changed:
-            event = {
-                'old_statut': old_instance.statut,
-                'new_statut': self.statut,
-                'date_modify': timezone.now().isoformat()
-            }
-            historique = self.historique or {}
-            events = historique.get('events', [])
-            events.append(event)
-            historique['events'] = events
-            self.historique = historique
-
+            original = ErrorTicket.objects.get(pk=self.pk)
+            if original.status != self.status:
+                self._log_status_change(original.status, self.status)
+        
+        # Auto-resolve logic
+        if self.status == 'RESOLVED' and not self.resolved_at:
+            self.resolved_at = timezone.now()
+        
         super().save(*args, **kwargs)
-
+    
+    def _generate_ticket_number(self):
+        """
+        Generate a unique ticket number
+        Format: [ERROR_TYPE_CODE]-[TIMESTAMP]-[UNIQUE_SUFFIX]
+        """
+        timestamp = timezone.now().strftime("%Y%m%d%H%M%S")
+        error_code = self.error_type.error_code[:6] if self.error_type else 'ERR'
+        unique_suffix = uuid.uuid4().hex[:4].upper()
+        
+        ticket_number = f"{error_code}-{timestamp}-{unique_suffix}"
+        
+        # Ensure uniqueness
+        while ErrorTicket.objects.filter(ticket_number=ticket_number).exists():
+            unique_suffix = uuid.uuid4().hex[:4].upper()
+            ticket_number = f"{error_code}-{timestamp}-{unique_suffix}"
+        
+        return ticket_number
+    
+    def _log_status_change(self, old_status, new_status):
+        """
+        Log status changes in modification history
+        """
+        status_change = {
+            'old_status': old_status,
+            'new_status': new_status,
+            'changed_at': timezone.now().isoformat()
+        }
+        
+        history = self.modification_history or []
+        history.append(status_change)
+        self.modification_history = history
+    
+    def calculate_resolution_time(self):
+        """
+        Calculate total resolution time
+        """
+        if self.resolved_at and self.created_at:
+            return (self.resolved_at - self.created_at).total_seconds() / 3600  # hours
+        return None
     
     def __str__(self):
-        return f"Ticket: {self.error_type.system_name} [{self.get_statut_display()}]"
+        return f"Ticket {self.ticket_number} - {self.title}"
+
+# Custom Manager for Advanced Querying
+class ErrorTicketManager(models.Manager):
+    def get_urgent_tickets(self):
+        """
+        Retrieve urgent tickets
+        """
+        return self.filter(
+            models.Q(priority__in=['P1', 'P2']) & 
+            models.Q(status__in=['OPEN', 'IN_PROGRESS'])
+        )
     
-    def get_duration(self):
-        end_date = self.date_resolution or timezone.now()
-        duration = end_date - self.date_creation
-        return round(duration.total_seconds() / 3600, 1)
+    def get_overdue_tickets(self, days=7):
+        """
+        Find tickets that have been open beyond a certain threshold
+        """
+        threshold_date = timezone.now() - timezone.timedelta(days=days)
+        return self.filter(
+            created_at__lt=threshold_date,
+            status__in=['OPEN', 'IN_PROGRESS']
+        )
+
+# Apply custom manager
+ErrorTicket.objects = ErrorTicketManager()
+
+
+# Optional: Custom Model Manager for Advanced Querying
+class ErrorTypeManager(models.Manager):
+    def get_critical_errors(self):
+        """
+        Retrieve critical error types
+        """
+        return self.filter(
+            category__severity_level=4, 
+            is_active=True
+        )
+    
+    def aggregate_by_system(self):
+        """
+        Aggregate error occurrences by system
+        """
+        return self.values('system_name').annotate(
+            total_errors=models.Sum('total_occurrences')
+        ).order_by('-total_errors')
+
+# Apply custom manager
+ErrorType.objects = ErrorTypeManager()
