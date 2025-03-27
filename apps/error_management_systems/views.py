@@ -6,7 +6,7 @@ from django.utils import timezone
 from django.views.decorators.http import require_POST, require_http_methods
 import json
 from django.contrib.auth.decorators import login_required
-from .models import ErrorType, ErrorEvent, ErrorTicket
+from .models import *
 from .forms import ErrorTypeForm, ErrorEventForm, ErrorTicketForm
 from django.db.models.functions import TruncDate
 from django.db import transaction
@@ -351,76 +351,98 @@ def create_event(request):
     if not check_user_role(request.user, allowed_roles):
         return HttpResponseForbidden("You do not have permission to access this page.")
     
-    """Création d'un nouvel événement d'erreur"""
     if request.method == 'POST':
-        system_name = request.POST.get('system_name')
-        service_name = request.POST.get('service_name')
-        service_type = request.POST.get('service_type')
-        system_classification = request.POST.get('system_classification', '')
-        service_classification = request.POST.get('service_classification', '')
-        error_reason = request.POST.get('error_reason')
-        impact_level = request.POST.get('impact_level', '')
-
         try:
             with transaction.atomic():
-                # Step 1: Create or get ErrorType
-                error_type, created = ErrorType.objects.get_or_create(
-                    system_name=system_name,
-                    service_name=service_name,
-                    error_reason=error_reason,
+                # 1. Vérification et création du Système si nécessaire
+                system, system_created = System.objects.get_or_create(
+                    name=request.POST.get('system_name'),
                     defaults={
-                        'service_type': service_type,
-                        'code_erreur': request.POST.get('code_erreur', ''),
-                        'fichiers_impactes': request.POST.get('fichiers_impactes', ''),
-                        'system_classification': system_classification,
-                        'service_classification': service_classification,
-                        'impact_level': impact_level,
+                        'system_classification': request.POST.get('system_classification', ''),
+                        'description': request.POST.get('system_description', '')
                     }
                 )
 
-                # Step 2: Create ErrorEvent
-                event = ErrorEvent(
-                    system_name=system_name,
-                    service_type=service_type,
-                    service_name=service_name,
-                    error_reason=error_reason,
-                    error_type=error_type,
-                    error_count=request.POST.get('error_count', 1),
-                    inserted_by=request.user.username,
-                    notes=request.POST.get('notes', ''),
-                    logs=request.POST.get('logs', '')
+                # 2. Vérification et création du Service si nécessaire
+                service, service_created = Service.objects.get_or_create(
+                    system=system,
+                    name=request.POST.get('service_name'),
+                    defaults={
+                        'service_classification': request.POST.get('service_classification', ''),
+                        'description': request.POST.get('service_description', ''),
+                        'owner': request.user.username
+                    }
                 )
-                event.save()
 
-                # Step 3: Create or update ErrorTicket
-                ticket, ticket_created = ErrorTicket.objects.get_or_create(
-                    error_type=error_type,
-                    defaults={'statut': 'OPEN'}
+                # 3. Vérification et création de la Catégorie d'Erreur si nécessaire
+                error_category, category_created = ErrorCategory.objects.get_or_create(
+                    name=request.POST.get('error_category_name'),
+                    defaults={
+                        'description': request.POST.get('error_category_description', ''),
+                        'severity_level': request.POST.get('severity_level', 2)
+                    }
                 )
+
+                # 4. Vérification de l'existence et création de l'ErrorType
+                error_type, error_type_created = ErrorType.objects.get_or_create(
+                    system=system,
+                    service=service,
+                    error_code=request.POST.get('error_code'),
+                    defaults={
+                        'category': error_category,
+                        'error_description': request.POST.get('error_description', ''),
+                        'root_cause': request.POST.get('root_cause', ''),
+                        'is_active': True,
+                        'detected_by': request.POST.get('detected_by', 'logs'),
+                        'error_source': request.POST.get('error_source', 'internal')
+                    }
+                )
+
+                # 5. Création de l'ErrorEvent
+                error_event = ErrorEvent.objects.create(
+                    error_type=error_type,
+                    system=system,
+                    service=service,
+                    event_log=request.POST.get('event_log', ''),
+                    source_ip=request.POST.get('source_ip', ''),
+                    trigger_event=request.POST.get('trigger_event', ''),
+                    environment=request.POST.get('environment', 'production')
+                )
+
+                # 6. Gestion du ticket d'erreur
+                error_ticket, ticket_created = ErrorTicket.objects.get_or_create(
+                    error_type=error_type,
+                    defaults={
+                        'status': 'OPEN',
+                        'priority': request.POST.get('priority', 'P3'),
+                        'title': f"Error Event {error_event.id}",
+                        'description': error_type.error_description,
+                        'assigned_to': request.user.username
+                    }
+                )
+
+                # Si le ticket existait déjà, on le réouvre
                 if not ticket_created:
-                    ticket.statut = 'OPEN'
-                    ticket.save()
+                    error_ticket.status = 'OPEN'
+                    error_ticket.save()
 
-                messages.success(request, f"Événement d'erreur créé avec succès et ticket ouvert: {event.id}")
-                return redirect('error_management_systems:event_detail', event_id=event.id)
+                messages.success(request, f"Événement d'erreur créé avec succès: {error_event.id}")
+                return redirect('error_management_systems:event_detail', event_id=error_event.id)
 
         except Exception as e:
-            messages.error(request, f"Une erreur est survenue lors de la création de l'événement: {e}")
-            # Log the exception for debugging
+            messages.error(request, f"Erreur lors de la création de l'événement: {str(e)}")
             import logging
-            logging.exception("Error during create_event")
-            return redirect('error_management_systems:create_event') #or render with form errors.
+            logging.exception("Erreur durant create_event")
+            return redirect('error_management_systems:create_event')
 
-    # Pour le formulaire GET initial
-    error_types = ErrorType.objects.all().order_by('system_name', 'service_name')
-    systems = ErrorType.objects.values_list('system_name', flat=True).distinct()
-    services = ErrorType.objects.values_list('service_name', flat=True).distinct()
-
+    # Préparation du contexte pour le formulaire GET
     context = {
-        'error_types': error_types,
-        'systems': systems,
-        'services': services,
-        'form': ErrorEventForm()
+        'systems': System.objects.all(),
+        'services': Service.objects.all(),
+        'error_categories': ErrorCategory.objects.all(),
+        'detected_by_choices': ErrorType._meta.get_field('detected_by').choices,
+        'error_source_choices': ErrorType._meta.get_field('error_source').choices,
+        'environment_choices': ErrorEvent._meta.get_field('environment').choices,
     }
 
     return render(request, 'error_management_systems/create_event.html', context)
