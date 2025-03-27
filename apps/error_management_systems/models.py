@@ -108,7 +108,7 @@ class ErrorType(models.Model):
     )
     
     # Error Identification
-    error_reason = models.CharField(
+    error_code = models.CharField(
         max_length=50,
         unique=True,
         db_index=True
