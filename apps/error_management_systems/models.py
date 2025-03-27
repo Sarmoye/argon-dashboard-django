@@ -4,6 +4,59 @@ from django.db.models import UniqueConstraint, Index
 from django.utils import timezone
 from django.core.exceptions import ValidationError
 
+SYSTEM_CLASSIFICATION_CHOICES = [
+    ('A', 'A'),
+    ('B', 'B'),
+    ('C', 'C'),
+    ('D', 'D')
+]
+
+SERVICE_CLASSIFICATION_CHOICES = [
+    ('primary', 'Primary Service'),
+    ('secondary', 'Secondary Service'),
+    ('tertiary', 'Tertiary Service'),
+    ('external', 'External Service'),
+]
+
+class System(models.Model):
+    name = models.CharField(max_length=100, unique=True, verbose_name="Nom du Système")
+    system_classification = models.CharField(
+        max_length=1,
+        choices=SYSTEM_CLASSIFICATION_CHOICES,
+        verbose_name="Classification du Système",
+        blank=True,
+        null=True
+    )
+    description = models.TextField(blank=True, verbose_name="Description du Système")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    def __str__(self):
+        return self.name
+
+class Service(models.Model):
+    system = models.ForeignKey(
+        System, 
+        on_delete=models.CASCADE,
+        related_name="services",
+        verbose_name="Système"
+    )
+    name = models.CharField(max_length=100, verbose_name="Nom du Service")
+    service_classification = models.CharField(
+        max_length=50, 
+        choices=SERVICE_CLASSIFICATION_CHOICES,
+        verbose_name="Classification du Service",
+        blank=True,
+        null=True
+    )
+    description = models.TextField(blank=True, verbose_name="Description du Service")
+    owner = models.CharField(max_length=100, blank=True, null=True, verbose_name="Responsable du Service")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    def __str__(self):
+        return f"{self.system.name} - {self.name}"
+
 class ErrorCategory(models.Model):
     """
     Centralized error category management
@@ -33,8 +86,18 @@ class ErrorType(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     
     # Indexed Fields for Performance
-    system_name = models.CharField(max_length=100, db_index=True)
-    service_name = models.CharField(max_length=100, db_index=True)
+    system = models.ForeignKey(
+        System,
+        on_delete=models.PROTECT,
+        related_name='error_types',
+        verbose_name="System"
+    )
+    service = models.ForeignKey(
+        Service,
+        on_delete=models.PROTECT,
+        related_name='error_types',
+        verbose_name="Service"
+    )
     
     # Foreign Key with Protected Deletion
     category = models.ForeignKey(
@@ -45,19 +108,50 @@ class ErrorType(models.Model):
     )
     
     # Error Identification
-    error_code = models.CharField(
-        max_length=50, 
-        unique=True, 
+    error_reason = models.CharField(
+        max_length=50,
+        unique=True,
         db_index=True
     )
+
     error_description = models.TextField()
     
     # Logging and Flexibility
     error_metadata = models.JSONField(
-        blank=True, 
-        null=True, 
+        blank=True,
+        null=True,
         verbose_name="Detailed Error Metadata"
     )
+
+    # Root Cause Analysis and Detection
+    root_cause = models.TextField(blank=True, verbose_name="Root Cause Analysis")
+
+    detected_by = models.CharField(
+        max_length=100,
+        choices=[
+            ('monitoring', 'Monitoring System'),
+            ('logs', 'Log Analysis'),
+            ('user_report', 'User Report'),
+            ('automated_test', 'Automated Test'),
+            ('other', 'Other'),
+        ],
+        default='logs',
+        verbose_name="Detected By"
+    )
+
+    error_source = models.CharField(
+        max_length=100,
+        choices=[
+            ('internal', 'Internal'),
+            ('external', 'External'),
+            ('third_party', 'Third-Party Service'),
+        ],
+        default='internal',
+        verbose_name="Error Source"
+    )
+    
+    # Dependency and Traceability
+    dependency_chain = models.JSONField(blank=True, null=True, verbose_name="Service Dependencies")
     
     # Error Occurrence Tracking
     first_occurrence = models.DateTimeField(auto_now_add=True)
@@ -71,14 +165,14 @@ class ErrorType(models.Model):
         # Unique Constraints
         constraints = [
             UniqueConstraint(
-                fields=['system_name', 'service_name', 'error_code'], 
+                fields=['system', 'service', 'error_code'], 
                 name='unique_error_type'
             )
         ]
         
         # Database Indexing
         indexes = [
-            Index(fields=['system_name', 'service_name']),
+            Index(fields=['system', 'service']),
             Index(fields=['first_occurrence']),
             Index(fields=['last_occurrence'])
         ]
@@ -94,11 +188,11 @@ class ErrorType(models.Model):
         """
         Generate a unique error code with counter if needed
         """
-        base_code = f"{self.system_name[:3]}_{self.service_name[:3]}_{uuid.uuid4().hex[:6]}"
+        base_code = f"{self.system.name[:3]}_{self.service.name[:3]}_{uuid.uuid4().hex[:6]}"
         counter = 1
         
         while ErrorType.objects.filter(error_code=base_code).exists():
-            base_code = f"{self.system_name[:3]}_{self.service_name[:3]}_{uuid.uuid4().hex[:6]}_{counter}"
+            base_code = f"{self.system.name[:3]}_{self.service.name[:3]}_{uuid.uuid4().hex[:6]}_{counter}"
             counter += 1
         
         return base_code.upper()
@@ -112,7 +206,7 @@ class ErrorType(models.Model):
         self.save()
     
     def __str__(self):
-        return f"{self.system_name} - {self.error_code}"
+        return f"{self.system.name} - {self.error_code}"
 
 
 class ErrorEvent(models.Model):
@@ -123,62 +217,63 @@ class ErrorEvent(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     
     # Protected Foreign Key
-    error_type = models.ForeignKey(
-        ErrorType, 
-        on_delete=models.PROTECT,
-        related_name='events',
-        verbose_name="Associated Error Type"
-    )
+    error_type = models.ForeignKey(ErrorType, on_delete=models.PROTECT, related_name='events', verbose_name="Associated Error Type")
     
     # Indexed Fields
     timestamp = models.DateTimeField(auto_now_add=True, db_index=True)
-    system_name = models.CharField(max_length=100, db_index=True)
-    service_name = models.CharField(max_length=100, db_index=True)
+
+    system = models.ForeignKey(
+        System,
+        on_delete=models.PROTECT,
+        related_name='error_events',
+        verbose_name="System"
+    )
+    
+    service = models.ForeignKey(
+        Service,
+        on_delete=models.PROTECT,
+        related_name='error_events',
+        verbose_name="Service"
+    )
     
     # Comprehensive Logging
-    event_log = models.JSONField(
-        blank=True, 
-        null=True, 
-        verbose_name="Detailed Event Logs"
-    )
+    event_log = models.TextField(blank=True, verbose_name="Messages de logs")
     
     # Error Context
-    source_ip = models.GenericIPAddressField(
-        blank=True, 
-        null=True, 
-        verbose_name="Source IP Address"
-    )
-    user_context = models.JSONField(
-        blank=True, 
-        null=True, 
-        verbose_name="User Context Details"
-    )
+    source_ip = models.CharField(blank=True, null=True, verbose_name="Source IP Address")
+
+    trigger_event = models.TextField(blank=True, verbose_name="Trigger Event")
     
     # Error Count and Tracking
     error_count = models.PositiveIntegerField(default=1)
+
+    # New Enhanced Fields
+    environment = models.CharField(
+        max_length=50, 
+        choices=[
+            ('development', 'Development'),
+            ('staging', 'Staging'),
+            ('production', 'Production'),
+            ('testing', 'Testing')
+        ],
+        default='production',
+        verbose_name="Environment"
+    )
     
     class Meta:
         # Unique Constraints
         constraints = [
             UniqueConstraint(
-                fields=['error_type', 'timestamp', 'system_name', 'service_name'], 
+                fields=['error_type', 'timestamp', 'system', 'service'], 
                 name='unique_error_event'
             )
         ]
         
         # Database Indexing
         indexes = [
-            Index(fields=['timestamp', 'system_name']),
+            Index(fields=['timestamp', 'system']),
             Index(fields=['source_ip'])
         ]
-    
-    def clean(self):
-        """
-        Additional validation
-        """
-        # Prevent excessive error count
-        if self.error_count > 1000:
-            raise ValidationError("Error count cannot exceed 1000")
     
     def save(self, *args, **kwargs):
         # Validate before saving
@@ -316,6 +411,33 @@ class ErrorTicket(models.Model):
         blank=True, 
         verbose_name="Ticket Modification History"
     )
+
+    estimated_downtime = models.DurationField(
+        null=True, 
+        blank=True, 
+        verbose_name="Estimated Downtime"
+    )
+
+    # Enhanced Remediation Fields
+    remediation_complexity = models.CharField(
+        max_length=50,
+        choices=[
+            ('low', 'Low - Simple Fix'),
+            ('medium', 'Medium - Moderate Effort'),
+            ('high', 'High - Complex Resolution'),
+            ('critical', 'Critical - Comprehensive Redesign')
+        ],
+        default='medium',
+        verbose_name="Remediation Complexity"
+    )
+
+    recommended_actions = models.TextField(
+        blank=True, 
+        verbose_name="AI-Suggested Recommended Actions"
+    )
+
+    comments = models.TextField(blank=True, verbose_name="Comments")
+    documented_knowledge_base = models.BooleanField(default=False, verbose_name="Documented in Knowledge Base")
     
     class Meta:
         # Unique Constraints
@@ -394,50 +516,3 @@ class ErrorTicket(models.Model):
     
     def __str__(self):
         return f"Ticket {self.ticket_number} - {self.title}"
-
-# Custom Manager for Advanced Querying
-class ErrorTicketManager(models.Manager):
-    def get_urgent_tickets(self):
-        """
-        Retrieve urgent tickets
-        """
-        return self.filter(
-            models.Q(priority__in=['P1', 'P2']) & 
-            models.Q(status__in=['OPEN', 'IN_PROGRESS'])
-        )
-    
-    def get_overdue_tickets(self, days=7):
-        """
-        Find tickets that have been open beyond a certain threshold
-        """
-        threshold_date = timezone.now() - timezone.timedelta(days=days)
-        return self.filter(
-            created_at__lt=threshold_date,
-            status__in=['OPEN', 'IN_PROGRESS']
-        )
-
-# Apply custom manager
-ErrorTicket.objects = ErrorTicketManager()
-
-
-# Optional: Custom Model Manager for Advanced Querying
-class ErrorTypeManager(models.Manager):
-    def get_critical_errors(self):
-        """
-        Retrieve critical error types
-        """
-        return self.filter(
-            category__severity_level=4, 
-            is_active=True
-        )
-    
-    def aggregate_by_system(self):
-        """
-        Aggregate error occurrences by system
-        """
-        return self.values('system_name').annotate(
-            total_errors=models.Sum('total_occurrences')
-        ).order_by('-total_errors')
-
-# Apply custom manager
-ErrorType.objects = ErrorTypeManager()
