@@ -638,7 +638,7 @@ def ticket_list(request):
     if priority_filter:
         tickets = tickets.filter(priorite=priority_filter)
     if system_filter:
-        tickets = tickets.filter(error_type__system_name__icontains=system_filter)
+        tickets = tickets.filter(error_type__system__name__icontains=system_filter)
     
     # Données pour les filtres
     systems = ErrorType.objects.values_list('system_name', flat=True).distinct()
@@ -670,7 +670,7 @@ def ticket_detail(request, ticket_id):
         'events': events,
         'event_count': events.count(),
         'total_errors': events.aggregate(Sum('error_count'))['error_count__sum'] or 0,
-        'ticket_duration': ticket.get_duration()
+        'ticket_duration': ticket.calculate_resolution_time()
     }
     
     return render(request, 'error_management_systems/ticket_detail.html', context)
