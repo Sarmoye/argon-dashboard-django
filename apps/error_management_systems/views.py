@@ -415,6 +415,7 @@ def create_event(request):
                     error_type=error_type,
                     system=system,
                     service=service,
+                    error_count=request.POST.get('error_count', ''),
                     event_log=request.POST.get('event_log', ''),
                     source_ip=request.POST.get('source_ip', ''),
                     trigger_event=request.POST.get('trigger_event', ''),
