@@ -87,7 +87,7 @@
                   <td>{{ error_type.service.name }}</td>
                   <td>{{ error_type.category.name }}</td>
                   <td>{{ error_type.error_description }}</td>
-                  <td>{{ error_type.event_count }}</td>
+                  <td>{{ error_type.total_occurrences }}</td>
                   <td>
                       <a href="{% url 'error_management_systems:error_type_detail' error_type.id %}" class="btn btn-info btn-sm">Details</a>
                       <a href="{% url 'error_management_systems:edit_error_type' error_type.id %}" class="btn btn-warning btn-sm">Edit</a>
