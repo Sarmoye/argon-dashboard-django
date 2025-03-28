@@ -641,7 +641,7 @@ def ticket_list(request):
         tickets = tickets.filter(error_type__system__name__icontains=system_filter)
     
     # Données pour les filtres
-    systems = ErrorType.objects.values_list('system_name', flat=True).distinct()
+    systems = System.objects.values_list('name', flat=True).distinct()
     
     context = {
         'tickets': tickets,
