@@ -14,25 +14,32 @@
             <h2 class="mb-0">Ticket Details</h2>
         </div>
         <div class="card-body">
-            <p><strong>Ticket Reference:</strong> {{ ticket.ticket_reference }}</p>
-            <p><strong>System:</strong> {{ error_type.system_name }}</p>
-            <p><strong>Priority:</strong> {{ ticket.priorite }}</p>
-            <p><strong>Status:</strong> {{ ticket.get_statut_display }}</p>
-            <p><strong>Criticality Level:</strong> {{ ticket.niveau_criticite }}</p>
-            <p><strong>Symptoms:</strong> {{ ticket.symptomes }}</p>
-            <p><strong>Impact:</strong> {{ ticket.impact }}</p>
-            <p><strong>Affected Services:</strong> {{ ticket.services_affectes }}</p>
-            <p><strong>Number of Users:</strong> {{ ticket.nombre_utilisateurs }}</p>
-            <p><strong>System Load:</strong> {{ ticket.charge_systeme }}</p>
-            <p><strong>Responsible:</strong> {{ ticket.responsable }}</p>
-            <p><strong>Team:</strong> {{ ticket.equipe }}</p>
-            <p><strong>Comments:</strong> {{ ticket.commentaires }}</p>
-            <p><strong>Ticket Duration:</strong> {{ ticket_duration }}</p>
+            <p><strong>Ticket Number:</strong> {{ ticket.ticket_number }}</p>
+            <p><strong>Ticket Title:</strong> {{ ticket.title }}</p>
+            <p><strong>Description:</strong> {{ ticket.description }}</p>
+            <p><strong>System:</strong> {{ ticket.error_type.system_name }}</p>
+            <p><strong>Priority:</strong> {{ ticket.get_priority_display }}</p>
+            <p><strong>Status:</strong> {{ ticket.get_status_display }}</p>
+            <p><strong>Remediation Complexity:</strong> {{ ticket.get_remediation_complexity_display }}</p>
+            <p><strong>Root Cause:</strong> {{ ticket.root_cause }}</p>
+            <p><strong>Resolution Details:</strong> {{ ticket.resolution_details }}</p>
+            <p><strong>Estimated Downtime:</strong> {{ ticket.estimated_downtime }}</p>
+            <p><strong>Assigned To:</strong> {{ ticket.assigned_to }}</p>
+            <p><strong>Assigned Team:</strong> {{ ticket.assigned_team }}</p>
+            <p><strong>Business Impact:</strong> ${{ ticket.business_impact }}</p>
+            <p><strong>Impacted Services:</strong> {{ ticket.impacted_services }}</p>
+            <p><strong>Comments:</strong> {{ ticket.comments }}</p>
+            <p><strong>Compliance Checked:</strong> {{ ticket.compliance_checked }}</p>
+            <p><strong>Regulatory Impact:</strong> {{ ticket.regulatory_impact }}</p>
+            <p><strong>Created At:</strong> {{ ticket.created_at }}</p>
+            <p><strong>Updated At:</strong> {{ ticket.updated_at }}</p>
+            <p><strong>Resolved At:</strong> {{ ticket.resolved_at }}</p>
+            <p><strong>Ticket Duration:</strong> {{ ticket.calculate_resolution_time }}</p>
 
             <!-- Modify Button -->
-        <a href="{% url 'error_management_systems:edit_ticket' ticket.id %}" class="btn btn-warning mt-3">
-          Modify
-      </a>
+            <a href="{% url 'error_management_systems:edit_ticket' ticket.id %}" class="btn btn-warning mt-3">
+                Modify
+            </a>
         </div>
     </div>
 
@@ -41,17 +48,13 @@
             <h3 class="mb-0">Ticket History</h3>
         </div>
         <div class="card-body">
-            {% if ticket.historique %}
-            <p><strong>Creation:</strong> {{ ticket.historique.creation.timestamp }}</p>
+            {% if ticket.modification_history %}
             <ul>
-                {% for change in ticket.historique.changes %}
+                {% for change in ticket.modification_history %}
                 <li>
-                    {{ change.timestamp }}:
-                    {% if change.status_change %}
-                    Status changed from <strong>{{ change.status_change.from }}</strong> to <strong>{{ change.status_change.to }}</strong>.
-                    {% endif %}
-                    {% if change.priority_change %}
-                    Priority changed from <strong>{{ change.priority_change.from }}</strong> to <strong>{{ change.priority_change.to }}</strong>.
+                    {{ change.changed_at }}:
+                    {% if change.old_status %}
+                    Status changed from <strong>{{ change.old_status }}</strong> to <strong>{{ change.new_status }}</strong>.
                     {% endif %}
                 </li>
                 {% endfor %}
@@ -97,6 +100,7 @@
     </div>
 </div>
 {% endblock %}
+
 {% block javascripts %}
     <script type="text/javascript" charset="utf8" src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.js"></script>
