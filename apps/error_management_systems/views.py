@@ -531,28 +531,34 @@ def error_type_list(request):
         return HttpResponseForbidden("You do not have permission to access this page.")
     
     """Liste des types d'erreurs avec filtres et statistiques"""
-    error_types = ErrorType.objects.annotate(event_count=Count('events')).order_by('-event_count')
+    error_types = ErrorType.objects.annotate(event_count=Count('total_occurrences')).order_by('-event_count')
     
     # Filtres
     system_filter = request.GET.get('system')
     service_filter = request.GET.get('service')
+    category_filter = request.GET.get('category')
     
     if system_filter:
-        error_types = error_types.filter(system_name__icontains=system_filter)
+        error_types = error_types.filter(system__name__icontains=system_filter)
     if service_filter:
-        error_types = error_types.filter(service_name__icontains=service_filter)
+        error_types = error_types.filter(service__name__icontains=service_filter)
+    if category_filter:
+        error_types = error_types.filter(category__name__icontains=category_filter)
     
-    # Liste des systèmes et services pour les filtres
-    systems = ErrorType.objects.values_list('system_name', flat=True).distinct()
-    services = ErrorType.objects.values_list('service_name', flat=True).distinct()
+    # Liste des systèmes, services et catégories pour les filtres
+    systems = System.objects.values_list('name', flat=True).distinct()
+    services = Service.objects.values_list('name', flat=True).distinct()
+    categories = ErrorType.objects.values_list('category__name', flat=True).distinct()
     
     context = {
         'error_types': error_types,
         'systems': systems,
         'services': services,
+        'categories': categories,
     }
     
     return render(request, 'error_management_systems/error_type_list.html', context)
+
 
 @login_required(login_url='/authentication/login/')
 def error_type_detail(request, error_type_id):
