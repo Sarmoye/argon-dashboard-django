@@ -407,7 +407,8 @@ def create_event(request):
                         root_cause= request.POST.get('root_cause', ''),
                         is_active= True,
                         detected_by= request.POST.get('detected_by', 'logs'),
-                        error_source= request.POST.get('error_source', 'internal')
+                        error_source= request.POST.get('error_source', 'internal'),
+                        total_occurrences=0,
                     )
 
                 # 5. Création de l'ErrorEvent
