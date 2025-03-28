@@ -211,9 +211,11 @@ class ErrorType(models.Model):
         """
         Increment total occurrences and update last occurrence
         """
-        self.total_occurrences += 1
-        self.last_occurrence = timezone.now()
-        self.save()
+        # Fetch the latest value from the database
+        latest_instance = ErrorType.objects.get(pk=self.pk)
+        latest_instance.total_occurrences += 1
+        latest_instance.last_occurrence = timezone.now()
+        latest_instance.save(update_fields=['total_occurrences', 'last_occurrence'])
     
     def __str__(self):
         return f"{self.system.name} - {self.error_code}"
