@@ -289,29 +289,37 @@ def event_list(request):
     """Liste des événements d'erreur avec filtres"""
     events = ErrorEvent.objects.all().order_by('-timestamp')
     
-    # Filtres
+    # Filtres récupérés dans l'URL
     system_filter = request.GET.get('system')
     service_filter = request.GET.get('service')
+    environment_filter = request.GET.get('environment')
     date_from = request.GET.get('date_from')
     date_to = request.GET.get('date_to')
     
     if system_filter:
-        events = events.filter(system_name__icontains=system_filter)
+        # Filtrage sur le nom du système via la relation
+        events = events.filter(system__name__icontains=system_filter)
     if service_filter:
-        events = events.filter(service_name__icontains=service_filter)
+        # Filtrage sur le nom du service via la relation
+        events = events.filter(service__name__icontains=service_filter)
+    if environment_filter:
+        events = events.filter(environment=environment_filter)
     if date_from:
         events = events.filter(timestamp__gte=date_from)
     if date_to:
         events = events.filter(timestamp__lte=date_to)
     
-    # Liste des systèmes et services pour les filtres
-    systems = ErrorType.objects.values_list('system_name', flat=True).distinct()
-    services = ErrorType.objects.values_list('service_name', flat=True).distinct()
+    # Récupération des filtres pour l'affichage
+    systems = System.objects.all()
+    services = Service.objects.all()
+    # Liste des environnements basée sur les choix définis dans le modèle
+    environments = ['development', 'staging', 'production', 'testing']
     
     context = {
         'events': events,
         'systems': systems,
         'services': services,
+        'environments': environments,
     }
     
     return render(request, 'error_management_systems/event_list.html', context)

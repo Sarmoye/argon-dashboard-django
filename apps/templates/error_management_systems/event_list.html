@@ -21,11 +21,14 @@
         <div class="card-body collapse show p-3" id="filterCollapse">
             <form method="get">
                 <div class="row">
-                    <div class="col-md-3">
+                    <div class="col-md-2">
                         <label for="system" class="form-label small mb-1">System</label>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-2">
                         <label for="service" class="form-label small mb-1">Service</label>
+                    </div>
+                    <div class="col-md-2">
+                        <label for="environment" class="form-label small mb-1">Environment</label>
                     </div>
                     <div class="col-md-3">
                         <label for="date_from" class="form-label small mb-1">From</label>
@@ -36,23 +39,29 @@
                 </div>
     
                 <div class="row mb-3">
-                    <div class="col-md-3">
+                    <div class="col-md-2">
                         <select name="system" id="system" class="form-select">
                             <option value="">All Systems</option>
                             {% for system in systems %}
-                                <option value="{{ system }}" {% if request.GET.system == system %}selected{% endif %}>{{ system }}</option>
+                                <option value="{{ system.name }}" {% if request.GET.system == system.name %}selected{% endif %}>{{ system.name }}</option>
                             {% endfor %}
                         </select>
                     </div>
-                    <div class="col-md-3">
-                        <div class="text-truncate" style="max-width: 100%;">
-                            <select name="service" id="service" class="form-select">
-                                <option value="">All Services</option>
-                                {% for service in services %}
-                                    <option value="{{ service }}" {% if request.GET.service == service %}selected{% endif %} title="{{ service }}">{{ service }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
+                    <div class="col-md-2">
+                        <select name="service" id="service" class="form-select">
+                            <option value="">All Services</option>
+                            {% for service in services %}
+                                <option value="{{ service.name }}" {% if request.GET.service == service.name %}selected{% endif %} title="{{ service.name }}">{{ service.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <select name="environment" id="environment" class="form-select">
+                            <option value="">All Environments</option>
+                            {% for env in environments %}
+                                <option value="{{ env }}" {% if request.GET.environment == env %}selected{% endif %}>{{ env|capfirst }}</option>
+                            {% endfor %}
+                        </select>
                     </div>
                     <div class="col-md-3">
                         <input type="date" name="date_from" id="date_from" value="{{ request.GET.date_from }}" class="form-control" placeholder="mm/dd/yyyy">
@@ -80,6 +89,7 @@
                     <th>Error Reason</th>
                     <th>Error Count</th>
                     <th>Timestamp</th>
+                    <th>Environment</th>
                     <th>Actions</th>
                 </tr>
             </thead>
@@ -87,18 +97,19 @@
                 {% for event in events %}
                     <tr>
                         <td>{{ event.id }}</td>
-                        <td>{{ event.system_name }}</td>
-                        <td>{{ event.service_name }}</td>
-                        <td>{{ event.error_reason|truncatechars:100 }}</td>
+                        <td>{{ event.system.name }}</td>
+                        <td>{{ event.service.name }}</td>
+                        <td>{{ event.error_type }}</td>
                         <td>{{ event.error_count }}</td>
                         <td>{{ event.timestamp }}</td>
+                        <td>{{ event.environment|capfirst }}</td>
                         <td>
                             <a href="{% url 'error_management_systems:event_detail' event.id %}" class="btn btn-sm btn-info">Details</a>
                         </td>
                     </tr>
                 {% empty %}
                     <tr>
-                        <td colspan="6" class="text-center">No events found.</td>
+                        <td colspan="8" class="text-center">No events found.</td>
                     </tr>
                 {% endfor %}
             </tbody>

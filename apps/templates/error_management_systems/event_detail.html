@@ -9,14 +9,14 @@
 
         <ul class="list-group list-group-flush">
             <li class="list-group-item"><strong>ID:</strong> {{ event.id }}</li>
-            <li class="list-group-item"><strong>System:</strong> {{ event.system_name }}</li>
-            <li class="list-group-item"><strong>Service:</strong> {{ event.service_name }}</li>
-            <li class="list-group-item"><strong>Error Reason:</strong> {{ event.error_reason }}</li>
+            <li class="list-group-item"><strong>System:</strong> {{ event.system.name }}</li>
+            <li class="list-group-item"><strong>Service:</strong> {{ event.service.name }}</li>
+            <li class="list-group-item"><strong>Error Reason:</strong> {{ event.error_type.error_code }}</li>
             <li class="list-group-item"><strong>Timestamp:</strong> {{ event.timestamp }}</li>
             <li class="list-group-item"><strong>Error Count:</strong> {{ event.error_count }}</li>
-            <li class="list-group-item"><strong>Inserted By:</strong> {{ event.inserted_by }}</li>
-            <li class="list-group-item"><strong>Logs:</strong> {{ event.logs }}</li>
-            <li class="list-group-item"><strong>Notes:</strong> {{ event.notes }}</li>
+            <li class="list-group-item"><strong>Environment:</strong> {{ event.environment|capfirst }}</li>
+            <li class="list-group-item"><strong>Trigger Event:</strong> {{ event.trigger_event }}</li>
+            <li class="list-group-item"><strong>Logs:</strong> {{ event.event_log }}</li>
         </ul>
     </div>
 
