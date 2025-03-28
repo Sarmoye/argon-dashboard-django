@@ -404,14 +404,12 @@ def create_event(request):
                         system=system,
                         service=service,
                         error_code=request.POST.get('error_code'),
-                        defaults={
-                            'category': error_category,
-                            'error_description': request.POST.get('error_description', ''),
-                            'root_cause': request.POST.get('root_cause', ''),
-                            'is_active': True,
-                            'detected_by': request.POST.get('detected_by', 'logs'),
-                            'error_source': request.POST.get('error_source', 'internal')
-                        }
+                        category=error_category,
+                        error_description= request.POST.get('error_description', ''),
+                        root_cause= request.POST.get('root_cause', ''),
+                        is_active= True,
+                        detected_by= request.POST.get('detected_by', 'logs'),
+                        error_source= request.POST.get('error_source', 'internal')
                     )
 
                 # 5. Création de l'ErrorEvent
