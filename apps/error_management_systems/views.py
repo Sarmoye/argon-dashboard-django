@@ -400,7 +400,7 @@ def create_event(request):
                     error_type.save()
                 else:
                     # Créer un nouveau ticket
-                    error_ticket = ErrorTicket.objects.create(
+                    error_type = ErrorType.objects.create(
                         system=system,
                         service=service,
                         error_code=request.POST.get('error_code'),
