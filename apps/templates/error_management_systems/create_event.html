@@ -252,6 +252,12 @@
               <div class="row g-3 mb-4">
                 <div class="col-md-6">
                   <div class="form-floating">
+                    <input type="number" class="form-control" id="error_count" name="error_count" value="1" min="1" placeholder="Number of errors" required>
+                    <label for="error_count" class="required-field">Number of Errors</label>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-floating">
                     <input type="text" class="form-control" id="error_category_name" name="error_category_name" placeholder="Error Category" required>
                     <label for="error_category_name" class="required-field">Error Category</label>
                   </div>
@@ -284,6 +290,12 @@
                       {% endfor %}
                     </select>
                     <label for="detected_by">Detected By</label>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-floating">
+                    <input type="text" class="form-control" id="inserted_by" name="inserted_by" placeholder="{{ request.user.username }}" required disabled>
+                    <label for="inserted_by" class="required-field">Inserted by {{ request.user.username }}</label>
                   </div>
                 </div>
               </div>

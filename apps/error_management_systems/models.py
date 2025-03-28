@@ -232,6 +232,8 @@ class ErrorEvent(models.Model):
     # Indexed Fields
     timestamp = models.DateTimeField(auto_now_add=True, db_index=True)
 
+    inserted_by = models.CharField(max_length=50, verbose_name="Inserted by")
+
     system = models.ForeignKey(
         System,
         on_delete=models.PROTECT,
