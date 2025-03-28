@@ -664,9 +664,9 @@ def ticket_list(request):
     system_filter = request.GET.get('system')
     
     if status_filter:
-        tickets = tickets.filter(statut=status_filter)
+        tickets = tickets.filter(status=status_filter)
     if priority_filter:
-        tickets = tickets.filter(priorite=priority_filter)
+        tickets = tickets.filter(priority=priority_filter)
     if system_filter:
         tickets = tickets.filter(error_type__system__name__icontains=system_filter)
     
@@ -786,8 +786,8 @@ def check_error_type_exists(request):
             ticket_data = {
                 'id': str(ticket.id),
                 'reference': ticket.ticket_reference,
-                'statut': ticket.get_statut_display(),
-                'priorite': ticket.get_priorite_display()
+                'status': ticket.get_status_display(),
+                'priority': ticket.get_priority_display()
             }
         except ErrorTicket.DoesNotExist:
             has_ticket = False
@@ -915,16 +915,16 @@ def create_ticket_ajax(request):
                 'ticket': {
                     'id': str(existing_ticket.id),
                     'reference': existing_ticket.ticket_reference,
-                    'statut': existing_ticket.get_statut_display(),
-                    'priorite': existing_ticket.get_priorite_display()
+                    'status': existing_ticket.get_status_display(),
+                    'priority': existing_ticket.get_priority_display()
                 }
             })
         except ErrorTicket.DoesNotExist:
             # Créer un nouveau ticket
             ticket = ErrorTicket(
                 error_type=error_type,
-                priorite=data.get('priorite', 'P3'),
-                statut=data.get('statut', 'OPEN'),
+                priority=data.get('priority', 'P3'),
+                status=data.get('status', 'OPEN'),
                 niveau_criticite=data.get('niveau_criticite', 3),
                 symptomes=data.get('symptomes', ''),
                 impact=data.get('impact', ''),
@@ -941,8 +941,8 @@ def create_ticket_ajax(request):
             ticket.historique = {
                 'creation': {
                     'timestamp': timezone.now().isoformat(),
-                    'statut': ticket.statut,
-                    'priorite': ticket.priorite
+                    'status': ticket.status,
+                    'priority': ticket.priority
                 },
                 'changes': []
             }
@@ -954,8 +954,8 @@ def create_ticket_ajax(request):
                 'ticket': {
                     'id': str(ticket.id),
                     'reference': ticket.ticket_reference,
-                    'statut': ticket.get_statut_display(),
-                    'priorite': ticket.get_priorite_display()
+                    'status': ticket.get_status_display(),
+                    'priority': ticket.get_priority_display()
                 }
             })
     except json.JSONDecodeError:
