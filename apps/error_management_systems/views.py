@@ -337,7 +337,7 @@ def event_detail(request, event_id):
     
     # Vérifier si un ticket existe pour ce type d'erreur
     try:
-        ticket = event.error_type.tickets
+        ticket = event.error_type.tickets.first()
         has_ticket = True
     except ErrorTicket.DoesNotExist:
         ticket = None
