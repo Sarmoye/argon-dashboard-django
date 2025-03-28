@@ -681,43 +681,41 @@ def edit_ticket(request, ticket_id):
     
     if not check_user_role(request.user, allowed_roles):
         return HttpResponseForbidden("You do not have permission to access this page.")
-    """Édition d'un ticket"""
+    
     ticket = get_object_or_404(ErrorTicket, id=ticket_id)
     
     if request.method == 'POST':
         form = ErrorTicketForm(request.POST, instance=ticket)
         if form.is_valid():
-            # Capturer l'état précédent pour l'historique
-            old_status = ticket.statut
-            old_priority = ticket.priorite
+            # Capture previous state for history
+            old_status = ticket.status
+            old_priority = ticket.priority
             
-            # Sauvegarder les modifications
+            # Save modifications without committing immediately
             updated_ticket = form.save(commit=False)
             
-            # Mettre à jour l'historique
-            if not updated_ticket.historique:
-                updated_ticket.historique = {}
-            
-            # Enregistrer les changements d'état et de priorité dans l'historique
-            if old_status != updated_ticket.statut or old_priority != updated_ticket.priorite:
+            # Log changes in status and priority if they differ
+            if old_status != updated_ticket.status or old_priority != updated_ticket.priority:
                 timestamp = timezone.now().isoformat()
-                if 'changes' not in updated_ticket.historique:
-                    updated_ticket.historique['changes'] = []
-                
-                updated_ticket.historique['changes'].append({
+                change_record = {
                     'timestamp': timestamp,
                     'status_change': {
                         'from': old_status,
-                        'to': updated_ticket.statut
-                    } if old_status != updated_ticket.statut else None,
+                        'to': updated_ticket.status
+                    } if old_status != updated_ticket.status else None,
                     'priority_change': {
                         'from': old_priority,
-                        'to': updated_ticket.priorite
-                    } if old_priority != updated_ticket.priorite else None
-                })
+                        'to': updated_ticket.priority
+                    } if old_priority != updated_ticket.priority else None
+                }
+                # Append the change record to the modification history
+                modification_history = updated_ticket.modification_history or []
+                modification_history.append(change_record)
+                updated_ticket.modification_history = modification_history
             
+            # Save the ticket (the model's save method will also handle logging status changes)
             updated_ticket.save()
-            messages.success(request, f"Ticket mis à jour: {ticket.ticket_reference}")
+            messages.success(request, f"Ticket mis à jour: {ticket.ticket_number}")
             return redirect('error_management_systems:ticket_detail', ticket_id=ticket.id)
     else:
         form = ErrorTicketForm(instance=ticket)
