@@ -3,142 +3,412 @@
 {% load static %}
 
 {% block content %}
-<div class="container">
-    <h2>Création d'un Événement d'Erreur</h2>
+  <title>Create a New Error Event</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  {% block extrastyle %}
+  <style>
+    :root {
+      --primary-color: #4361ee;
+      --primary-hover: #3a56d4;
+      --secondary-color: #f8f9fa;
+      --success-color: #38b000;
+      --border-radius: 8px;
+    }
     
-    <form method="POST" action="{% url 'error_management_systems:create_event' %}">
-        {% csrf_token %}
+    body {
+      background-color: #f5f7fb;
+      color: #333;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    }
+    
+    .page-header {
+      background: linear-gradient(135deg, var(--primary-color), #4895ef);
+      color: white;
+      padding: 2rem 0;
+      margin-bottom: 2rem;
+      border-radius: 0 0 var(--border-radius) var(--border-radius);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+    
+    .card {
+      border: none;
+      border-radius: var(--border-radius);
+      box-shadow: 0 6px 16px rgba(0,0,0,0.1);
+    }
+    
+    .form-card {
+      padding: 2rem;
+    }
+    
+    .form-label {
+      font-weight: 500;
+      color: #495057;
+      margin-bottom: 0.5rem;
+    }
+    
+    .form-control, .form-select {
+      border: 1px solid #dee2e6;
+      border-radius: var(--border-radius);
+      padding: 0.75rem 1rem;
+      transition: all 0.3s;
+    }
+    
+    .form-control:focus, .form-select:focus {
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 0.25rem rgba(67, 97, 238, 0.25);
+    }
+    
+    .input-group-text {
+      background-color: var(--secondary-color);
+      border: 1px solid #dee2e6;
+      border-radius: var(--border-radius);
+    }
+    
+    .btn-primary {
+      background-color: var(--primary-color);
+      border-color: var(--primary-color);
+      border-radius: var(--border-radius);
+      padding: 0.75rem 1.5rem;
+      font-weight: 500;
+      transition: all 0.3s;
+    }
+    
+    .btn-primary:hover, .btn-primary:focus {
+      background-color: var(--primary-hover);
+      border-color: var(--primary-hover);
+      transform: translateY(-1px);
+    }
+    
+    .card-header {
+      background: transparent;
+      border-bottom: 1px solid rgba(0,0,0,0.1);
+      padding: 1.5rem;
+    }
+    
+    .required-field::after {
+      content: "*";
+      color: #dc3545;
+      margin-left: 4px;
+    }
+    
+    .form-floating label {
+      padding: 1rem;
+    }
+    
+    .form-floating .form-control {
+      height: calc(3.5rem + 2px);
+      padding: 1rem 0.75rem;
+    }
+    
+    .form-floating textarea.form-control {
+      height: auto;
+      min-height: calc(3.5rem + 2px);
+    }
+    
+    .section-divider {
+      position: relative;
+      text-align: center;
+      margin: 1.5rem 0;
+    }
+    
+    .section-divider::before {
+      content: "";
+      position: absolute;
+      width: 100%;
+      height: 1px;
+      background-color: #dee2e6;
+      top: 50%;
+      left: 0;
+      z-index: 0;
+    }
+    
+    .section-divider span {
+      background-color: white;
+      padding: 0 15px;
+      position: relative;
+      z-index: 1;
+      color: #6c757d;
+      font-weight: 500;
+      font-size: 0.9rem;
+    }
+    
+    .highlight-card {
+      border-left: 4px solid var(--primary-color);
+    }
+    
+    .toast-container {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 1050;
+    }
+    
+    /* Animations */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .animate-fade-in {
+      animation: fadeIn 0.4s ease forwards;
+    }
+  </style>
+  {% endblock extrastyle %}
+</head>
+<body>
+  <!-- Toast for success message -->
+  <div class="toast-container">
+    <div id="successToast" class="toast bg-white" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="toast-header bg-success text-white">
+        <i class="fas fa-check-circle me-2"></i>
+        <strong class="me-auto">Success</strong>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+      </div>
+      <div class="toast-body">
+        Error event created successfully!
+      </div>
+    </div>
+  </div>
+
+  <div class="page-header">
+    <div class="container">
+      <div class="d-flex align-items-center">
+        <i class="fas fa-exclamation-triangle fs-1 me-3"></i>
+        <div>
+          <h1 class="mb-0">Error Tracking System</h1>
+          <p class="mb-0 opacity-75">Record and track error events</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container mb-5">
+    <div class="row justify-content-center">
+      <div class="col-lg-10">
+        <div class="card form-card animate-fade-in">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h3 class="card-title mb-0 text-primary">
+              <i class="fas fa-plus-circle me-2"></i>Create a New Error Event
+            </h3>
+            <span class="badge bg-primary rounded-pill px-3 py-2">New</span>
+          </div>
+          <div class="card-body p-4">
+            <form id="errorEventForm" method="post">
+              {% csrf_token %}
+              
+              <div class="section-divider">
+                <span>SYSTEM & SERVICE DETAILS</span>
+              </div>
+              
+              <div class="row g-3 mb-4">
+                <div class="col-md-6">
+                  <div class="form-floating">
+                    <input type="text" class="form-control" id="system_name" name="system_name" placeholder="System name" required>
+                    <label for="system_name" class="required-field">System Name</label>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-floating">
+                    <select class="form-control" id="system_classification" name="system_classification">
+                      <option value="">Select System Classification</option>
+                      <option value="">Not Specified</option>
+                      <option value="A">A</option>
+                      <option value="B">B</option>
+                      <option value="C">C</option>
+                      <option value="D">D</option>
+                    </select>
+                    <label for="system_classification">System Classification</label>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="row g-3 mb-4">
+                <div class="col-md-6">
+                  <div class="form-floating">
+                    <input type="text" class="form-control" id="service_name" name="service_name" placeholder="Service name" required>
+                    <label for="service_name" class="required-field">Service Name</label>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-floating">
+                    <select class="form-control" id="service_classification" name="service_classification">
+                      <option value="">Select Service Classification</option>
+                      <option value="">Not Specified</option>
+                      <option value="primary">Primary</option>
+                      <option value="secondary">Secondary</option>
+                      <option value="tertiary">Tertiary</option>
+                      <option value="external">External</option>
+                    </select>
+                    <label for="service_classification">Service Classification</label>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="section-divider">
+                <span>ERROR DETAILS</span>
+              </div>
+              
+              <div class="row g-3 mb-4">
+                <div class="col-md-6">
+                  <div class="form-floating">
+                    <input type="text" class="form-control" id="error_category_name" name="error_category_name" placeholder="Error Category" required>
+                    <label for="error_category_name" class="required-field">Error Category</label>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-floating">
+                    <select class="form-control" id="severity_level" name="severity_level">
+                      <option value="2">Medium</option>
+                      <option value="1">Low</option>
+                      <option value="3">High</option>
+                      <option value="4">Critical</option>
+                    </select>
+                    <label for="severity_level">Severity Level</label>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="row g-3 mb-4">
+                <div class="col-md-6">
+                  <div class="form-floating">
+                    <input type="text" class="form-control" id="error_code" name="error_code" placeholder="Error Code" required>
+                    <label for="error_code" class="required-field">Error Code</label>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-floating">
+                    <select class="form-control" id="detected_by" name="detected_by">
+                      {% for choice in detected_by_choices %}
+                        <option value="{{ choice.0 }}">{{ choice.1 }}</option>
+                      {% endfor %}
+                    </select>
+                    <label for="detected_by">Detected By</label>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="row g-3 mb-4">
+                <div class="col-md-12">
+                  <div class="form-floating">
+                    <textarea class="form-control" id="error_description" name="error_description" placeholder="Error Description" style="height: 120px"></textarea>
+                    <label for="error_description">Error Description</label>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="section-divider">
+                <span>EVENT DETAILS</span>
+              </div>
+              
+              <div class="row g-3 mb-4">
+                <div class="col-md-6">
+                  <div class="form-floating">
+                    <input type="text" class="form-control" id="source_ip" name="source_ip" placeholder="Source IP">
+                    <label for="source_ip">Source IP</label>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-floating">
+                    <select class="form-control" id="environment" name="environment">
+                      {% for choice in environment_choices %}
+                        <option value="{{ choice.0 }}">{{ choice.1 }}</option>
+                      {% endfor %}
+                    </select>
+                    <label for="environment">Environment</label>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="row g-3 mb-4">
+                <div class="col-md-12">
+                  <div class="form-floating">
+                    <textarea class="form-control" id="event_log" name="event_log" placeholder="Event Log" style="height: 120px"></textarea>
+                    <label for="event_log">Event Log</label>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="section-divider">
+                <span>TICKET DETAILS</span>
+              </div>
+              
+              <div class="row g-3 mb-4">
+                <div class="col-md-6">
+                  <div class="form-floating">
+                    <select class="form-control" id="priority" name="priority">
+                      <option value="P3">P3 - Normal</option>
+                      <option value="P1">P1 - Critical</option>
+                      <option value="P2">P2 - High</option>
+                      <option value="P4">P4 - Low</option>
+                    </select>
+                    <label for="priority">Ticket Priority</label>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-floating">
+                    <input type="text" class="form-control" id="root_cause" name="root_cause" placeholder="Root Cause">
+                    <label for="root_cause">Root Cause</label>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="card mb-4 highlight-card">
+                <div class="card-body">
+                  <div class="d-flex">
+                    <div class="me-3">
+                      <i class="fas fa-lightbulb text-warning fs-2"></i>
+                    </div>
+                    <div>
+                      <h5 class="card-title mb-2">Tips for an Effective Report</h5>
+                      <p class="card-text mb-0">Provide as much detail as possible about the conditions under which the error occurred. Include precise steps to reproduce the error if possible.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                <button type="button" class="btn btn-outline-secondary me-md-2" onclick="resetForm()">
+                  <i class="fas fa-undo me-2"></i>Reset
+                </button>
+                <button type="submit" class="btn btn-primary">
+                  <i class="fas fa-save me-2"></i>Create Event
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endblock %}
+  {% block javascripts %}
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const form = document.getElementById('errorEventForm');
+      form.addEventListener('submit', function(event) {
+        event.preventDefault();
         
-        <div class="form-group">
-            <label>Système</label>
-            <select name="system_name" class="form-control" required>
-                <option value="">Sélectionner un système</option>
-                {% for system in systems %}
-                    <option value="{{ system.name }}">{{ system.name }}</option>
-                {% endfor %}
-                <option value="new">Nouveau Système</option>
-            </select>
-            <div id="new_system_fields" style="display:none;">
-                <input type="text" name="new_system_name" placeholder="Nom du nouveau système" class="form-control">
-                <select name="system_classification" class="form-control">
-                    <option value="">Classification du système</option>
-                    <option value="A">A</option>
-                    <option value="B">B</option>
-                    <option value="C">C</option>
-                    <option value="D">D</option>
-                </select>
-            </div>
-        </div>
+        if (!form.checkValidity()) {
+          event.stopPropagation();
+          form.classList.add('was-validated');
+          return;
+        }
 
-        <div class="form-group">
-            <label>Service</label>
-            <select name="service_name" class="form-control" required>
-                <option value="">Sélectionner un service</option>
-                {% for service in services %}
-                    <option value="{{ service.name }}">{{ service.name }}</option>
-                {% endfor %}
-                <option value="new">Nouveau Service</option>
-            </select>
-            <div id="new_service_fields" style="display:none;">
-                <input type="text" name="new_service_name" placeholder="Nom du nouveau service" class="form-control">
-                <select name="service_classification" class="form-control">
-                    <option value="">Classification du service</option>
-                    <option value="primary">Primary</option>
-                    <option value="secondary">Secondary</option>
-                    <option value="tertiary">Tertiary</option>
-                    <option value="external">External</option>
-                </select>
-            </div>
-        </div>
-
-        <div class="form-group">
-            <label>Catégorie d'Erreur</label>
-            <select name="error_category_name" class="form-control" required>
-                <option value="">Sélectionner une catégorie</option>
-                {% for category in error_categories %}
-                    <option value="{{ category.name }}">{{ category.name }}</option>
-                {% endfor %}
-                <option value="new">Nouvelle Catégorie</option>
-            </select>
-            <div id="new_category_fields" style="display:none;">
-                <input type="text" name="new_category_name" placeholder="Nom de la nouvelle catégorie" class="form-control">
-                <select name="severity_level" class="form-control">
-                    <option value="1">Low</option>
-                    <option value="2">Medium</option>
-                    <option value="3">High</option>
-                    <option value="4">Critical</option>
-                </select>
-            </div>
-        </div>
-
-        <div class="form-group">
-            <label>Code Erreur</label>
-            <input type="text" name="error_code" class="form-control" required>
-        </div>
-
-        <div class="form-group">
-            <label>Description de l'Erreur</label>
-            <textarea name="error_description" class="form-control"></textarea>
-        </div>
-
-        <div class="form-group">
-            <label>Détecté Par</label>
-            <select name="detected_by" class="form-control">
-                {% for choice in detected_by_choices %}
-                    <option value="{{ choice.0 }}">{{ choice.1 }}</option>
-                {% endfor %}
-            </select>
-        </div>
-
-        <div class="form-group">
-            <label>Source de l'Erreur</label>
-            <select name="error_source" class="form-control">
-                {% for choice in error_source_choices %}
-                    <option value="{{ choice.0 }}">{{ choice.1 }}</option>
-                {% endfor %}
-            </select>
-        </div>
-
-        <div class="form-group">
-            <label>Environnement</label>
-            <select name="environment" class="form-control">
-                {% for choice in environment_choices %}
-                    <option value="{{ choice.0 }}">{{ choice.1 }}</option>
-                {% endfor %}
-            </select>
-        </div>
-
-        <div class="form-group">
-            <label>Journal d'Événement</label>
-            <textarea name="event_log" class="form-control"></textarea>
-        </div>
-
-        <button type="submit" class="btn btn-primary">Créer Événement</button>
-    </form>
-</div>
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const systemSelect = document.querySelector('select[name="system_name"]');
-    const newSystemFields = document.getElementById('new_system_fields');
-    
-    systemSelect.addEventListener('change', function() {
-        newSystemFields.style.display = this.value === 'new' ? 'block' : 'none';
+        const userConfirmed = window.confirm("Do you want to save this error event?");
+        
+        if (userConfirmed) {
+          const successToast = new bootstrap.Toast(document.getElementById('successToast'));
+          successToast.show();
+          
+          form.submit();
+        }
+      });
     });
-
-    const serviceSelect = document.querySelector('select[name="service_name"]');
-    const newServiceFields = document.getElementById('new_service_fields');
     
-    serviceSelect.addEventListener('change', function() {
-        newServiceFields.style.display = this.value === 'new' ? 'block' : 'none';
-    });
-
-    const categorySelect = document.querySelector('select[name="error_category_name"]');
-    const newCategoryFields = document.getElementById('new_category_fields');
-    
-    categorySelect.addEventListener('change', function() {
-        newCategoryFields.style.display = this.value === 'new' ? 'block' : 'none';
-    });
-});
-</script>
-{% endblock %}
+    function resetForm() {
+      document.getElementById('errorEventForm').reset();
+    }
+  </script>
+  {% endblock javascripts %}
