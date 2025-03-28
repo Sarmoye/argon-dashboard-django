@@ -51,7 +51,7 @@
     <div class="card shadow-sm p-4 mt-4">
         {% if has_ticket %}
         <h3 class="mb-3">Associated Ticket</h3>
-        <a href="{% url 'error_management_systems:ticket_detail' ticket.id %}" class="btn btn-info">View Associated Ticket ({{ ticket.ticket_reference }})</a>
+        <a href="{% url 'error_management_systems:ticket_detail' ticket.id %}" class="btn btn-info">View Associated Ticket ({{ ticket.ticket_number }})</a>
         {% else %}
         <p class="text-muted">No ticket associated with this error type.</p>
         {% endif %}
