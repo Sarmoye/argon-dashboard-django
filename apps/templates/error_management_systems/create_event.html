@@ -252,10 +252,20 @@
               <div class="row g-3 mb-4">
                 <div class="col-md-6">
                   <div class="form-floating">
+                    <input type="text" class="form-control" id="error_code" name="error_code" placeholder="Error Code" required>
+                    <label for="error_code" class="required-field">Error Code</label>
+                  </div>
+                </div>
+
+                <div class="col-md-6">
+                  <div class="form-floating">
                     <input type="number" class="form-control" id="error_count" name="error_count" value="1" min="1" placeholder="Number of errors" required>
                     <label for="error_count" class="required-field">Number of Errors</label>
                   </div>
                 </div>
+              </div>
+              
+              <div class="row g-3 mb-4">
                 <div class="col-md-6">
                   <div class="form-floating">
                     <input type="text" class="form-control" id="error_category_name" name="error_category_name" placeholder="Error Category" required>
@@ -276,12 +286,6 @@
               </div>
               
               <div class="row g-3 mb-4">
-                <div class="col-md-6">
-                  <div class="form-floating">
-                    <input type="text" class="form-control" id="error_code" name="error_code" placeholder="Error Code" required>
-                    <label for="error_code" class="required-field">Error Code</label>
-                  </div>
-                </div>
                 <div class="col-md-6">
                   <div class="form-floating">
                     <select class="form-control" id="detected_by" name="detected_by">
@@ -337,6 +341,12 @@
                   <div class="form-floating">
                     <textarea class="form-control" id="event_log" name="event_log" placeholder="Event Log" style="height: 120px"></textarea>
                     <label for="event_log">Event Log</label>
+                  </div>
+                </div>
+                <div class="col-md-12">
+                  <div class="form-floating">
+                    <textarea class="form-control" id="trigger_event" name="trigger_event" placeholder="Trigger Event" style="height: 120px"></textarea>
+                    <label for="trigger_event">Trigger Event</label>
                   </div>
                 </div>
               </div>

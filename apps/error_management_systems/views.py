@@ -437,6 +437,7 @@ def create_event(request):
                         priority=request.POST.get('priority', 'P3'),
                         title=f"Error Event {error_event.id}",
                         description=error_type.error_description,
+                        root_cause= request.POST.get('root_cause', ''),
                         assigned_to=request.user.username
                     )
 
