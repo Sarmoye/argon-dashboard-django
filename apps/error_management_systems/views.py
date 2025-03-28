@@ -337,7 +337,7 @@ def event_detail(request, event_id):
     
     # Vérifier si un ticket existe pour ce type d'erreur
     try:
-        ticket = event.error_type.ticket
+        ticket = event.error_type.tickets
         has_ticket = True
     except ErrorTicket.DoesNotExist:
         ticket = None
@@ -395,11 +395,9 @@ def create_event(request):
                 error_type = ErrorType.objects.filter(error_code=request.POST.get('error_code')).first()
 
                 if error_type:
-                    # Réouvrir le ticket existant
-                    error_type.status = 'OPEN'
-                    error_type.save()
+                    pass
                 else:
-                    # Créer un nouveau ticket
+                    # Créer un nouveau TYpe
                     error_type = ErrorType.objects.create(
                         system=system,
                         service=service,
