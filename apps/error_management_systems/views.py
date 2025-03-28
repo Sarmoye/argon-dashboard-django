@@ -392,19 +392,27 @@ def create_event(request):
                 )
 
                 # 4. Vérification de l'existence et création de l'ErrorType
-                error_type, error_type_created = ErrorType.objects.get_or_create(
-                    system=system,
-                    service=service,
-                    error_code=request.POST.get('error_code'),
-                    defaults={
-                        'category': error_category,
-                        'error_description': request.POST.get('error_description', ''),
-                        'root_cause': request.POST.get('root_cause', ''),
-                        'is_active': True,
-                        'detected_by': request.POST.get('detected_by', 'logs'),
-                        'error_source': request.POST.get('error_source', 'internal')
-                    }
-                )
+                error_type = ErrorType.objects.filter(error_code=request.POST.get('error_code')).first()
+
+                if error_type:
+                    # Réouvrir le ticket existant
+                    error_type.status = 'OPEN'
+                    error_type.save()
+                else:
+                    # Créer un nouveau ticket
+                    error_ticket = ErrorTicket.objects.create(
+                        system=system,
+                        service=service,
+                        error_code=request.POST.get('error_code'),
+                        defaults={
+                            'category': error_category,
+                            'error_description': request.POST.get('error_description', ''),
+                            'root_cause': request.POST.get('root_cause', ''),
+                            'is_active': True,
+                            'detected_by': request.POST.get('detected_by', 'logs'),
+                            'error_source': request.POST.get('error_source', 'internal')
+                        }
+                    )
 
                 # 5. Création de l'ErrorEvent
                 error_event = ErrorEvent.objects.create(
@@ -418,21 +426,23 @@ def create_event(request):
                 )
 
                 # 6. Gestion du ticket d'erreur
-                error_ticket, ticket_created = ErrorTicket.objects.get_or_create(
-                    error_type=error_type,
-                    defaults={
-                        'status': 'OPEN',
-                        'priority': request.POST.get('priority', 'P3'),
-                        'title': f"Error Event {error_event.id}",
-                        'description': error_type.error_description,
-                        'assigned_to': request.user.username
-                    }
-                )
+                # Vérifier si un ticket avec le même numéro d'erreur existe
+                error_ticket = ErrorTicket.objects.filter(error_type__error_code=error_type.error_code).first()
 
-                # Si le ticket existait déjà, on le réouvre
-                if not ticket_created:
+                if error_ticket:
+                    # Réouvrir le ticket existant
                     error_ticket.status = 'OPEN'
                     error_ticket.save()
+                else:
+                    # Créer un nouveau ticket
+                    error_ticket = ErrorTicket.objects.create(
+                        error_type=error_type,
+                        status='OPEN',
+                        priority=request.POST.get('priority', 'P3'),
+                        title=f"Error Event {error_event.id}",
+                        description=error_type.error_description,
+                        assigned_to=request.user.username
+                    )
 
                 messages.success(request, f"Événement d'erreur créé avec succès: {error_event.id}")
                 return redirect('error_management_systems:event_detail', event_id=error_event.id)

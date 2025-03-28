@@ -53,6 +53,16 @@ class Service(models.Model):
     owner = models.CharField(max_length=100, blank=True, null=True, verbose_name="Responsable du Service")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    class Meta:
+        unique_together = ('name', 'system')  # Ensures uniqueness at DB level
+
+    def clean(self):
+        if Service.objects.filter(name=self.name, system=self.system).exclude(id=self.id).exists():
+            raise ValidationError(f"Service '{self.name}' already exists in system '{self.system}'.")
+    
+    def save(self, *args, **kwargs):
+        self.clean()
+        super().save(*args, **kwargs)
     
     def __str__(self):
         return f"{self.system.name} - {self.name}"
@@ -460,7 +470,7 @@ class ErrorTicket(models.Model):
     def save(self, *args, **kwargs):
         # Generate Ticket Number if not exists
         if not self.ticket_number:
-            self.ticket_number = self._generate_ticket_number()
+            self.ticket_number = self.error_type.error_code
         
         # Track status changes
         if self.pk:
