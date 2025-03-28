@@ -110,11 +110,11 @@ def dashboard1(request):
 
     # Error Ticket Overview (Widget 5)
     total_error_tickets = ErrorTicket.objects.count()
-    error_ticket_statuses = ErrorTicket.objects.values('statut').annotate(count=Count('statut'))
+    error_ticket_statuses = ErrorTicket.objects.values('status').annotate(count=Count('status'))
     error_ticket_priorities = ErrorTicket.objects.values('priority').annotate(count=Count('priority'))
     
     # Calculate average ticket resolution time
-    resolved_tickets = ErrorTicket.objects.filter(statut='RESOLVED', resolved_at__isnull=False)
+    resolved_tickets = ErrorTicket.objects.filter(status='RESOLVED', resolved_at__isnull=False)
     if resolved_tickets.exists():
         total_duration = sum([(ticket.resolved_at - ticket.created_at).total_seconds() for ticket in resolved_tickets])
         average_resolution_time = total_duration / resolved_tickets.count() / 3600  # in hours
@@ -173,10 +173,10 @@ def dashboard1(request):
     stats = {
         'total_error_types': ErrorType.objects.count(),
         'total_error_events': ErrorEvent.objects.count(),
-        'open_tickets': ErrorTicket.objects.filter(statut__in=['OPEN', 'IN_PROGRESS']).count(),
+        'open_tickets': ErrorTicket.objects.filter(status__in=['OPEN', 'IN_PROGRESS']).count(),
         'recent_events': ErrorEvent.objects.order_by('-timestamp')[:5],
         'top_errors': ErrorType.objects.annotate(event_count=Count('events')).order_by('-event_count')[:5],
-        'critical_tickets': ErrorTicket.objects.filter(priority='P1', statut__in=['OPEN', 'IN_PROGRESS']).order_by('date_creation')[:5]
+        'critical_tickets': ErrorTicket.objects.filter(priority='P1', status__in=['OPEN', 'IN_PROGRESS']).order_by('date_creation')[:5]
     }
     
     return render(request, 'error_management_systems/dashboard1.html', {'context': context, 'stats': stats})
