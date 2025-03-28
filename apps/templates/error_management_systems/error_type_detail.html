@@ -13,22 +13,24 @@
 
     <div class="card p-3 mb-4">
         <p><strong>ID:</strong> {{ error_type.id }}</p>
-        <p><strong>System:</strong> {{ error_type.system_name }}</p>
-        <p><strong>Service:</strong> {{ error_type.service_name }}</p>
-        <p><strong>Error Reason:</strong> {{ error_type.error_reason }}</p>
-        <p><strong>Error Code:</strong> {{ error_type.code_erreur }}</p>
-        <p><strong>Impacted Files:</strong> {{ error_type.fichiers_impactes }}</p>
-        <p><strong>Logs:</strong> {{ error_type.logs }}</p>
-        <p><strong>Technical Description:</strong> {{ error_type.description_technique }}</p>
-        <p><strong>Expected Behavior:</strong> {{ error_type.comportement_attendu }}</p>
-        <p><strong>Workaround Procedures:</strong> {{ error_type.procedures_contournement }}</p>
-        <p><strong>Environment:</strong> {{ error_type.environnement }}</p>
-        <p><strong>Severity Level:</strong> {{ error_type.niveau_severite }}</p>
+        <p><strong>System:</strong> {{ error_type.system.name }}</p>
+        <p><strong>Service:</strong> {{ error_type.service.name }}</p>
+        <p><strong>Category:</strong> {{ error_type.category.name }}</p>
+        <p><strong>Error Code:</strong> {{ error_type.error_code }}</p>
+        <p><strong>Error Description:</strong> {{ error_type.error_description }}</p>
+        <p><strong>Root Cause Analysis:</strong> {{ error_type.root_cause }}</p>
+        {% if error_type.error_metadata %}
+        <p><strong>Error Metadata:</strong></p>
+        <pre>{{ error_type.error_metadata|json_script:"error_metadata" }}</pre>
+        {% endif %}
+        <p><strong>First Occurrence:</strong> {{ error_type.first_occurrence }}</p>
+        <p><strong>Last Occurrence:</strong> {{ error_type.last_occurrence }}</p>
+        <p><strong>Total Occurrences:</strong> {{ error_type.total_occurrences }}</p>
 
         <!-- Modify Button -->
         <a href="{% url 'error_management_systems:edit_error_type' error_type.id %}" class="btn btn-warning mt-3">
-          Modify
-      </a>
+            Modify
+        </a>
     </div>
 
     <h2 class="mb-3">Associated Events</h2>
@@ -46,7 +48,11 @@
                 <tr>
                     <td>{{ event.id }}</td>
                     <td>{{ event.timestamp }}</td>
-                    <td><a href="{% url 'error_management_systems:event_detail' event.id %}" class="btn btn-primary btn-sm">Details</a></td>
+                    <td>
+                        <a href="{% url 'error_management_systems:event_detail' event.id %}" class="btn btn-primary btn-sm">
+                            Details
+                        </a>
+                    </td>
                 </tr>
                 {% empty %}
                 <tr>
@@ -59,12 +65,15 @@
 
     {% if has_ticket %}
     <h2 class="mt-4">Associated Ticket</h2>
-    <a href="{% url 'error_management_systems:ticket_detail' ticket.id %}" class="btn btn-info">View Associated Ticket ({{ ticket.ticket_reference }})</a>
+    <a href="{% url 'error_management_systems:ticket_detail' ticket.id %}" class="btn btn-info">
+        View Associated Ticket ({{ ticket.ticket_reference }})
+    </a>
     {% else %}
     <p class="mt-3">No ticket associated with this error type.</p>
     {% endif %}
 </div>
 {% endblock %}
+
 {% block javascripts %}
     <script type="text/javascript" charset="utf8" src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.js"></script>

@@ -573,7 +573,7 @@ def error_type_detail(request, error_type_id):
     
     # Vérifier si un ticket existe
     try:
-        ticket = error_type.ticket
+        ticket = error_type.tickets.first()
         has_ticket = True
     except ErrorTicket.DoesNotExist:
         ticket = None
