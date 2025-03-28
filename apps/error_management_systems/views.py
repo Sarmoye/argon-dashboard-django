@@ -626,7 +626,7 @@ def ticket_list(request):
         return HttpResponseForbidden("You do not have permission to access this page.")
     
     """Liste des tickets avec filtres"""
-    tickets = ErrorTicket.objects.all().order_by('-date_creation')
+    tickets = ErrorTicket.objects.all().order_by('-created_at')
     
     # Filtres
     status_filter = request.GET.get('status')

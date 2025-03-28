@@ -17,7 +17,7 @@
             <p><strong>Ticket Number:</strong> {{ ticket.ticket_number }}</p>
             <p><strong>Ticket Title:</strong> {{ ticket.title }}</p>
             <p><strong>Description:</strong> {{ ticket.description }}</p>
-            <p><strong>System:</strong> {{ ticket.error_type.system_name }}</p>
+            <p><strong>System:</strong> {{ ticket.error_type.system.name }}</p>
             <p><strong>Priority:</strong> {{ ticket.get_priority_display }}</p>
             <p><strong>Status:</strong> {{ ticket.get_status_display }}</p>
             <p><strong>Remediation Complexity:</strong> {{ ticket.get_remediation_complexity_display }}</p>

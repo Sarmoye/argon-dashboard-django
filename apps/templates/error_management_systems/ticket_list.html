@@ -64,7 +64,7 @@
                 {% for ticket in tickets %}
                 <tr>
                     <td>{{ ticket.ticket_number }}</td>
-                    <td>{{ ticket.error_type.system_name }}</td>
+                    <td>{{ ticket.error_type.system.name }}</td>
                     <td>{{ ticket.title }}</td>
                     <td>{{ ticket.get_priority_display }}</td>
                     <td>{{ ticket.get_status_display }}</td>
