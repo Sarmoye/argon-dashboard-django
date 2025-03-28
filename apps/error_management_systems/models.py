@@ -468,21 +468,26 @@ class ErrorTicket(models.Model):
         ordering = ['-created_at']
     
     def save(self, *args, **kwargs):
-        # Generate Ticket Number if not exists
+        # Générer le numéro de ticket s'il n'existe pas
         if not self.ticket_number:
             self.ticket_number = self.error_type.error_code
-        
-        # Track status changes
+
+        # Suivre les changements de statut
         if self.pk:
-            original = ErrorTicket.objects.get(pk=self.pk)
-            if original.status != self.status:
-                self._log_status_change(original.status, self.status)
-        
-        # Auto-resolve logic
+            try:
+                original = ErrorTicket.objects.get(pk=self.pk)
+                if original.status != self.status:
+                    self._log_status_change(original.status, self.status)
+            except ErrorTicket.DoesNotExist:
+                # L'objet n'existe pas encore, aucune action nécessaire
+                pass
+
+        # Logique d'auto-résolution
         if self.status == 'RESOLVED' and not self.resolved_at:
             self.resolved_at = timezone.now()
-        
+
         super().save(*args, **kwargs)
+
     
     def _generate_ticket_number(self):
         """
