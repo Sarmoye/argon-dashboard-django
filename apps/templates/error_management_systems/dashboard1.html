@@ -194,7 +194,7 @@ a:hover {
                             <div class="card bg-light">
                                 <div class="card-body text-center">
                                     <h6 class="card-title">Error Types</h6>
-                                    <h2 class="text-primary">{{ stats.total_error_types }}</h2>
+                                    <h2 class="text-primary">{{ context.total_error_types }}</h2>
                                 </div>
                             </div>
                         </div>
@@ -202,7 +202,7 @@ a:hover {
                             <div class="card bg-light">
                                 <div class="card-body text-center">
                                     <h6 class="card-title">Error Events</h6>
-                                    <h2 class="text-primary">{{ stats.total_error_events }}</h2>
+                                    <h2 class="text-primary">{{ context.total_error_events }}</h2>
                                 </div>
                             </div>
                         </div>
@@ -210,7 +210,7 @@ a:hover {
                             <div class="card bg-light">
                                 <div class="card-body text-center">
                                     <h6 class="card-title">Open Tickets</h6>
-                                    <h2 class="text-warning">{{ stats.open_tickets }}</h2>
+                                    <h2 class="text-warning">{{ context.open_tickets }}</h2>
                                 </div>
                             </div>
                         </div>
@@ -218,7 +218,7 @@ a:hover {
                             <div class="card bg-light">
                                 <div class="card-body text-center">
                                     <h6 class="card-title">Critical Tickets</h6>
-                                    <h2 class="text-danger">{{ stats.critical_tickets|length }}</h2>
+                                    <h2 class="text-danger">{{ context.critical_tickets|length }}</h2>
                                 </div>
                             </div>
                         </div>
@@ -234,65 +234,64 @@ a:hover {
             <p>Total Error Events: {{ context.total_error_events }}</p>
             <div class="row">
                 <div class="col-md-12">
-                  <canvas id="errorEventsTimeSeriesChart" 
-                  data-labels="{% for item in context.error_events_time_series %}{{ item.date|date:"Y-m-d" }},{% endfor %}" 
-                  data-data="{% for item in context.error_events_time_series %}{{ item.count }},{% endfor %}"></canvas>                  
+                    <canvas id="errorEventsTimeSeriesChart" 
+                    data-labels="{% for item in context.error_events_time_series %}{{ item.date|date:"Y-m-d" }},{% endfor %}" 
+                    data-data="{% for item in context.error_events_time_series %}{{ item.id__count }},{% endfor %}"></canvas>
                 </div>
             </div>
             <div class="row">
                 <div class="col-md-6">
-                    <canvas id="topSystemsChart" data-labels="{% for item in context.top_systems_events %}{{ item.system_name }},{% endfor %}" data-data="{% for item in context.top_systems_events %}{{ item.count }},{% endfor %}"></canvas>
+                    <canvas id="topSystemsChart" data-labels="{% for item in context.top_systems_events %}{{ item.system__name }},{% endfor %}" data-data="{% for item in context.top_systems_events %}{{ item.id__count }},{% endfor %}"></canvas>
                 </div>
                 <div class="col-md-6">
-                     <canvas id="topServicesChart" data-labels="{% for item in context.top_services_events %}{{ item.service_name }},{% endfor %}" data-data="{% for item in context.top_services_events %}{{ item.count }},{% endfor %}"></canvas>
+                    <canvas id="topServicesChart" data-labels="{% for item in context.top_services_events %}{{ item.service__name }},{% endfor %}" data-data="{% for item in context.top_services_events %}{{ item.id__count }},{% endfor %}"></canvas>
                 </div>
             </div>
         </div>
     </div>
 
     <div class="card mb-4">
-      <div class="card-header d-flex justify-content-between align-items-center">
-        <span>Last Errors Event List</span>
-        <a href="{% url 'error_management_systems:event_list' %}" class="btn btn-primary btn-sm">View All Events</a>
-      </div>
-      <div class="card-body">
-        <div class="table-responsive">
-          <table class="table table-striped">
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>System Name</th>
-                <th>Service Name</th>
-                <th>Error Code</th>
-                <th>Error Reason</th>
-                <th>Timestamp</th>
-                <th>Error Count</th>
-                <th>Environment</th>
-                <th>Inserted By</th>
-                <th>Details</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for error_event in context.error_events %}
-              <tr>
-                <td>{{ error_event.id }}</td>
-                <td>{{ error_event.system.name }}</td>
-                <td>{{ error_event.service.name }}</td>
-                <td>{{ error_event.error_type.error_code }}</td>
-                <td>{{ error_event.error_type.error_description|truncatechars:50 }}</td>
-                <td>{{ error_event.timestamp }}</td>
-                <td>{{ error_event.error_count }}</td>
-                <td>{{ error_event.environment }}</td>
-                <td>{{ error_event.inserted_by }}</td>
-                <td><a href="{% url 'error_management_systems:event_detail' error_event.id %}">View Details</a></td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <span>Last Errors Event List</span>
+            <a href="{% url 'error_management_systems:event_list' %}" class="btn btn-primary btn-sm">View All Events</a>
         </div>
-      </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>System Name</th>
+                            <th>Service Name</th>
+                            <th>Error Code</th>
+                            <th>Error Reason</th>
+                            <th>Timestamp</th>
+                            <th>Error Count</th>
+                            <th>Environment</th>
+                            <th>Inserted By</th>
+                            <th>Details</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for error_event in context.error_events %}
+                        <tr>
+                            <td>{{ error_event.id }}</td>
+                            <td>{{ error_event.system.name }}</td>
+                            <td>{{ error_event.service.name }}</td>
+                            <td>{{ error_event.error_type.error_code }}</td>
+                            <td>{{ error_event.error_type.error_description|truncatechars:50 }}</td>
+                            <td>{{ error_event.timestamp }}</td>
+                            <td>{{ error_event.error_count }}</td>
+                            <td>{{ error_event.environment }}</td>
+                            <td>{{ error_event.inserted_by }}</td>
+                            <td><a href="{% url 'error_management_systems:event_detail' error_event.id %}">View Details</a></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
-    
     
     <div class="card mb-4">
         <div class="card-header">Error Type Overview</div>
@@ -300,128 +299,126 @@ a:hover {
             <p>Total Error Types: {{ context.total_error_types }}</p>
             <div class="row">
                 <div class="col-md-4">
-                    <canvas id="errorCategoryChart" data-labels="{% for item in context.error_type_categories %}{{ item.error_category }},{% endfor %}" data-data="{% for item in context.error_type_categories %}{{ item.count }},{% endfor %}"></canvas>
+                    <canvas id="errorCategoryChart" data-labels="{% for item in context.error_type_categories %}{{ item.0 }},{% endfor %}" data-data="{% for item in context.error_type_categories %}{{ item.1 }},{% endfor %}"></canvas>
                 </div>
                 <div class="col-md-4">
-                    <canvas id="impactLevelChart" data-labels="{% for item in context.error_type_impact_levels %}{{ item.impact_level }},{% endfor %}" data-data="{% for item in context.error_type_impact_levels %}{{ item.count }},{% endfor %}"></canvas>
+                    <canvas id="impactLevelChart" data-labels="{% for item in context.error_type_impact_levels %}{{ item.0 }},{% endfor %}" data-data="{% for item in context.error_type_impact_levels %}{{ item.1 }},{% endfor %}"></canvas>
                 </div>
                 <div class="col-md-4">
-                    <canvas id="expectedVsUnexpectedChart" data-labels="{% for item in context.expected_vs_unexpected %}{{ item.type_error }},{% endfor %}" data-data="{% for item in context.expected_vs_unexpected %}{{ item.count }},{% endfor %}"></canvas>
+                    <canvas id="expectedVsUnexpectedChart" data-labels="{% for item in context.expected_vs_unexpected %}{{ item.0 }},{% endfor %}" data-data="{% for item in context.expected_vs_unexpected %}{{ item.1 }},{% endfor %}"></canvas>
                 </div>
             </div>
         </div>
     </div>
 
     <div class="card mb-4">
-      <div class="card-header d-flex justify-content-between align-items-center">
-          <span>Last Errors Type List</span>
-          <a href="{% url 'error_management_systems:error_type_list' %}" class="btn btn-primary btn-sm">View All Types</a>
-      </div>
-      <div class="card-body">
-          <div class="table-responsive">
-              <table class="table table-striped">
-                  <thead>
-                      <tr>
-                          <th>System Name</th>
-                          <th>Service Name</th>
-                          <th>Error Code</th>
-                          <th>Error Description</th>
-                          <th>Error Category</th>
-                          <th>Impact Level</th>
-                          <th>Detected By</th>
-                          <th>Source</th>
-                          <th>Occurrences</th>
-                          <th>First Occurrence</th>
-                          <th>Last Occurrence</th>
-                          <th>Details</th>
-                      </tr>
-                  </thead>
-                  <tbody>
-                      {% for error_type in error_types %}
-                      <tr>
-                          <td>{{ error_type.system.name }}</td>
-                          <td>{{ error_type.service.name }}</td>
-                          <td>{{ error_type.error_code }}</td>
-                          <td>{{ error_type.error_description|truncatechars:50 }}</td>
-                          <td>{{ error_type.category.name }}</td>
-                          <td>{{ error_type.category.severity_level }}</td>
-                          <td>{{ error_type.detected_by }}</td>
-                          <td>{{ error_type.error_source }}</td>
-                          <td>{{ error_type.total_occurrences }}</td>
-                          <td>{{ error_type.first_occurrence }}</td>
-                          <td>{{ error_type.last_occurrence }}</td>
-                          <td><a href="{% url 'error_management_systems:error_type_detail' error_type.id %}">View Details</a></td>
-                      </tr>
-                      {% endfor %}
-                  </tbody>
-              </table>
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <span>Last Errors Type List</span>
+            <a href="{% url 'error_management_systems:error_type_list' %}" class="btn btn-primary btn-sm">View All Types</a>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>System Name</th>
+                            <th>Service Name</th>
+                            <th>Error Code</th>
+                            <th>Error Description</th>
+                            <th>Error Category</th>
+                            <th>Impact Level</th>
+                            <th>Detected By</th>
+                            <th>Source</th>
+                            <th>Occurrences</th>
+                            <th>First Occurrence</th>
+                            <th>Last Occurrence</th>
+                            <th>Details</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for error_type in context.error_types %}
+                        <tr>
+                            <td>{{ error_type.system.name }}</td>
+                            <td>{{ error_type.service.name }}</td>
+                            <td>{{ error_type.error_code }}</td>
+                            <td>{{ error_type.error_description|truncatechars:50 }}</td>
+                            <td>{{ error_type.category.name }}</td>
+                            <td>{{ error_type.category.severity_level }}</td>
+                            <td>{{ error_type.detected_by }}</td>
+                            <td>{{ error_type.error_source }}</td>
+                            <td>{{ error_type.total_occurrences }}</td>
+                            <td>{{ error_type.first_occurrence }}</td>
+                            <td>{{ error_type.last_occurrence }}</td>
+                            <td><a href="{% url 'error_management_systems:error_type_detail' error_type.id %}">View Details</a></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="row mb-4">
+      <div class="col-md-12">
+          <div class="card">
+              <div class="card-header bg-primary text-white">
+                  <h5 class="mb-0">Most Frequent Error Types</h5>
+              </div>
+              <div class="card-body">
+                  {% if context.top_errors %}
+                  <div class="table-responsive">
+                      <table class="table table-striped table-hover">
+                          <thead>
+                              <tr>
+                                  <th>System</th>
+                                  <th>Service</th>
+                                  <th>Occurrences</th>
+                                  <th>Actions</th>
+                              </tr>
+                          </thead>
+                          <tbody>
+                              {% for error_type in context.top_errors %}
+                              <tr>
+                                  <td>{{ error_type.system.name }}</td>
+                                  <td>{{ error_type.service.name }}</td>
+                                  <td>{{ error_type.total_occurrences }}</td>
+                                  <td>
+                                      <a href="{% url 'error_management_systems:error_type_detail' error_type.id %}" class="btn btn-sm btn-info">
+                                          <i class="fas fa-eye"></i> View
+                                      </a>
+                                  </td>
+                              </tr>
+                              {% endfor %}
+                          </tbody>
+                      </table>
+                  </div>
+                  <div class="text-end">
+                      <a href="{% url 'error_management_systems:error_type_list' %}" class="btn btn-outline-primary">View all types</a>
+                  </div>
+                  {% else %}
+                  <p class="text-center">No error types recorded</p>
+                  {% endif %}
+              </div>
           </div>
       </div>
   </div>
-  
 
-    <div class="row mb-4">
-        <div class="col-md-12">
-            <div class="card">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">Most Frequent Error Types</h5>
-                </div>
-                <div class="card-body">
-                    {% if stats.top_errors %}
-                    <div class="table-responsive">
-                        <table class="table table-striped table-hover">
-                            <thead>
-                                <tr>
-                                    <th>System</th>
-                                    <th>Service</th>
-                                    <th>Occurrences</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for error_type in stats.top_errors %}
-                                <tr>
-                                    <td>{{ error_type.system.name }}</td>
-                                    <td>{{ error_type.service.name }}</td>
-                                    <td>{{ error_type.total_occurrences }}</td>
-                                    <td>
-                                        <a href="{% url 'error_management_systems:error_type_detail' error_type.id %}" class="btn btn-sm btn-info">
-                                            <i class="fas fa-eye"></i> View
-                                        </a>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                    <div class="text-end">
-                        <a href="{% url 'error_management_systems:error_type_list' %}" class="btn btn-outline-primary">View all types</a>
-                    </div>
-                    {% else %}
-                    <p class="text-center">No error types recorded</p>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-    </div>
+  <div class="card mb-4">
+      <div class="card-header">Error Ticket Overview</div>
+      <div class="card-body">
+          <p>Total Error Tickets: {{ context.total_error_tickets }}</p>
+          <p>Average Resolution Time: {{ context.average_resolution_time|floatformat:2 }} hours</p>
+          <div class="row">
+              <div class="col-md-6">
+                  <canvas id="ticketStatusChart" data-labels="{% for item in context.error_ticket_statuses %}{{ item.0 }},{% endfor %}" data-data="{% for item in context.error_ticket_statuses %}{{ item.1 }},{% endfor %}"></canvas>
+              </div>
+              <div class="col-md-6">
+                  <canvas id="ticketPriorityChart" data-labels="{% for item in context.error_ticket_priorities %}{{ item.0 }},{% endfor %}" data-data="{% for item in context.error_ticket_priorities %}{{ item.1 }},{% endfor %}"></canvas>
+              </div>
+          </div>
+      </div>
+  </div>
 
-    <div class="card mb-4">
-        <div class="card-header">Error Ticket Overview</div>
-        <div class="card-body">
-            <p>Total Error Tickets: {{ context.total_error_tickets }}</p>
-            <p>Average Resolution Time: {{ context.average_resolution_time|floatformat:2 }} hours</p>
-            <div class="row">
-                <div class="col-md-6">
-                    <canvas id="ticketStatusChart" data-labels="{% for item in context.error_ticket_statuses %}{{ item.statut }},{% endfor %}" data-data="{% for item in context.error_ticket_statuses %}{{ item.count }},{% endfor %}"></canvas>
-                </div>
-                <div class="col-md-6">
-                    <canvas id="ticketPriorityChart" data-labels="{% for item in context.error_ticket_priorities %}{{ item.priorite }},{% endfor %}" data-data="{% for item in context.error_ticket_priorities %}{{ item.count }},{% endfor %}"></canvas>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="card mb-4">
+  <div class="card mb-4">
       <div class="card-header d-flex justify-content-between align-items-center">
           <span>Last Errors Ticket List</span>
           <a href="{% url 'error_management_systems:ticket_list' %}" class="btn btn-primary btn-sm">View All Tickets</a>
@@ -470,15 +467,14 @@ a:hover {
       </div>
   </div>
   
-    
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header bg-danger text-white">
-                    <h5 class="mb-0">Critical Tickets</h5>
-                </div>
-                <div class="card-body">
-                  {% if stats.critical_tickets %}
+  <div class="row mb-4">
+      <div class="col-12">
+          <div class="card">
+              <div class="card-header bg-danger text-white">
+                  <h5 class="mb-0">Critical Tickets</h5>
+              </div>
+              <div class="card-body">
+                  {% if context.critical_tickets %}
                   <div class="table-responsive">
                       <table class="table table-striped table-hover">
                           <thead>
@@ -493,28 +489,28 @@ a:hover {
                               </tr>
                           </thead>
                           <tbody>
-                              {% for ticket in stats.critical_tickets %}
+                              {% for ticket in context.critical_tickets %}
                               <tr>
                                   <td>{{ ticket.ticket_number }}</td>
                                   <td>{{ ticket.error_type.system.name }}</td>
                                   <td>
                                       {% if ticket.status == 'OPEN' %}
-                                      <span class="badge bg-danger">{{ ticket.get_status_display }}</span>
+                                          <span class="badge bg-danger">{{ ticket.get_statut_display }}</span>
                                       {% elif ticket.status == 'IN_PROGRESS' %}
-                                      <span class="badge bg-warning">{{ ticket.get_status_display }}</span>
+                                          <span class="badge bg-warning">{{ ticket.get_statut_display }}</span>
                                       {% else %}
-                                      <span class="badge bg-secondary">{{ ticket.get_status_display }}</span>
+                                          <span class="badge bg-secondary">{{ ticket.get_statut_display }}</span>
                                       {% endif %}
                                   </td>
                                   <td>{{ ticket.created_at|date:"d/m/Y H:i" }}</td>
                                   <td>{{ ticket.assigned_to|default:"Unassigned" }}</td>
                                   <td>
                                       {% if ticket.priority == 'P1' %}
-                                      <span class="badge bg-danger">{{ ticket.get_priority_display }}</span>
+                                          <span class="badge bg-danger">{{ ticket.get_priorite_display }}</span>
                                       {% elif ticket.priority == 'P2' %}
-                                      <span class="badge bg-warning">{{ ticket.get_priority_display }}</span>
+                                          <span class="badge bg-warning">{{ ticket.get_priorite_display }}</span>
                                       {% else %}
-                                      <span class="badge bg-secondary">{{ ticket.get_priority_display }}</span>
+                                          <span class="badge bg-secondary">{{ ticket.get_priorite_display }}</span>
                                       {% endif %}
                                   </td>
                                   <td>
@@ -533,39 +529,39 @@ a:hover {
                   {% else %}
                   <p class="text-center">No open critical tickets</p>
                   {% endif %}
-              </div>              
-            </div>
-        </div>
-    </div>
-    
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header bg-success text-white">
-                    <h5 class="mb-0">Quick Actions</h5>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-4 mb-3">
-                            <a href="{% url 'error_management_systems:create_event' %}" class="btn btn-primary w-100">
-                                <i class="fas fa-plus-circle"></i> New Error Event
-                            </a>
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            <a href="{% url 'error_management_systems:error_type_list' %}" class="btn btn-secondary w-100">
-                                <i class="fas fa-list"></i> View Error Types
-                            </a>
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            <a href="{% url 'error_management_systems:ticket_list' %}" class="btn btn-info w-100">
-                                <i class="fas fa-ticket-alt"></i> Manage Tickets
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+              </div>
+          </div>
+      </div>
+  </div>
+  
+  <div class="row mb-4">
+      <div class="col-12">
+          <div class="card">
+              <div class="card-header bg-success text-white">
+                  <h5 class="mb-0">Quick Actions</h5>
+              </div>
+              <div class="card-body">
+                  <div class="row">
+                      <div class="col-md-4 mb-3">
+                          <a href="{% url 'error_management_systems:create_event' %}" class="btn btn-primary w-100">
+                              <i class="fas fa-plus-circle"></i> New Error Event
+                          </a>
+                      </div>
+                      <div class="col-md-4 mb-3">
+                          <a href="{% url 'error_management_systems:error_type_list' %}" class="btn btn-secondary w-100">
+                              <i class="fas fa-list"></i> View Error Types
+                          </a>
+                      </div>
+                      <div class="col-md-4 mb-3">
+                          <a href="{% url 'error_management_systems:ticket_list' %}" class="btn btn-info w-100">
+                              <i class="fas fa-ticket-alt"></i> Manage Tickets
+                          </a>
+                      </div>
+                  </div>
+              </div>
+          </div>
+      </div>
+  </div>
 </div>
 {% endblock %}
 
