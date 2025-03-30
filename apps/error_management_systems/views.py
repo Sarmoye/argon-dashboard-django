@@ -362,8 +362,8 @@ def event_detail(request, event_id):
         return HttpResponseForbidden("You do not have permission to access this page.")
     
     """Détail d'un événement d'erreur"""
-    event = get_object_or_404(ErrorEvent, id=event_id)
-    related_events = ErrorEvent.objects.filter(error_type=event.error_type).exclude(id=event_id).order_by('-timestamp')[:5]
+    event = get_object_or_404(ErrorEvent, event_id=event_id)
+    related_events = ErrorEvent.objects.filter(error_type=event.error_type).exclude(event_id=event_id).order_by('-timestamp')[:5]
     
     # Vérifier si un ticket existe pour ce type d'erreur
     try:
@@ -759,217 +759,6 @@ def edit_ticket(request, ticket_id):
     return render(request, 'error_management_systems/edit_ticket.html', context)
 
 # ---- API Views ----
-
-@require_http_methods(["GET"])
-def check_error_type_exists(request):
-    """API pour vérifier si un type d'erreur existe déjà"""
-    system_name = request.GET.get('system_name')
-    service_name = request.GET.get('service_name')
-    error_reason = request.GET.get('error_reason')
-    
-    if not all([system_name, service_name, error_reason]):
-        return JsonResponse({
-            'success': False,
-            'message': 'Paramètres incomplets'
-        }, status=400)
-    
-    try:
-        error_type = ErrorType.objects.get(
-            system_name=system_name,
-            service_name=service_name,
-            error_reason=error_reason
-        )
-        # Vérifier si un ticket existe
-        try:
-            ticket = error_type.ticket
-            has_ticket = True
-            ticket_data = {
-                'id': str(ticket.id),
-                'reference': ticket.ticket_reference,
-                'status': ticket.get_status_display(),
-                'priority': ticket.get_priority_display()
-            }
-        except ErrorTicket.DoesNotExist:
-            has_ticket = False
-            ticket_data = None
-        
-        return JsonResponse({
-            'success': True,
-            'exists': True,
-            'error_type': {
-                'id': error_type.id,
-                'system_name': error_type.system_name,
-                'service_name': error_type.service_name,
-                'error_reason': error_type.error_reason,
-            },
-            'has_ticket': has_ticket,
-            'ticket': ticket_data
-        })
-    except ErrorType.DoesNotExist:
-        return JsonResponse({
-            'success': True,
-            'exists': False
-        })
-
-@require_POST
-def create_error_type_ajax(request):
-    """API pour créer un nouveau type d'erreur via AJAX"""
-    try:
-        data = json.loads(request.body)
-        
-        # Vérifier les champs obligatoires
-        required_fields = ['system_name', 'service_name', 'service_type', 'error_reason']
-        for field in required_fields:
-            if not data.get(field):
-                return JsonResponse({
-                    'success': False,
-                    'message': f'Le champ {field} est obligatoire'
-                }, status=400)
-        
-        # Vérifier si le type d'erreur existe déjà
-        try:
-            error_type = ErrorType.objects.get(
-                system_name=data['system_name'],
-                service_name=data['service_name'],
-                error_reason=data['error_reason']
-            )
-            # Le type d'erreur existe déjà
-            return JsonResponse({
-                'success': True,
-                'exists': True,
-                'error_type': {
-                    'id': error_type.id,
-                    'system_name': error_type.system_name,
-                    'service_name': error_type.service_name,
-                    'error_reason': error_type.error_reason
-                }
-            })
-        except ErrorType.DoesNotExist:
-            # Créer un nouveau type d'erreur
-            error_type = ErrorType.objects.create(
-                system_name=data['system_name'],
-                service_name=data['service_name'],
-                service_type=data['service_type'],
-                error_reason=data['error_reason'],
-                code_erreur=data.get('code_erreur', ''),
-                fichiers_impactes=data.get('fichiers_impactes', ''),
-                logs=data.get('logs', ''),
-                description_technique=data.get('description_technique', ''),
-                comportement_attendu=data.get('comportement_attendu', ''),
-                procedures_contournement=data.get('procedures_contournement', ''),
-                environnement=data.get('environnement', ''),
-                niveau_severite=data.get('niveau_severite')
-            )
-            
-            return JsonResponse({
-                'success': True,
-                'exists': False,
-                'created': True,
-                'error_type': {
-                    'id': error_type.id,
-                    'system_name': error_type.system_name,
-                    'service_name': error_type.service_name,
-                    'error_reason': error_type.error_reason
-                }
-            })
-    except json.JSONDecodeError:
-        return JsonResponse({
-            'success': False,
-            'message': 'Format JSON invalide'
-        }, status=400)
-    except Exception as e:
-        return JsonResponse({
-            'success': False,
-            'message': f'Erreur: {str(e)}'
-        }, status=500)
-
-@require_POST
-def create_ticket_ajax(request):
-    """API pour créer un nouveau ticket d'erreur via AJAX"""
-    try:
-        data = json.loads(request.body)
-        
-        # Vérifier les champs obligatoires
-        if not data.get('error_type_id'):
-            return JsonResponse({
-                'success': False,
-                'message': 'ID du type d\'erreur obligatoire'
-            }, status=400)
-        
-        # Récupérer le type d'erreur
-        try:
-            error_type = ErrorType.objects.get(id=data['error_type_id'])
-        except ErrorType.DoesNotExist:
-            return JsonResponse({
-                'success': False,
-                'message': 'Type d\'erreur non trouvé'
-            }, status=404)
-        
-        # Vérifier si un ticket existe déjà pour ce type d'erreur
-        try:
-            existing_ticket = error_type.ticket
-            return JsonResponse({
-                'success': False,
-                'exists': True,
-                'message': 'Un ticket existe déjà pour ce type d\'erreur',
-                'ticket': {
-                    'id': str(existing_ticket.id),
-                    'reference': existing_ticket.ticket_reference,
-                    'status': existing_ticket.get_status_display(),
-                    'priority': existing_ticket.get_priority_display()
-                }
-            })
-        except ErrorTicket.DoesNotExist:
-            # Créer un nouveau ticket
-            ticket = ErrorTicket(
-                error_type=error_type,
-                priority=data.get('priority', 'P3'),
-                status=data.get('status', 'OPEN'),
-                niveau_criticite=data.get('niveau_criticite', 3),
-                symptomes=data.get('symptomes', ''),
-                impact=data.get('impact', ''),
-                services_affectes=data.get('services_affectes', ''),
-                nombre_utilisateurs=data.get('nombre_utilisateurs'),
-                charge_systeme=data.get('charge_systeme'),
-                responsable=data.get('responsable', ''),
-                equipe=data.get('equipe', ''),
-                commentaires=data.get('commentaires', '')
-            )
-            ticket.save()
-            
-            # Initialiser l'historique
-            ticket.historique = {
-                'creation': {
-                    'timestamp': timezone.now().isoformat(),
-                    'status': ticket.status,
-                    'priority': ticket.priority
-                },
-                'changes': []
-            }
-            ticket.save()
-            
-            return JsonResponse({
-                'success': True,
-                'created': True,
-                'ticket': {
-                    'id': str(ticket.id),
-                    'reference': ticket.ticket_reference,
-                    'status': ticket.get_status_display(),
-                    'priority': ticket.get_priority_display()
-                }
-            })
-    except json.JSONDecodeError:
-        return JsonResponse({
-            'success': False,
-            'message': 'Format JSON invalide'
-        }, status=400)
-    except Exception as e:
-        return JsonResponse({
-            'success': False,
-            'message': f'Erreur: {str(e)}'
-        }, status=500)
-    
-
 from rest_framework import status, permissions
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
@@ -978,9 +767,15 @@ from django.contrib.auth import authenticate
 from .models import ErrorEvent, ErrorType, ErrorTicket
 from .serializers import ErrorEventSerializer
 from rest_framework.throttling import UserRateThrottle
+from django.db import transaction
+from django.db.models import F
+from django.core.cache import cache
+import logging
+
+logger = logging.getLogger(__name__)
 
 class CustomUserRateThrottle(UserRateThrottle):
-    rate = '100/minute'  # Adjust as needed
+    rate = '150/minute'  # Increased to accommodate 100+ requests per minute with buffer
 
 @api_view(['POST'])
 def get_auth_token(request):
@@ -999,60 +794,154 @@ def get_auth_token(request):
     else:
         return Response({'error': 'Invalid credentials.'}, status=status.HTTP_401_UNAUTHORIZED)
 
+
+
 @api_view(['POST'])
 @permission_classes([permissions.IsAuthenticated])
 def create_event_api(request):
-    """API endpoint to create a new error event."""
+    """API endpoint to create a new error event with optimizations for high volume."""
     throttle_classes = [CustomUserRateThrottle]
-    system_name = request.data.get('system_name')
-    service_name = request.data.get('service_name')
-    service_type = request.data.get('service_type')
-    error_reason = request.data.get('error_reason')
-    error_count = request.data.get('error_count', 1)
-    notes = request.data.get('notes', '')
-    logs = request.data.get('logs', '')
-    code_erreur = request.data.get('code_erreur', '')
-    fichiers_impactes = request.data.get('fichiers_impactes', '')
-    system_classification = request.POST.get('system_classification', '')
-    service_classification = request.POST.get('service_classification', '')
-    impact_level = request.POST.get('impact_level', '')
+        
+    # Support both single event and batch processing
+    events_data = request.data
+    if not isinstance(events_data, list):
+        events_data = [events_data]
+        
+    # Validate all entries before processing
+    for event_data in events_data:
+        required_fields = ['system_name', 'service_name', 'error_category_name', 'error_description']
+        if not all(field in event_data for field in required_fields):
+            return Response({"error": "Missing required fields in one or more entries."}, 
+                           status=status.HTTP_400_BAD_REQUEST)
+    
+    results = []
+    failed_entries = []
+    
+    for event_data in events_data:
+        try:
+            with transaction.atomic():
+                # Use select_for_update to prevent race conditions when multiple requests 
+                # try to update the same system/service
+                
+                # 1. System creation/update with get_or_create for atomicity
+                system, _ = System.objects.select_for_update().get_or_create(
+                    name=event_data.get('system_name'),
+                    defaults={
+                        'system_classification': event_data.get('system_classification', ''),
+                        'description': event_data.get('system_description', '')
+                    }
+                )
 
+                # 2. Service creation/update
+                service, _ = Service.objects.select_for_update().get_or_create(
+                    system=system,
+                    name=event_data.get('service_name'),
+                    defaults={
+                        'service_classification': event_data.get('service_classification', ''),
+                        'description': event_data.get('service_description', ''),
+                        'owner': request.user.username
+                    }
+                )
 
-    if not all([system_name, service_name, service_type, error_reason]):
-        return Response({"error": "Missing required fields."}, status=status.HTTP_400_BAD_REQUEST)
+                # 3. ErrorCategory creation/update
+                error_category, _ = ErrorCategory.objects.select_for_update().get_or_create(
+                    name=event_data.get('error_category_name'),
+                    defaults={
+                        'description': event_data.get('error_category_description', ''),
+                        'severity_level': event_data.get('severity_level', 2)
+                    }
+                )
 
-    try:
-        error_type, created = ErrorType.objects.get_or_create(
-            system_name=system_name,
-            service_name=service_name,
-            error_reason=error_reason,
-            defaults={
-                'service_type': service_type,
-                'code_erreur': code_erreur,
-                'fichiers_impactes': fichiers_impactes,
-                'system_classification': system_classification,
-                'service_classification': service_classification,
-                'impact_level': impact_level,
-            }
-        )
+                # 4. Optimize ErrorType lookup and update
+                # Use a more optimized query with select_for_update
+                try:
+                    error_type = ErrorType.objects.select_for_update().get(
+                        error_description=event_data.get('error_description')
+                    )
+                    # Use F() expressions to avoid race conditions in concurrent updates
+                    ErrorType.objects.filter(pk=error_type.pk).update(
+                        is_active=True,
+                        total_occurrences=F('total_occurrences') + int(event_data.get('error_count', 1))
+                    )
+                    # Refresh from database to get updated values
+                    error_type.refresh_from_db()
+                except ErrorType.DoesNotExist:
+                    # Create new ErrorType
+                    error_type = ErrorType.objects.create(
+                        system=system,
+                        service=service,
+                        category=error_category,
+                        error_description=event_data.get('error_description', ''),
+                        root_cause=event_data.get('root_cause', ''),
+                        is_active=True,
+                        detected_by=event_data.get('detected_by', 'logs'),
+                        error_source=event_data.get('error_source', 'internal'),
+                        total_occurrences=int(event_data.get('error_count', 1)),
+                    )
 
-        event = ErrorEvent.objects.create(
-            system_name=system_name,
-            service_type=service_type,
-            service_name=service_name,
-            error_reason=error_reason,
-            error_type=error_type,
-            error_count=error_count,
-            inserted_by=request.user.username,
-            notes=notes,
-            logs=logs,
-        )
+                # 5. ErrorEvent creation - use bulk_create for multiple events if needed
+                error_event = ErrorEvent.objects.create(
+                    error_type=error_type,
+                    system=system,
+                    service=service,
+                    error_count=event_data.get('error_count', 1),
+                    event_log=event_data.get('event_log', ''),
+                    source_ip=event_data.get('source_ip', ''),
+                    trigger_event=event_data.get('trigger_event', ''),
+                    environment=event_data.get('environment', 'production')
+                )
 
-        if created:
-            ErrorTicket.objects.create(error_type=error_type)
+                # 6. ErrorTicket management - optimize with select_for_update
+                error_ticket = None
+                try:
+                    error_ticket = ErrorTicket.objects.select_for_update().get(
+                        ticket_number=error_type.error_code
+                    )
+                    # Update ticket status if it's not already open
+                    if error_ticket.status != 'OPEN':
+                        error_ticket.status = 'OPEN'
+                        error_ticket.save(update_fields=['status'])
+                except ErrorTicket.DoesNotExist:
+                    # Create new ticket
+                    error_ticket = ErrorTicket.objects.create(
+                        error_type=error_type,
+                        status='OPEN',
+                        priority=event_data.get('priority', 'P3'),
+                        title=f"Error Event {error_event.event_id}",
+                        description=error_type.error_description,
+                        root_cause=event_data.get('root_cause', ''),
+                        assigned_to=request.user.username
+                    )
 
-        serializer = ErrorEventSerializer(event)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-    except Exception as e:
-        return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+                # Add to successful results
+                serializer = ErrorEventSerializer(error_event)
+                results.append(serializer.data)
+                
+        except Exception as e:
+            logger.exception(f"Error processing event: {event_data.get('error_description', 'Unknown')}")
+            failed_entries.append({
+                "data": event_data,
+                "error": str(e)
+            })
+    
+    # Return appropriate response based on results
+    if not failed_entries:
+        return Response({
+            "status": "success",
+            "count": len(results),
+            "results": results
+        }, status=status.HTTP_201_CREATED)
+    elif not results:
+        return Response({
+            "status": "error",
+            "message": "All entries failed to process",
+            "failed_entries": failed_entries
+        }, status=status.HTTP_400_BAD_REQUEST)
+    else:
+        return Response({
+            "status": "partial_success",
+            "success_count": len(results),
+            "failed_count": len(failed_entries),
+            "results": results,
+            "failed_entries": failed_entries
+        }, status=status.HTTP_207_MULTI_STATUS)

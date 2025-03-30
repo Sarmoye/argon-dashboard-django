@@ -12,11 +12,10 @@
     <h1 class="mb-4">Error Type Details</h1>
 
     <div class="card p-3 mb-4">
-        <p><strong>ID:</strong> {{ error_type.id }}</p>
+        <p><strong>Error Code:</strong> {{ error_type.error_code }}</p>
         <p><strong>System:</strong> {{ error_type.system.name }}</p>
         <p><strong>Service:</strong> {{ error_type.service.name }}</p>
         <p><strong>Category:</strong> {{ error_type.category.name }}</p>
-        <p><strong>Error Code:</strong> {{ error_type.error_code }}</p>
         <p><strong>Error Description:</strong> {{ error_type.error_description }}</p>
         <p><strong>Root Cause Analysis:</strong> {{ error_type.root_cause }}</p>
         {% if error_type.error_metadata %}
@@ -46,7 +45,7 @@
             <tbody>
                 {% for event in events %}
                 <tr>
-                    <td>{{ event.id }}</td>
+                    <td>{{ event.event_id }}</td>
                     <td>{{ event.timestamp }}</td>
                     <td>
                         <a href="{% url 'error_management_systems:event_detail' event.id %}" class="btn btn-primary btn-sm">
