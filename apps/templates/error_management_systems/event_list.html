@@ -84,9 +84,7 @@
             <thead class="table-dark">
                 <tr>
                     <th>ID</th>
-                    <th>System</th>
-                    <th>Service</th>
-                    <th>Error Reason</th>
+                    <th>Error Description</th>
                     <th>Error Count</th>
                     <th>Timestamp</th>
                     <th>Environment</th>
@@ -96,15 +94,13 @@
             <tbody>
                 {% for event in events %}
                     <tr>
-                        <td>{{ event.id }}</td>
-                        <td>{{ event.system.name }}</td>
-                        <td>{{ event.service.name }}</td>
-                        <td>{{ event.error_type }}</td>
+                        <td>{{ event.event_id }}</td>
+                        <td>{{ event.error_type.error_description }}</td>
                         <td>{{ event.error_count }}</td>
                         <td>{{ event.timestamp }}</td>
                         <td>{{ event.environment|capfirst }}</td>
                         <td>
-                            <a href="{% url 'error_management_systems:event_detail' event.id %}" class="btn btn-sm btn-info">Details</a>
+                            <a href="{% url 'error_management_systems:event_detail' event.event_id %}" class="btn btn-sm btn-info">Details</a>
                         </td>
                     </tr>
                 {% empty %}

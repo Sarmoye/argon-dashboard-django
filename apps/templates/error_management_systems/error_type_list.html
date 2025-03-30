@@ -71,20 +71,16 @@
           <thead class="table-dark">
               <tr>
                   <th>ID</th>
-                  <th>System</th>
-                  <th>Service</th>
                   <th>Category</th>
                   <th>Error Description</th>
-                  <th>Event Count</th>
+                  <th>Total Events</th>
                   <th>Actions</th>
               </tr>
           </thead>
           <tbody>
               {% for error_type in error_types %}
               <tr>
-                  <td>{{ error_type.id }}</td>
-                  <td>{{ error_type.system.name }}</td>
-                  <td>{{ error_type.service.name }}</td>
+                  <td>{{ error_type.error_code }}</td>
                   <td>{{ error_type.category.name }}</td>
                   <td>{{ error_type.error_description }}</td>
                   <td>{{ error_type.total_occurrences }}</td>

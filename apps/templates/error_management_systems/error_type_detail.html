@@ -65,7 +65,7 @@
     {% if has_ticket %}
     <h2 class="mt-4">Associated Ticket</h2>
     <a href="{% url 'error_management_systems:ticket_detail' ticket.id %}" class="btn btn-info">
-        View Associated Ticket ({{ ticket.ticket_reference }})
+        View Associated Ticket ({{ ticket.ticket_number }})
     </a>
     {% else %}
     <p class="mt-3">No ticket associated with this error type.</p>
