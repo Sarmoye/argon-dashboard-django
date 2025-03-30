@@ -20,19 +20,19 @@
         <div class="card-body collapse show p-3" id="filterCollapse">
             <form method="get">
                 <div class="row">
-                    <div class="col-md-3">
+                    <div class="col-md-4">
                         <label for="status" class="form-label small mb-1">Status</label>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-4">
                         <label for="priority" class="form-label small mb-1">Priority</label>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-4">
                         <label for="system" class="form-label small mb-1">System</label>
                     </div>
                 </div>
 
                 <div class="row mb-3">
-                    <div class="col-md-3">
+                    <div class="col-md-4">
                         <select name="status" id="status" class="form-select">
                             <option value="">All</option>
                             {% for value, display in status_choices %}
@@ -40,7 +40,7 @@
                             {% endfor %}
                         </select>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-4">
                         <select name="priority" id="priority" class="form-select">
                             <option value="">All</option>
                             {% for value, display in priority_choices %}
@@ -48,7 +48,7 @@
                             {% endfor %}
                         </select>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-4">
                         <select name="system" id="system" class="form-select">
                             <option value="">All</option>
                             {% for system in systems %}
