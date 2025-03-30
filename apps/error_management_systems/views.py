@@ -178,6 +178,9 @@ def dashboard1(request):
         'top_errors': ErrorType.objects.annotate(event_count=Count('events')).order_by('-event_count')[:5],
         'critical_tickets': ErrorTicket.objects.filter(priority='P1', status__in=['OPEN', 'IN_PROGRESS']).order_by('created_at')[:5]
     }
+
+    print(context)
+    print(stats)
     
     return render(request, 'error_management_systems/dashboard1.html', {'context': context, 'stats': stats})
 
