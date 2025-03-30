@@ -137,46 +137,46 @@ def dashboard2(request):
     """View to render error events time series chart with dynamic filtering."""
 
     # Additional System Insights
-    most_error_prone_system = ErrorEvent.objects.values('system_name').annotate(count=Count('id')).order_by('-count').first()
-    most_error_prone_service = ErrorEvent.objects.values('service_name').annotate(count=Count('id')).order_by('-count').first()
-    most_error_prone_system_class = ErrorEvent.objects.values('error_type__system_classification').annotate(count=Count('id')).order_by('-count').first()
-    most_error_prone_service_class = ErrorEvent.objects.values('error_type__service_classification').annotate(count=Count('id')).order_by('-count').first()
+    most_error_prone_system = ErrorEvent.objects.values('system__name').annotate(count=Count('id')).order_by('-count').first()
+    most_error_prone_service = ErrorEvent.objects.values('service__name').annotate(count=Count('id')).order_by('-count').first()
+    most_error_prone_system_class = ErrorEvent.objects.values('system__system_classification').annotate(count=Count('id')).order_by('-count').first()
+    most_error_prone_service_class = ErrorEvent.objects.values('service__service_classification').annotate(count=Count('id')).order_by('-count').first()
 
-    most_common_errors = ErrorEvent.objects.values('error_reason').annotate(count=Count('id')).order_by('-count')[:10]
+    most_common_errors = ErrorEvent.objects.values('error_type__error_description').annotate(count=Count('id')).order_by('-count')[:10]
 
-    critical_counts = ErrorType.objects.filter(impact_level__in=['critical', 'high']).count()
-    non_critical_counts = ErrorType.objects.filter(impact_level__in=['low', 'medium']).count()
+    critical_counts = ErrorType.objects.filter(category__severity_level__in=[3, 4]).count()
+    non_critical_counts = ErrorType.objects.filter(category__severity_level__in=[1, 2]).count()
 
     most_impactful_systems = (
-        ErrorType.objects.filter(impact_level__in=['critical', 'high'])
-        .values('system_name')
+        ErrorType.objects.filter(category__severity_level__in=[3, 4])
+        .values('system__name')
         .annotate(count=Count('id'))
         .order_by('-count')[:5]
     )
 
     most_impactful_systems_class = (
-        ErrorType.objects.filter(impact_level__in=['critical', 'high'])
-        .values('system_classification')
+        ErrorType.objects.filter(category__severity_level__in=[3, 4])
+        .values('system__system_classification')
         .annotate(count=Count('id'))
         .order_by('-count')[:5]
     )
 
     top_impacted_services = (
-    ErrorType.objects
-    .filter(impact_level__in=['critical', 'high'])  # (1) Filter by impact level
-    .exclude(service_name="")  # (2) Exclude empty service names
-    .values('service_name')  # (3) Group by service_name
-    .annotate(count=Count('id'))  # (4) Count occurrences
-    .order_by('-count')[:5]  # (5) Order by count (descending) and limit to top 5
+        ErrorType.objects
+        .filter(category__severity_level__in=[3, 4])
+        .exclude(service__name="")
+        .values('service__name')
+        .annotate(count=Count('id'))
+        .order_by('-count')[:5]
     )
 
     top_impacted_services_class = (
-    ErrorType.objects
-    .filter(impact_level__in=['critical', 'high'])  # (1) Filter by impact level
-    .exclude(service_classification="")  # (2) Exclude empty service names
-    .values('service_classification')  # (3) Group by service_name
-    .annotate(count=Count('id'))  # (4) Count occurrences
-    .order_by('-count')[:5]  # (5) Order by count (descending) and limit to top 5
+        ErrorType.objects
+        .filter(category__severity_level__in=[3, 4])
+        .exclude(service__service_classification="")
+        .values('service__service_classification')
+        .annotate(count=Count('id'))
+        .order_by('-count')[:5]
     )
 
     # Start with base queryset
@@ -190,16 +190,16 @@ def dashboard2(request):
     
     # Apply filters based on provided parameters
     if system_name:
-        queryset = queryset.filter(system_name=system_name)
+        queryset = queryset.filter(system__name=system_name)
     
     if system_classification:
-        queryset = queryset.filter(error_type__system_classification=system_classification)
+        queryset = queryset.filter(system__system_classification=system_classification)
     
     if service_name:
-        queryset = queryset.filter(service_name=service_name)
+        queryset = queryset.filter(service__name=service_name)
     
     if service_classification:
-        queryset = queryset.filter(error_type__service_classification=service_classification)
+        queryset = queryset.filter(service__service_classification=service_classification)
     
     # Aggregate error events by date
     error_events_time_series = (
@@ -215,10 +215,10 @@ def dashboard2(request):
     counts = [entry['count'] for entry in error_events_time_series]
     
     # Get unique filter options
-    unique_systems = ErrorType.objects.values_list('system_name', flat=True).distinct()
-    unique_system_classifications = ErrorType.objects.values_list('system_classification', flat=True).distinct()
-    unique_services = ErrorType.objects.values_list('service_name', flat=True).distinct()
-    unique_service_classifications = ErrorType.objects.values_list('service_classification', flat=True).distinct()
+    unique_systems = System.objects.values_list('name', flat=True).distinct()
+    unique_system_classifications = System.objects.values_list('system_classification', flat=True).distinct()
+    unique_services = Service.objects.values_list('name', flat=True).distinct()
+    unique_service_classifications = Service.objects.values_list('service_classification', flat=True).distinct()
 
     context = {
         # Systems Insights
