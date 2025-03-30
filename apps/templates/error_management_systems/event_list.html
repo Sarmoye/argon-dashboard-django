@@ -19,7 +19,7 @@
             </button>
         </div>
         <div class="card-body collapse show p-3" id="filterCollapse">
-            <form id="filterForm">
+            <form method="get">
                 <div class="row">
                     <div class="col-md-2">
                         <label for="system" class="form-label small mb-1">System</label>
@@ -72,7 +72,7 @@
                 </div>
     
                 <div class="d-flex justify-content-end gap-2">
-                    <button type="button" id="resetBtn" class="btn btn-outline-secondary">Reset</button>
+                    <a href="{% url 'error_management_systems:event_list' %}" class="btn btn-outline-secondary">Reset</a>
                     <button type="submit" class="btn btn-primary">Apply Filters</button>
                 </div>
             </form>
@@ -92,15 +92,24 @@
                 </tr>
             </thead>
             <tbody>
-                <!-- Data will be loaded here via AJAX -->
+                {% for event in events %}
+                    <tr>
+                        <td>{{ event.event_id }}</td>
+                        <td>{{ event.error_type.error_description }}</td>
+                        <td>{{ event.error_count }}</td>
+                        <td>{{ event.timestamp }}</td>
+                        <td>{{ event.environment|capfirst }}</td>
+                        <td>
+                            <a href="{% url 'error_management_systems:event_detail' event.event_id %}" class="btn btn-sm btn-info">Details</a>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="8" class="text-center">No events found.</td>
+                    </tr>
+                {% endfor %}
             </tbody>
         </table>
-    </div>
-    
-    <div id="loading" class="text-center my-4" style="display: none;">
-        <div class="spinner-border text-primary" role="status">
-            <span class="visually-hidden">Loading...</span>
-        </div>
     </div>
 </div>
 {% endblock %}
@@ -115,65 +124,13 @@
 
     <script>
         $(document).ready(function() {
-            // Initialize DataTables with AJAX
-            let table = $('#eventsTable').DataTable({
-                processing: true,
-                serverSide: false, // Not using server-side processing from DataTables
-                ajax: {
-                    url: window.location.href,
-                    type: 'GET',
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest'
-                    },
-                    data: function(d) {
-                        // Add form filters to the DataTables AJAX request
-                        let formData = $('#filterForm').serializeArray();
-                        $.each(formData, function(i, field) {
-                            d[field.name] = field.value;
-                        });
-                    },
-                    beforeSend: function() {
-                        $('#loading').show();
-                    },
-                    complete: function() {
-                        $('#loading').hide();
-                    }
-                },
-                columns: [
-                    { data: 'event_id' },
-                    { data: 'error_description' },
-                    { data: 'error_count' },
-                    { data: 'timestamp' },
-                    { data: 'environment' },
-                    { 
-                        data: null,
-                        render: function(data, type, row) {
-                            return '<a href="' + data.detail_url + '" class="btn btn-sm btn-info">Details</a>';
-                        }
-                    }
-                ],
+            $('#eventsTable').DataTable({
                 dom: 'Bfrtip',
-                buttons: ['copy', 'csv', 'excel', 'pdf', 'print'],
-                pageLength: 10,
-                lengthMenu: [10, 25, 50, 100]
-            });
-            
-            // Handle form submission
-            $('#filterForm').on('submit', function(e) {
-                e.preventDefault();
-                table.ajax.reload();
-                
-                // Update URL with filter parameters (for bookmarking)
-                let formData = $(this).serialize();
-                let newUrl = window.location.pathname + '?' + formData;
-                history.pushState({}, '', newUrl);
-            });
-            
-            // Handle reset button
-            $('#resetBtn').on('click', function() {
-                $('#filterForm')[0].reset();
-                table.ajax.reload();
-                history.pushState({}, '', window.location.pathname);
+                buttons: [
+                    'copy', 'csv', 'excel', 'pdf', 'print'
+                ],
+                "pageLength": 10,
+                "lengthMenu": [10, 25, 50, 100],
             });
         });
     </script>
