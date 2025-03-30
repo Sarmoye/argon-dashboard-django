@@ -10,52 +10,60 @@
 {% block content %}
 <div class="container mt-4">
     <h1 class="mb-4">Ticket List</h1>
-    <div class="card-body collapse show p-3" id="filterCollapse">
-        <form method="get">
-            <div class="row">
-                <div class="col-md-3">
-                    <label for="status" class="form-label small mb-1">Status</label>
+    <div class="card shadow-sm mb-4 border-0">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center py-2">
+            <span class="fw-semibold">Filter Tickets</span>
+            <button class="btn btn-sm btn-outline-light" type="button" data-bs-toggle="collapse" data-bs-target="#filterCollapse" aria-expanded="true" aria-controls="filterCollapse">
+                <i class="bi bi-funnel"></i>
+            </button>
+        </div>
+        <div class="card-body collapse show p-3" id="filterCollapse">
+            <form method="get">
+                <div class="row">
+                    <div class="col-md-3">
+                        <label for="status" class="form-label small mb-1">Status</label>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="priority" class="form-label small mb-1">Priority</label>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="system" class="form-label small mb-1">System</label>
+                    </div>
                 </div>
-                <div class="col-md-3">
-                    <label for="priority" class="form-label small mb-1">Priority</label>
-                </div>
-                <div class="col-md-3">
-                    <label for="system" class="form-label small mb-1">System</label>
-                </div>
-            </div>
 
-            <div class="row mb-3">
-                <div class="col-md-3">
-                    <select name="status" id="status" class="form-select">
-                        <option value="">All</option>
-                        {% for value, display in status_choices %}
-                            <option value="{{ value }}" {% if request.GET.status == value %}selected{% endif %}>{{ display }}</option>
-                        {% endfor %}
-                    </select>
+                <div class="row mb-3">
+                    <div class="col-md-3">
+                        <select name="status" id="status" class="form-select">
+                            <option value="">All</option>
+                            {% for value, display in status_choices %}
+                                <option value="{{ value }}" {% if request.GET.status == value %}selected{% endif %}>{{ display }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <select name="priority" id="priority" class="form-select">
+                            <option value="">All</option>
+                            {% for value, display in priority_choices %}
+                                <option value="{{ value }}" {% if request.GET.priority == value %}selected{% endif %}>{{ display }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <select name="system" id="system" class="form-select">
+                            <option value="">All</option>
+                            {% for system in systems %}
+                                <option value="{{ system }}" {% if request.GET.system == system %}selected{% endif %}>{{ system }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
                 </div>
-                <div class="col-md-3">
-                    <select name="priority" id="priority" class="form-select">
-                        <option value="">All</option>
-                        {% for value, display in priority_choices %}
-                            <option value="{{ value }}" {% if request.GET.priority == value %}selected{% endif %}>{{ display }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <div class="col-md-3">
-                    <select name="system" id="system" class="form-select">
-                        <option value="">All</option>
-                        {% for system in systems %}
-                            <option value="{{ system }}" {% if request.GET.system == system %}selected{% endif %}>{{ system }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-            </div>
 
-            <div class="d-flex justify-content-end gap-2">
-                <a href="{% url 'error_management_systems:ticket_list' %}" class="btn btn-outline-secondary">Reset</a>
-                <button type="submit" class="btn btn-primary">Apply Filters</button>
-            </div>
-        </form>
+                <div class="d-flex justify-content-end gap-2">
+                    <a href="{% url 'error_management_systems:ticket_list' %}" class="btn btn-outline-secondary">Reset</a>
+                    <button type="submit" class="btn btn-primary">Apply Filters</button>
+                </div>
+            </form>
+        </div>
     </div>
 
     <div class="table-responsive">
