@@ -29,11 +29,6 @@ urlpatterns = [
     path('tickets/<uuid:ticket_id>/edit/', views.edit_ticket, name='edit_ticket'),
     
     # API
-    path('api/check-error-type/', views.check_error_type_exists, name='check_error_type'),
-    path('api/create-error-type/', views.create_error_type_ajax, name='create_error_type_ajax'),
-    path('api/create-ticket/', views.create_ticket_ajax, name='create_ticket_ajax'),
-
-    # CREATE EVENT API
     path('api/create-event/', views.create_event_api, name='create_event_api'),
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
