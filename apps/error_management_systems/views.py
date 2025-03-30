@@ -51,9 +51,9 @@ def dashboard1(request):
     
     # Error Type Overview (Widget 1)
     total_error_types = ErrorType.objects.count()
-    error_type_categories = list(ErrorType.objects.values_list('category__name', 'category__count'))
-    error_type_impact_levels = list(ErrorType.objects.values_list('category__severity_level', 'category__count'))
-    expected_vs_unexpected = list(ErrorType.objects.values_list('detected_by', 'detected_by__count'))
+    error_type_categories = list(ErrorType.objects.values('category__name').annotate(count=Count('id')).values_list('category__name', 'count'))
+    error_type_impact_levels = list(ErrorType.objects.values('category__severity_level').annotate(count=Count('id')).values_list('category__severity_level', 'count'))
+    expected_vs_unexpected = list(ErrorType.objects.values('detected_by').annotate(count=Count('id')).values_list('detected_by', 'count'))
 
     # Error Type List (Widget 2)
     error_types = ErrorType.objects.order_by('-first_occurrence')[:10]
@@ -61,18 +61,18 @@ def dashboard1(request):
     # Error Event Overview (Widget 3)
     total_error_events = ErrorEvent.objects.count()
     error_events_time_series = list(
-        ErrorEvent.objects.annotate(date=TruncDate('timestamp')).values_list('date', 'id__count').order_by('date')
+        ErrorEvent.objects.annotate(date=TruncDate('timestamp')).values('date').annotate(count=Count('id')).values_list('date', 'count').order_by('date')
     )
-    top_systems_events = list(ErrorEvent.objects.values_list('system__name', 'id__count').order_by('-id__count')[:5])
-    top_services_events = list(ErrorEvent.objects.values_list('service__name', 'id__count').order_by('-id__count')[:5])
+    top_systems_events = list(ErrorEvent.objects.values('system__name').annotate(count=Count('id')).order_by('-count')[:5])
+    top_services_events = list(ErrorEvent.objects.values('service__name').annotate(count=Count('id')).order_by('-count')[:5])
 
     # Error Event List (Widget 4)
     error_events = ErrorEvent.objects.order_by('-timestamp')[:10]
 
     # Error Ticket Overview (Widget 5)
     total_error_tickets = ErrorTicket.objects.count()
-    error_ticket_statuses = list(ErrorTicket.objects.values_list('status', 'id__count'))
-    error_ticket_priorities = list(ErrorTicket.objects.values_list('priority', 'id__count'))
+    error_ticket_statuses = list(ErrorTicket.objects.values('status').annotate(count=Count('id')).values_list('status', 'count'))
+    error_ticket_priorities = list(ErrorTicket.objects.values('priority').annotate(count=Count('id')).values_list('priority', 'count'))
 
     # Calculate average ticket resolution time
     resolved_tickets = ErrorTicket.objects.filter(status='RESOLVED', resolved_at__isnull=False)
