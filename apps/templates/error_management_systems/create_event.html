@@ -248,19 +248,31 @@
               <div class="section-divider">
                 <span>ERROR DETAILS</span>
               </div>
+
+              <div class="row g-3 mb-4">
+                <div class="col-md-12">
+                  <div class="form-floating">
+                    <textarea class="form-control" id="error_description" name="error_description" placeholder="Error Description" style="height: 120px"></textarea>
+                    <label for="error_description">Error Description</label>
+                  </div>
+                </div>
+              </div>
               
               <div class="row g-3 mb-4">
                 <div class="col-md-6">
                   <div class="form-floating">
-                    <input type="text" class="form-control" id="error_code" name="error_code" placeholder="Error Code" required>
-                    <label for="error_code" class="required-field">Error Code</label>
-                  </div>
-                </div>
-
-                <div class="col-md-6">
-                  <div class="form-floating">
                     <input type="number" class="form-control" id="error_count" name="error_count" value="1" min="1" placeholder="Number of errors" required>
                     <label for="error_count" class="required-field">Number of Errors</label>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-floating">
+                    <select class="form-control" id="detected_by" name="detected_by">
+                      {% for choice in detected_by_choices %}
+                        <option value="{{ choice.0 }}">{{ choice.1 }}</option>
+                      {% endfor %}
+                    </select>
+                    <label for="detected_by">Detected By</label>
                   </div>
                 </div>
               </div>
@@ -288,27 +300,8 @@
               <div class="row g-3 mb-4">
                 <div class="col-md-6">
                   <div class="form-floating">
-                    <select class="form-control" id="detected_by" name="detected_by">
-                      {% for choice in detected_by_choices %}
-                        <option value="{{ choice.0 }}">{{ choice.1 }}</option>
-                      {% endfor %}
-                    </select>
-                    <label for="detected_by">Detected By</label>
-                  </div>
-                </div>
-                <div class="col-md-6">
-                  <div class="form-floating">
                     <input type="text" class="form-control" id="inserted_by" name="inserted_by" placeholder="{{ request.user.username }}" required disabled>
                     <label for="inserted_by" class="required-field">Inserted by {{ request.user.username }}</label>
-                  </div>
-                </div>
-              </div>
-              
-              <div class="row g-3 mb-4">
-                <div class="col-md-12">
-                  <div class="form-floating">
-                    <textarea class="form-control" id="error_description" name="error_description" placeholder="Error Description" style="height: 120px"></textarea>
-                    <label for="error_description">Error Description</label>
                   </div>
                 </div>
               </div>
