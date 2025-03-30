@@ -422,16 +422,16 @@ def create_event(request):
                 )
 
                 # 4. Vérification de l'existence et création de l'ErrorType
-                error_type = ErrorType.objects.filter(error_code=request.POST.get('error_code')).first()
+                error_type = ErrorType.objects.filter(error_description=request.POST.get('error_description')).first()
 
                 if error_type:
-                    pass
+                    error_type.is_active = True
+                    error_type.save()
                 else:
                     # Créer un nouveau TYpe
                     error_type = ErrorType.objects.create(
                         system=system,
                         service=service,
-                        error_code=request.POST.get('error_code'),
                         category=error_category,
                         error_description= request.POST.get('error_description', ''),
                         root_cause= request.POST.get('root_cause', ''),
@@ -455,7 +455,7 @@ def create_event(request):
 
                 # 6. Gestion du ticket d'erreur
                 # Vérifier si un ticket avec le même numéro d'erreur existe
-                error_ticket = ErrorTicket.objects.filter(error_type__error_code=error_type.error_code).first()
+                error_ticket = ErrorTicket.objects.filter(ticket_number=error_type.error_code).first()
 
                 if error_ticket:
                     # Réouvrir le ticket existant
@@ -467,14 +467,14 @@ def create_event(request):
                         error_type=error_type,
                         status='OPEN',
                         priority=request.POST.get('priority', 'P3'),
-                        title=f"Error Event {error_event.id}",
+                        title=f"Error Event {error_event.event_id}",
                         description=error_type.error_description,
                         root_cause= request.POST.get('root_cause', ''),
                         assigned_to=request.user.username
                     )
 
-                messages.success(request, f"Événement d'erreur créé avec succès: {error_event.id}")
-                return redirect('error_management_systems:event_detail', event_id=error_event.id)
+                messages.success(request, f"Événement d'erreur créé avec succès: {error_event.event_id}")
+                return redirect('error_management_systems:event_detail', event_id=error_event.event_id)
 
         except Exception as e:
             messages.error(request, f"Erreur lors de la création de l'événement: {str(e)}")

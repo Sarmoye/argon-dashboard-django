@@ -119,7 +119,7 @@ class ErrorType(models.Model):
     
     # Error Identification
     error_code = models.CharField(
-        max_length=50,
+        max_length=100,
         unique=True,
         db_index=True
     )
@@ -198,11 +198,11 @@ class ErrorType(models.Model):
         """
         Generate a unique error code with counter if needed
         """
-        base_code = f"{self.system.name[:3]}_{self.service.name[:3]}_{uuid.uuid4().hex[:6]}"
+        base_code = f"{self.system.name}_{self.service.name}_{uuid.uuid4().hex[:6]}"
         counter = 1
         
         while ErrorType.objects.filter(error_code=base_code).exists():
-            base_code = f"{self.system.name[:3]}_{self.service.name[:3]}_{uuid.uuid4().hex[:6]}_{counter}"
+            base_code = f"{self.system.name}_{self.service.name}_{uuid.uuid4().hex[:6]}_{counter}"
             counter += 1
         
         return base_code.upper()
@@ -227,6 +227,13 @@ class ErrorEvent(models.Model):
     """
     # Unique Identifier
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+
+    # Error Identification
+    event_id = models.CharField(
+        max_length=100,
+        unique=True,
+        db_index=True
+    )
     
     # Protected Foreign Key
     error_type = models.ForeignKey(ErrorType, on_delete=models.PROTECT, related_name='events', verbose_name="Associated Error Type")
@@ -290,6 +297,10 @@ class ErrorEvent(models.Model):
         ]
     
     def save(self, *args, **kwargs):
+        # Ensure event_id is generated only for new instances
+        if not self.event_id:
+            self.event_id = self._generate_unique_event_id()
+
         # Validate before saving
         self.full_clean()
         
@@ -297,9 +308,22 @@ class ErrorEvent(models.Model):
         self.error_type.increment_occurrence()
         
         super().save(*args, **kwargs)
+
+
+    def _generate_unique_event_id(self):
+        """
+        Generate a unique event ID using error code, timestamp, and a short UUID.
+        """
+        error_code = self.error_type.error_code
+        date_str = timezone.now().strftime('%Y%m%d%H%M%S')
+        
+        # Append a short UUID segment to avoid duplicates
+        unique_part = str(uuid.uuid4())[:8]  
+
+        return f"{error_code}_{date_str}_{unique_part}".upper()
     
     def __str__(self):
-        return f"Error Event: {self.error_type.error_code} at {self.timestamp}"
+        return f"Error Event: {self.event_id} at {self.timestamp}"
 
 
 class ErrorTicket(models.Model):
@@ -308,8 +332,9 @@ class ErrorTicket(models.Model):
     """
     # Unique Identifiers
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+
     ticket_number = models.CharField(
-        max_length=50, 
+        max_length=100, 
         unique=True, 
         db_index=True
     )
@@ -491,25 +516,6 @@ class ErrorTicket(models.Model):
             self.resolved_at = timezone.now()
 
         super().save(*args, **kwargs)
-
-    
-    def _generate_ticket_number(self):
-        """
-        Generate a unique ticket number
-        Format: [ERROR_TYPE_CODE]-[TIMESTAMP]-[UNIQUE_SUFFIX]
-        """
-        timestamp = timezone.now().strftime("%Y%m%d%H%M%S")
-        error_code = self.error_type.error_code[:6] if self.error_type else 'ERR'
-        unique_suffix = uuid.uuid4().hex[:4].upper()
-        
-        ticket_number = f"{error_code}-{timestamp}-{unique_suffix}"
-        
-        # Ensure uniqueness
-        while ErrorTicket.objects.filter(ticket_number=ticket_number).exists():
-            unique_suffix = uuid.uuid4().hex[:4].upper()
-            ticket_number = f"{error_code}-{timestamp}-{unique_suffix}"
-        
-        return ticket_number
     
     def _log_status_change(self, old_status, new_status):
         """
