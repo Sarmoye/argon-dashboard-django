@@ -37,7 +37,7 @@
         <table class="table table-striped" id="EventsTable">
             <thead>
                 <tr>
-                    <th>ID</th>
+                    <th>Event ID</th>
                     <th>Timestamp</th>
                     <th>Actions</th>
                 </tr>
@@ -48,7 +48,7 @@
                     <td>{{ event.event_id }}</td>
                     <td>{{ event.timestamp }}</td>
                     <td>
-                        <a href="{% url 'error_management_systems:event_detail' event.id %}" class="btn btn-primary btn-sm">
+                        <a href="{% url 'error_management_systems:event_detail' event.event_id %}" class="btn btn-primary btn-sm">
                             Details
                         </a>
                     </td>

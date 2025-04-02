@@ -233,12 +233,13 @@ a:hover {
         <div class="card-body">
             <p>Total Error Events: {{ context.total_error_events }}</p>
             <div class="row">
-                <div class="col-md-12">
-                    <canvas id="errorEventsTimeSeriesChart" 
-                    data-labels="{% for item in context.error_events_time_series %}{{ item.date|date:"Y-m-d" }},{% endfor %}" 
-                    data-data="{% for item in context.error_events_time_series %}{{ item.id__count }},{% endfor %}"></canvas>
-                </div>
-            </div>
+              <div class="col-md-12">
+                  <canvas id="errorEventsTimeSeriesChart" 
+                      data-labels="{% for item in error_events_time_series %}{{ item.0|date:"Y-m-d" }}{% if not forloop.last %},{% endif %}{% endfor %}" 
+                      data-data="{% for item in error_events_time_series %}{{ item.1 }}{% if not forloop.last %},{% endif %}{% endfor %}">
+                  </canvas>
+              </div>
+            </div>          
             <div class="row">
                 <div class="col-md-6">
                     <canvas id="topSystemsChart" data-labels="{% for item in context.top_systems_events %}{{ item.system__name }},{% endfor %}" data-data="{% for item in context.top_systems_events %}{{ item.id__count }},{% endfor %}"></canvas>
@@ -260,7 +261,7 @@ a:hover {
                 <table class="table table-striped">
                     <thead>
                         <tr>
-                            <th>ID</th>
+                            <th>Event ID</th>
                             <th>System Name</th>
                             <th>Service Name</th>
                             <th>Error Code</th>
@@ -275,7 +276,7 @@ a:hover {
                     <tbody>
                         {% for error_event in context.error_events %}
                         <tr>
-                            <td>{{ error_event.id }}</td>
+                            <td>{{ error_event.event_id }}</td>
                             <td>{{ error_event.system.name }}</td>
                             <td>{{ error_event.service.name }}</td>
                             <td>{{ error_event.error_type.error_code }}</td>

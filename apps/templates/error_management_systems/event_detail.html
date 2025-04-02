@@ -8,7 +8,7 @@
         <h2 class="mb-4 text-primary">Error Event Details</h2>
 
         <ul class="list-group list-group-flush">
-            <li class="list-group-item"><strong>ID:</strong> {{ event.event_id }}</li>
+            <li class="list-group-item"><strong>Event ID:</strong> {{ event.event_id }}</li>
             <li class="list-group-item"><strong>System:</strong> {{ event.system.name }}</li>
             <li class="list-group-item"><strong>Service:</strong> {{ event.service.name }}</li>
             <li class="list-group-item"><strong>Error Reason:</strong> {{ event.error_type.error_code }}</li>
@@ -25,7 +25,7 @@
         <table class="table table-striped">
             <thead class="table-dark">
                 <tr>
-                    <th>ID</th>
+                    <th>Event ID</th>
                     <th>Timestamp</th>
                     <th>Actions</th>
                 </tr>
@@ -33,10 +33,10 @@
             <tbody>
                 {% for related_event in related_events %}
                 <tr>
-                    <td>{{ related_event.id }}</td>
+                    <td>{{ related_event.event_id }}</td>
                     <td>{{ related_event.timestamp }}</td>
                     <td>
-                        <a href="{% url 'error_management_systems:event_detail' related_event.id %}" class="btn btn-sm btn-primary">Details</a>
+                        <a href="{% url 'error_management_systems:event_detail' related_event.event_id %}" class="btn btn-sm btn-primary">Details</a>
                     </td>
                 </tr>
                 {% empty %}
