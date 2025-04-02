@@ -455,7 +455,7 @@ a:hover {
                           <td>{{ ticket.resolved_at }}</td>
                           <td>
                               {% if ticket.resolved_at %}
-                                  {{ ticket.get_duration|floatformat:2 }} hours
+                                  {{ ticket.calculate_resolution_time|floatformat:2 }} hours
                               {% else %}
                                   Not Resolved
                               {% endif %}
