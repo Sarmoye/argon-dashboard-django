@@ -394,7 +394,8 @@ def create_event(request):
                     event_log=request.POST.get('event_log', ''),
                     source_ip=request.POST.get('source_ip', ''),
                     trigger_event=request.POST.get('trigger_event', ''),
-                    environment=request.POST.get('environment', 'production')
+                    environment=request.POST.get('environment', 'production'),
+                    inserted_by=request.POST.get('inserted_by', 'Unknown'),
                 )
 
                 # 6. Gestion du ticket d'erreur
