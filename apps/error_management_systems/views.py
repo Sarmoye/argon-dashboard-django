@@ -395,7 +395,7 @@ def create_event(request):
                     source_ip=request.POST.get('source_ip', ''),
                     trigger_event=request.POST.get('trigger_event', ''),
                     environment=request.POST.get('environment', 'production'),
-                    inserted_by=request.POST.get('inserted_by', 'Unknown'),
+                    inserted_by=request.user.username,
                 )
 
                 # 6. Gestion du ticket d'erreur
