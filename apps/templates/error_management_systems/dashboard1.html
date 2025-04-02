@@ -231,7 +231,7 @@ a:hover {
     <div class="card mb-4">
         <div class="card-header">Error Event Overview</div>
         <div class="card-body">
-            <p>Total Error Events: {{ context.total_error_events }}</p>
+            <p>Total Error Events: {{ context.total_error_events }} {{context.error_events_time_series}}</p>
             <div class="row">
                 <div class="col-md-12">
                     <canvas id="errorEventsTimeSeriesChart" 
