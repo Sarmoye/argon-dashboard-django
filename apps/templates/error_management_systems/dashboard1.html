@@ -243,10 +243,10 @@ a:hover {
           
             <div class="row">
                 <div class="col-md-6">
-                    <canvas id="topSystemsChart" data-labels="{% for item in context.top_systems_events %}{{ item.system__name }},{% endfor %}" data-data="{% for item in context.top_systems_events %}{{ item.1 }},{% endfor %}"></canvas>
+                    <canvas id="topSystemsChart" data-labels="{% for item in context.top_systems_events %}{{ item.system__name }},{% endfor %}" data-data="{% for item in context.top_systems_events %}{{ item.count }},{% endfor %}"></canvas>
                 </div>
                 <div class="col-md-6">
-                    <canvas id="topServicesChart" data-labels="{% for item in context.top_services_events %}{{ item.service__name }},{% endfor %}" data-data="{% for item in context.top_services_events %}{{ item.1 }},{% endfor %}"></canvas>
+                    <canvas id="topServicesChart" data-labels="{% for item in context.top_services_events %}{{ item.service__name }},{% endfor %}" data-data="{% for item in context.top_services_events %}{{ item.count }},{% endfor %}"></canvas>
                 </div>
             </div>
         </div>
