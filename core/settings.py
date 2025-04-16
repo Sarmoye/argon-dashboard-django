@@ -43,10 +43,15 @@ INSTALLED_APPS = [
     'rest_framework.authtoken', #keep this for the admin interface.
 ]
 
-SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # ou cache, cache_db, etc.
-SESSION_COOKIE_AGE = 1209600  # (en secondes)
-SESSION_SAVE_EVERY_REQUEST = False
-SESSION_EXPIRE_AT_BROWSER_CLOSE = False
+# Cookies
+SESSION_COOKIE_SECURE = False      # ⚠️ Important vu que tu es en HTTP
+CSRF_COOKIE_SECURE = False         # idem, sinon CSRF échouera
+
+# Samesite: peut être 'Lax', 'Strict' ou 'None' (mais 'None' nécessite HTTPS + Secure)
+SESSION_COOKIE_SAMESITE = 'Lax'    # recommandé pour les apps classiques
+
+# Tu peux garder ça si tu es derrière Nginx
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 
 REST_FRAMEWORK = {
