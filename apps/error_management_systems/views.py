@@ -42,7 +42,7 @@ from django.contrib.auth.decorators import login_required
 from .models import ErrorType, ErrorEvent, ErrorTicket, System, Service, ErrorCategory
 from django.utils import timezone
 
-
+@login_required(login_url='/authentication/login/')
 def dashboard1(request):
     allowed_roles = ['superadmin', 'admin', 'analyst', 'viewer']
     
@@ -127,7 +127,7 @@ def dashboard1(request):
 
 
 
-
+@login_required(login_url='/authentication/login/')
 def dashboard2(request):
     allowed_roles = ['superadmin', 'admin', 'analyst', 'viewer']
     
@@ -253,7 +253,7 @@ def dashboard2(request):
 
 
 # ---- ErrorEvent Views ----
-
+@login_required(login_url='/authentication/login/')
 def event_list(request):
     allowed_roles = ['superadmin', 'admin', 'analyst', 'viewer']
     
@@ -326,6 +326,7 @@ def event_detail(request, event_id):
     
     return render(request, 'error_management_systems/event_detail.html', context)
 
+@login_required(login_url='/authentication/login/')
 def create_event(request):
     allowed_roles = ['superadmin', 'admin', 'analyst']
     
