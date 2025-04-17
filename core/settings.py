@@ -214,7 +214,38 @@ CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'  # Utilise Redis pour stocker les résultats des tâches
 
+# Dans celeryconfig.py ou settings.py
+from celery.schedules import crontab
 
+PRESTO_SERVER="https://lnx-eva-master01.mtn.bj"
+PRESTO_PORT="8443"
+PRESTO_CATALOG="hive"
+PRESTO_SCHEMA="hive"
+PRESTO_USER="itsea_user_svc"
+PRESTO_PASSWORD="g3$JdBv2C3t#Tc&JjK57@8/qA)"
+PRESTO_KEYSTORE_PATH="/etc/nginx/sites-available/argon-dashboard-django/eva_key/benin_keystore.jks"
+PRESTO_KEYSTORE_PASSWORD="enzoslR722$"
+
+# Configuration de connexion à Presto
+presto_config = {
+    "PRESTO_SERVER": PRESTO_SERVER,
+    "PRESTO_PORT": PRESTO_PORT,
+    "PRESTO_CATALOG": PRESTO_CATALOG, 
+    "PRESTO_SCHEMA": PRESTO_SCHEMA,
+    "PRESTO_USER": PRESTO_USER,
+    "PRESTO_PASSWORD": PRESTO_PASSWORD,
+    "PRESTO_KEYSTORE_PATH": PRESTO_KEYSTORE_PATH,
+    "PRESTO_KEYSTORE_PASSWORD": PRESTO_KEYSTORE_PASSWORD
+}
+
+
+beat_schedule = {
+    'cis-error-report-every-20min': {
+        'task': 'apps.error_management_systems.tasks.execute_cis_error_report',
+        'schedule': timedelta(minutes=20),  # Exécution toutes les 20 minutes
+        'args': (presto_config, '/srv/itsea_files/error_report_files')
+    },
+}
 
 #############################################################
 #############################################################
