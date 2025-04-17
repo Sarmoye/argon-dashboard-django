@@ -238,8 +238,8 @@ presto_config = {
     "PRESTO_KEYSTORE_PASSWORD": PRESTO_KEYSTORE_PASSWORD
 }
 
-
-beat_schedule = {
+# Celery Beat Configuration
+CELERY_BEAT_SCHEDULE = {
     'cis-error-report-every-20min': {
         'task': 'apps.error_management_systems.tasks.task_execute_cis_error_report',
         'schedule': timedelta(minutes=5),  # Exécution toutes les 5 minutes
