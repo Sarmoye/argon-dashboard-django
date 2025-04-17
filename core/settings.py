@@ -241,7 +241,7 @@ presto_config = {
 
 beat_schedule = {
     'cis-error-report-every-20min': {
-        'task': 'apps.error_management_systems.tasks.execute_cis_error_report',
+        'task': 'apps.error_management_systems.tasks.task_execute_cis_error_report',
         'schedule': timedelta(minutes=20),  # Exécution toutes les 20 minutes
         'args': (presto_config, '/srv/itsea_files/error_report_files')
     },
