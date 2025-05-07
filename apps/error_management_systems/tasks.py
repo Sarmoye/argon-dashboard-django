@@ -1,9 +1,9 @@
 from celery import shared_task
-import os
 import logging
 from datetime import datetime
 from typing import Dict
 import os
+
 
 logger = logging.getLogger(__name__)
 
@@ -22,6 +22,7 @@ def task_execute_cis_error_report(self, config: Dict[str, str], output_dir: str 
         Dict: Résultat de l'exécution
     """
     try:
+                
         # Créer le répertoire de sortie s'il n'existe pas
         os.makedirs(output_dir, exist_ok=True)
         # Format the current date as YYYYMMDD
