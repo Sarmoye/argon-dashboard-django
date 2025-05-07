@@ -38,7 +38,7 @@ def task_execute_cis_error_report(self, config: Dict[str, str], output_dir: str 
             COUNT(*) AS "Error Count", 
             reason as "Error Reason"
         FROM hive.feeds.cis
-        WHERE tbl_dt = '{today_str}'
+        WHERE tbl_dt = {today_str}
         and upper(success_failure) like '%FAIL%'
         GROUP BY producttype, reason, sptype
         ORDER BY "Error Count" desc
