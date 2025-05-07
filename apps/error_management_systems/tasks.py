@@ -3,6 +3,7 @@ import logging
 from datetime import datetime
 from typing import Dict
 import os
+import subprocess
 
 
 logger = logging.getLogger(__name__)
@@ -50,9 +51,6 @@ def task_execute_cis_error_report(self, config: Dict[str, str], output_dir: str 
         logger.info(f"Génération du rapport d'erreurs CIS vers: {output_file}")
         
         # Construction de la commande Presto
-        import subprocess
-        import os
-        
         PRESTO_CLI_PATH = "/etc/nginx/sites-available/argon-dashboard-django/presto"
         
         cmd = [
