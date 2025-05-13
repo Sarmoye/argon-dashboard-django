@@ -135,7 +135,7 @@ def process_and_push_cis_errors(self):
     """
     BASE_URL = settings.EMS_API_BASE_URL if hasattr(settings, 'EMS_API_BASE_URL') else "http://ems.mtn.bj"
     USER = settings.EMS_API_USER if hasattr(settings, 'EMS_API_USER') else "celery_user"
-    PASS = settings.EMS_API_PASSWORD if hasattr(settings, 'EMS_API_PASSWORD') else "pass"
+    PASS = settings.EMS_API_PASSWORD if hasattr(settings, 'EMS_API_PASSWORD') else "samitoure@!1&112024sadmin"
 
     # --- 1) Lecture du CSV ---
     output_dir = settings.CIS_ERROR_REPORT_OUTPUT_DIR
