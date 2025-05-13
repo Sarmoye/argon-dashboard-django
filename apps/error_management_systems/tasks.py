@@ -8,7 +8,7 @@ import subprocess
 
 logger = logging.getLogger(__name__)
 
-@shared_task(bind=True, max_retries=3, default_retry_delay=60)
+@shared_task(bind=True, max_retries=3, default_retry_delay=60, queue='queue_execute_cis_error_report')
 def task_execute_cis_error_report(self, config: Dict[str, str], output_dir: str = "/srv/itsea_files/error_report_files"):
     """
     Tâche Celery qui exécute une requête SQL pour générer un rapport d'erreurs CIS

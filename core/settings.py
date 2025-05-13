@@ -239,12 +239,19 @@ presto_config = {
     "PRESTO_KEYSTORE_PASSWORD": PRESTO_KEYSTORE_PASSWORD
 }
 
+from kombu import Queue
+
+CELERY_QUEUES = (
+    Queue('queue_cis_error_report', routing_key='queue_cis_error_report'),
+)
+
 # Celery Beat Configuration
 CELERY_BEAT_SCHEDULE = {
-    'cis-error-report-every-20min': {
+    'task-cis-error-report-every-30min': {
         'task': 'apps.error_management_systems.tasks.task_execute_cis_error_report',
-        'schedule': timedelta(minutes=5),  # Exécution toutes les 5 minutes
-        'args': (presto_config, '/srv/itsea_files/error_report_files')
+        'schedule': timedelta(minutes=1),  # Exécution toutes les 30 minutes
+        'args': (presto_config, '/srv/itsea_files/error_report_files'),
+        'options': {'queue': 'queue_cis_error_report'},
     },
 }
 
