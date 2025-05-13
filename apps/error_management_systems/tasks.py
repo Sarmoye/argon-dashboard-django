@@ -109,47 +109,66 @@ def task_execute_cis_error_report(self):
 
 import os
 import glob
-import csv
+import requests
 from datetime import datetime
-from celery import shared_task
 from django.conf import settings
-import logging
 
-logger = logging.getLogger(__name__)
-
-HEADERS = ['Domain', 'Service Type', 'Service Name', 'Error Count', 'Error Reason']
-
-@shared_task(
-    bind=True,
-    queue='queue_process_cis_error_report',  # ou autre queue dédiée
-    name='apps.error_management_systems.tasks.process_cis_error_report'
-)
-def process_cis_error_report(self):
-    """
-    Récupère le fichier CIS ERROR REPORT le plus récent du jour,
-    lit toutes les lignes CSV (sans header) et les renvoie sous forme de liste de listes.
-    """
+# 1. Lecture du CSV (comme vous l'avez déjà)
+def load_cis_csv_rows():
     output_dir = settings.CIS_ERROR_REPORT_OUTPUT_DIR
     today_str = datetime.now().strftime('%Y%m%d')
-
     pattern = os.path.join(output_dir, f'cis_error_report_{today_str}_*.csv')
     files = glob.glob(pattern)
     if not files:
-        logger.info(f"Aucun rapport CIS pour la date {today_str}")
         return []
-
     latest_file = max(files)
-    logger.info(f"Fichier CIS le plus récent trouvé: {latest_file}")
+    with open(latest_file, newline='', encoding='utf-8-sig') as csvfile:
+        reader = csv.reader(csvfile)
+        return list(reader)
 
-    rows = []
-    try:
-        with open(latest_file, newline='', encoding='utf-8') as csvfile:
-            reader = csv.reader(csvfile)
-            rows = list(reader)
-    except Exception as exc:
-        logger.exception(f"Erreur lecture CSV {latest_file}: {exc}")
-        raise self.retry(exc=exc)
+# 2. Mapping de chaque ligne CSV vers le schéma attendu par l’API
+def map_csv_to_event_dict(csv_row):
+    # csv_row = ['CIS', 'PRODUCT_BUY', 'DATA', '4574', 'CIS:200:SUCCESS']
+    return {
+        "system_name":         csv_row[0],
+        "service_name":        csv_row[1],
+        "error_category_name": csv_row[2],
+        "error_count":         csv_row[3],
+        "error_description":   csv_row[4],
+        # vous pouvez ajouter ici d'autres champs optionnels, e.g. :
+        # "system_classification": "...",
+        # "service_classification": "...",
+        # "detected_by": "logs",
+        # etc.
+    }
 
-    logger.info(f"Total lignes lues: {len(rows)}")
-    return rows
+# 3. Récupération d’un token d’authentification
+def get_token(username, password, base_url):
+    url = f"{base_url}/errors/api/token/"
+    resp = requests.post(url, json={"username": username, "password": password})
+    resp.raise_for_status()
+    return resp.json()['token']
 
+# 4. Envoi en batch vers create_event_api
+def push_events_to_api(rows, token, base_url):
+    url = f"{base_url}/errors/api/create-event/"
+    headers = {"Authorization": f"Token {token}"}
+    # DRF supporte la liste en entrée
+    payload = [map_csv_to_event_dict(r) for r in rows]
+    resp = requests.post(url, json=payload, headers=headers)
+    resp.raise_for_status()
+    return resp.json()
+
+# 5. Script principal
+if __name__ == "__main__":
+    BASE_URL = "http://ems.mtn.bj"        # Ajustez selon votre host/port
+    USER     = "celery_user"                  # l’utilisateur que vous utilisez pour l’API
+    PASS     = "samitoure@!1&112024sadmin"
+    rows = load_cis_csv_rows()
+    if not rows:
+        print("Aucune ligne à traiter.")
+        exit(0)
+
+    token = get_token(USER, PASS, BASE_URL)
+    result = push_events_to_api(rows, token, BASE_URL)
+    print("Réponse API :", result)
