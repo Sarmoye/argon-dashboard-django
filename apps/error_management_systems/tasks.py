@@ -127,7 +127,7 @@ HEADERS = ['Domain', 'Service Type', 'Service Name', 'Error Count', 'Error Reaso
 def process_cis_error_report(self):
     """
     Récupère le fichier CIS ERROR REPORT le plus récent du jour,
-    lit toutes les lignes CSV (sans header) et les renvoie sous forme de liste de dicts.
+    lit toutes les lignes CSV (sans header) et les renvoie sous forme de liste de listes.
     """
     output_dir = settings.CIS_ERROR_REPORT_OUTPUT_DIR
     today_str = datetime.now().strftime('%Y%m%d')
@@ -145,15 +145,11 @@ def process_cis_error_report(self):
     try:
         with open(latest_file, newline='', encoding='utf-8') as csvfile:
             reader = csv.reader(csvfile)
-            for line_num, row in enumerate(reader, 1):
-                logger.info("LINE:", row)
-                if len(row) != len(HEADERS):
-                    logger.info(f"Ligne {line_num} ignorée (mauvais nombre de colonnes): {row}")
-                    continue
-                rows.append(dict(zip(HEADERS, row)))
+            rows = list(reader)
     except Exception as exc:
         logger.exception(f"Erreur lecture CSV {latest_file}: {exc}")
         raise self.retry(exc=exc)
 
-    logger.info(f"Total lignes valides lues: {len(rows)}")
+    logger.info(f"Total lignes lues: {len(rows)}")
     return rows
+
