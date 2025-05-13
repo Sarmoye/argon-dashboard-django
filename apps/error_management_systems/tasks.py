@@ -146,6 +146,7 @@ def process_cis_error_report(self):
         with open(latest_file, newline='', encoding='utf-8') as csvfile:
             reader = csv.reader(csvfile)
             for line_num, row in enumerate(reader, 1):
+                print("LINE:", row)
                 if len(row) != len(HEADERS):
                     logger.warning(f"Ligne {line_num} ignorée (mauvais nombre de colonnes): {row}")
                     continue
