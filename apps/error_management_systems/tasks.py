@@ -119,7 +119,7 @@ logger = logging.getLogger(__name__)
 
 @shared_task(
     bind=True,
-    queue='queue_execute_cis_error_report',  # ou autre queue dédiée
+    queue='queue_process_cis_error_report',  # ou autre queue dédiée
     name='apps.error_management_systems.tasks.process_cis_error_report'
 )
 def process_cis_error_report(self):
