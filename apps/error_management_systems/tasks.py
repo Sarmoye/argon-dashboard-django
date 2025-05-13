@@ -117,6 +117,8 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+HEADERS = ['Domain', 'Service Type', 'Service Name', 'Error Count', 'Error Reason']
+
 @shared_task(
     bind=True,
     queue='queue_process_cis_error_report',  # ou autre queue dédiée
@@ -125,40 +127,32 @@ logger = logging.getLogger(__name__)
 def process_cis_error_report(self):
     """
     Récupère le fichier CIS ERROR REPORT le plus récent du jour,
-    lit toutes les lignes CSV et les renvoie sous forme de liste de dicts.
+    lit toutes les lignes CSV (sans header) et les renvoie sous forme de liste de dicts.
     """
-    # 1. Préparer le répertoire et la date du jour
     output_dir = settings.CIS_ERROR_REPORT_OUTPUT_DIR
     today_str = datetime.now().strftime('%Y%m%d')
 
-    # 2. Chercher tous les fichiers du jour
     pattern = os.path.join(output_dir, f'cis_error_report_{today_str}_*.csv')
     files = glob.glob(pattern)
     if not files:
         logger.info(f"Aucun rapport CIS pour la date {today_str}")
         return []
 
-    # 3. Sélectionner le fichier le plus récent (max par nom lexicographique)
     latest_file = max(files)
     logger.info(f"Fichier CIS le plus récent trouvé: {latest_file}")
 
-    # 4. Lire le CSV
     rows = []
     try:
-        with open(latest_file, newline='') as csvfile:
-            reader = csv.DictReader(csvfile)
-            for row in reader:
-                # On s'assure d'avoir les bons headers
-                rows.append({
-                    'Domain': row.get('Domain'),
-                    'Service Type': row.get('Service Type'),
-                    'Service Name': row.get('Service Name'),
-                    'Error Count': row.get('Error Count'),
-                    'Error Reason': row.get('Error Reason'),
-                })
+        with open(latest_file, newline='', encoding='utf-8') as csvfile:
+            reader = csv.reader(csvfile)
+            for line_num, row in enumerate(reader, 1):
+                if len(row) != len(HEADERS):
+                    logger.warning(f"Ligne {line_num} ignorée (mauvais nombre de colonnes): {row}")
+                    continue
+                rows.append(dict(zip(HEADERS, row)))
     except Exception as exc:
         logger.exception(f"Erreur lecture CSV {latest_file}: {exc}")
         raise self.retry(exc=exc)
 
-    logger.info(f"Total lignes lues: {len(rows)}")
+    logger.info(f"Total lignes valides lues: {len(rows)}")
     return rows
