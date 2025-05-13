@@ -239,7 +239,7 @@ CELERY_BEAT_SCHEDULE = {
     },
     'process-cis-error-report': {
         'task': 'apps.error_management_systems.tasks.process_cis_error_report',
-        'schedule': timedelta(minutes=1),
+        'schedule': timedelta(minutes=5),
         'options': {'queue': 'queue_process_cis_error_report'},
      },
 }
