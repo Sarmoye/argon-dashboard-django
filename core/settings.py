@@ -215,9 +215,7 @@ CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'  # Utilise Redis pour stocker les résultats des tâches
 
-# Dans celeryconfig.py ou settings.py
-from celery.schedules import crontab
-
+# --- Paramètres Presto (ou via os.getenv si tu préfères)
 PRESTO_SERVER="https://lnx-eva-master01.mtn.bj"
 PRESTO_PORT="8443"
 PRESTO_CATALOG="hive"
@@ -226,34 +224,21 @@ PRESTO_USER="itsea_user_svc"
 PRESTO_PASSWORD="g3$JdBv2C3t#Tc&JjK57@8/qA)"
 PRESTO_KEYSTORE_PATH="/etc/nginx/sites-available/argon-dashboard-django/eva_key/benin_keystore.jks"
 PRESTO_KEYSTORE_PASSWORD="enzoslR722$"
+PRESTO_CLI_PATH="/etc/nginx/sites-available/argon-dashboard-django/presto"
 
-# Configuration de connexion à Presto
-presto_config = {
-    "PRESTO_SERVER": PRESTO_SERVER,
-    "PRESTO_PORT": PRESTO_PORT,
-    "PRESTO_CATALOG": PRESTO_CATALOG, 
-    "PRESTO_SCHEMA": PRESTO_SCHEMA,
-    "PRESTO_USER": PRESTO_USER,
-    "PRESTO_PASSWORD": PRESTO_PASSWORD,
-    "PRESTO_KEYSTORE_PATH": PRESTO_KEYSTORE_PATH,
-    "PRESTO_KEYSTORE_PASSWORD": PRESTO_KEYSTORE_PASSWORD
-}
 
-from kombu import Queue
-
-CELERY_QUEUES = (
-    Queue('queue_cis_error_report', routing_key='queue_cis_error_report'),
-)
+# Répertoire où seront enregistrés les CSV
+CIS_ERROR_REPORT_OUTPUT_DIR = "/srv/itsea_files/error_report_files"
 
 # Celery Beat Configuration
 CELERY_BEAT_SCHEDULE = {
     'task-cis-error-report-every-30min': {
         'task': 'apps.error_management_systems.tasks.task_execute_cis_error_report',
-        'schedule': timedelta(minutes=1),  # Exécution toutes les 30 minutes
-        'args': (presto_config, '/srv/itsea_files/error_report_files'),
-        'options': {'queue': 'queue_cis_error_report'},
+        'schedule': timedelta(minutes=1),
+        'options': {'queue': 'queue_execute_cis_error_report'},
     },
 }
+
 
 #############################################################
 #############################################################

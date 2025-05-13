@@ -1,35 +1,46 @@
-from celery import shared_task
-import logging
-from datetime import datetime
-from typing import Dict
+# apps/error_management_systems/tasks.py
+
 import os
 import subprocess
-
+from datetime import datetime
+from celery import shared_task, Task
+from django.conf import settings
+import logging
 
 logger = logging.getLogger(__name__)
 
-@shared_task(bind=True, max_retries=3, default_retry_delay=60, queue='queue_execute_cis_error_report')
-def task_execute_cis_error_report(self, config: Dict[str, str], output_dir: str = "/srv/itsea_files/error_report_files"):
+@shared_task(
+    bind=True,
+    base=Task,
+    max_retries=3,
+    default_retry_delay=60,
+    queue='queue_execute_cis_error_report',
+    name='apps.error_management_systems.tasks.task_execute_cis_error_report'
+)
+def task_execute_cis_error_report(self):
     """
-    Tâche Celery qui exécute une requête SQL pour générer un rapport d'erreurs CIS
-    et sauvegarde le résultat dans un fichier CSV. 
-    Chaque exécution génère un nouveau fichier avec horodatage.
-    
-    Args:
-        config (Dict[str, str]): Configuration Presto
-        output_dir (str): Répertoire pour les fichiers de sortie
-    
-    Returns:
-        Dict: Résultat de l'exécution
+    Génère un rapport d'erreurs CIS quotidien via Presto
+    et écrit un CSV dans le répertoire défini en settings.
     """
+
     try:
-                
-        # Créer le répertoire de sortie s'il n'existe pas
+        # --- 1. Préparer le répertoire de sortie et les paramètres Presto
+        output_dir = settings.CIS_ERROR_REPORT_OUTPUT_DIR
         os.makedirs(output_dir, exist_ok=True)
-        # Format the current date as YYYYMMDD
+
+        presto_cfg = {
+            "PRESTO_SERVER": settings.PRESTO_SERVER,
+            "PRESTO_PORT": settings.PRESTO_PORT,
+            "PRESTO_CATALOG": settings.PRESTO_CATALOG,
+            "PRESTO_SCHEMA": settings.PRESTO_SCHEMA,
+            "PRESTO_USER": settings.PRESTO_USER,
+            "PRESTO_PASSWORD": settings.PRESTO_PASSWORD,
+            "PRESTO_KEYSTORE_PATH": settings.PRESTO_KEYSTORE_PATH,
+            "PRESTO_KEYSTORE_PASSWORD": settings.PRESTO_KEYSTORE_PASSWORD,
+        }
+
+        # --- 2. Construire la requête
         today_str = datetime.now().strftime("%Y%m%d")
-        
-        # Définir la requête SQL directement
         query = f"""
         SELECT 
             'CIS' as Domain,
@@ -39,70 +50,58 @@ def task_execute_cis_error_report(self, config: Dict[str, str], output_dir: str 
             reason as "Error Reason"
         FROM hive.feeds.cis
         WHERE tbl_dt = {today_str}
-        and upper(success_failure) like '%FAIL%'
+          AND upper(success_failure) LIKE '%FAIL%'
         GROUP BY producttype, reason, sptype
-        ORDER BY "Error Count" desc
+        ORDER BY "Error Count" DESC
         """
-        
-        # Générer un nom de fichier de sortie unique avec horodatage
+
+        # --- 3. Fichier de sortie
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         output_file = os.path.join(output_dir, f"cis_error_report_{timestamp}.csv")
-        
-        logger.info(f"Génération du rapport d'erreurs CIS vers: {output_file}")
-        
-        # Construction de la commande Presto
-        PRESTO_CLI_PATH = "/etc/nginx/sites-available/argon-dashboard-django/presto"
-        
+        logger.info("Génération du rapport CIS vers: %s", output_file)
+
+        # --- 4. Préparer la commande Presto CLI
+        presto_cli = settings.PRESTO_CLI_PATH
         cmd = [
-            PRESTO_CLI_PATH,
-            f"--server={config['PRESTO_SERVER']}:{config['PRESTO_PORT']}",
-            f"--catalog={config['PRESTO_CATALOG']}",
-            f"--schema={config['PRESTO_SCHEMA']}",
-            f"--user={config['PRESTO_USER']}",
-            f"--keystore-path={config['PRESTO_KEYSTORE_PATH']}",
-            f"--keystore-password={config['PRESTO_KEYSTORE_PASSWORD']}",
+            presto_cli,
+            f"--server={presto_cfg['PRESTO_SERVER']}:{presto_cfg['PRESTO_PORT']}",
+            f"--catalog={presto_cfg['PRESTO_CATALOG']}",
+            f"--schema={presto_cfg['PRESTO_SCHEMA']}",
+            f"--user={presto_cfg['PRESTO_USER']}",
+            f"--keystore-path={presto_cfg['PRESTO_KEYSTORE_PATH']}",
+            f"--keystore-password={presto_cfg['PRESTO_KEYSTORE_PASSWORD']}",
             "--password",
             "--output-format=CSV",
             "--execute", query
         ]
-        
-        # Configurer l'environnement pour le mot de passe
+
+        # Éviter de logger le mot de passe en clair
+        safe_cmd = " ".join(cmd).replace(presto_cfg['PRESTO_KEYSTORE_PASSWORD'], "********")
+        logger.debug("Commande Presto CLI: %s", safe_cmd)
+
+        # Injecter le password dans l'environnement
         env = os.environ.copy()
-        env["PRESTO_PASSWORD"] = config['PRESTO_PASSWORD']
-        
-        # Logging de la commande (sans le mot de passe)
-        safe_cmd = ' '.join(cmd).replace(config['PRESTO_KEYSTORE_PASSWORD'], '********')
-        logger.debug("Commande d'exécution: %s", safe_cmd)
-        
-        # Exécuter avec sortie dans le fichier CSV
-        with open(output_file, 'w') as f_out:
-            process = subprocess.run(
+        env["PRESTO_PASSWORD"] = presto_cfg['PRESTO_PASSWORD']
+
+        # Exécution
+        with open(output_file, "w") as f_out:
+            proc = subprocess.run(
                 cmd,
                 stdout=f_out,
                 stderr=subprocess.PIPE,
                 env=env,
-                text=True,
-                check=False
+                text=True
             )
-        
-        # Vérifier le résultat
-        if process.returncode != 0:
-            logger.error(f"Erreur lors de l'exécution de la requête Presto: {process.stderr}")
-            return {
-                "status": "error",
-                "message": process.stderr
-            }
-        else:
-            logger.info(f"Rapport d'erreurs CIS généré avec succès: {output_file}")
-            return {
-                "status": "success",
-                "output_file": output_file,
-                "message": f"Résultat enregistré dans {output_file}"
-            }
-            
-    except Exception as e:
-        logger.exception(f"Exception dans l'exécution de la tâche CIS error report: {str(e)}")
-        return {
-            "status": "error",
-            "message": str(e)
-        }
+
+        if proc.returncode != 0:
+            err = proc.stderr.strip()
+            logger.error("Presto CLI error: %s", err)
+            return {"status": "error", "message": err}
+
+        logger.info("Rapport CIS généré avec succès: %s", output_file)
+        return {"status": "success", "output_file": output_file}
+
+    except Exception as exc:
+        logger.exception("Exception dans task_execute_cis_error_report")
+        # retry si nécessaire
+        raise self.retry(exc=exc)
