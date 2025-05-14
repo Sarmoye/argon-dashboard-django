@@ -212,8 +212,8 @@ def process_cis_error_report(self):
                 token_data = resp.json()
                 logger.info(f"Réponse JSON reçue: {token_data}")
                 
-                if "token" in token_data:
-                    token = token_data["token"]
+                if "access" in token_data:
+                    token = token_data["access"]
                     logger.info("Token obtenu avec succès")
                 else:
                     logger.error(f"Format de réponse valide mais sans token: {resp.text}")
