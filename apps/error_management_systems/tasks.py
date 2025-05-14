@@ -250,7 +250,7 @@ def process_cis_error_report(self):
     # --- 4) Envoi en batch ---
     api_url = f"{BASE_URL}/errors/api/create-event/"
     headers = {
-        "Authorization": f"Token {token}", 
+        "Authorization": f"Bearer {token}", 
         "Content-Type": "application/json",
         "Accept": "application/json"
     }
