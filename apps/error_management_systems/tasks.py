@@ -224,34 +224,6 @@ def process_cis_error_report(self):
     except Exception as exc:
         logger.exception(f"Exception lors de l'authentification: {str(exc)}")
 
-    
-    token = None
-    auth_errors = []
-    
-    if token is None:
-        logger.error("Impossible d'obtenir un token d'authentification")
-        
-        # Vérifier l'existence de settings spécifiques
-        try:
-            from django.conf import settings as django_settings
-            if hasattr(django_settings, 'EMS_AUTH_CONFIG'):
-                config_file = django_settings.EMS_AUTH_CONFIG
-                if os.path.exists(config_file):
-                    with open(config_file, 'r') as f:
-                        config = json.load(f)
-                    logger.info("Configuration alternative trouvée")
-        except Exception as config_exc:
-            logger.error(f"Erreur lors de la lecture de configuration alternative: {str(config_exc)}")
-        
-        # Vérifier si l'API est bien démarrée
-        try:
-            health_resp = requests.get(f"{BASE_URL}/errors/api/health/", timeout=5)
-            logger.info(f"API health check: {health_resp.status_code} - {health_resp.text[:100]}")
-        except Exception as health_exc:
-            logger.error(f"API health check failed: {str(health_exc)}")
-        
-        return {"status": "error", "msg": "token_error", "detail": "Échec de l'authentification avec la méthode GET"}
-
     # --- 3) Préparation du payload ---
     try:
         def map_csv_to_event_dict(csv_row):
