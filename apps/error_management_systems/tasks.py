@@ -110,13 +110,13 @@ def task_execute_cis_error_report(self):
 import os
 import glob
 import csv
+import urllib.parse
 from datetime import datetime
 from celery import shared_task
 from django.conf import settings
 import logging
 import requests
 import json
-from requests.auth import HTTPBasicAuth
 
 logger = logging.getLogger(__name__)
 
@@ -127,15 +127,20 @@ HEADERS = ['Domain', 'Service Type', 'Service Name', 'Error Count', 'Error Reaso
     queue='queue_process_cis_error_report',  # ou autre queue dédiée
     name='apps.error_management_systems.tasks.process_cis_error_report'
 )
-def process_and_push_cis_errors(self):
+def process_cis_error_report(self):
     """
     1) Lit le CSV CIS du jour
     2) Obtient un token auprès de l'API interne
     3) Envoie en batch les événements vers create_event_api
     """
-    BASE_URL = settings.EMS_API_BASE_URL if hasattr(settings, 'EMS_API_BASE_URL') else "http://ems.mtn.bj"
-    USER = settings.EMS_API_USER if hasattr(settings, 'EMS_API_USER') else "celery_user"
-    PASS = settings.EMS_API_PASSWORD if hasattr(settings, 'EMS_API_PASSWORD') else "samitoure@!1&112024sadmin"
+    # Configuration de l'API
+    BASE_URL = "http://ems.mtn.bj"
+    USER = "celery_user_report"
+    PASS = "samitoure@!1&112024sadmin"
+    
+    # Log des informations de configuration (sans le mot de passe complet)
+    logger.info(f"Utilisation de l'API sur: {BASE_URL}")
+    logger.info(f"Utilisateur API: {USER}")
 
     # --- 1) Lecture du CSV ---
     output_dir = settings.CIS_ERROR_REPORT_OUTPUT_DIR
@@ -164,53 +169,88 @@ def process_and_push_cis_errors(self):
     # --- 2) Récupération du token ---
     token_url = f"{BASE_URL}/errors/api/token/"
     
-    # Plusieurs méthodes d'authentification pour essayer d'obtenir le token
-    auth_methods = [
-        # Méthode 1: JSON dans le body
-        lambda: requests.post(
-            token_url, 
-            json={"username": USER, "password": PASS}, 
-            timeout=10,
-            headers={"Content-Type": "application/json"}
-        ),
-        # Méthode 2: Form data
-        lambda: requests.post(
+    # Vérifier la disponibilité du serveur d'API
+    try:
+        health_check = requests.get(f"{BASE_URL}/", timeout=5)
+        logger.info(f"API disponible, code: {health_check.status_code}")
+    except Exception as e:
+        logger.warning(f"Vérification de disponibilité API échouée: {str(e)}")
+    
+    # Utiliser uniquement la méthode POST avec JSON comme spécifié dans l'API
+    logger.info("Tentative d'authentification avec méthode POST (JSON)")
+    token = None
+    try:
+        # Préparer les données d'authentification au format JSON
+        auth_data = {
+            "username": USER,
+            "password": PASS
+        }
+        
+        # Ajouter les headers appropriés
+        headers = {
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+        }
+        
+        # Exécuter la requête POST
+        logger.info(f"Envoi de la requête d'authentification à {token_url}")
+        resp = requests.post(
             token_url,
-            data={"username": USER, "password": PASS},
-            timeout=10
-        ),
-        # Méthode 3: Basic Auth
-        lambda: requests.post(
-            token_url,
-            auth=HTTPBasicAuth(USER, PASS),
+            json=auth_data,  # Utiliser json= pour encoder automatiquement en JSON
+            headers=headers,
             timeout=10
         )
-    ]
+        
+        # Log détaillé de la réponse
+        logger.info(f"Status: {resp.status_code}")
+        logger.info(f"Headers: {dict(resp.headers)}")
+        logger.info(f"Réponse: {resp.text[:100]}")
+        
+        # Tenter de parser la réponse
+        if resp.status_code < 400:  # Si la réponse est OK
+            try:
+                token_data = resp.json()
+                logger.info(f"Réponse JSON reçue: {token_data}")
+                
+                if "token" in token_data:
+                    token = token_data["token"]
+                    logger.info("Token obtenu avec succès")
+                else:
+                    logger.error(f"Format de réponse valide mais sans token: {resp.text}")
+            except Exception as json_exc:
+                logger.error(f"Impossible de parser la réponse JSON: {str(json_exc)}")
+        else:
+            logger.error(f"Erreur d'authentification: {resp.status_code} {resp.reason}: {resp.text}")
+    except Exception as exc:
+        logger.exception(f"Exception lors de l'authentification: {str(exc)}")
+
     
     token = None
     auth_errors = []
     
-    for i, auth_method in enumerate(auth_methods):
-        try:
-            logger.info(f"Tentative d'authentification méthode {i+1}")
-            resp = auth_method()
-            resp.raise_for_status()
-            token_data = resp.json()
-            if "token" in token_data:
-                token = token_data["token"]
-                logger.info(f"Token obtenu avec succès via méthode {i+1}")
-                break
-            else:
-                auth_errors.append(f"Méthode {i+1}: Réponse sans token: {resp.text}")
-        except Exception as exc:
-            auth_errors.append(f"Méthode {i+1}: {str(exc)}")
-            logger.warning(f"Échec de l'authentification méthode {i+1}: {str(exc)}")
-            continue
-    
     if token is None:
-        error_details = "\n".join(auth_errors)
-        logger.error(f"Toutes les méthodes d'authentification ont échoué:\n{error_details}")
-        return {"status": "error", "msg": "token_error", "detail": error_details}
+        logger.error("Impossible d'obtenir un token d'authentification")
+        
+        # Vérifier l'existence de settings spécifiques
+        try:
+            from django.conf import settings as django_settings
+            if hasattr(django_settings, 'EMS_AUTH_CONFIG'):
+                config_file = django_settings.EMS_AUTH_CONFIG
+                if os.path.exists(config_file):
+                    with open(config_file, 'r') as f:
+                        config = json.load(f)
+                    logger.info("Configuration alternative trouvée")
+        except Exception as config_exc:
+            logger.error(f"Erreur lors de la lecture de configuration alternative: {str(config_exc)}")
+        
+        # Vérifier si l'API est bien démarrée
+        try:
+            health_resp = requests.get(f"{BASE_URL}/errors/api/health/", timeout=5)
+            logger.info(f"API health check: {health_resp.status_code} - {health_resp.text[:100]}")
+        except Exception as health_exc:
+            logger.error(f"API health check failed: {str(health_exc)}")
+        
+        return {"status": "error", "msg": "token_error", "detail": "Échec de l'authentification avec la méthode GET"}
 
     # --- 3) Préparation du payload ---
     try:
@@ -237,10 +277,18 @@ def process_and_push_cis_errors(self):
 
     # --- 4) Envoi en batch ---
     api_url = f"{BASE_URL}/errors/api/create-event/"
-    headers = {"Authorization": f"Token {token}", "Content-Type": "application/json"}
+    headers = {
+        "Authorization": f"Token {token}", 
+        "Content-Type": "application/json",
+        "Accept": "application/json"
+    }
     
     try:
+        logger.info(f"Envoi du payload au endpoint {api_url}")
+        logger.info(f"Nombre d'événements à envoyer: {len(payload)}")
+        
         resp = requests.post(api_url, json=payload, headers=headers, timeout=30)
+        
         # Log de la réponse pour debug
         logger.info(f"Réponse API (code {resp.status_code}): {resp.text[:200]}...")
         
