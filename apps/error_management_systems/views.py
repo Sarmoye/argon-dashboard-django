@@ -705,7 +705,8 @@ def edit_ticket(request, ticket_id):
 
 # ---- API Views ----
 from rest_framework import status, permissions
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes, authentication_classes
+from rest_framework.authentication import TokenAuthentication
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 from django.contrib.auth import authenticate
@@ -742,6 +743,7 @@ def get_auth_token(request):
 
 
 @api_view(['POST'])
+@authentication_classes([TokenAuthentication])
 @permission_classes([permissions.IsAuthenticated])
 def create_event_api(request):
     """API endpoint to create a new error event with optimizations for high volume."""
