@@ -743,8 +743,6 @@ def get_auth_token(request):
 
 
 @api_view(['POST'])
-@authentication_classes([TokenAuthentication])
-@permission_classes([permissions.IsAuthenticated])
 def create_event_api(request):
     """API endpoint to create a new error event with optimizations for high volume."""
     throttle_classes = [CustomUserRateThrottle]
