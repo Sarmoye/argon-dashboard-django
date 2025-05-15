@@ -259,8 +259,8 @@ def process_cis_error_report(self):
                 
             return {
                 "system_name": csv_row[0] if len(csv_row) > 0 else "Unknown",
-                "service_name": csv_row[1] if len(csv_row) > 1 else "Unknown",
-                "error_category_name": csv_row[2] if len(csv_row) > 2 else "Unknown",
+                "service_name": csv_row[2] if len(csv_row) > 1 else "Unknown",
+                "error_category_name": csv_row[1] if len(csv_row) > 2 else "Unknown",
                 "error_count": error_count,
                 "error_description": csv_row[4] if len(csv_row) > 4 else "",
             }
