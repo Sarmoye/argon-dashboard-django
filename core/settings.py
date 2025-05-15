@@ -231,6 +231,8 @@ ORACLE_PORT = "1521"
 ORACLE_SERVICE = "isl"
 ORACLE_USER = "samitoure"
 ORACLE_PASSWORD = "StH7k4w#nA4kI#&t0P"
+# Ajoutez ceci à votre fichier settings.py
+ORACLE_CLIENT_HOME = '/usr/lib/oracle/19.18/client64'  # Ajustez selon votre installation
 
 # Répertoire où seront enregistrés les CSV
 CIS_ERROR_REPORT_OUTPUT_DIR = "/srv/itsea_files/cis_error_report_files"

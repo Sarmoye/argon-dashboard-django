@@ -634,6 +634,14 @@ def task_execute_irm_error_report(self):
     et écrit un CSV dans le répertoire défini en settings.
     """
 
+    # Configuration d'Oracle - à effectuer avant l'import de cx_Oracle
+    import os
+    # Définir les variables d'environnement pour le client Oracle si nécessaire
+    if hasattr(settings, 'ORACLE_CLIENT_HOME'):
+        os.environ['ORACLE_HOME'] = settings.ORACLE_CLIENT_HOME
+        os.environ['LD_LIBRARY_PATH'] = settings.ORACLE_CLIENT_HOME + '/lib:' + os.environ.get('LD_LIBRARY_PATH', '')
+        os.environ['PATH'] = settings.ORACLE_CLIENT_HOME + '/bin:' + os.environ.get('PATH', '')
+    
     try:
         # --- 1. Préparer le répertoire de sortie et les paramètres Oracle
         output_dir = settings.DEFAULT_ERROR_REPORT_OUTPUT_DIR
@@ -660,19 +668,16 @@ def task_execute_irm_error_report(self):
         # --- 4. Connexion à la base de données Oracle via SQLAlchemy
         import pandas as pd
         from sqlalchemy import create_engine
-        from sqlalchemy.engine.url import URL
         
-        # Création de la connexion SQLAlchemy
-        db_url = URL.create(
-            drivername="oracle+cx_oracle",
-            username=oracle_cfg["ORACLE_USER"],
-            password=oracle_cfg["ORACLE_PASSWORD"],
-            host=oracle_cfg["ORACLE_HOST"],
-            port=oracle_cfg["ORACLE_PORT"],
-            database=oracle_cfg["ORACLE_SERVICE"]
-        )
+        # Création de la chaîne de connexion directement pour plus de contrôle
+        # Format: oracle+cx_oracle://username:password@host:port/?service_name=service
+        connection_string = f"oracle+cx_oracle://{oracle_cfg['ORACLE_USER']}:{oracle_cfg['ORACLE_PASSWORD']}@{oracle_cfg['ORACLE_HOST']}:{oracle_cfg['ORACLE_PORT']}/?service_name={oracle_cfg['ORACLE_SERVICE']}"
         
-        engine = create_engine(db_url)
+        # Log de débogage sans le mot de passe
+        safe_connection = connection_string.replace(oracle_cfg['ORACLE_PASSWORD'], '********')
+        logger.debug(f"Connexion avec: {safe_connection}")
+        
+        engine = create_engine(connection_string)
         
         try:
             # Exécution de la requête et obtention des résultats dans un DataFrame
@@ -680,10 +685,18 @@ def task_execute_irm_error_report(self):
             
             # Dans un contexte de production, on utiliserait un with pour gérer la connexion
             with engine.connect() as connection:
-                df = pd.read_sql(query, connection)
+                # Ajout d'un délai d'attente plus long car la requête peut prendre du temps
+                df = pd.read_sql(query, connection, coerce_float=True)
             
-            # Écriture des résultats dans un fichier CSV
-            df.to_csv(output_file, index=False)
+            # Écriture des résultats dans un fichier CSV avec une configuration améliorée
+            logger.debug(f"Écriture de {len(df)} lignes dans le fichier CSV")
+            df.to_csv(
+                output_file, 
+                index=False, 
+                encoding='utf-8',
+                quoting=1,  # QUOTE_ALL pour éviter les problèmes de format
+                date_format='%Y-%m-%d %H:%M:%S'
+            )
             
             row_count = len(df)
             logger.info(f"Rapport IRM généré avec succès: {output_file} ({row_count} lignes)")
@@ -691,6 +704,9 @@ def task_execute_irm_error_report(self):
             
         except Exception as db_exc:
             logger.error(f"Erreur lors de l'exécution de la requête Oracle: {str(db_exc)}")
+            # Ajouter plus de détails pour le débogage
+            if hasattr(db_exc, 'orig') and db_exc.orig is not None:
+                logger.error(f"Erreur Oracle originale: {str(db_exc.orig)}")
             raise db_exc
 
     except Exception as exc:
