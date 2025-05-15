@@ -12,7 +12,7 @@ sudo systemctl enable celery-flower.service
 sudo systemctl start celery-flower.service
 
 # Start Celery workers for each queue
-for queue in execute_cis_error_report process_cis_error_report; do
+for queue in execute_cis_error_report process_cis_error_report execute_ecw_error_report process_ecw_error_report; do
     sudo systemctl enable celery-worker@$queue.service
     sudo systemctl start celery-worker@$queue.service
 done

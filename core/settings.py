@@ -237,14 +237,24 @@ DEFAULT_ERROR_REPORT_OUTPUT_DIR = "/srv/itsea_files/error_report_files"
 CELERY_BEAT_SCHEDULE = {
     'task-cis-error-report-every-30min': {
         'task': 'apps.error_management_systems.tasks.task_execute_cis_error_report',
-        'schedule': timedelta(minutes=1),
+        'schedule': timedelta(minutes=30),
         'options': {'queue': 'queue_execute_cis_error_report'},
     },
     'process-cis-error-report': {
         'task': 'apps.error_management_systems.tasks.process_cis_error_report',
-        'schedule': timedelta(minutes=3),
+        'schedule': timedelta(minutes=60),
         'options': {'queue': 'queue_process_cis_error_report'},
-     },
+    },
+    'task-ecw-error-report-every-30min': {
+        'task': 'apps.error_management_systems.tasks.task_execute_ecw_error_report',
+        'schedule': timedelta(minutes=1),
+        'options': {'queue': 'queue_execute_ecw_error_report'},
+    },
+    'process-ecw-error-report': {
+        'task': 'apps.error_management_systems.tasks.process_ecw_error_report',
+        'schedule': timedelta(minutes=3),
+        'options': {'queue': 'queue_process_ecw_error_report'},
+    },
 }
 
 
