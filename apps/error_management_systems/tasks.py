@@ -345,8 +345,8 @@ def task_execute_ecw_error_report(self):
         threshold_dt = now - timedelta(minutes=30)
         threshold_str = threshold_dt.strftime("%Y%m%d%H%M%S")
 
-        now_formatted = now.strftime("%Y-%m-%d %H-%M-%S")
-        threshold_formatted = threshold_dt.strftime("%Y-%m-%d %H-%M-%S")
+        now_formatted = now.strftime("%Y-%m-%d %H:%M:%S")
+        threshold_formatted = threshold_dt.strftime("%Y-%m-%d %H:%M:%S")
         today_str     = now.strftime("%Y%m%d")
 
         query = f"""
