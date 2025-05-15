@@ -2,7 +2,7 @@
 
 import os
 import subprocess
-from datetime import datetime
+from datetime import datetime, timedelta
 from celery import shared_task, Task
 from django.conf import settings
 import logging
@@ -25,7 +25,7 @@ def task_execute_cis_error_report(self):
 
     try:
         # --- 1. Préparer le répertoire de sortie et les paramètres Presto
-        output_dir = settings.CIS_ERROR_REPORT_OUTPUT_DIR
+        output_dir = settings.DEFAULT_ERROR_REPORT_OUTPUT_DIR
         os.makedirs(output_dir, exist_ok=True)
 
         presto_cfg = {
@@ -40,16 +40,40 @@ def task_execute_cis_error_report(self):
         }
 
         # --- 2. Construire la requête
-        today_str = datetime.now().strftime("%Y%m%d")
+        now = datetime.now()
+        now_str       = now.strftime("%Y%m%d%H%M%S")
+        threshold_str = (now - timedelta(minutes=30)).strftime("%Y%m%d%H%M%S")
+        today_str     = now.strftime("%Y%m%d")
+
         query = f"""
-        SELECT 
-            'CIS' as Domain,
-            sptype as "Service Type",
-            producttype as "Service Name", 
-            COUNT(*) AS "Error Count", 
-            reason as "Error Reason"
-        FROM hive.feeds.cis
-        WHERE tbl_dt = {today_str}
+        WITH parsed AS (
+          SELECT
+            sptype,
+            producttype,
+            reason,
+            success_failure,
+            CASE
+              WHEN regexp_replace(starttime, '[^0-9]', '') = '' THEN NULL
+              ELSE CAST(substr(regexp_replace(starttime, '[^0-9]', ''), 1, 14) AS BIGINT)
+            END AS start_num,
+            CASE
+              WHEN regexp_replace(endtime, '[^0-9]', '') = '' THEN NULL
+              ELSE CAST(substr(regexp_replace(endtime,   '[^0-9]', ''), 1, 14) AS BIGINT)
+            END AS end_num
+          FROM hive.feeds.cis
+          WHERE tbl_dt = {today_str}
+        )
+        SELECT
+          'CIS'            AS Domain,
+          sptype           AS "Service Type",
+          producttype      AS "Service Name",
+          COUNT(*)         AS "Error Count",
+          reason           AS "Error Reason"
+        FROM parsed
+        WHERE
+          start_num IS NOT NULL
+          AND (end_num   >= {threshold_str} OR end_num IS NULL) -- Inclure les cas où end_num est NULL
+          AND start_num <= {now_str}
           AND upper(success_failure) LIKE '%FAIL%'
         GROUP BY producttype, reason, sptype
         ORDER BY "Error Count" DESC
@@ -143,7 +167,7 @@ def process_cis_error_report(self):
     logger.info(f"Utilisateur API: {USER}")
 
     # --- 1) Lecture du CSV ---
-    output_dir = settings.CIS_ERROR_REPORT_OUTPUT_DIR
+    output_dir = settings.DEFAULT_ERROR_REPORT_OUTPUT_DIR
     today_str = datetime.now().strftime('%Y%m%d')
     pattern = os.path.join(output_dir, f'cis_error_report_{today_str}_*.csv')
     files = glob.glob(pattern)
@@ -283,3 +307,4 @@ def process_cis_error_report(self):
         
         # Si échec, on peut relancer la tâche
         raise self.retry(exc=exc, countdown=60, max_retries=3)
+        

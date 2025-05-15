@@ -227,7 +227,10 @@ PRESTO_KEYSTORE_PASSWORD="enzoslR722$"
 PRESTO_CLI_PATH="/etc/nginx/sites-available/argon-dashboard-django/presto"
 
 # Répertoire où seront enregistrés les CSV
-CIS_ERROR_REPORT_OUTPUT_DIR = "/srv/itsea_files/error_report_files"
+CIS_ERROR_REPORT_OUTPUT_DIR = "/srv/itsea_files/cis_error_report_files"
+ECW_ERROR_REPORT_OUTPUT_DIR = "/srv/itsea_files/ecw_error_report_files"
+IRM_ERROR_REPORT_OUTPUT_DIR = "/srv/itsea_files/irm_error_report_files"
+DEFAULT_ERROR_REPORT_OUTPUT_DIR = "/srv/itsea_files/error_report_files"
 
 
 # Celery Beat Configuration
