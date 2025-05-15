@@ -226,6 +226,12 @@ PRESTO_KEYSTORE_PATH="/etc/nginx/sites-available/argon-dashboard-django/eva_key/
 PRESTO_KEYSTORE_PASSWORD="enzoslR722$"
 PRESTO_CLI_PATH="/etc/nginx/sites-available/argon-dashboard-django/presto"
 
+ORACLE_HOST = "10.77.177.192"
+ORACLE_PORT = "1521"
+ORACLE_SERVICE = "isl"
+ORACLE_USER = "samitoure"
+ORACLE_PASSWORD = "StH7k4w#nA4kI#&t0P"
+
 # Répertoire où seront enregistrés les CSV
 CIS_ERROR_REPORT_OUTPUT_DIR = "/srv/itsea_files/cis_error_report_files"
 ECW_ERROR_REPORT_OUTPUT_DIR = "/srv/itsea_files/ecw_error_report_files"
@@ -233,7 +239,7 @@ IRM_ERROR_REPORT_OUTPUT_DIR = "/srv/itsea_files/irm_error_report_files"
 DEFAULT_ERROR_REPORT_OUTPUT_DIR = "/srv/itsea_files/error_report_files"
 
 
-# Celery Beat Configuration
+# Celery Beat Configuration task_execute_irm_error_report
 CELERY_BEAT_SCHEDULE = {
     'task-cis-error-report-every-30min': {
         'task': 'apps.error_management_systems.tasks.task_execute_cis_error_report',
@@ -247,13 +253,23 @@ CELERY_BEAT_SCHEDULE = {
     },
     'task-ecw-error-report-every-30min': {
         'task': 'apps.error_management_systems.tasks.task_execute_ecw_error_report',
-        'schedule': timedelta(minutes=1),
+        'schedule': timedelta(minutes=30),
         'options': {'queue': 'queue_execute_ecw_error_report'},
     },
     'process-ecw-error-report': {
         'task': 'apps.error_management_systems.tasks.process_ecw_error_report',
-        'schedule': timedelta(minutes=3),
+        'schedule': timedelta(minutes=60),
         'options': {'queue': 'queue_process_ecw_error_report'},
+    },
+    'task-irm-error-report-every-30min': {
+        'task': 'apps.error_management_systems.tasks.task_execute_irm_error_report',
+        'schedule': timedelta(minutes=1),
+        'options': {'queue': 'queue_execute_irm_error_report'},
+    },
+    'process-irm-error-report': {
+        'task': 'apps.error_management_systems.tasks.process_irm_error_report',
+        'schedule': timedelta(minutes=3),
+        'options': {'queue': 'queue_process_irm_error_report'},
     },
 }
 
