@@ -51,7 +51,7 @@ def save_to_csv(data, filename="/srv/itsea_files/monitoring_files/status_log.csv
 def main():
     # Liste des URLs à vérifier
     applications = {
-        "Momo Rapports": "http://momo-rapports.mtn.bj",
+        "Momo Rapports": "https://momo-rapports.mtn.bj",
         "Admin Momo Rapports": "https://admin-momo-rapports.mtn.bj/",
         "Fraud report": "http://10.77.152.70:8042/auth/login",
         "Identity and Access Management": "https://iam.mtn.bj/health"
