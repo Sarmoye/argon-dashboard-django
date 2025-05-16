@@ -25,7 +25,7 @@ def task_execute_cis_error_report(self):
 
     try:
         # --- 1. Préparer le répertoire de sortie et les paramètres Presto
-        output_dir = settings.DEFAULT_ERROR_REPORT_OUTPUT_DIR
+        output_dir = settings.CIS_ERROR_REPORT_OUTPUT_DIR
         os.makedirs(output_dir, exist_ok=True)
 
         presto_cfg = {
@@ -167,7 +167,7 @@ def process_cis_error_report(self):
     logger.info(f"Utilisateur API: {USER}")
 
     # --- 1) Lecture du CSV ---
-    output_dir = settings.DEFAULT_ERROR_REPORT_OUTPUT_DIR
+    output_dir = settings.CIS_ERROR_REPORT_OUTPUT_DIR
     today_str = datetime.now().strftime('%Y%m%d')
     pattern = os.path.join(output_dir, f'cis_error_report_{today_str}_*.csv')
     files = glob.glob(pattern)
@@ -325,7 +325,7 @@ def task_execute_ecw_error_report(self):
 
     try:
         # --- 1. Préparer le répertoire de sortie et les paramètres Presto
-        output_dir = settings.DEFAULT_ERROR_REPORT_OUTPUT_DIR
+        output_dir = settings.ECW_ERROR_REPORT_OUTPUT_DIR
         os.makedirs(output_dir, exist_ok=True)
 
         presto_cfg = {
@@ -478,7 +478,7 @@ def process_ecw_error_report(self):
     logger.info(f"Utilisateur API: {USER}")
 
     # --- 1) Lecture du CSV ---
-    output_dir = settings.DEFAULT_ERROR_REPORT_OUTPUT_DIR
+    output_dir = settings.ECW_ERROR_REPORT_OUTPUT_DIR
     today_str = datetime.now().strftime('%Y%m%d')
     pattern = os.path.join(output_dir, f'ecw_error_report_{today_str}_*.csv')
     files = glob.glob(pattern)
@@ -644,7 +644,7 @@ def task_execute_irm_error_report(self):
     
     try:
         # --- 1. Préparer le répertoire de sortie et les paramètres Oracle
-        output_dir = settings.DEFAULT_ERROR_REPORT_OUTPUT_DIR
+        output_dir = settings.IRM_ERROR_REPORT_OUTPUT_DIR
         os.makedirs(output_dir, exist_ok=True)
 
         oracle_cfg = {
@@ -736,7 +736,7 @@ def process_irm_error_report(self):
     logger.info(f"Utilisateur API: {USER}")
 
     # --- 1) Lecture du CSV ---
-    output_dir = settings.DEFAULT_ERROR_REPORT_OUTPUT_DIR
+    output_dir = settings.IRM_ERROR_REPORT_OUTPUT_DIR
     today_str = datetime.now().strftime('%Y%m%d')
     pattern = os.path.join(output_dir, f'irm_error_report_{today_str}_*.csv')
     files = glob.glob(pattern)
