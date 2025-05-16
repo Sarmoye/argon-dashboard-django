@@ -14,7 +14,7 @@ def check_application_status(url, timeout=5):
         response = requests.get(url, timeout=timeout)
         return "Online" if 200 <= response.status_code < 400 else "Offline"
     except (requests.RequestException, ConnectionError):
-        return "down"
+        return "Offline"
 
 def backup_existing_file(filename):
     """
