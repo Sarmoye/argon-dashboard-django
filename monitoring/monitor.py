@@ -8,11 +8,11 @@ import shutil
 def check_application_status(url, timeout=5):
     """
     Vérifie le statut d'une application via son URL
-    Retourne "up" si disponible (code 200-399), "down" sinon
+    Retourne "Online" si disponible (code 200-399), "Not Online" sinon
     """
     try:
         response = requests.get(url, timeout=timeout)
-        return "up" if 200 <= response.status_code < 400 else "down"
+        return "Online" if 200 <= response.status_code < 400 else "Not Online"
     except (requests.RequestException, ConnectionError):
         return "down"
 
