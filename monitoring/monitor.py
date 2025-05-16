@@ -46,26 +46,25 @@ def main():
     
     print(f"Début de la surveillance des applications - {datetime.now()}")
     
-    while True:
-        timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        print(f"\nVérification à {timestamp}")
-        print("-" * 50)
+    timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    print(f"\nVérification à {timestamp}")
+    print("-" * 50)
         
-        status_data = []
+    status_data = []
         
-        for app_name, url in applications.items():
-            status = check_application_status(url)
-            status_data.append({
-                'timestamp': timestamp,
-                'application': app_name,
-                'url': url,
-                'statut': status
-            })
-            print(f"{app_name.ljust(15)} | {url.ljust(30)} | {status.upper()}")
+    for app_name, url in applications.items():
+        status = check_application_status(url)
+        status_data.append({
+            'timestamp': timestamp,
+            'application': app_name,
+            'url': url,
+            'statut': status
+        })
+        print(f"{app_name.ljust(15)} | {url.ljust(30)} | {status.upper()}")
         
         # Sauvegarde dans le fichier CSV
         save_to_csv(status_data)
-        print(f"\nRésultats sauvegardés dans status_log.csv")
+        print(f"\nRésultats sauvegardés dans /srv/itsea_files/monitoring_files/status_log.csv")
 
 if __name__ == "__main__":
     main()
