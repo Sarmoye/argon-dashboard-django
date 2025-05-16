@@ -2,6 +2,8 @@ import requests
 import time
 from datetime import datetime
 import csv
+import os
+import shutil
 
 def check_application_status(url, timeout=5):
     """
@@ -14,29 +16,40 @@ def check_application_status(url, timeout=5):
     except (requests.RequestException, ConnectionError):
         return "down"
 
+def backup_existing_file(filename):
+    """
+    Fait un backup du fichier existant avec un timestamp
+    """
+    if os.path.exists(filename):
+        # Créer le nom du fichier backup
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        base, ext = os.path.splitext(filename)
+        backup_filename = f"{base}_{timestamp}{ext}"
+        
+        # Copier le fichier existant vers le backup
+        shutil.copy2(filename, backup_filename)
+        print(f"Backup créé: {backup_filename}")
+
 def save_to_csv(data, filename="/srv/itsea_files/monitoring_files/status_log.csv"):
     """
     Sauvegarde les données dans un fichier CSV
     """
-    file_exists = False
-    try:
-        with open(filename, 'r') as f:
-            file_exists = True
-    except FileNotFoundError:
-        pass
+    # Vérifier et faire un backup du fichier existant
+    backup_existing_file(filename)
     
-    with open(filename, 'a', newline='') as csvfile:
+    # Écrire les nouvelles données
+    with open(filename, 'w', newline='') as csvfile:
         fieldnames = ['timestamp', 'application', 'url', 'statut']
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-        
-        if not file_exists:
-            writer.writeheader()
+        writer.writeheader()
         
         for entry in data:
             writer.writerow(entry)
 
+    return filename
+
 def main():
-    # Liste des URLs à vérifier (à personnaliser)
+    # Liste des URLs à vérifier
     applications = {
         "Momo Rapports": "http://momo-rapports.mtn.bj",
         "Admin Momo Rapports": "https://admin-momo-rapports.mtn.bj/",
@@ -60,11 +73,11 @@ def main():
             'url': url,
             'statut': status
         })
-        print(f"{app_name.ljust(15)} | {url.ljust(30)} | {status.upper()}")
+        print(f"{app_name.ljust(25)} | {url.ljust(40)} | {status.upper()}")
         
-        # Sauvegarde dans le fichier CSV
-        save_to_csv(status_data)
-        print(f"\nRésultats sauvegardés dans /srv/itsea_files/monitoring_files/status_log.csv")
+    # Sauvegarde dans le fichier CSV
+    filename = save_to_csv(status_data)
+    print(f"\nRésultats sauvegardés dans {filename}")
 
 if __name__ == "__main__":
     main()
