@@ -44,9 +44,6 @@ def main():
         "Identity and Access Management": "https://iam.mtn.bj/health"
     }
     
-    # Fréquence de vérification en secondes
-    check_interval = 60
-    
     print(f"Début de la surveillance des applications - {datetime.now()}")
     
     while True:
@@ -69,8 +66,6 @@ def main():
         # Sauvegarde dans le fichier CSV
         save_to_csv(status_data)
         print(f"\nRésultats sauvegardés dans status_log.csv")
-        
-        time.sleep(check_interval)
 
 if __name__ == "__main__":
     main()
