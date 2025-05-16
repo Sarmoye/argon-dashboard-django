@@ -281,7 +281,7 @@ def display_app_status_table(df):
     # Application du style et affichage
     st.markdown('<div class="dataframe-container">', unsafe_allow_html=True)
     st.dataframe(
-        status_df.style.applymap(
+        status_df.style.map(
             lambda x: style_status(x), 
             subset=['statut']
         ),
