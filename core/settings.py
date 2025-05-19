@@ -244,33 +244,27 @@ DEFAULT_ERROR_REPORT_OUTPUT_DIR = "/srv/itsea_files/error_report_files"
 
 # Celery Beat Configuration task_execute_irm_error_report
 from datetime import timedelta
-from apps.error_management_systems.tasks import process_cis_error_report, \
-                                              process_ecw_error_report, \
-                                              process_irm_error_report
 
 CELERY_BEAT_SCHEDULE = {
     'cis-error-report-every-30min': {
         'task': 'apps.error_management_systems.tasks.task_execute_cis_error_report',
         'schedule': timedelta(minutes=30),
         'options': {
-            'queue': 'queue_execute_cis_error_report',
-            'link': process_cis_error_report.s(),
+            'queue': 'queue_execute_cis_error_report'
         },
     },
     'ecw-error-report-every-30min': {
         'task': 'apps.error_management_systems.tasks.task_execute_ecw_error_report',
         'schedule': timedelta(minutes=30),
         'options': {
-            'queue': 'queue_execute_ecw_error_report',
-            'link': process_ecw_error_report.s(),
+            'queue': 'queue_execute_ecw_error_report'
         },
     },
     'irm-error-report-every-30min': {
         'task': 'apps.error_management_systems.tasks.task_execute_irm_error_report',
         'schedule': timedelta(minutes=30),
         'options': {
-            'queue': 'queue_execute_irm_error_report',
-            'link': process_irm_error_report.s(),
+            'queue': 'queue_execute_irm_error_report'
         },
     },
 }
