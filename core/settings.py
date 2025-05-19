@@ -254,7 +254,7 @@ CELERY_BEAT_SCHEDULE = {
         },
     },
     'process-cis-error-report': {
-        'task': 'apps.error_management_systems.tasks.task_process_cis_error_report',
+        'task': 'apps.error_management_systems.tasks.process_cis_error_report',
         'schedule': timedelta(minutes=1),
         'options': {
             'queue': 'queue_process_cis_error_report'
@@ -268,7 +268,7 @@ CELERY_BEAT_SCHEDULE = {
         },
     },
     'process-ecw-error-report': {
-        'task': 'apps.error_management_systems.tasks.task_process_ecw_error_report',
+        'task': 'apps.error_management_systems.tasks.process_ecw_error_report',
         'schedule': timedelta(minutes=1),
         'options': {
             'queue': 'queue_process_ecw_error_report'
@@ -282,7 +282,7 @@ CELERY_BEAT_SCHEDULE = {
         },
     },
     'process-irm-error-report': {
-        'task': 'apps.error_management_systems.tasks.task_process_irm_error_report',
+        'task': 'apps.error_management_systems.tasks.process_irm_error_report',
         'schedule': timedelta(minutes=1),
         'options': {
             'queue': 'queue_process_irm_error_report'
