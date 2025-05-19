@@ -253,6 +253,13 @@ CELERY_BEAT_SCHEDULE = {
             'queue': 'queue_execute_cis_error_report'
         },
     },
+    'process-cis-error-report-every-30min': {
+        'task': 'apps.error_management_systems.tasks.task_process_cis_error_report',
+        'schedule': timedelta(minutes=1),
+        'options': {
+            'queue': 'queue_process_cis_error_report'
+        },
+    },
     'ecw-error-report-every-30min': {
         'task': 'apps.error_management_systems.tasks.task_execute_ecw_error_report',
         'schedule': timedelta(minutes=30),
@@ -260,11 +267,25 @@ CELERY_BEAT_SCHEDULE = {
             'queue': 'queue_execute_ecw_error_report'
         },
     },
+    'process-ecw-error-report-every-30min': {
+        'task': 'apps.error_management_systems.tasks.task_process_ecw_error_report',
+        'schedule': timedelta(minutes=1),
+        'options': {
+            'queue': 'queue_process_ecw_error_report'
+        },
+    },
     'irm-error-report-every-30min': {
         'task': 'apps.error_management_systems.tasks.task_execute_irm_error_report',
         'schedule': timedelta(minutes=30),
         'options': {
             'queue': 'queue_execute_irm_error_report'
+        },
+    },
+    'process-irm-error-report-every-30min': {
+        'task': 'apps.error_management_systems.tasks.task_process_irm_error_report',
+        'schedule': timedelta(minutes=1),
+        'options': {
+            'queue': 'queue_process_irm_error_report'
         },
     },
 }
