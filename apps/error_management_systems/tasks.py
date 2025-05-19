@@ -161,7 +161,7 @@ def process_cis_error_report(self):
     # Configuration de l'API
     BASE_URL = "http://ems.mtn.bj"
     USER = "celery_user_report"
-    PASS = "samiure@!1&112024sadmin" 
+    PASS = "samitoure@!1&112024sadmin" 
     
     # Log des informations de configuration (sans le mot de passe complet)
     logger.info(f"Utilisation de l'API sur: {BASE_URL}")
