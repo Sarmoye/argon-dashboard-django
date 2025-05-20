@@ -296,32 +296,22 @@ a:hover {
     </div>
     
     <div class="card mb-4">
-    <div class="card-header">Error Type Overview</div>
-    <div class="card-body">
-        <p>Total Error Types: {{ context.total_error_types }}</p>
-        <div class="row">
-            <div class="col-md-4 col-sm-12 mb-3">
-                <canvas id="errorCategoryChart"
-                        data-labels="{{ context.error_type_categories|map(attribute=0)|join:',' }}"
-                        data-data="{{ context.error_type_categories|map(attribute=1)|join:',' }}">
-                </canvas>
-            </div>
-            <div class="col-md-4 col-sm-12 mb-3">
-                <canvas id="impactLevelChart"
-                        data-labels="{{ context.error_type_impact_levels|map(attribute=0)|join:',' }}"
-                        data-data="{{ context.error_type_impact_levels|map(attribute=1)|join:',' }}">
-                </canvas>
-            </div>
-            <div class="col-md-4 col-sm-12 mb-3">
-                <canvas id="expectedVsUnexpectedChart"
-                        data-labels="{{ context.expected_vs_unexpected|map(attribute=0)|join:',' }}"
-                        data-data="{{ context.expected_vs_unexpected|map(attribute=1)|join:',' }}">
-                </canvas>
+        <div class="card-header">Error Type Overview</div>
+        <div class="card-body">
+            <p>Total Error Types: {{ context.total_error_types }}</p>
+            <div class="row">
+                <div class="col-md-4">
+                    <canvas id="errorCategoryChart" data-labels="{% for item in context.error_type_categories %}{{ item.0 }},{% endfor %}" data-data="{% for item in context.error_type_categories %}{{ item.1 }},{% endfor %}"></canvas>
+                </div>
+                <div class="col-md-4">
+                    <canvas id="impactLevelChart" data-labels="{% for item in context.error_type_impact_levels %}{{ item.0 }},{% endfor %}" data-data="{% for item in context.error_type_impact_levels %}{{ item.1 }},{% endfor %}"></canvas>
+                </div>
+                <div class="col-md-4">
+                    <canvas id="expectedVsUnexpectedChart" data-labels="{% for item in context.expected_vs_unexpected %}{{ item.0 }},{% endfor %}" data-data="{% for item in context.expected_vs_unexpected %}{{ item.1 }},{% endfor %}"></canvas>
+                </div>
             </div>
         </div>
     </div>
-</div>
-
 
     <div class="card mb-4">
         <div class="card-header d-flex justify-content-between align-items-center">
