@@ -14,7 +14,7 @@ ldap://srv-vdcs02.mtn.local:389
 ldap://srv-vdcs11.mtn.local:389
 """
 
-LDAP_URL = 'ldap://srv-vdcs02.mtn.local:389'
+LDAP_URL = 'ldap://10.77.71.12:389'
 BASE_DN = 'DC=mtn,DC=local'
 
 def ldap_connect(username, password):
