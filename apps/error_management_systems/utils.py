@@ -5,13 +5,13 @@ from django.conf import settings
 
 logger = logging.getLogger(__name__)
 
-def execute_presto_query_to_csv(query, output_path, presto_config=None):
+def execute_presto_query_to_csv(query, output_file, presto_config=None):
     """
     Exécute une requête SQL via Presto CLI et sauvegarde les résultats dans un fichier CSV.
     
     Args:
         query (str): La requête SQL à exécuter
-        output_path (str): Chemin complet du fichier CSV de sortie
+        output_file (str): Chemin complet du fichier CSV de sortie
         presto_config (dict, optional): Configuration Presto personnalisée.
                                        Si non fournie, utilise les paramètres des settings.
     
@@ -21,7 +21,7 @@ def execute_presto_query_to_csv(query, output_path, presto_config=None):
     
     try:
         # Assurer que le répertoire de sortie existe
-        output_dir = os.path.dirname(output_path)
+        output_dir = os.path.dirname(output_file)
         os.makedirs(output_dir, exist_ok=True)
         
         # Utiliser la configuration par défaut ou celle fournie
@@ -71,10 +71,10 @@ def execute_presto_query_to_csv(query, output_path, presto_config=None):
         env = os.environ.copy()
         env["PRESTO_PASSWORD"] = presto_config['PRESTO_PASSWORD']
         
-        logger.info("Exécution de la requête Presto vers: %s", output_path)
+        logger.info("Exécution de la requête Presto vers: %s", output_file)
         
         # Exécution
-        with open(output_path, "w") as f_out:
+        with open(output_file, "w") as f_out:
             proc = subprocess.run(
                 cmd,
                 stdout=f_out,
@@ -86,10 +86,10 @@ def execute_presto_query_to_csv(query, output_path, presto_config=None):
         if proc.returncode != 0:
             err = proc.stderr.strip()
             logger.error("Presto CLI error: %s", err)
-            return {"status": "error", "message": err, "output_path": output_path}
+            return {"status": "error", "message": err, "output_file": output_file}
         
-        logger.info("Requête Presto exécutée avec succès: %s", output_path)
-        return {"status": "success", "output_path": output_path}
+        logger.info("Requête Presto exécutée avec succès: %s", output_file)
+        return {"status": "success", "output_file": output_file}
     
     except Exception as exc:
         logger.exception("Exception lors de l'exécution de la requête Presto")
