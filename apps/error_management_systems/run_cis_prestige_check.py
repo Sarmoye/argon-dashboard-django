@@ -5,7 +5,7 @@ import xml.etree.ElementTree as ET
 import os
 
 # Assume this utility function is available as provided
-from utils import execute_presto_query_to_csv
+from utils import execute_presto_query_to_csv, send_email
 
 def task_generate_my_report():
     """
@@ -120,6 +120,17 @@ def process_prestige_data():
             writer.writeheader()
             writer.writerows(processed_data)
         print("Final report generated:", final_output_path)
+                # Envoi du fichier final par email
+        from_email = "Sarmoye.AmitoureHaidara@mtn.com"
+        to_emails = ["Sarmoye.AmitoureHaidara@mtn.com"]  # Tu peux ajouter d'autres destinataires ici
+        subject = f"Prestige Report - {output_report_timestamp}"
+        body = "Bonjour,\n\nVeuillez trouver ci-joint le rapport Prestige généré automatiquement.\n\nCordialement"
+
+        try:
+            send_email(from_email, to_emails, subject, body, csv_file_path=final_output_path)
+        except Exception as e:
+            print(f"Erreur lors de l'envoi de l'e-mail : {e}")
+
     else:
         print("No data to write to the final report.")
 

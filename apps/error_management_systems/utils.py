@@ -104,3 +104,48 @@ def execute_presto_query_to_csv(query, output_file, presto_config=None):
     except Exception as exc:
         logger.exception("Exception lors de l'exécution de la requête Presto")
         return {"status": "error", "message": str(exc), "exception": exc}
+    
+
+
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from email.mime.application import MIMEApplication
+import os
+
+def send_email(from_email, to_emails, subject, body, csv_file_path=None):
+    smtp_server = '10.77.152.66'  # Adresse IP du serveur SMTP de votre entreprise
+    smtp_port = 25  # Port SMTP utilisé par votre serveur
+
+    # Créer le message
+    msg = MIMEMultipart()
+    msg['From'] = from_email
+    msg['To'] = ', '.join(to_emails)
+    msg['Subject'] = subject
+    msg.attach(MIMEText(body, 'plain'))
+
+    # Attacher le fichier CSV en pièce jointe
+    if csv_file_path:
+        try:
+            with open(csv_file_path, 'rb') as csv_file:
+                csv_attachment = MIMEApplication(csv_file.read(), _subtype='csv')
+                filename = os.path.basename(csv_file_path)
+                csv_attachment.add_header('Content-Disposition', f'attachment; filename="{filename}"')
+                msg.attach(csv_attachment)
+        except Exception as e:
+            print(f"Erreur lors de la lecture du fichier CSV: {e}")
+            return
+
+    try:
+        # Se connecter au serveur SMTP
+        server = smtplib.SMTP(smtp_server, smtp_port)
+        # Envoyer l'e-mail
+        server.sendmail(from_email, to_emails, msg.as_string())
+        print('E-mail envoyé avec succès !')
+    except Exception as e:
+        print('Erreur lors de l\'envoi de l\'e-mail:', str(e))
+    finally:
+        try:
+            server.quit()
+        except NameError:
+            pass
