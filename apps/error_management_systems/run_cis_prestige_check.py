@@ -23,6 +23,7 @@ def task_generate_my_report():
     FROM hive.feeds.air_refill_ma
     WHERE tbl_dt={yesterday_str}
     AND transaction_type_cd like '%Prestige%'
+    and transaction_amt != '0.000000'
     """
 
     result = execute_presto_query_to_csv(query=query, output_file=output_path)
