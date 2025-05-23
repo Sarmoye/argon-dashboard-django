@@ -96,6 +96,12 @@ def process_prestige_data():
                     })
                 else:
                     print(f"No matching product found or incomplete data for MSISDN: {msisdn_key} (external_data2: {external_data2})")
+                    processed_data.append({
+                        "MSISDN": msisdn_key,
+                        "Product ID": "",
+                        "Expiry Date": "",
+                        "Prestige bundle is display": "False"
+                    })
 
             except requests.exceptions.RequestException as e:
                 print(f"Error making API request for MSISDN {msisdn_key}: {e}")
