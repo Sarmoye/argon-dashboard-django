@@ -46,7 +46,7 @@ def process_prestige_data():
         print("Failed to generate initial Presto report. Exiting.")
         return
 
-    api_url_template = "http://10.10.48.70:8080/cisBusiness/service/fulfillmentService?username=xxxxx&password=yyy&iname=zzz&msisdn={msisdn_key}&input=VIEW_HISTORY"
+    api_url_template = "http://10.10.48.70:8080/cisBusiness/service/fulfillmentService?username=aa8600be791820d82325ab7fa2467d88&password=3f2e678227aa078e56e60bf38663876f&iname=OBCC&msisdn={msisdn_key}&input=VIEW_HISTORY"
 
     output_report_timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     final_output_path = f"/srv/itsea_files/prestige_report_files/prestige_final_report_{output_report_timestamp}.csv"
