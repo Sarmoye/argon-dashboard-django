@@ -5,6 +5,16 @@ from django.conf import settings
 
 logger = logging.getLogger(__name__)
 
+PRESTO_SERVER="https://lnx-eva-master01.mtn.bj"
+PRESTO_PORT="8443"
+PRESTO_CATALOG="hive"
+PRESTO_SCHEMA="hive"
+PRESTO_USER="itsea_user_svc"
+PRESTO_PASSWORD="g3$JdBv2C3t#Tc&JjK57@8/qA)"
+PRESTO_KEYSTORE_PATH="/etc/nginx/sites-available/argon-dashboard-django/eva_key/benin_keystore.jks"
+PRESTO_KEYSTORE_PASSWORD="enzoslR722$"
+PRESTO_CLI_PATH="/etc/nginx/sites-available/argon-dashboard-django/presto"
+
 def execute_presto_query_to_csv(query, output_file, presto_config=None):
     """
     Exécute une requête SQL via Presto CLI et sauvegarde les résultats dans un fichier CSV.
@@ -13,7 +23,7 @@ def execute_presto_query_to_csv(query, output_file, presto_config=None):
         query (str): La requête SQL à exécuter
         output_file (str): Chemin complet du fichier CSV de sortie
         presto_config (dict, optional): Configuration Presto personnalisée.
-                                       Si non fournie, utilise les paramètres des settings.
+                                       Si non fournie, utilise les paramètres des 
     
     Returns:
         dict: Résultat de l'opération avec statut et détails
@@ -27,15 +37,15 @@ def execute_presto_query_to_csv(query, output_file, presto_config=None):
         # Utiliser la configuration par défaut ou celle fournie
         if presto_config is None:
             presto_config = {
-                "PRESTO_SERVER": settings.PRESTO_SERVER,
-                "PRESTO_PORT": settings.PRESTO_PORT,
-                "PRESTO_CATALOG": settings.PRESTO_CATALOG,
-                "PRESTO_SCHEMA": settings.PRESTO_SCHEMA,
-                "PRESTO_USER": settings.PRESTO_USER,
-                "PRESTO_PASSWORD": settings.PRESTO_PASSWORD,
-                "PRESTO_KEYSTORE_PATH": settings.PRESTO_KEYSTORE_PATH,
-                "PRESTO_KEYSTORE_PASSWORD": settings.PRESTO_KEYSTORE_PASSWORD,
-                "PRESTO_CLI_PATH": settings.PRESTO_CLI_PATH
+                "PRESTO_SERVER": PRESTO_SERVER,
+                "PRESTO_PORT": PRESTO_PORT,
+                "PRESTO_CATALOG": PRESTO_CATALOG,
+                "PRESTO_SCHEMA": PRESTO_SCHEMA,
+                "PRESTO_USER": PRESTO_USER,
+                "PRESTO_PASSWORD": PRESTO_PASSWORD,
+                "PRESTO_KEYSTORE_PATH": PRESTO_KEYSTORE_PATH,
+                "PRESTO_KEYSTORE_PASSWORD": PRESTO_KEYSTORE_PASSWORD,
+                "PRESTO_CLI_PATH": PRESTO_CLI_PATH
             }
         
         # Vérifier que les paramètres requis sont présents
