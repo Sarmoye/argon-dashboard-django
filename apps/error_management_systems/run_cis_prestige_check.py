@@ -122,7 +122,7 @@ def process_prestige_data():
         print("Final report generated:", final_output_path)
                 # Envoi du fichier final par email
         from_email = "Sarmoye.AmitoureHaidara@mtn.com"
-        to_emails = ["Sarmoye.AmitoureHaidara@mtn.com"]  # Tu peux ajouter d'autres destinataires ici
+        to_emails = ["Sarmoye.AmitoureHaidara@mtn.com", "dominique.lokossou@mtn.com", "moucharaf.amadou@mtn.com"]  # Tu peux ajouter d'autres destinataires ici
         subject = f"Prestige Report - {output_report_timestamp}"
         body = "Bonjour,\n\nVeuillez trouver ci-joint le rapport Prestige généré automatiquement.\n\nCordialement"
 
