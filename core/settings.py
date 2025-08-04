@@ -230,7 +230,7 @@ ORACLE_HOST = "10.77.177.192"
 ORACLE_PORT = "1521"
 ORACLE_SERVICE = "isl"
 ORACLE_USER = "samitoure"
-ORACLE_PASSWORD = "StH7k4w#nA4kI#&t0P"
+ORACLE_PASSWORD = "dD21#T02lCA20L8"
 # Ajoutez ceci à votre fichier settings.py
 ORACLE_CLIENT_HOME = '/usr/lib/oracle/19.18/client64'  # Ajustez selon votre installation
 
