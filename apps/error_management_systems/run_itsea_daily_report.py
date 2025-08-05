@@ -31,23 +31,59 @@ EMAIL_CONFIG = {
     # Destinataires par système
     'cis_recipients': [
         'Sarmoye.AmitoureHaidara@mtn.com',
-        'Hospice.Solevo@mtn.com'
+        'Hospice.Solevo@mtn.com',
+        'boris.DOLIVEIRA@mtn.com',
+        'Marcel.Kassavi@mtn.com',
+        'Jean-Christian.Amelina@mtn.com',
+        'Rukayat.Ishola@mtn.com',
+        'Roseline.Yeje1@mtn.com',
+        'Emmanuel.AVEGNON@mtn.com',
+        'Gildas.Zeounkpe@mtn.com',
+        'Diane.ZOCLI@mtn.com',
+        'Loic.GNACADJA@mtn.com',
+        'Marcelline.NgoBilong@mtn.com',
+        'ammara@latro-ms.com',
+        'danials@latro-ms.com',
+        'shivamt@latro-ms.com',
+        'solutionarchitects.BJ@mtn.com'
     ],
     
     'irm_recipients': [
         'Sarmoye.AmitoureHaidara@mtn.com',
-        'Hospice.Solevo@mtn.com'
+        'Hospice.Solevo@mtn.com',
+        'boris.DOLIVEIRA@mtn.com',
+        'Marcel.Kassavi@mtn.com',
+        'Jean-Christian.Amelina@mtn.com',
+        'Rukayat.Ishola@mtn.com',
+        'Roseline.Yeje1@mtn.com',
+        'seyive.akle@mobile-technologies.com',
+        'support@mobile-technologies.com',
+        'Yawo.Dabla@mtn.com'
     ],
     
     'ecw_recipients': [
         'Sarmoye.AmitoureHaidara@mtn.com',
-        'Hospice.Solevo@mtn.com'
+        'Hospice.Solevo@mtn.com',
+        'boris.DOLIVEIRA@mtn.com',
+        'Marcel.Kassavi@mtn.com',
+        'Jean-Christian.Amelina@mtn.com',
+        'Rukayat.Ishola@mtn.com',
+        'Roseline.Yeje1@mtn.com',
+        'Kenneth.HOUNGBADJI@mtn.com',
+        'Steve.NANSSONGKUIMO@mtn.com',
+        'Davy.Ouattara@mtn.com',
+        'vas_team.BJ@mtn.com'
     ],
     
     # Destinataires pour le rapport de synthèse
     'summary_recipients': [
         'Sarmoye.AmitoureHaidara@mtn.com',
-        'Hospice.Solevo@mtn.com'
+        'Hospice.Solevo@mtn.com',
+        'boris.DOLIVEIRA@mtn.com',
+        'Marcel.Kassavi@mtn.com',
+        'Jean-Christian.Amelina@mtn.com',
+        'Rukayat.Ishola@mtn.com',
+        'Roseline.Yeje1@mtn.com'
     ]
 }
 
@@ -481,7 +517,7 @@ def create_system_report_html(system_name, data, date_str):
                 </div>
                 <div class="stat-item">
                     <div class="stat-value" style="font-size: 16px; color: #6366f1;">{max_errors_service if max_errors_service else 'N/A'}</div>
-                    <div class="stat-label">Most impacted service/div>
+                    <div class="stat-label">Most impacted service</div>
                 </div>
             </div>
         </div>
