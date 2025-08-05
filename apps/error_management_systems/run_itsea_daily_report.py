@@ -365,7 +365,7 @@ def create_system_report_html(system_name, data, date_str):
             .container {{ 
                 max-width: 1200px; 
                 margin: 0 auto; 
-                background-color: black; 
+                background-color: white; 
                 border-radius: 16px; 
                 box-shadow: 0 10px 25px -3px rgba(0, 0, 0, 0.1); 
                 overflow: hidden;
