@@ -121,7 +121,7 @@ def create_html_table(df, title):
     <div style="margin: 30px 0;">
         <h3 style="color: #1a1a1a; font-weight: 600; font-size: 18px; margin-bottom: 20px; letter-spacing: -0.5px;">{title}</h3>
         <div style="overflow-x: auto; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); border: 1px solid #e5e7eb;">
-            <table style="width: 100%; border-collapse: collapse; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background-color: white;">
+            <table style="width: 100%; border-collapse: collapse; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background-color: black;">
                 <thead>
                     <tr style="background-color: #f8fafc; border-bottom: 1px solid #e5e7eb;">
     """
@@ -365,7 +365,7 @@ def create_system_report_html(system_name, data, date_str):
             .container {{ 
                 max-width: 1200px; 
                 margin: 0 auto; 
-                background-color: white; 
+                background-color: black; 
                 border-radius: 16px; 
                 box-shadow: 0 10px 25px -3px rgba(0, 0, 0, 0.1); 
                 overflow: hidden;
@@ -374,7 +374,7 @@ def create_system_report_html(system_name, data, date_str):
                 text-align: center; 
                 padding: 40px 30px; 
                 background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
-                color: black; 
+                color: white; 
             }}
             .header h1 {{
                 margin: 0 0 10px 0;
@@ -444,7 +444,7 @@ def create_system_report_html(system_name, data, date_str):
     <body>
         <div class="container">
             <div class="header">
-                <h1>Rapport d'erreurs {system_name}</h1>
+                <h1>Errors Report {system_name}</h1>
                 <div class="system-badge">{date_str}</div>
             </div>
             <div class="content">
@@ -474,15 +474,15 @@ def create_system_report_html(system_name, data, date_str):
             <div class="stats-grid">
                 <div class="stat-item">
                     <div class="stat-value" style="color: {'#dc2626' if total_errors > 0 else '#16a34a'};">{total_errors}</div>
-                    <div class="stat-label">Total des erreurs</div>
+                    <div class="stat-label">Total errors</div>
                 </div>
                 <div class="stat-item">
                     <div class="stat-value">{unique_services}</div>
-                    <div class="stat-label">Services concernés</div>
+                    <div class="stat-label">Relevant Services</div>
                 </div>
                 <div class="stat-item">
                     <div class="stat-value" style="font-size: 16px; color: #6366f1;">{max_errors_service if max_errors_service else 'N/A'}</div>
-                    <div class="stat-label">Service le plus impacté</div>
+                    <div class="stat-label">Most impacted service/div>
                 </div>
             </div>
         </div>
@@ -491,14 +491,14 @@ def create_system_report_html(system_name, data, date_str):
         html += f"""
         <div style="text-align: center; padding: 60px 20px; color: #6b7280;">
             <div style="font-size: 48px; margin-bottom: 16px;">📊</div>
-            <h3 style="color: #374151; margin-bottom: 8px;">Aucune donnée disponible</h3>
-            <p style="margin: 0;">Le système {system_name} ne présente aucune erreur ou les données ne sont pas disponibles.</p>
+            <h3 style="color: #374151; margin-bottom: 8px;">No data available</h3>
+            <p style="margin: 0;">No errors detected in the {system_name} system, or data is unavailable.</p>
         </div>
         """
     
     html += """
             <div class="info-panel">
-                <p><strong>💡 Note importante :</strong> Ce rapport est généré automatiquement chaque jour. Pour toute question ou problème urgent, contactez l'équipe de monitoring.</p>
+                <p><strong>💡 Important Note :</strong> This report is automatically generated daily. For any questions or urgent issues, please contact the monitoring team.</p>
             </div>
             </div>
         </div>
@@ -516,7 +516,7 @@ def create_summary_report_html(systems_data, date_str):
         <style>
             body {{ font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 20px; background-color: #f5f6fa; }}
             .container {{ max-width: 1400px; margin: 0 auto; background-color: white; padding: 30px; border-radius: 10px; box-shadow: 0 0 20px rgba(0,0,0,0.1); }}
-            .header {{ text-align: center; margin-bottom: 30px; padding: 20px; background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%); color: white; border-radius: 8px; }}
+            .header {{ text-align: center; margin-bottom: 30px; padding: 20px; background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%); color: black; border-radius: 8px; }}
             .summary-cards {{ display: flex; gap: 20px; margin: 30px 0; flex-wrap: wrap; }}
             .card {{ flex: 1; min-width: 250px; padding: 20px; border-radius: 8px; text-align: center; color: white; }}
             .card-cis {{ background: linear-gradient(135deg, #e74c3c, #c0392b); }}
@@ -527,7 +527,7 @@ def create_summary_report_html(systems_data, date_str):
     <body>
         <div class="container">
             <div class="header">
-                <h1>Rapport de Synthèse - Tous les Systèmes</h1>
+                <h1>Summary Report - All Systems</h1>
                 <p>Date: {date_str}</p>
             </div>
             
@@ -540,18 +540,18 @@ def create_summary_report_html(systems_data, date_str):
         if data is not None and not data.empty:
             total_errors = data['Error Count'].sum() if 'Error Count' in data.columns else 0
             unique_services = data['Service Name'].nunique() if 'Service Name' in data.columns else 0
-            status = "🔴 Erreurs détectées" if total_errors > 0 else "✅ Aucune erreur"
+            status = "🔴 Error detected" if total_errors > 0 else "✅ No Error"
         else:
             total_errors = 0
             unique_services = 0
-            status = "⚪ Pas de données"
+            status = "⚪ No data"
         
         html += f"""
                 <div class="card {card_class}">
                     <h3>{system_name}</h3>
                     <div style="font-size: 24px; font-weight: bold; margin: 10px 0;">{total_errors}</div>
-                    <div>erreurs totales</div>
-                    <div style="margin-top: 10px; font-size: 14px;">{unique_services} services concernés</div>
+                    <div>total errors</div>
+                    <div style="margin-top: 10px; font-size: 14px;">{unique_services} relevant services</div>
                     <div style="margin-top: 5px; font-size: 12px;">{status}</div>
                 </div>
         """
@@ -563,19 +563,19 @@ def create_summary_report_html(systems_data, date_str):
     # Tableaux détaillés pour chaque système
     for system_name, data in systems_data.items():
         if data is not None and not data.empty:
-            html += f"<h2 style='color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; margin-top: 40px;'>Détail {system_name}</h2>"
-            html += create_html_table(data, f"Erreurs {system_name}")
+            html += f"<h2 style='color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; margin-top: 40px;'>Detail {system_name}</h2>"
+            html += create_html_table(data, f"Errors {system_name}")
         else:
-            html += f"<h2 style='color: #7f8c8d; margin-top: 40px;'>Système {system_name}</h2>"
-            html += "<p style='color: #7f8c8d; font-style: italic;'>Aucune donnée disponible</p>"
+            html += f"<h2 style='color: #7f8c8d; margin-top: 40px;'>System {system_name}</h2>"
+            html += "<p style='color: #7f8c8d; font-style: italic;'>No data available</p>"
     
     html += """
             <div style="margin-top: 40px; padding: 20px; background-color: #ecf0f1; border-radius: 8px;">
                 <h4 style="color: #2c3e50; margin-top: 0;">Informations importantes</h4>
                 <ul style="color: #2c3e50;">
-                    <li>Ce rapport consolide les données de tous les systèmes</li>
-                    <li>Les graphiques détaillés sont envoyés séparément à chaque équipe</li>
-                    <li>En cas d'urgence, contactez l'équipe de monitoring</li>
+                    <li>This report consolidates data from all systems</li>
+                    <li>Detailed charts are sent separately to each team</li>
+                    <li>In case of emergency, contact the monitoring team</li>
                 </ul>
             </div>
         </div>
@@ -609,7 +609,7 @@ def generate_daily_reports():
             send_email_with_reports(
                 EMAIL_CONFIG['from_email'],
                 EMAIL_CONFIG['cis_recipients'],
-                f"Rapport CIS - {date_str}",
+                f"SYSTEM ERROR REPORT - CIS - {date_str}",
                 html_body,
                 charts
             )
@@ -638,7 +638,7 @@ def generate_daily_reports():
             send_email_with_reports(
                 EMAIL_CONFIG['from_email'],
                 EMAIL_CONFIG['ecw_recipients'],
-                f"Rapport ECW - {date_str}",
+                f"SYSTEM ERROR REPORT - ECW - {date_str}",
                 html_body,
                 charts,
                 ecw_attachment
@@ -661,7 +661,7 @@ def generate_daily_reports():
             send_email_with_reports(
                 EMAIL_CONFIG['from_email'],
                 EMAIL_CONFIG['irm_recipients'],
-                f"Rapport IRM - {date_str}",
+                f"SYSTEM ERROR REPORT - IRM - {date_str}",
                 html_body,
                 charts
             )
@@ -676,7 +676,7 @@ def generate_daily_reports():
         send_email_with_reports(
             EMAIL_CONFIG['from_email'],
             EMAIL_CONFIG['summary_recipients'],
-            f"Rapport de Synthèse - Tous les Systèmes - {date_str}",
+            f"SYSTEM ERROR REPORT - ALL SYSTEMS - {date_str}",
             summary_html,
             summary_charts
         )
