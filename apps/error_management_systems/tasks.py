@@ -339,6 +339,7 @@ def task_execute_ecw_error_report(self):
     try:
         # --- 1. Préparer le répertoire de sortie et les paramètres Presto
         output_dir = settings.ECW_ERROR_REPORT_OUTPUT_DIR
+        output_dir2 = settings.ECW_ERROR_REPORT_OUTPUT_DIR2
         os.makedirs(output_dir, exist_ok=True)
 
         presto_cfg = {
@@ -363,6 +364,42 @@ def task_execute_ecw_error_report(self):
         today_str     = now.strftime("%Y%m%d")
 
         query = f"""
+        WITH failed_in AS (
+            SELECT 
+                transactionid,
+                messages AS extracted_message
+            FROM hive.feeds.service_provider_log
+            WHERE tbl_dt = {today_str}
+            AND upper(messages) LIKE '%FAIL%'
+            AND direction = 'IN'
+        ),
+        aggregated_data AS (
+            SELECT 
+                failed_in.extracted_message AS failed_in_message,
+                split(split(log_out.message_receivingfri, '@')[2], '/')[1] AS receiving_fri_component,
+                COUNT(*) AS error_count
+            FROM hive.feeds.service_provider_log log_out
+            JOIN failed_in
+            ON log_out.transactionid = failed_in.transactionid
+            WHERE log_out.tbl_dt = {today_str}
+            AND log_out.direction = 'OUT'
+            AND log_out.message_receivingfri LIKE '%.sp/SP%'
+            GROUP BY 
+                failed_in.extracted_message, 
+                split(split(log_out.message_receivingfri, '@')[2], '/')[1]
+        )
+        SELECT
+            'ECW' AS Domain,
+            'ECW SP' AS "Service Type",
+            receiving_fri_component AS "Service Name",
+            SUM(error_count) AS "Error Count"
+        FROM aggregated_data
+        GROUP BY 
+            receiving_fri_component
+        ORDER BY "Error Count" DESC;
+        """
+
+        query2 = f"""
         WITH failed_in AS (
             SELECT 
                 transactionid,
@@ -398,7 +435,6 @@ def task_execute_ecw_error_report(self):
             WHERE lo.tbl_dt = {today_str}
             AND lo.direction = 'OUT'
             AND lo.message_receivingfri LIKE '%.sp/SP%'
-            AND fi.logdate BETWEEN TIMESTAMP '{threshold_formatted}' AND TIMESTAMP '{now_formatted}'
             GROUP BY 
                 fi.transactionid,
                 fi.failed_in_message, 
@@ -407,11 +443,11 @@ def task_execute_ecw_error_report(self):
                 fi.logdate
         )
         SELECT
-            'ECW' AS domain,
-            'ECW SP' AS Service_Type,
+            'ECW' AS Domain,
+            'ECW SP' AS "Service Type",
             transactionid,
-            receiving_fri_component AS Service_Name,
-            error_count AS messages_count,
+            receiving_fri_component AS "Service Name",
+            error_count AS "messages count",
             failed_in_message AS failed_in_messages,
             failed_out_message AS failed_out_messages,
             logdate
@@ -422,7 +458,9 @@ def task_execute_ecw_error_report(self):
         # --- 3. Fichier de sortie
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         output_file = os.path.join(output_dir, f"ecw_error_report_{timestamp}.csv")
+        output_file2 = os.path.join(output_dir2, f"ecw_error_report_{timestamp}.csv")
         logger.info("Génération du rapport ECW vers: %s", output_file)
+        logger.info("Génération du rapport ECW vers: %s", output_file2)
 
         # --- 4. Préparer la commande Presto CLI
         presto_cli = settings.PRESTO_CLI_PATH
@@ -439,9 +477,25 @@ def task_execute_ecw_error_report(self):
             "--execute", query
         ]
 
+        cmd2 = [
+            presto_cli,
+            f"--server={presto_cfg['PRESTO_SERVER']}:{presto_cfg['PRESTO_PORT']}",
+            f"--catalog={presto_cfg['PRESTO_CATALOG']}",
+            f"--schema={presto_cfg['PRESTO_SCHEMA']}",
+            f"--user={presto_cfg['PRESTO_USER']}",
+            f"--keystore-path={presto_cfg['PRESTO_KEYSTORE_PATH']}",
+            f"--keystore-password={presto_cfg['PRESTO_KEYSTORE_PASSWORD']}",
+            "--password",
+            "--output-format=CSV",
+            "--execute", query2
+        ]
+
         # Éviter de logger le mot de passe en clair
         safe_cmd = " ".join(cmd).replace(presto_cfg['PRESTO_KEYSTORE_PASSWORD'], "********")
         logger.debug("Commande Presto CLI: %s", safe_cmd)
+
+        safe_cmd2 = " ".join(cmd2).replace(presto_cfg['PRESTO_KEYSTORE_PASSWORD'], "********")
+        logger.debug("Commande Presto CLI: %s", safe_cmd2)
 
         # Injecter le password dans l'environnement
         env = os.environ.copy()
@@ -457,13 +511,28 @@ def task_execute_ecw_error_report(self):
                 text=True
             )
 
+        with open(output_file2, "w") as f_out:
+            proc2 = subprocess.run(
+                cmd2,
+                stdout=f_out,
+                stderr=subprocess.PIPE,
+                env=env,
+                text=True
+            )
+
         if proc.returncode != 0:
             err = proc.stderr.strip()
             logger.error("Presto CLI error: %s", err)
             return {"status": "error", "message": err}
+        
+        if proc2.returncode != 0:
+            err = proc2.stderr.strip()
+            logger.error("Presto CLI error: %s", err)
+            return {"status": "error", "message": err}
 
         logger.info("Rapport ECW généré avec succès: %s", output_file)
-        return {"status": "success", "output_file": output_file}
+        logger.info("Rapport ECW généré avec succès: %s", output_file2)
+        return {"status": "success", "output_file": output_file, "output_file2": output_file2 }
 
     except Exception as exc:
         logger.exception("Exception dans task_execute_ecw_error_report")
@@ -577,14 +646,14 @@ def process_ecw_error_report(self):
         def map_csv_to_event_dict(csv_row):
             # Validation des données
             try:
-                error_count = int(csv_row[4]) if csv_row[4].isdigit() else csv_row[4]
+                error_count = int(csv_row[3]) if csv_row[3].isdigit() else csv_row[3]
             except (IndexError, ValueError):
                 error_count = 0
                 
             return {
                 "system_name": csv_row[0] if len(csv_row) > 0 else "Unknown",
-                "service_name": csv_row[3] if len(csv_row) > 3 else "Unknown",
-                "error_category_name": csv_row[1] if len(csv_row) > 1 else "Unknown",
+                "service_name": csv_row[1] if len(csv_row) > 1 else "Unknown",
+                "error_category_name": csv_row[2] if len(csv_row) > 2 else "Unknown",
                 "error_count": error_count,
                 "error_description": f"{csv_row[5]} {csv_row[6]}" if len(csv_row) > 6 else (csv_row[5] if len(csv_row) > 5 else ""),
             }
@@ -670,7 +739,13 @@ def task_execute_irm_error_report(self):
 
         # --- 2. Construire la requête
         query = f"""
-        SELECT * FROM ISL_MTNB5.L1_VW_CALLDATA
+        SELECT 
+        main as Domain,
+            service_type as "Service Type",
+            service_name as "Service Name", 
+            cnt AS "Error Count", 
+            error_reason as "Error Reason"
+        FROM ISL_MTNB5.L1_VW_CALLDATA
         """
 
         # --- 3. Fichier de sortie

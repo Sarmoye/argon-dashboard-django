@@ -238,6 +238,7 @@ ORACLE_CLIENT_HOME = '/usr/lib/oracle/19.18/client64'  # Ajustez selon votre ins
 CIS_ERROR_REPORT_OUTPUT_DIR = "/srv/itsea_files/cis_error_report_files"
 PRESTIGE_CHECK_ERROR_REPORT_OUTPUT_DIR = "/srv/itsea_files/prestige_report_files"
 ECW_ERROR_REPORT_OUTPUT_DIR = "/srv/itsea_files/ecw_error_report_files"
+ECW_ERROR_REPORT_OUTPUT_DIR2 = "/srv/itsea_files/ecw_error_report_files_second"
 IRM_ERROR_REPORT_OUTPUT_DIR = "/srv/itsea_files/irm_error_report_files"
 DEFAULT_ERROR_REPORT_OUTPUT_DIR = "/srv/itsea_files/error_report_files"
 
