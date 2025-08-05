@@ -387,7 +387,7 @@ def create_system_report_html(system_name, data, date_str):
                 text-align: center; 
                 padding: 40px 30px; 
                 background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
-                color: white; 
+                color: black; 
             }}
             .header h1 {{
                 margin: 0 0 10px 0;
