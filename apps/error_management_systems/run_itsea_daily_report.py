@@ -90,8 +90,10 @@ def read_csv_data(file_path, system_name=None):
         df_test = pd.read_csv(file_path, nrows=1)
         
         # Définir les headers selon le système
-        if system_name == "CIS" or system_name == "IRM":
+        if system_name == "CIS":
             expected_headers = ['Domain', 'Service Type', 'Service Name', 'Error Count', 'Error Reason']
+        elif system_name == "IRM":
+            expected_headers = ['domain', 'Service Type', 'Service Name', 'Error Count', 'Error Reason']
         elif system_name == "ECW":
             expected_headers = ['Domain', 'Service Type', 'Service Name', 'Error Count']
         else:
