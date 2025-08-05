@@ -574,7 +574,7 @@ def create_summary_report_html(systems_data, date_str):
             /* Fin des styles pour les nouvelles cartes */
 
             /* Autres styles existants si besoin */
-            .header {{ text-align: center; margin-bottom: 30px; padding: 20px; background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%); color: white; border-radius: 8px; }}
+            .header {{ text-align: center; margin-bottom: 30px; padding: 20px; background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%); color: black; border-radius: 8px; }}
             h2 {{ color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; margin-top: 40px; }}
             h4 {{ color: #2c3e50; margin-top: 0; }}
         </style>
@@ -630,9 +630,6 @@ def create_summary_report_html(systems_data, date_str):
                             <span class="metric-label">total errors</span>
                         </div>
                         <p class="card-description">{unique_services} relevant services</p>
-                    </div>
-                    <div class="card-status-text">
-                        <span class="status-icon">{status_icon}</span> {status_text}
                     </div>
                 </div>
         """
