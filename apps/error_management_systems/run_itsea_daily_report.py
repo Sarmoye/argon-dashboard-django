@@ -31,24 +31,23 @@ EMAIL_CONFIG = {
     # Destinataires par système
     'cis_recipients': [
         'Sarmoye.AmitoureHaidara@mtn.com',
-        'Sarmoye.AmitoureHaidara@mtn.com'
+        'Hospice.Solevo@mtn.com'
     ],
     
     'irm_recipients': [
         'Sarmoye.AmitoureHaidara@mtn.com',
-        'Sarmoye.AmitoureHaidara@mtn.com'
+        'Hospice.Solevo@mtn.com'
     ],
     
     'ecw_recipients': [
         'Sarmoye.AmitoureHaidara@mtn.com',
-        'Sarmoye.AmitoureHaidara@mtn.com'
+        'Hospice.Solevo@mtn.com'
     ],
     
     # Destinataires pour le rapport de synthèse
     'summary_recipients': [
         'Sarmoye.AmitoureHaidara@mtn.com',
-        'Sarmoye.AmitoureHaidara@mtn.com',
-        'Sarmoye.AmitoureHaidara@mtn.com'
+        'Hospice.Solevo@mtn.com'
     ]
 }
 
