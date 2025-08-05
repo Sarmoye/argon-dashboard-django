@@ -83,40 +83,127 @@ def get_matching_csv_file(directory, reference_filename):
         print(f"Erreur lors de la recherche du fichier correspondant: {e}")
         return None
 
-def read_csv_data(file_path):
-    """Lit les données d'un fichier CSV"""
+def read_csv_data(file_path, system_name=None):
+    """Lit les données d'un fichier CSV et ajoute les headers appropriés"""
     try:
-        df = pd.read_csv(file_path)
+        # Lire le CSV sans header d'abord pour vérifier s'il en a un
+        df_test = pd.read_csv(file_path, nrows=1)
+        
+        # Définir les headers selon le système
+        if system_name == "CIS" or system_name == "IRM":
+            expected_headers = ['Domain', 'Service Type', 'Service Name', 'Error Count', 'Error Reason']
+        elif system_name == "ECW":
+            expected_headers = ['Domain', 'Service Type', 'Service Name', 'Error Count']
+        else:
+            # Fallback - essayer de détecter automatiquement
+            expected_headers = None
+        
+        # Vérifier si le fichier a déjà des headers appropriés (pour IRM notamment)
+        has_proper_headers = False
+        if expected_headers and len(df_test.columns) == len(expected_headers):
+            # Vérifier si la première ligne contient des strings qui ressemblent à des headers
+            first_row = df_test.iloc[0]
+            if any(isinstance(val, str) and any(header_word in str(val).lower() 
+                   for header_word in ['domain', 'service', 'error', 'count', 'type', 'reason']) 
+                   for val in first_row):
+                has_proper_headers = True
+        
+        # Lire le fichier avec ou sans headers
+        if has_proper_headers:
+            df = pd.read_csv(file_path)
+            print(f"Headers existants détectés pour {system_name}")
+        else:
+            if expected_headers:
+                df = pd.read_csv(file_path, header=None, names=expected_headers)
+                print(f"Headers ajoutés pour {system_name}: {expected_headers}")
+            else:
+                df = pd.read_csv(file_path)
+                print(f"Headers par défaut utilisés pour {system_name}")
+        
         # Nettoyer les en-têtes (supprimer les espaces)
         df.columns = df.columns.str.strip()
+        
         return df
     except Exception as e:
         print(f"Erreur lors de la lecture du fichier {file_path}: {e}")
         return None
 
 def create_html_table(df, title):
-    """Crée un tableau HTML à partir d'un DataFrame"""
+    """Crée un tableau HTML moderne et minimaliste"""
     html = f"""
-    <h3 style="color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px;">{title}</h3>
-    <table border="1" cellpadding="8" cellspacing="0" style="border-collapse: collapse; font-family: Arial, sans-serif; width: 100%; margin-bottom: 20px;">
-        <thead style="background-color: #3498db; color: white;">
+    <div style="margin: 30px 0;">
+        <h3 style="color: #1a1a1a; font-weight: 600; font-size: 18px; margin-bottom: 20px; letter-spacing: -0.5px;">{title}</h3>
+        <div style="overflow-x: auto; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); border: 1px solid #e5e7eb;">
+            <table style="width: 100%; border-collapse: collapse; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background-color: white;">
+                <thead>
+                    <tr style="background-color: #f8fafc; border-bottom: 1px solid #e5e7eb;">
     """
     
-    # En-têtes
-    html += "<tr>"
+    # En-têtes avec style moderne
     for col in df.columns:
-        html += f"<th style='text-align: left; padding: 12px; font-weight: bold;'>{col}</th>"
-    html += "</tr></thead><tbody>"
+        html += f"""
+                        <th style="
+                            padding: 16px 20px; 
+                            text-align: left; 
+                            font-weight: 600; 
+                            font-size: 13px; 
+                            color: #374151; 
+                            text-transform: uppercase; 
+                            letter-spacing: 0.5px;
+                            white-space: nowrap;
+                        ">{col}</th>
+        """
     
-    # Données avec alternance de couleurs
+    html += """
+                    </tr>
+                </thead>
+                <tbody>
+    """
+    
+    # Données avec style minimaliste
     for i, (_, row) in enumerate(df.iterrows()):
-        bg_color = "#f8f9fa" if i % 2 == 0 else "#ffffff"
-        html += f"<tr style='background-color: {bg_color};'>"
-        for value in row:
-            html += f"<td style='padding: 10px; border-bottom: 1px solid #dee2e6;'>{value}</td>"
+        hover_effect = "onmouseover=\"this.style.backgroundColor='#f1f5f9'\" onmouseout=\"this.style.backgroundColor='white'\""
+        html += f'<tr style="border-bottom: 1px solid #f1f5f9; transition: background-color 0.2s ease;" {hover_effect}>'
+        
+        for j, value in enumerate(row):
+            # Style spécial pour la colonne Error Count si elle existe
+            if df.columns[j] == 'Error Count' and pd.notna(value):
+                try:
+                    error_count = int(float(value))
+                    if error_count > 0:
+                        cell_style = """
+                            padding: 12px 20px; 
+                            font-size: 14px; 
+                            color: #dc2626; 
+                            font-weight: 600;
+                            vertical-align: top;
+                        """
+                    else:
+                        cell_style = """
+                            padding: 12px 20px; 
+                            font-size: 14px; 
+                            color: #16a34a; 
+                            font-weight: 500;
+                            vertical-align: top;
+                        """
+                except:
+                    cell_style = "padding: 12px 20px; font-size: 14px; color: #6b7280; vertical-align: top;"
+            else:
+                cell_style = "padding: 12px 20px; font-size: 14px; color: #6b7280; vertical-align: top;"
+            
+            # Gestion des valeurs nulles ou vides
+            display_value = value if pd.notna(value) and str(value).strip() != '' else '-'
+            
+            html += f'<td style="{cell_style}">{display_value}</td>'
+        
         html += "</tr>"
     
-    html += "</tbody></table>"
+    html += """
+                </tbody>
+            </table>
+        </div>
+    </div>
+    """
     return html
 
 def create_error_count_chart(df, title, system_name):
@@ -278,45 +365,149 @@ def create_system_report_html(system_name, data, date_str):
     html = f"""
     <html>
     <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <style>
-            body {{ font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 20px; background-color: #f5f6fa; }}
-            .container {{ max-width: 1200px; margin: 0 auto; background-color: white; padding: 30px; border-radius: 10px; box-shadow: 0 0 20px rgba(0,0,0,0.1); }}
-            .header {{ text-align: center; margin-bottom: 30px; padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 8px; }}
-            .system-badge {{ display: inline-block; background-color: rgba(255,255,255,0.2); padding: 5px 15px; border-radius: 20px; font-size: 14px; margin-top: 10px; }}
+            body {{ 
+                font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+                margin: 0; 
+                padding: 20px; 
+                background-color: #f9fafb; 
+                line-height: 1.6;
+            }}
+            .container {{ 
+                max-width: 1200px; 
+                margin: 0 auto; 
+                background-color: white; 
+                border-radius: 16px; 
+                box-shadow: 0 10px 25px -3px rgba(0, 0, 0, 0.1); 
+                overflow: hidden;
+            }}
+            .header {{ 
+                text-align: center; 
+                padding: 40px 30px; 
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+                color: white; 
+            }}
+            .header h1 {{
+                margin: 0 0 10px 0;
+                font-size: 28px;
+                font-weight: 700;
+                letter-spacing: -0.5px;
+            }}
+            .system-badge {{ 
+                display: inline-block; 
+                background-color: rgba(255,255,255,0.2); 
+                padding: 8px 16px; 
+                border-radius: 50px; 
+                font-size: 14px; 
+                font-weight: 500;
+                backdrop-filter: blur(10px);
+            }}
+            .content {{
+                padding: 40px;
+            }}
+            .stats-container {{
+                background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+                border-radius: 12px;
+                padding: 24px;
+                margin: 30px 0;
+                border-left: 4px solid #3b82f6;
+            }}
+            .stats-grid {{
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 20px;
+                margin-top: 16px;
+            }}
+            .stat-item {{
+                text-align: center;
+                padding: 16px;
+                background: white;
+                border-radius: 8px;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            }}
+            .stat-value {{
+                font-size: 24px;
+                font-weight: 700;
+                color: #1e293b;
+                margin-bottom: 4px;
+            }}
+            .stat-label {{
+                font-size: 12px;
+                color: #64748b;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                font-weight: 500;
+            }}
+            .info-panel {{
+                margin-top: 40px;
+                padding: 20px;
+                background-color: #eff6ff;
+                border-left: 4px solid #3b82f6;
+                border-radius: 8px;
+            }}
+            .info-panel p {{
+                margin: 0;
+                color: #1e40af;
+                font-weight: 500;
+            }}
         </style>
     </head>
     <body>
         <div class="container">
             <div class="header">
                 <h1>Rapport d'erreurs {system_name}</h1>
-                <div class="system-badge">Date: {date_str}</div>
+                <div class="system-badge">{date_str}</div>
             </div>
+            <div class="content">
     """
     
     if data is not None and not data.empty:
         html += create_html_table(data, f"Détail des erreurs - Système {system_name}")
         
-        # Statistiques rapides
+        # Statistiques rapides avec design moderne
         total_errors = data['Error Count'].sum() if 'Error Count' in data.columns else 0
         unique_services = data['Service Name'].nunique() if 'Service Name' in data.columns else 0
+        max_errors_service = ""
+        
+        if 'Service Name' in data.columns and 'Error Count' in data.columns and not data.empty:
+            max_errors_idx = data.groupby('Service Name')['Error Count'].sum().idxmax()
+            max_errors_service = max_errors_idx
         
         html += f"""
-        <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
-            <h4 style="color: #2c3e50; margin-top: 0;">Résumé statistique</h4>
-            <div style="display: flex; gap: 30px;">
-                <div><strong>Total des erreurs:</strong> {total_errors}</div>
-                <div><strong>Services concernés:</strong> {unique_services}</div>
-                <div><strong>Dernière mise à jour:</strong> {date_str}</div>
+        <div class="stats-container">
+            <h4 style="color: #1e293b; margin: 0 0 16px 0; font-weight: 600;">Résumé statistique</h4>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-value" style="color: {'#dc2626' if total_errors > 0 else '#16a34a'};">{total_errors}</div>
+                    <div class="stat-label">Total des erreurs</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">{unique_services}</div>
+                    <div class="stat-label">Services concernés</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" style="font-size: 16px; color: #6366f1;">{max_errors_service if max_errors_service else 'N/A'}</div>
+                    <div class="stat-label">Service le plus impacté</div>
+                </div>
             </div>
         </div>
         """
     else:
-        html += f"<p style='text-align: center; color: #7f8c8d; font-size: 16px;'>Aucune donnée disponible pour le système {system_name}</p>"
+        html += f"""
+        <div style="text-align: center; padding: 60px 20px; color: #6b7280;">
+            <div style="font-size: 48px; margin-bottom: 16px;">📊</div>
+            <h3 style="color: #374151; margin-bottom: 8px;">Aucune donnée disponible</h3>
+            <p style="margin: 0;">Le système {system_name} ne présente aucune erreur ou les données ne sont pas disponibles.</p>
+        </div>
+        """
     
     html += """
-        <div style="margin-top: 30px; padding: 15px; background-color: #e8f4f8; border-left: 4px solid #3498db; border-radius: 4px;">
-            <p style="margin: 0; color: #2c3e50;"><strong>Note:</strong> Ce rapport est généré automatiquement. Pour toute question, contactez l'équipe de monitoring.</p>
-        </div>
+            <div class="info-panel">
+                <p><strong>💡 Note importante :</strong> Ce rapport est généré automatiquement chaque jour. Pour toute question ou problème urgent, contactez l'équipe de monitoring.</p>
+            </div>
+            </div>
         </div>
     </body>
     </html>
@@ -413,7 +604,7 @@ def generate_daily_reports():
     cis_file = get_latest_csv_file(CIS_ERROR_REPORT_OUTPUT_DIR)
     cis_data = None
     if cis_file:
-        cis_data = read_csv_data(cis_file)
+        cis_data = read_csv_data(cis_file, "CIS")
         if cis_data is not None:
             systems_data['CIS'] = cis_data
             
@@ -435,7 +626,7 @@ def generate_daily_reports():
     irm_file = get_latest_csv_file(IRM_ERROR_REPORT_OUTPUT_DIR)
     irm_data = None
     if irm_file:
-        irm_data = read_csv_data(irm_file)
+        irm_data = read_csv_data(irm_file, "IRM")
         if irm_data is not None:
             systems_data['IRM'] = irm_data
             
@@ -459,7 +650,7 @@ def generate_daily_reports():
     ecw_attachment = None
     
     if ecw_file:
-        ecw_data = read_csv_data(ecw_file)
+        ecw_data = read_csv_data(ecw_file, "ECW")
         if ecw_data is not None:
             systems_data['ECW'] = ecw_data
             
