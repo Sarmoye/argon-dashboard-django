@@ -451,7 +451,7 @@ def create_system_report_html(system_name, data, date_str):
     """
     
     if data is not None and not data.empty:
-        html += create_html_table(data, f"Détail des erreurs - Système {system_name}")
+        html += create_html_table(data, f"Errors Details - System {system_name}")
         
         # Statistiques rapides avec design moderne
         if 'Error Count' in data.columns:
@@ -470,7 +470,7 @@ def create_system_report_html(system_name, data, date_str):
         
         html += f"""
         <div class="stats-container">
-            <h4 style="color: #1e293b; margin: 0 0 16px 0; font-weight: 600;">Résumé statistique</h4>
+            <h4 style="color: #1e293b; margin: 0 0 16px 0; font-weight: 600;">Statistical Report</h4>
             <div class="stats-grid">
                 <div class="stat-item">
                     <div class="stat-value" style="color: {'#dc2626' if total_errors > 0 else '#16a34a'};">{total_errors}</div>
@@ -516,12 +516,67 @@ def create_summary_report_html(systems_data, date_str):
         <style>
             body {{ font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 20px; background-color: #f5f6fa; }}
             .container {{ max-width: 1400px; margin: 0 auto; background-color: white; padding: 30px; border-radius: 10px; box-shadow: 0 0 20px rgba(0,0,0,0.1); }}
-            .header {{ text-align: center; margin-bottom: 30px; padding: 20px; background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%); color: black; border-radius: 8px; }}
+            .header {{ text-align: center; margin-bottom: 30px; padding: 20px; background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%); color: white; border-radius: 8px; }}
+            .header h1, .header p {{ margin: 0; }}
+
+            /* Styles pour les nouvelles cartes */
             .summary-cards {{ display: flex; gap: 20px; margin: 30px 0; flex-wrap: wrap; }}
-            .card {{ flex: 1; min-width: 250px; padding: 20px; border-radius: 8px; text-align: center; color: black; }}
-            .card-cis {{ background: linear-gradient(135deg, #e74c3c, #c0392b); }}
-            .card-irm {{ background: linear-gradient(135deg, #f39c12, #e67e22); }}
-            .card-ecw {{ background: linear-gradient(135deg, #27ae60, #229954); }}
+            .card {{ 
+                flex: 1; 
+                min-width: 250px; 
+                padding: 20px; 
+                border-radius: 8px; 
+                background-color: #ffffff; 
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); 
+                transition: transform 0.2s, box-shadow 0.2s;
+                display: flex;
+                flex-direction: column;
+                position: relative;
+                overflow: hidden;
+            }}
+            .card:hover {{ 
+                transform: translateY(-5px); 
+                box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+            }}
+            .card-status-indicator {{
+                position: absolute;
+                left: 0;
+                top: 0;
+                bottom: 0;
+                width: 6px;
+            }}
+            .card-error .card-status-indicator {{ background-color: #e74c3c; }}
+            .card-no_error .card-status-indicator {{ background-color: #2ecc71; }}
+            .card-no_data .card-status-indicator {{ background-color: #bdc3c7; }}
+
+            .card-content {{ padding-left: 15px; }}
+
+            .card h3 {{ margin: 0 0 5px; font-size: 1.2em; color: #34495e; }}
+            
+            .card-metric {{ margin: 10px 0; display: flex; align-items: baseline; }}
+            .metric-value {{ font-size: 2.5em; font-weight: 700; color: #2c3e50; line-height: 1; }}
+            .metric-label {{ font-size: 0.9em; color: #7f8c8d; margin-left: 5px; }}
+
+            .card-description {{ margin: 0; font-size: 0.85em; color: #95a5a6; }}
+            
+            .card-status-text {{
+                margin-top: 15px;
+                padding-top: 10px;
+                border-top: 1px solid #f0f0f0;
+                font-size: 0.85em;
+                font-weight: 600;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: #2c3e50;
+            }}
+            .status-icon {{ margin-right: 5px; }}
+            /* Fin des styles pour les nouvelles cartes */
+
+            /* Autres styles existants si besoin */
+            .header {{ text-align: center; margin-bottom: 30px; padding: 20px; background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%); color: white; border-radius: 8px; }}
+            h2 {{ color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; margin-top: 40px; }}
+            h4 {{ color: #2c3e50; margin-top: 0; }}
         </style>
     </head>
     <body>
@@ -534,25 +589,44 @@ def create_summary_report_html(systems_data, date_str):
             <div class="summary-cards">
     """
     
-    # Cartes de résumé par système
+    # Cartes de résumé par système (version mise à jour)
     for system_name, data in systems_data.items():
-        card_class = f"card-{system_name.lower()}"
-        if data is not None and not data.empty:
-            total_errors = data['Error Count'].sum() if 'Error Count' in data.columns else 0
-            unique_services = data['Service Name'].nunique() if 'Service Name' in data.columns else 0
-            status = "🔴 Error detected" if total_errors > 0 else "✅ No Error"
+        total_errors = data['Error Count'].sum() if data is not None and not data.empty and 'Error Count' in data.columns else 0
+        unique_services = data['Service Name'].nunique() if data is not None and not data.empty and 'Service Name' in data.columns else 0
+        
+        status_info = ""
+        status_text = ""
+        status_icon = ""
+
+        if total_errors > 0:
+            status_info = "card-error"
+            status_text = "Error detected"
+            status_icon = "❌"
+        elif data is not None and not data.empty:
+            status_info = "card-no_error"
+            status_text = "No Error"
+            status_icon = "✅"
         else:
+            status_info = "card-no_data"
+            status_text = "No data"
+            status_icon = "⚪"
             total_errors = 0
             unique_services = 0
-            status = "⚪ No data"
         
         html += f"""
-                <div class="card {card_class}">
-                    <h3>{system_name}</h3>
-                    <div style="font-size: 24px; font-weight: bold; margin: 10px 0;">{total_errors}</div>
-                    <div>total errors</div>
-                    <div style="margin-top: 10px; font-size: 14px;">{unique_services} relevant services</div>
-                    <div style="margin-top: 5px; font-size: 12px;">{status}</div>
+                <div class="card {status_info}">
+                    <div class="card-status-indicator"></div>
+                    <div class="card-content">
+                        <h3>{system_name}</h3>
+                        <div class="card-metric">
+                            <span class="metric-value">{total_errors}</span>
+                            <span class="metric-label">total errors</span>
+                        </div>
+                        <p class="card-description">{unique_services} relevant services</p>
+                    </div>
+                    <div class="card-status-text">
+                        <span class="status-icon">{status_icon}</span> {status_text}
+                    </div>
                 </div>
         """
     
@@ -563,15 +637,16 @@ def create_summary_report_html(systems_data, date_str):
     # Tableaux détaillés pour chaque système
     for system_name, data in systems_data.items():
         if data is not None and not data.empty:
-            html += f"<h2 style='color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; margin-top: 40px;'>Detail {system_name}</h2>"
-            html += create_html_table(data, f"Errors {system_name}")
+            html += f"<h2 style='color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; margin-top: 40px;'>{system_name}</h2>"
+            # Assurez-vous d'avoir une fonction create_html_table
+            # html += create_html_table(data, f"{system_name} Errors")
         else:
             html += f"<h2 style='color: #7f8c8d; margin-top: 40px;'>System {system_name}</h2>"
             html += "<p style='color: #7f8c8d; font-style: italic;'>No data available</p>"
     
     html += """
             <div style="margin-top: 40px; padding: 20px; background-color: #ecf0f1; border-radius: 8px;">
-                <h4 style="color: #2c3e50; margin-top: 0;">Informations importantes</h4>
+                <h4 style="color: #2c3e50; margin-top: 0;">Important Notes</h4>
                 <ul style="color: #2c3e50;">
                     <li>This report consolidates data from all systems</li>
                     <li>Detailed charts are sent separately to each team</li>
