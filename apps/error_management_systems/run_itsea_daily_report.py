@@ -84,47 +84,32 @@ def get_matching_csv_file(directory, reference_filename):
         return None
 
 def read_csv_data(file_path, system_name=None):
-    """Lit les données d'un fichier CSV et ajoute les headers appropriés"""
+    """Lit les données d'un fichier CSV et ajoute les headers appropriés."""
     try:
-        # Lire le CSV sans header d'abord pour vérifier s'il en a un
-        df_test = pd.read_csv(file_path, nrows=1)
-        
         # Définir les headers selon le système
-        if system_name == "CIS":
+        if system_name == "CIS" or system_name == "IRM":
             expected_headers = ['Domain', 'Service Type', 'Service Name', 'Error Count', 'Error Reason']
-        elif system_name == "IRM":
-            expected_headers = ['domain', 'Service Type', 'Service Name', 'Error Count', 'Error Reason']
         elif system_name == "ECW":
             expected_headers = ['Domain', 'Service Type', 'Service Name', 'Error Count']
         else:
             # Fallback - essayer de détecter automatiquement
             expected_headers = None
+
+        # Lire le fichier en ignorant la première ligne si le système est IRM
+        skip_rows = 1 if system_name == "IRM" else 0
         
-        # Vérifier si le fichier a déjà des headers appropriés (pour IRM notamment)
-        has_proper_headers = False
-        if expected_headers and len(df_test.columns) == len(expected_headers):
-            # Vérifier si la première ligne contient des strings qui ressemblent à des headers
-            first_row = df_test.iloc[0]
-            if any(isinstance(val, str) and any(header_word in str(val).lower() 
-                   for header_word in ['domain', 'service', 'error', 'count', 'type', 'reason']) 
-                   for val in first_row):
-                has_proper_headers = True
-        
-        # Lire le fichier avec ou sans headers
-        if has_proper_headers:
-            df = pd.read_csv(file_path)
-            print(f"Headers existants détectés pour {system_name}")
-        else:
-            if expected_headers:
-                df = pd.read_csv(file_path, header=None, names=expected_headers)
-                print(f"Headers ajoutés pour {system_name}: {expected_headers}")
-            else:
-                df = pd.read_csv(file_path)
-                print(f"Headers par défaut utilisés pour {system_name}")
+        # Lire le fichier avec les headers attendus
+        df = pd.read_csv(file_path, header=None, names=expected_headers, skiprows=skip_rows)
         
         # Nettoyer les en-têtes (supprimer les espaces)
+        # Note : avec header=None, les noms de colonnes sont déjà propres.
+        # Cette ligne est utile si le fichier a ses propres headers.
         df.columns = df.columns.str.strip()
         
+        print(f"Fichier CSV lu pour {system_name}.")
+        if skip_rows > 0:
+            print("La première ligne a été ignorée pour ce système.")
+            
         return df
     except Exception as e:
         print(f"Erreur lors de la lecture du fichier {file_path}: {e}")
