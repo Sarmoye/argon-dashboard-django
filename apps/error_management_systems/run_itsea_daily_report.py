@@ -621,29 +621,7 @@ def generate_daily_reports():
                 charts
             )
     
-    # 2. Traitement et envoi IRM
-    print("\n=== Traitement IRM ===")
-    irm_file = get_latest_csv_file(IRM_ERROR_REPORT_OUTPUT_DIR)
-    irm_data = None
-    if irm_file:
-        irm_data = read_csv_data(irm_file, "IRM")
-        if irm_data is not None:
-            systems_data['IRM'] = irm_data
-            
-            # Créer et envoyer le rapport IRM
-            html_body = create_system_report_html('IRM', irm_data, date_str)
-            chart = create_error_count_chart(irm_data, "IRM", "IRM")
-            charts = [chart] if chart else []
-            
-            send_email_with_reports(
-                EMAIL_CONFIG['from_email'],
-                EMAIL_CONFIG['irm_recipients'],
-                f"Rapport IRM - {date_str}",
-                html_body,
-                charts
-            )
-    
-    # 3. Traitement et envoi ECW
+    # 2. Traitement et envoi ECW
     print("\n=== Traitement ECW ===")
     ecw_file = get_latest_csv_file(ECW_ERROR_REPORT_OUTPUT_DIR)
     ecw_data = None
@@ -671,6 +649,28 @@ def generate_daily_reports():
                 html_body,
                 charts,
                 ecw_attachment
+            )
+
+    # 3. Traitement et envoi IRM
+    print("\n=== Traitement IRM ===")
+    irm_file = get_latest_csv_file(IRM_ERROR_REPORT_OUTPUT_DIR)
+    irm_data = None
+    if irm_file:
+        irm_data = read_csv_data(irm_file, "IRM")
+        if irm_data is not None:
+            systems_data['IRM'] = irm_data
+            
+            # Créer et envoyer le rapport IRM
+            html_body = create_system_report_html('IRM', irm_data, date_str)
+            chart = create_error_count_chart(irm_data, "IRM", "IRM")
+            charts = [chart] if chart else []
+            
+            send_email_with_reports(
+                EMAIL_CONFIG['from_email'],
+                EMAIL_CONFIG['irm_recipients'],
+                f"Rapport IRM - {date_str}",
+                html_body,
+                charts
             )
     
     # 4. Rapport de synthèse
