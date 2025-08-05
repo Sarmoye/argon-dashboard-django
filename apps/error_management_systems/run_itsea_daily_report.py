@@ -121,7 +121,7 @@ def create_html_table(df, title):
     <div style="margin: 30px 0;">
         <h3 style="color: #1a1a1a; font-weight: 600; font-size: 18px; margin-bottom: 20px; letter-spacing: -0.5px;">{title}</h3>
         <div style="overflow-x: auto; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); border: 1px solid #e5e7eb;">
-            <table style="width: 100%; border-collapse: collapse; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background-color: black;">
+            <table style="width: 100%; border-collapse: collapse; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background-color: white;">
                 <thead>
                     <tr style="background-color: #f8fafc; border-bottom: 1px solid #e5e7eb;">
     """
@@ -374,7 +374,7 @@ def create_system_report_html(system_name, data, date_str):
                 text-align: center; 
                 padding: 40px 30px; 
                 background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
-                color: white; 
+                color: black; 
             }}
             .header h1 {{
                 margin: 0 0 10px 0;
@@ -518,7 +518,7 @@ def create_summary_report_html(systems_data, date_str):
             .container {{ max-width: 1400px; margin: 0 auto; background-color: white; padding: 30px; border-radius: 10px; box-shadow: 0 0 20px rgba(0,0,0,0.1); }}
             .header {{ text-align: center; margin-bottom: 30px; padding: 20px; background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%); color: black; border-radius: 8px; }}
             .summary-cards {{ display: flex; gap: 20px; margin: 30px 0; flex-wrap: wrap; }}
-            .card {{ flex: 1; min-width: 250px; padding: 20px; border-radius: 8px; text-align: center; color: white; }}
+            .card {{ flex: 1; min-width: 250px; padding: 20px; border-radius: 8px; text-align: center; color: black; }}
             .card-cis {{ background: linear-gradient(135deg, #e74c3c, #c0392b); }}
             .card-irm {{ background: linear-gradient(135deg, #f39c12, #e67e22); }}
             .card-ecw {{ background: linear-gradient(135deg, #27ae60, #229954); }}
