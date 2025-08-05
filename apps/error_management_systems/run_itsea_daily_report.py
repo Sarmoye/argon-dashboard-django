@@ -467,7 +467,13 @@ def create_system_report_html(system_name, data, date_str):
         html += create_html_table(data, f"Détail des erreurs - Système {system_name}")
         
         # Statistiques rapides avec design moderne
-        total_errors = data['Error Count'].sum() if 'Error Count' in data.columns else 0
+        if 'Error Count' in data.columns:
+            # Convertit la colonne 'Error Count' en nombres.
+            # Les erreurs de conversion (ex: 'N/A', 'NaN') seront remplacées par 0.
+            data['Error Count'] = pd.to_numeric(data['Error Count'], errors='coerce').fillna(0)
+            total_errors = data['Error Count'].sum()
+        else:
+            total_errors = 0
         unique_services = data['Service Name'].nunique() if 'Service Name' in data.columns else 0
         max_errors_service = ""
         
