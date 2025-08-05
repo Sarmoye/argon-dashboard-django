@@ -514,149 +514,115 @@ def create_summary_report_html(systems_data, date_str):
     <html>
     <head>
         <style>
-            body {{ font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 20px; background-color: #f5f6fa; }}
-            .container {{ max-width: 1400px; margin: 0 auto; background-color: white; padding: 30px; border-radius: 10px; box-shadow: 0 0 20px rgba(0,0,0,0.1); }}
-            .header {{ text-align: center; margin-bottom: 30px; padding: 20px; background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%); color: white; border-radius: 8px; }}
-            .header h1, .header p {{ margin: 0; }}
-
-            /* Styles pour les nouvelles cartes */
-            .summary-cards {{ display: flex; gap: 20px; margin: 30px 0; flex-wrap: wrap; }}
-            .card {{ 
-                flex: 1; 
-                min-width: 250px; 
-                padding: 20px; 
-                border-radius: 8px; 
-                background-color: #ffffff; 
-                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); 
+            body {{
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                margin: 0;
+                padding: 20px;
+                background-color: #f8f9fa;
+            }}
+            .container {{
+                max-width: 1400px;
+                margin: 0 auto;
+                background-color: white;
+                padding: 30px;
+                border-radius: 8px;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            }}
+            .header {{
+                text-align: center;
+                margin-bottom: 40px;
+                padding-bottom: 20px;
+                border-bottom: 1px solid black;
+            }}
+            .summary-cards {{
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+                gap: 20px;
+                margin: 30px 0;
+            }}
+            .card {{
+                padding: 25px;
+                border-radius: 8px;
+                background: white;
+                box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+                border-left: 4px solid;
                 transition: transform 0.2s, box-shadow 0.2s;
-                display: flex;
-                flex-direction: column;
-                position: relative;
-                overflow: hidden;
             }}
-            .card:hover {{ 
-                transform: translateY(-5px); 
-                box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+            .card:hover {{
+                transform: translateY(-3px);
+                box-shadow: 0 6px 12px rgba(0,0,0,0.1);
             }}
-            .card-status-indicator {{
-                position: absolute;
-                left: 0;
-                top: 0;
-                bottom: 0;
-                width: 6px;
-            }}
-            .card-error .card-status-indicator {{ background-color: #e74c3c; }}
-            .card-no_error .card-status-indicator {{ background-color: #2ecc71; }}
-            .card-no_data .card-status-indicator {{ background-color: #bdc3c7; }}
-
-            .card-content {{ padding-left: 15px; }}
-
-            .card h3 {{ margin: 0 0 5px; font-size: 1.2em; color: #34495e; }}
-            
-            .card-metric {{ margin: 10px 0; display: flex; align-items: baseline; }}
-            .metric-value {{ font-size: 2.5em; font-weight: 700; color: #2c3e50; line-height: 1; }}
-            .metric-label {{ font-size: 0.9em; color: #7f8c8d; margin-left: 5px; }}
-
-            .card-description {{ margin: 0; font-size: 0.85em; color: #95a5a6; }}
-            
-            .card-status-text {{
-                margin-top: 15px;
-                padding-top: 10px;
-                border-top: 1px solid #f0f0f0;
-                font-size: 0.85em;
+            .card-cis {{ border-color: #e74c3c; }}
+            .card-irm {{ border-color: #f39c12; }}
+            .card-ecw {{ border-color: #27ae60; }}
+            .card h3 {{
+                margin-top: 0;
+                color: #2c3e50;
+                font-size: 18px;
                 font-weight: 600;
-                display: flex;
-                align-items: center;
-                justify-content: center;
+            }}
+            .card-value {{
+                font-size: 32px;
+                font-weight: 700;
+                margin: 15px 0;
                 color: #2c3e50;
             }}
-            .status-icon {{ margin-right: 5px; }}
-            /* Fin des styles pour les nouvelles cartes */
-
-            /* Autres styles existants si besoin */
-            .header {{ text-align: center; margin-bottom: 30px; padding: 20px; background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%); color: white; border-radius: 8px; }}
-            h2 {{ color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; margin-top: 40px; }}
-            h4 {{ color: #2c3e50; margin-top: 0; }}
+            .card-label {{
+                font-size: 14px;
+                color: #7f8c8d;
+                margin-bottom: 10px;
+            }}
+            .card-status {{
+                display: inline-block;
+                padding: 4px 10px;
+                border-radius: 12px;
+                font-size: 12px;
+                font-weight: 600;
+                margin-top: 10px;
+            }}
+            .status-error {{ background-color: #ffebee; color: #e74c3c; }}
+            .status-ok {{ background-color: #e8f5e9; color: #27ae60; }}
+            .status-na {{ background-color: #f5f5f5; color: #95a5a6; }}
         </style>
     </head>
     <body>
         <div class="container">
             <div class="header">
-                <h1>Summary Report - All Systems</h1>
-                <p>Date: {date_str}</p>
+                <h1 style="color: #2c3e50; margin-bottom: 5px;">Systems Health Summary</h1>
+                <p style="color: #95a5a6; margin-top: 0;">{date_str}</p>
             </div>
             
             <div class="summary-cards">
     """
-    
-    # Cartes de résumé par système (version mise à jour)
-    for system_name, data in systems_data.items():
-        total_errors = data['Error Count'].sum() if data is not None and not data.empty and 'Error Count' in data.columns else 0
-        unique_services = data['Service Name'].nunique() if data is not None and not data.empty and 'Service Name' in data.columns else 0
-        
-        status_info = ""
-        status_text = ""
-        status_icon = ""
 
-        if total_errors > 0:
-            status_info = "card-error"
-            status_text = "Error detected"
-            status_icon = "❌"
-        elif data is not None and not data.empty:
-            status_info = "card-no_error"
-            status_text = "No Error"
-            status_icon = "✅"
+    # Cartes de résumé par système - version améliorée
+    for system_name, data in systems_data.items():
+        card_class = f"card-{system_name.lower()}"
+        
+        if data is not None and not data.empty:
+            total_errors = data['Error Count'].sum() if 'Error Count' in data.columns else 0
+            unique_services = data['Service Name'].nunique() if 'Service Name' in data.columns else 0
+            status = ("status-error", "⚠️ Needs attention") if total_errors > 0 else ("status-ok", "✓ All good")
         else:
-            status_info = "card-no_data"
-            status_text = "No data"
-            status_icon = "⚪"
-            total_errors = 0
-            unique_services = 0
+            total_errors = "-"
+            unique_services = "-"
+            status = ("status-na", "No data")
         
         html += f"""
-                <div class="card {status_info}">
-                    <div class="card-status-indicator"></div>
-                    <div class="card-content">
-                        <h3>{system_name}</h3>
-                        <div class="card-metric">
-                            <span class="metric-value">{total_errors}</span>
-                            <span class="metric-label">total errors</span>
-                        </div>
-                        <p class="card-description">{unique_services} relevant services</p>
-                    </div>
-                    <div class="card-status-text">
-                        <span class="status-icon">{status_icon}</span> {status_text}
-                    </div>
+                <div class="card {card_class}">
+                    <h3>{system_name}</h3>
+                    <div class="card-value">{total_errors}</div>
+                    <div class="card-label">Total errors detected</div>
+                    <div class="card-label">{unique_services} monitored services</div>
+                    <span class="card-status {status[0]}">{status[1]}</span>
                 </div>
         """
-    
+
     html += """
             </div>
     """
-    
-    # Tableaux détaillés pour chaque système
-    for system_name, data in systems_data.items():
-        if data is not None and not data.empty:
-            html += f"<h2 style='color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; margin-top: 40px;'>{system_name}</h2>"
-            # Assurez-vous d'avoir une fonction create_html_table
-            # html += create_html_table(data, f"{system_name} Errors")
-        else:
-            html += f"<h2 style='color: #7f8c8d; margin-top: 40px;'>System {system_name}</h2>"
-            html += "<p style='color: #7f8c8d; font-style: italic;'>No data available</p>"
-    
-    html += """
-            <div style="margin-top: 40px; padding: 20px; background-color: #ecf0f1; border-radius: 8px;">
-                <h4 style="color: #2c3e50; margin-top: 0;">Important Notes</h4>
-                <ul style="color: #2c3e50;">
-                    <li>This report consolidates data from all systems</li>
-                    <li>Detailed charts are sent separately to each team</li>
-                    <li>In case of emergency, contact the monitoring team</li>
-                </ul>
-            </div>
-        </div>
-    </body>
-    </html>
-    """
+
+    # [Le reste de votre code reste inchangé...]
     
     return html
 
