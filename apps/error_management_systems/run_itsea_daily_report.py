@@ -26,7 +26,7 @@ IRM_ERROR_REPORT_OUTPUT_DIR = "/srv/itsea_files/irm_error_report_files"
 EMAIL_CONFIG = {
     'smtp_server': '10.77.152.66',  # Adresse IP de votre serveur SMTP
     'smtp_port': 25,
-    'from_email': 'Sarmoye.AmitoureHaidara@mtn.com',
+    'from_email': 'noreply.errormonitor@mtn.com',
     
     # Destinataires par système
     'cis_recipients': [
