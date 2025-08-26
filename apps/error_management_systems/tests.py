@@ -300,7 +300,7 @@ def create_professional_system_html_with_trends(system_name, data, stats, date_s
         trend_arrow = '⬇️' if stats['error_trend'] < 0 else '⬆️' if stats['error_trend'] > 0 else '➡️'
         
         trend_section = f"""
-        <div style="background: linear-gradient(135deg, {trend_color}, {trend_color}aa); color: white; padding: 25px; border-radius: 12px; margin: 20px 0;">
+        <div style="background: linear-gradient(135deg, {trend_color}, {trend_color}aa); color: black; padding: 25px; border-radius: 12px; margin: 20px 0;">
             <h3 style="margin: 0 0 15px 0; font-size: 1.3rem;">{trend_arrow} TREND ANALYSIS (Last {stats.get('days_analyzed', 7)} days)</h3>
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
                 <div>
@@ -328,9 +328,9 @@ def create_professional_system_html_with_trends(system_name, data, stats, date_s
         <style>
             body {{ font-family: 'Segoe UI', sans-serif; margin: 0; background: #f5f7fa; color: #333; }}
             .container {{ max-width: 1200px; margin: 20px auto; background: white; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); overflow: hidden; }}
-            .header {{ background: linear-gradient(135deg, #2c3e50, #34495e); color: white; padding: 40px; text-align: center; }}
+            .header {{ background: linear-gradient(135deg, #2c3e50, #34495e); color: black; padding: 40px; text-align: center; }}
             .header h1 {{ font-size: 2.5rem; margin: 0 0 10px; font-weight: 700; }}
-            .status-badge {{ background: {status_color}; color: white; padding: 12px 25px; border-radius: 25px; font-weight: 600; margin-top: 15px; display: inline-block; }}
+            .status-badge {{ background: {status_color}; color: black; padding: 12px 25px; border-radius: 25px; font-weight: 600; margin-top: 15px; display: inline-block; }}
             .content {{ padding: 40px; }}
             .stats-grid {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin: 30px 0; }}
             .stat-card {{ background: linear-gradient(135deg, #f8f9fa, #e9ecef); padding: 25px; border-radius: 12px; text-align: center; border-left: 4px solid #3498db; }}
@@ -339,7 +339,7 @@ def create_professional_system_html_with_trends(system_name, data, stats, date_s
             .danger {{ color: #e74c3c !important; }}
             .success {{ color: #27ae60 !important; }}
             .warning {{ color: #f39c12 !important; }}
-            .recommendations {{ background: linear-gradient(135deg, #74b9ff, #0984e3); color: white; padding: 30px; border-radius: 12px; margin: 30px 0; }}
+            .recommendations {{ background: linear-gradient(135deg, #74b9ff, #0984e3); color: black; padding: 30px; border-radius: 12px; margin: 30px 0; }}
             .recommendations h3 {{ margin-bottom: 20px; font-size: 1.4rem; }}
             .footer {{ background: #2c3e50; color: white; padding: 25px; text-align: center; }}
         </style>
@@ -566,7 +566,7 @@ def create_executive_summary_html_with_trends(systems_data, all_stats, date_str)
             .danger {{ color: #e74c3c; }}
             .success {{ color: #27ae60; }}
             .warning {{ color: #f39c12; }}
-            .footer {{ background: #2c3e50; color: black; padding: 30px; text-align: center; }}
+            .footer {{ background: #2c3e50; color: white; padding: 30px; text-align: center; }}
         </style>
     </head>
     <body>
