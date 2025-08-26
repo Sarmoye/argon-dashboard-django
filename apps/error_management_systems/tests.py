@@ -214,7 +214,67 @@ def create_trend_chart(trends_data, system_name):
         plt.close()
         return None
 
-from datetime import datetime
+def calculate_enhanced_stats(data, system_name, trends_data=None):
+    """Calcule des statistiques avancées avec analyse de tendance"""
+    base_stats = {
+        'total_errors': 0, 'total_services': 0, 'affected_services': 0,
+        'health_percentage': 0, 'critical_services': 0, 'avg_errors': 0,
+        'top_error_service': 'N/A', 'status': 'NO_DATA'
+    }
+    
+    if data is None or data.empty:
+        if trends_data:
+            base_stats.update({
+                'error_trend': trends_data.get('error_trend', 0),
+                'improvement_rate': trends_data.get('improvement_rate', 0),
+                'trend_status': 'NO_DATA'
+            })
+        return base_stats
+    
+    # Statistiques de base
+    total_errors = int(data['Error Count'].sum())
+    total_services = len(data)
+    affected_services = int((data['Error Count'] > 0).sum())
+    critical_services = int((data['Error Count'] >= 10).sum())
+    health_percentage = round(((total_services - affected_services) / total_services) * 100, 1)
+    avg_errors = round(total_errors / total_services, 2) if total_services > 0 else 0
+    
+    # Service le plus impacté
+    top_service = 'N/A'
+    if total_errors > 0:
+        max_idx = data['Error Count'].idxmax()
+        top_service = data.loc[max_idx, 'Service Name']
+    
+    # Statut global
+    if total_errors == 0:
+        status = 'HEALTHY'
+    elif critical_services > 0:
+        status = 'CRITICAL'
+    else:
+        status = 'WARNING'
+    
+    stats = {
+        'total_errors': total_errors,
+        'total_services': total_services,
+        'affected_services': affected_services,
+        'health_percentage': health_percentage,
+        'critical_services': critical_services,
+        'avg_errors': avg_errors,
+        'top_error_service': top_service,
+        'status': status
+    }
+    
+    # Ajouter les données de tendance si disponibles
+    if trends_data:
+        stats.update({
+            'error_trend': trends_data.get('error_trend', 0),
+            'improvement_rate': trends_data.get('improvement_rate', 0),
+            'week_trend': trends_data.get('week_trend', 0),
+            'days_analyzed': trends_data.get('days_analyzed', 0),
+            'trend_status': 'IMPROVING' if trends_data.get('error_trend', 0) < 0 else 'DEGRADING' if trends_data.get('error_trend', 0) > 0 else 'STABLE'
+        })
+    
+    return stats
 
 def create_professional_system_html_with_trends(system_name, data, stats, date_str, trends_data=None):
     """Crée un rapport HTML professionnel enrichi avec analyse de tendance et textes explicatifs"""
@@ -383,7 +443,6 @@ def create_professional_system_html_with_trends(system_name, data, stats, date_s
     </body>
     </html>
     """
-
 
 def generate_daily_reports_with_trends():
     """Génère les rapports avec analyse de tendance"""
