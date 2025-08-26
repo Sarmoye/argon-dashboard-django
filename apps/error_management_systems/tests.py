@@ -564,15 +564,21 @@ def generate_daily_reports_with_trends():
     print(f"\n✅ RAPPORTS AVEC ANALYSE DE TENDANCE GÉNÉRÉS!")
     print(f"⏰ Terminé: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
 
+#
+# Generates an enhanced executive summary HTML report with trend analysis.
+#
+from datetime import datetime
+from datetime import timedelta
+
 def create_executive_summary_html_with_trends(systems_data, all_stats, date_str):
-    """Version améliorée du résumé exécutif avec tendances"""
-    # Calculs globaux
+    """Enhanced version of the executive summary with trends"""
+    # Global calculations
     total_errors = sum(stats.get('total_errors', 0) for stats in all_stats.values())
     total_services = sum(stats.get('total_services', 0) for stats in all_stats.values())
     improving_systems = sum(1 for stats in all_stats.values() if stats.get('error_trend', 0) < 0)
     degrading_systems = sum(1 for stats in all_stats.values() if stats.get('error_trend', 0) > 0)
     
-    # Statut global avec tendance
+    # Global status with trend
     if degrading_systems > improving_systems:
         global_status = "📉 SYSTEMS DEGRADING"
         global_class = "warning"
@@ -645,7 +651,7 @@ def create_executive_summary_html_with_trends(systems_data, all_stats, date_str)
                 <div class="systems-grid">
     """
     
-    # Ajout des cartes système avec tendances
+    # Adding system cards with trends
     for system_name, stats in all_stats.items():
         error_trend = stats.get('error_trend', 0)
         trend_class = 'improving' if error_trend < 0 else 'degrading' if error_trend > 0 else 'stable'
