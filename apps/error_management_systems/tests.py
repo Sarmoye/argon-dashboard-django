@@ -214,70 +214,10 @@ def create_trend_chart(trends_data, system_name):
         plt.close()
         return None
 
-def calculate_enhanced_stats(data, system_name, trends_data=None):
-    """Calcule des statistiques avancées avec analyse de tendance"""
-    base_stats = {
-        'total_errors': 0, 'total_services': 0, 'affected_services': 0,
-        'health_percentage': 0, 'critical_services': 0, 'avg_errors': 0,
-        'top_error_service': 'N/A', 'status': 'NO_DATA'
-    }
-    
-    if data is None or data.empty:
-        if trends_data:
-            base_stats.update({
-                'error_trend': trends_data.get('error_trend', 0),
-                'improvement_rate': trends_data.get('improvement_rate', 0),
-                'trend_status': 'NO_DATA'
-            })
-        return base_stats
-    
-    # Statistiques de base
-    total_errors = int(data['Error Count'].sum())
-    total_services = len(data)
-    affected_services = int((data['Error Count'] > 0).sum())
-    critical_services = int((data['Error Count'] >= 10).sum())
-    health_percentage = round(((total_services - affected_services) / total_services) * 100, 1)
-    avg_errors = round(total_errors / total_services, 2) if total_services > 0 else 0
-    
-    # Service le plus impacté
-    top_service = 'N/A'
-    if total_errors > 0:
-        max_idx = data['Error Count'].idxmax()
-        top_service = data.loc[max_idx, 'Service Name']
-    
-    # Statut global
-    if total_errors == 0:
-        status = 'HEALTHY'
-    elif critical_services > 0:
-        status = 'CRITICAL'
-    else:
-        status = 'WARNING'
-    
-    stats = {
-        'total_errors': total_errors,
-        'total_services': total_services,
-        'affected_services': affected_services,
-        'health_percentage': health_percentage,
-        'critical_services': critical_services,
-        'avg_errors': avg_errors,
-        'top_error_service': top_service,
-        'status': status
-    }
-    
-    # Ajouter les données de tendance si disponibles
-    if trends_data:
-        stats.update({
-            'error_trend': trends_data.get('error_trend', 0),
-            'improvement_rate': trends_data.get('improvement_rate', 0),
-            'week_trend': trends_data.get('week_trend', 0),
-            'days_analyzed': trends_data.get('days_analyzed', 0),
-            'trend_status': 'IMPROVING' if trends_data.get('error_trend', 0) < 0 else 'DEGRADING' if trends_data.get('error_trend', 0) > 0 else 'STABLE'
-        })
-    
-    return stats
+from datetime import datetime
 
 def create_professional_system_html_with_trends(system_name, data, stats, date_str, trends_data=None):
-    """Crée un rapport HTML professionnel avec analyse de tendance"""
+    """Crée un rapport HTML professionnel enrichi avec analyse de tendance et textes explicatifs"""
     status_colors = {
         'HEALTHY': ('#27ae60', '✅ SYSTEM HEALTHY'),
         'WARNING': ('#f39c12', '⚠️ SYSTEM WARNING'), 
@@ -303,19 +243,10 @@ def create_professional_system_html_with_trends(system_name, data, stats, date_s
         <div style="background: linear-gradient(135deg, {trend_color}, {trend_color}aa); color: black; padding: 25px; border-radius: 12px; margin: 20px 0;">
             <h3 style="margin: 0 0 15px 0; font-size: 1.3rem;">{trend_arrow} TREND ANALYSIS (Last {stats.get('days_analyzed', 7)} days)</h3>
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
-                <div>
-                    <strong>Error Change:</strong> {stats['error_trend']:+d} 
-                    <small>({stats['improvement_rate']:+.1f}%)</small>
-                </div>
-                <div>
-                    <strong>Previous Day:</strong> {trends_data.get('previous_errors', 0)} errors
-                </div>
-                <div>
-                    <strong>Current Day:</strong> {stats['total_errors']} errors
-                </div>
-                <div>
-                    <strong>7-Day Trend:</strong> {stats.get('week_trend', 0):+.1f} avg
-                </div>
+                <div><strong>Error Change:</strong> {stats['error_trend']:+d} <small>({stats['improvement_rate']:+.1f}%)</small></div>
+                <div><strong>Previous Day:</strong> {trends_data.get('previous_errors', 0)} errors</div>
+                <div><strong>Current Day:</strong> {stats['total_errors']} errors</div>
+                <div><strong>7-Day Trend:</strong> {stats.get('week_trend', 0):+.1f} avg</div>
             </div>
         </div>
         """
@@ -328,10 +259,12 @@ def create_professional_system_html_with_trends(system_name, data, stats, date_s
         <style>
             body {{ font-family: 'Segoe UI', sans-serif; margin: 0; background: #f5f7fa; color: #333; }}
             .container {{ max-width: 1200px; margin: 20px auto; background: white; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); overflow: hidden; }}
-            .header {{ background: linear-gradient(135deg, #2c3e50, #34495e); color: black; padding: 40px; text-align: center; }}
+            .header {{ background: linear-gradient(135deg, #2c3e50, #34495e); color: white; padding: 40px; text-align: center; }}
             .header h1 {{ font-size: 2.5rem; margin: 0 0 10px; font-weight: 700; }}
             .status-badge {{ background: {status_color}; color: black; padding: 12px 25px; border-radius: 25px; font-weight: 600; margin-top: 15px; display: inline-block; }}
-            .content {{ padding: 40px; }}
+            .content {{ padding: 40px; line-height: 1.6; }}
+            .intro {{ background: #ecf0f1; padding: 20px; border-radius: 12px; margin-bottom: 25px; }}
+            .intro h2 {{ margin-top: 0; color: #2c3e50; }}
             .stats-grid {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin: 30px 0; }}
             .stat-card {{ background: linear-gradient(135deg, #f8f9fa, #e9ecef); padding: 25px; border-radius: 12px; text-align: center; border-left: 4px solid #3498db; }}
             .stat-number {{ font-size: 2.5rem; font-weight: 700; color: #2c3e50; margin-bottom: 8px; }}
@@ -346,15 +279,39 @@ def create_professional_system_html_with_trends(system_name, data, stats, date_s
     </head>
     <body>
         <div class="container">
+            <!-- Header -->
             <div class="header">
                 <h1>System {system_name}</h1>
                 <p>Advanced Error Analysis Report - {date_str}</p>
                 <div class="status-badge">{status_text}</div>
             </div>
             
+            <!-- Intro -->
             <div class="content">
-                {trend_section}
+                <div class="intro">
+                    <h2>🔎 Objectif du rapport</h2>
+                    <p>
+                        Ce rapport présente une analyse détaillée des erreurs et incidents rencontrés sur le système 
+                        <strong>{system_name}</strong>. Vous y trouverez un résumé des indicateurs clés, 
+                        les tendances observées, ainsi que des recommandations pour améliorer la stabilité 
+                        et réduire les impacts sur vos services.
+                    </p>
+                    <p>
+                        L’objectif est de vous fournir une vision claire de l’état de santé du système, 
+                        afin de faciliter la prise de décision et la mise en place d’actions correctives ou préventives.
+                    </p>
+                </div>
                 
+                <!-- Trend Section -->
+                {trend_section}
+
+                <!-- Stats -->
+                <h2>📊 Indicateurs Clés</h2>
+                <p>
+                    Les chiffres ci-dessous synthétisent l’état actuel du système.  
+                    Ils permettent d’identifier rapidement le volume d’erreurs, le nombre de services impactés 
+                    et le niveau global de santé.
+                </p>
                 <div class="stats-grid">
                     <div class="stat-card">
                         <div class="stat-number {'danger' if stats['total_errors'] > 0 else 'success'}">{stats['total_errors']}</div>
@@ -382,8 +339,14 @@ def create_professional_system_html_with_trends(system_name, data, stats, date_s
                     </div>
                 </div>
                 
+                <!-- Recommendations -->
                 <div class="recommendations">
                     <h3>🎯 Strategic Insights & Action Plan</h3>
+                    <p>
+                        Voici une interprétation des résultats et des actions à envisager pour améliorer la situation.  
+                        Merci de collaborer avec l’équipe de monitoring afin d’identifier les causes profondes 
+                        et mettre en place des solutions efficaces.
+                    </p>
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
                         <div>
                             <h4>📊 Current Status:</h4>
@@ -404,9 +367,14 @@ def create_professional_system_html_with_trends(system_name, data, stats, date_s
                             </ul>
                         </div>
                     </div>
+                    <p>
+                        👉 Nous vous encourageons à <strong>analyser en priorité les services critiques</strong>, puis à travailler 
+                        sur les causes récurrentes d’erreurs afin de renforcer la résilience globale du système.  
+                    </p>
                 </div>
             </div>
             
+            <!-- Footer -->
             <div class="footer">
                 <p><strong>Enhanced MTN Monitoring System</strong> | Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}</p>
                 <p>📧 For urgent issues: Contact monitoring team immediately</p>
@@ -415,6 +383,7 @@ def create_professional_system_html_with_trends(system_name, data, stats, date_s
     </body>
     </html>
     """
+
 
 def generate_daily_reports_with_trends():
     """Génère les rapports avec analyse de tendance"""
