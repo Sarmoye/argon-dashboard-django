@@ -551,11 +551,11 @@ def create_executive_summary_html_with_trends(systems_data, all_stats, date_str)
         <style>
             body {{ font-family: 'Segoe UI', sans-serif; margin: 0; background: #f5f7fa; }}
             .container {{ max-width: 1400px; margin: 20px auto; background: white; border-radius: 15px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); }}
-            .header {{ background: linear-gradient(135deg, #1e3c72, #2a5298); color: white; padding: 50px; text-align: center; }}
+            .header {{ background: linear-gradient(135deg, #1e3c72, #2a5298); color: black; padding: 50px; text-align: center; }}
             .header h1 {{ font-size: 3rem; margin: 0 0 15px; font-weight: 700; }}
             .global-status {{ padding: 15px 30px; border-radius: 25px; font-weight: 700; margin-top: 20px; display: inline-block; }}
             .content {{ padding: 50px; }}
-            .trend-summary {{ background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 30px; border-radius: 12px; margin: 30px 0; }}
+            .trend-summary {{ background: linear-gradient(135deg, #667eea, #764ba2); color: black; padding: 30px; border-radius: 12px; margin: 30px 0; }}
             .systems-grid {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 25px; margin: 30px 0; }}
             .system-card {{ background: white; border-radius: 12px; padding: 25px; box-shadow: 0 8px 20px rgba(0,0,0,0.08); }}
             .system-name {{ font-size: 1.3rem; font-weight: 700; margin-bottom: 15px; }}
@@ -566,7 +566,7 @@ def create_executive_summary_html_with_trends(systems_data, all_stats, date_str)
             .danger {{ color: #e74c3c; }}
             .success {{ color: #27ae60; }}
             .warning {{ color: #f39c12; }}
-            .footer {{ background: #2c3e50; color: white; padding: 30px; text-align: center; }}
+            .footer {{ background: #2c3e50; color: black; padding: 30px; text-align: center; }}
         </style>
     </head>
     <body>
