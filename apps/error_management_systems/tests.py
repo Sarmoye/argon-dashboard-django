@@ -257,70 +257,6 @@ def calculate_enhanced_stats(data, system_name, trends_data=None):
     health_percentage = round(((total_services - affected_services) / total_services) * 100, 1)
     avg_errors = round(total_errors / total_services, 2) if total_services > 0 else 0
     
-    # Distributions et insights complémentaires
-    by_domain = {}
-    by_type = {}
-    top_services_list = []
-    median_errors = 0.0
-    p95_errors = 0.0
-    zero_error_rate = 0.0
-    pareto_share = 0.0
-    pareto_top_n = 0
-    try:
-        if 'Domain' in data.columns:
-            by_domain = (
-                data.groupby('Domain')['Error Count']
-                .sum()
-                .sort_values(ascending=False)
-                .head(5)
-                .to_dict()
-            )
-        if 'Service Type' in data.columns:
-            by_type = (
-                data.groupby('Service Type')['Error Count']
-                .sum()
-                .sort_values(ascending=False)
-                .head(5)
-                .to_dict()
-            )
-        if 'Service Name' in data.columns:
-            top_services_series = (
-                data.groupby('Service Name')['Error Count']
-                .sum()
-                .sort_values(ascending=False)
-                .head(10)
-            )
-            top_services_list = [(name, int(val)) for name, val in top_services_series.items()]
-
-        if 'Error Count' in data.columns and len(data['Error Count']) > 0:
-            median_errors = float(data['Error Count'].median())
-            p95_errors = float(data['Error Count'].quantile(0.95))
-            zero_error_services = int((data['Error Count'] == 0).sum())
-            zero_error_rate = round((zero_error_services / total_services) * 100, 1) if total_services > 0 else 0.0
-
-        # Pareto (80/20) approximation
-        if total_errors > 0 and 'Service Name' in data.columns:
-            svc_sorted = (
-                data.groupby('Service Name')['Error Count']
-                .sum()
-                .sort_values(ascending=False)
-            )
-            cum_sum = 0
-            threshold = 0.8 * total_errors
-            for i, val in enumerate(svc_sorted.values, start=1):
-                cum_sum += val
-                pareto_top_n = i
-                if cum_sum >= threshold:
-                    break
-            pareto_share = round((cum_sum / total_errors) * 100, 1)
-    except Exception:
-        by_domain, by_type, top_services_list = {}, {}, []
-        median_errors = 0.0
-        p95_errors = 0.0
-        zero_error_rate = 0.0
-        pareto_share = 0.0
-        pareto_top_n = 0
-
     # Service le plus impacté
     top_service = 'N/A'
     if total_errors > 0:
@@ -343,17 +279,7 @@ def calculate_enhanced_stats(data, system_name, trends_data=None):
         'critical_services': critical_services,
         'avg_errors': avg_errors,
         'top_error_service': top_service,
-        'status': status,
-        'by_domain': by_domain,
-        'by_type': by_type,
-        'top_services': top_services_list,
-        'median_errors': median_errors,
-        'p95_errors': p95_errors,
-        'zero_error_rate': zero_error_rate,
-        'pareto_share': pareto_share,
-        'pareto_top_n': pareto_top_n,
-        'most_impacted_domain': next(iter(by_domain)) if by_domain else 'N/A',
-        'most_impacted_type': next(iter(by_type)) if by_type else 'N/A'
+        'status': status
     }
     
     # Ajouter les données de tendance si disponibles
@@ -499,34 +425,6 @@ def create_professional_system_html_with_trends(system_name, data, stats, date_s
                     <div class="stat-card">
                         <div class="stat-number {'warning' if stats['avg_errors'] > 2 else 'success'}">{stats['avg_errors']}</div>
                         <div class="stat-label">Avg Errors/Service</div>
-                    </div>
-                </div>
-                
-                <!-- Distribution & Focus (Soft UI style) -->
-                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px;margin-top:18px;">
-                    <div style="background:#e0e5ec;padding:18px;border-radius:12px;box-shadow:inset 5px 5px 10px #cbced1, inset -5px -5px 10px #ffffff;">
-                        <h4 style="margin:0 0 10px 0;">Distribution</h4>
-                        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;">
-                            <div>
-                                <div style="font-size:1.1rem;font-weight:700;">{stats.get('median_errors', 0):.1f}</div>
-                                <div style="font-size:.85rem;color:#666;">Median Errors</div>
-                            </div>
-                            <div>
-                                <div style="font-size:1.1rem;font-weight:700;">{stats.get('p95_errors', 0):.1f}</div>
-                                <div style="font-size:.85rem;color:#666;">P95 Errors</div>
-                            </div>
-                            <div>
-                                <div style="font-size:1.1rem;font-weight:700;">{stats.get('zero_error_rate', 0):.1f}%</div>
-                                <div style="font-size:.85rem;color:#666;">Zero-Error Rate</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div style="background:#e0e5ec;padding:18px;border-radius:12px;box-shadow:inset 5px 5px 10px #cbced1, inset -5px -5px 10px #ffffff;">
-                        <h4 style="margin:0 0 10px 0;">Focus</h4>
-                        <p style="margin:0;color:#555;">
-                            Top {stats.get('pareto_top_n', 0)} services ≈ {stats.get('pareto_share', 0):.1f}% of errors.<br/>
-                            Most impacted: <strong>{stats.get('most_impacted_domain', 'N/A')}</strong> / <strong>{stats.get('most_impacted_type', 'N/A')}</strong>.
-                        </p>
                     </div>
                 </div>
                 
@@ -709,39 +607,31 @@ def create_executive_summary_html_with_trends(systems_data, all_stats, date_str)
         global_status = "➡️ SYSTEMS STABLE"
         global_class = "info"
     
-    css_block = """
-        <style>
-            body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #e0e5ec; color:#3e4652; }
-            .container { max-width: 1400px; margin: 20px auto; background: #e0e5ec; border-radius: 20px; box-shadow: 9px 9px 16px rgba(163,177,198,0.6), -9px -9px 16px rgba(255,255,255,0.5); }
-            .header { background: #e0e5ec; color: #3e4652; padding: 50px; text-align: center; }
-            .header h1 { font-size: 3rem; margin: 0 0 15px; font-weight: 700; }
-            .global-status { padding: 15px 30px; border-radius: 25px; font-weight: 700; margin-top: 20px; display: inline-block; box-shadow: 4px 4px 8px rgba(163,177,198,0.4), -4px -4px 8px rgba(255,255,255,0.7); }
-            .content { padding: 50px; }
-            .trend-summary { background: #e0e5ec; color: #3e4652; padding: 30px; border-radius: 12px; margin: 30px 0; box-shadow: inset 5px 5px 10px #cbced1, inset -5px -5px 10px #ffffff; }
-            .systems-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 25px; margin: 30px 0; }
-            .system-card { background: #e0e5ec; border-radius: 12px; padding: 25px; box-shadow: inset 5px 5px 10px #cbced1, inset -5px -5px 10px #ffffff; }
-            .system-name { font-size: 1.3rem; font-weight: 700; margin-bottom: 15px; }
-            .trend-indicator { font-size: 1.1rem; margin: 10px 0; padding: 8px 15px; border-radius: 20px; display: inline-block; }
-            .improving { background: #d4edda; color: #155724; }
-            .degrading { background: #f8d7da; color: #721c24; }
-            .stable { background: #d1ecf1; color: #0c5460; }
-            .danger { color: #e74c3c; }
-            .success { color: #27ae60; }
-            .warning { color: #f39c12; }
-            .footer { background: #e0e5ec; color: #3e4652; padding: 30px; text-align: center; box-shadow: inset 5px 5px 10px #cbced1, inset -5px -5px 10px #ffffff; }
-            table.simple { width:100%; border-collapse: collapse; }
-            table.simple th, table.simple td { padding: 10px; border-bottom: 1px solid #eee; text-align: left; }
-            table.simple th { color:#666; font-size:.85rem; text-transform:uppercase; letter-spacing:.5px; }
-            .callout { background:#e0e5ec; border-left:4px solid #f39c12; padding:14px 18px; border-radius:12px; box-shadow: inset 4px 4px 8px #cbced1, inset -4px -4px 8px #ffffff; }
-        </style>
-    """
-
     html = f"""
     <!DOCTYPE html>
     <html>
     <head>
         <meta charset="UTF-8">
-        {css_block}
+        <style>
+            body {{ font-family: 'Segoe UI', sans-serif; margin: 0; background: #f5f7fa; }}
+            .container {{ max-width: 1400px; margin: 20px auto; background: white; border-radius: 15px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); }}
+            .header {{ background: linear-gradient(135deg, #1e3c72, #2a5298); color: black; padding: 50px; text-align: center; }}
+            .header h1 {{ font-size: 3rem; margin: 0 0 15px; font-weight: 700; }}
+            .global-status {{ padding: 15px 30px; border-radius: 25px; font-weight: 700; margin-top: 20px; display: inline-block; }}
+            .content {{ padding: 50px; }}
+            .trend-summary {{ background: linear-gradient(135deg, #667eea, #764ba2); color: black; padding: 30px; border-radius: 12px; margin: 30px 0; }}
+            .systems-grid {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 25px; margin: 30px 0; }}
+            .system-card {{ background: white; border-radius: 12px; padding: 25px; box-shadow: 0 8px 20px rgba(0,0,0,0.08); }}
+            .system-name {{ font-size: 1.3rem; font-weight: 700; margin-bottom: 15px; }}
+            .trend-indicator {{ font-size: 1.1rem; margin: 10px 0; padding: 8px 15px; border-radius: 20px; display: inline-block; }}
+            .improving {{ background: #d4edda; color: #155724; }}
+            .degrading {{ background: #f8d7da; color: #721c24; }}
+            .stable {{ background: #d1ecf1; color: #0c5460; }}
+            .danger {{ color: #e74c3c; }}
+            .success {{ color: #27ae60; }}
+            .warning {{ color: #f39c12; }}
+            .footer {{ background: #2c3e50; color: white; padding: 30px; text-align: center; }}
+        </style>
     </head>
     <body>
         <div class="container">
