@@ -257,6 +257,47 @@ def calculate_enhanced_stats(data, system_name, trends_data=None):
     health_percentage = round(((total_services - affected_services) / total_services) * 100, 1)
     avg_errors = round(total_errors / total_services, 2) if total_services > 0 else 0
     
+    # Distributions et insights supplémentaires
+    by_domain = {}
+    by_type = {}
+    top_services_list = []
+    p95_errors = 0
+    median_errors = 0
+
+    try:
+        if 'Domain' in data.columns:
+            by_domain = (
+                data.groupby('Domain')['Error Count']
+                .sum()
+                .sort_values(ascending=False)
+                .head(5)
+                .to_dict()
+            )
+        if 'Service Type' in data.columns:
+            by_type = (
+                data.groupby('Service Type')['Error Count']
+                .sum()
+                .sort_values(ascending=False)
+                .head(5)
+                .to_dict()
+            )
+        if 'Service Name' in data.columns:
+            top_services_series = (
+                data.groupby('Service Name')['Error Count']
+                .sum()
+                .sort_values(ascending=False)
+                .head(10)
+            )
+            top_services_list = [(name, int(val)) for name, val in top_services_series.items()]
+
+        if 'Error Count' in data.columns and len(data['Error Count']) > 0:
+            median_errors = float(data['Error Count'].median())
+            p95_errors = float(data['Error Count'].quantile(0.95))
+    except Exception:
+        # Rester robuste en cas d'erreur de structure de données
+        by_domain, by_type, top_services_list = {}, {}, []
+        median_errors, p95_errors = 0, 0
+
     # Service le plus impacté
     top_service = 'N/A'
     if total_errors > 0:
@@ -279,7 +320,12 @@ def calculate_enhanced_stats(data, system_name, trends_data=None):
         'critical_services': critical_services,
         'avg_errors': avg_errors,
         'top_error_service': top_service,
-        'status': status
+        'status': status,
+        'by_domain': by_domain,
+        'by_type': by_type,
+        'top_services': top_services_list,
+        'median_errors': median_errors,
+        'p95_errors': p95_errors
     }
     
     # Ajouter les données de tendance si disponibles
@@ -339,6 +385,22 @@ def create_professional_system_html_with_trends(system_name, data, stats, date_s
         </div>
         """
     
+    # Tables for top offenders and distributions
+    top_services_rows = "".join([
+        f"<tr><td>{name}</td><td style=\"text-align:right\">{count}</td></tr>"
+        for name, count in stats.get('top_services', [])
+    ]) or "<tr><td colspan='2' style='text-align:center;opacity:.7'>No services with errors</td></tr>"
+
+    by_domain_rows = "".join([
+        f"<tr><td>{dom}</td><td style=\"text-align:right\">{cnt}</td></tr>"
+        for dom, cnt in stats.get('by_domain', {}).items()
+    ]) or "<tr><td colspan='2' style='text-align:center;opacity:.7'>No domain data</td></tr>"
+
+    by_type_rows = "".join([
+        f"<tr><td>{typ}</td><td style=\"text-align:right\">{cnt}</td></tr>"
+        for typ, cnt in stats.get('by_type', {}).items()
+    ]) or "<tr><td colspan='2' style='text-align:center;opacity:.7'>No type data</td></tr>"
+    
     # Return the complete HTML document as a single string
     return f"""
     <!DOCTYPE html>
@@ -364,6 +426,11 @@ def create_professional_system_html_with_trends(system_name, data, stats, date_s
             .recommendations {{ background: linear-gradient(135deg, #74b9ff, #0984e3); color: black; padding: 30px; border-radius: 12px; margin: 30px 0; }}
             .recommendations h3 {{ margin-bottom: 20px; font-size: 1.4rem; }}
             .footer {{ background: #2c3e50; color: white; padding: 25px; text-align: center; }}
+            .two-col {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }}
+            table.simple {{ width: 100%; border-collapse: collapse; }}
+            table.simple th, table.simple td {{ padding: 10px; border-bottom: 1px solid #eee; text-align: left; }}
+            table.simple th {{ text-transform: uppercase; font-size: .8rem; letter-spacing: .5px; color: #666; }}
+            .callout {{ background: #f1f8ff; border-left: 4px solid #3498db; padding: 15px 18px; border-radius: 8px; }}
         </style>
     </head>
     <body>
@@ -427,6 +494,27 @@ def create_professional_system_html_with_trends(system_name, data, stats, date_s
                         <div class="stat-label">Avg Errors/Service</div>
                     </div>
                 </div>
+                <div class="two-col" style="margin-top: 24px;">
+                    <div class="callout">
+                        <strong>Distribution:</strong>
+                        <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:10px;">
+                            <div>
+                                <div style="font-size:1.1rem;font-weight:700;">{stats.get('median_errors', 0):.1f}</div>
+                                <div style="font-size:.85rem;color:#666;">Median Errors</div>
+                            </div>
+                            <div>
+                                <div style="font-size:1.1rem;font-weight:700;">{stats.get('p95_errors', 0):.1f}</div>
+                                <div style="font-size:.85rem;color:#666;">P95 Errors</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="callout">
+                        <strong>Focus:</strong>
+                        <div style="margin-top:8px;">
+                            {'Prioritize root-cause analysis on critical services.' if stats.get('critical_services',0)>0 else 'Maintain current stability practices and monitoring.'}
+                        </div>
+                    </div>
+                </div>
                 
                 <!-- Recommendations -->
                 <div class="recommendations">
@@ -460,6 +548,36 @@ def create_professional_system_html_with_trends(system_name, data, stats, date_s
                         👉 We encourage you to <strong>prioritize the analysis of critical services</strong>, then work
                         on recurring error causes to strengthen the overall system resilience.
                     </p>
+                </div>
+
+                <!-- Details Tables -->
+                <h2 style="margin-top: 16px;">🧭 Breakdown</h2>
+                <div class="two-col">
+                    <div>
+                        <h4 style="margin:10px 0;">Top Offenders</h4>
+                        <table class="simple">
+                            <thead><tr><th>Service</th><th style="text-align:right">Errors</th></tr></thead>
+                            <tbody>
+                                {top_services_rows}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                        <h4 style="margin:10px 0;">By Domain</h4>
+                        <table class="simple">
+                            <thead><tr><th>Domain</th><th style="text-align:right">Errors</th></tr></thead>
+                            <tbody>
+                                {by_domain_rows}
+                            </tbody>
+                        </table>
+                        <h4 style="margin:14px 0 10px;">By Type</h4>
+                        <table class="simple">
+                            <thead><tr><th>Type</th><th style="text-align:right">Errors</th></tr></thead>
+                            <tbody>
+                                {by_type_rows}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
             
@@ -607,6 +725,17 @@ def create_executive_summary_html_with_trends(systems_data, all_stats, date_str)
         global_status = "➡️ SYSTEMS STABLE"
         global_class = "info"
     
+    # Comparative table rows
+    compare_rows = "".join([
+        f"<tr>"
+        f"<td>{sys}</td>"
+        f"<td style=\"text-align:right\">{st.get('total_errors',0)}</td>"
+        f"<td style=\"text-align:right\">{st.get('critical_services',0)}</td>"
+        f"<td style=\"text-align:right\">{st.get('health_percentage',0):.1f}%</td>"
+        f"<td style=\"text-align:right\">{st.get('error_trend',0):+d}</td>"
+        f"</tr>" for sys, st in all_stats.items()
+    ])
+
     html = f"""
     <!DOCTYPE html>
     <html>
@@ -631,6 +760,10 @@ def create_executive_summary_html_with_trends(systems_data, all_stats, date_str)
             .success {{ color: #27ae60; }}
             .warning {{ color: #f39c12; }}
             .footer {{ background: #2c3e50; color: white; padding: 30px; text-align: center; }}
+            table.simple {{ width:100%; border-collapse: collapse; }}
+            table.simple th, table.simple td {{ padding: 10px; border-bottom: 1px solid #eee; text-align: left; }}
+            table.simple th {{ color:#666; font-size:.85rem; text-transform:uppercase; letter-spacing:.5px; }}
+            .callout {{ background:#fff9db; border-left:4px solid #f39c12; padding:14px 18px; border-radius:8px; }}
         </style>
     </head>
     <body>
@@ -702,6 +835,25 @@ def create_executive_summary_html_with_trends(systems_data, all_stats, date_str)
     html += f"""
                 </div>
                 
+                <h2 style="color:#2c3e50; margin: 20px 0 12px;">🧮 Comparative Overview</h2>
+                <div class="callout" style="margin-bottom:12px;">
+                    Use this table to quickly identify which system needs attention based on current errors, critical services, and trend movement vs yesterday.
+                </div>
+                <table class="simple">
+                    <thead>
+                        <tr>
+                            <th>System</th>
+                            <th style="text-align:right">Errors</th>
+                            <th style="text-align:right">Critical</th>
+                            <th style="text-align:right">Health</th>
+                            <th style="text-align:right">Trend</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {compare_rows}
+                    </tbody>
+                </table>
+
                 <div style="background: linear-gradient(135deg, #ff7675, #fd79a8); color: black; padding: 35px; border-radius: 12px; margin: 40px 0;">
                     <h3 style="font-size: 1.5rem; margin-bottom: 20px;">🎯 Strategic Recommendations</h3>
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 25px;">
@@ -803,14 +955,18 @@ def send_email_with_reports(from_email, to_emails, subject, html_body, chart_ima
         msg = MIMEMultipart('related')
         msg['From'] = from_email
         msg['To'] = ', '.join(to_emails)
+        # Add consistent, communicative subject and preheader
         msg['Subject'] = subject
         
         # Corps HTML
         msg_html = MIMEMultipart('alternative')
         msg.attach(msg_html)
         
+        # Preheader for better email previews
+        preheader = "<div style=\"display:none;max-height:0;overflow:hidden;opacity:0;color:transparent;\">Automated monitoring insights and trend analysis inside.</div>"
+
         # Ajouter les graphiques
-        html_with_images = html_body
+        html_with_images = preheader + html_body
         for i, chart_data in enumerate(chart_images):
             if chart_data:
                 cid = f"chart{i}"
@@ -841,6 +997,14 @@ def send_email_with_reports(from_email, to_emails, subject, html_body, chart_ima
         
     except Exception as e:
         print(f'Erreur envoi email: {e}')
+        # Fallback: save HTML locally for inspection
+        try:
+            fallback_name = f"email_fallback_{datetime.now().strftime('%Y%m%d_%H%M%S')}.html"
+            with open(fallback_name, 'w', encoding='utf-8') as f:
+                f.write(html_body)
+            print(f"Copie locale du rapport sauvegardée: {fallback_name}")
+        except Exception:
+            pass
         return False
 
 def main():
