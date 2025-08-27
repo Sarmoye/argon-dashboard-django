@@ -257,13 +257,15 @@ def calculate_enhanced_stats(data, system_name, trends_data=None):
     health_percentage = round(((total_services - affected_services) / total_services) * 100, 1)
     avg_errors = round(total_errors / total_services, 2) if total_services > 0 else 0
     
-    # Distributions et insights supplémentaires
+    # Distributions et insights complémentaires
     by_domain = {}
     by_type = {}
     top_services_list = []
-    p95_errors = 0
-    median_errors = 0
-
+    median_errors = 0.0
+    p95_errors = 0.0
+    zero_error_rate = 0.0
+    pareto_share = 0.0
+    pareto_top_n = 0
     try:
         if 'Domain' in data.columns:
             by_domain = (
@@ -293,10 +295,31 @@ def calculate_enhanced_stats(data, system_name, trends_data=None):
         if 'Error Count' in data.columns and len(data['Error Count']) > 0:
             median_errors = float(data['Error Count'].median())
             p95_errors = float(data['Error Count'].quantile(0.95))
+            zero_error_services = int((data['Error Count'] == 0).sum())
+            zero_error_rate = round((zero_error_services / total_services) * 100, 1) if total_services > 0 else 0.0
+
+        # Pareto (80/20) approximation
+        if total_errors > 0 and 'Service Name' in data.columns:
+            svc_sorted = (
+                data.groupby('Service Name')['Error Count']
+                .sum()
+                .sort_values(ascending=False)
+            )
+            cum_sum = 0
+            threshold = 0.8 * total_errors
+            for i, val in enumerate(svc_sorted.values, start=1):
+                cum_sum += val
+                pareto_top_n = i
+                if cum_sum >= threshold:
+                    break
+            pareto_share = round((cum_sum / total_errors) * 100, 1)
     except Exception:
-        # Rester robuste en cas d'erreur de structure de données
         by_domain, by_type, top_services_list = {}, {}, []
-        median_errors, p95_errors = 0, 0
+        median_errors = 0.0
+        p95_errors = 0.0
+        zero_error_rate = 0.0
+        pareto_share = 0.0
+        pareto_top_n = 0
 
     # Service le plus impacté
     top_service = 'N/A'
@@ -325,7 +348,12 @@ def calculate_enhanced_stats(data, system_name, trends_data=None):
         'by_type': by_type,
         'top_services': top_services_list,
         'median_errors': median_errors,
-        'p95_errors': p95_errors
+        'p95_errors': p95_errors,
+        'zero_error_rate': zero_error_rate,
+        'pareto_share': pareto_share,
+        'pareto_top_n': pareto_top_n,
+        'most_impacted_domain': next(iter(by_domain)) if by_domain else 'N/A',
+        'most_impacted_type': next(iter(by_type)) if by_type else 'N/A'
     }
     
     # Ajouter les données de tendance si disponibles
@@ -385,22 +413,6 @@ def create_professional_system_html_with_trends(system_name, data, stats, date_s
         </div>
         """
     
-    # Tables for top offenders and distributions
-    top_services_rows = "".join([
-        f"<tr><td>{name}</td><td style=\"text-align:right\">{count}</td></tr>"
-        for name, count in stats.get('top_services', [])
-    ]) or "<tr><td colspan='2' style='text-align:center;opacity:.7'>No services with errors</td></tr>"
-
-    by_domain_rows = "".join([
-        f"<tr><td>{dom}</td><td style=\"text-align:right\">{cnt}</td></tr>"
-        for dom, cnt in stats.get('by_domain', {}).items()
-    ]) or "<tr><td colspan='2' style='text-align:center;opacity:.7'>No domain data</td></tr>"
-
-    by_type_rows = "".join([
-        f"<tr><td>{typ}</td><td style=\"text-align:right\">{cnt}</td></tr>"
-        for typ, cnt in stats.get('by_type', {}).items()
-    ]) or "<tr><td colspan='2' style='text-align:center;opacity:.7'>No type data</td></tr>"
-    
     # Return the complete HTML document as a single string
     return f"""
     <!DOCTYPE html>
@@ -426,11 +438,6 @@ def create_professional_system_html_with_trends(system_name, data, stats, date_s
             .recommendations {{ background: linear-gradient(135deg, #74b9ff, #0984e3); color: black; padding: 30px; border-radius: 12px; margin: 30px 0; }}
             .recommendations h3 {{ margin-bottom: 20px; font-size: 1.4rem; }}
             .footer {{ background: #2c3e50; color: white; padding: 25px; text-align: center; }}
-            .two-col {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }}
-            table.simple {{ width: 100%; border-collapse: collapse; }}
-            table.simple th, table.simple td {{ padding: 10px; border-bottom: 1px solid #eee; text-align: left; }}
-            table.simple th {{ text-transform: uppercase; font-size: .8rem; letter-spacing: .5px; color: #666; }}
-            .callout {{ background: #f1f8ff; border-left: 4px solid #3498db; padding: 15px 18px; border-radius: 8px; }}
         </style>
     </head>
     <body>
@@ -494,10 +501,12 @@ def create_professional_system_html_with_trends(system_name, data, stats, date_s
                         <div class="stat-label">Avg Errors/Service</div>
                     </div>
                 </div>
-                <div class="two-col" style="margin-top: 24px;">
-                    <div class="callout">
-                        <strong>Distribution:</strong>
-                        <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:10px;">
+                
+                <!-- Distribution & Focus (Soft UI style) -->
+                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px;margin-top:18px;">
+                    <div style="background:#e0e5ec;padding:18px;border-radius:12px;box-shadow:inset 5px 5px 10px #cbced1, inset -5px -5px 10px #ffffff;">
+                        <h4 style="margin:0 0 10px 0;">Distribution</h4>
+                        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;">
                             <div>
                                 <div style="font-size:1.1rem;font-weight:700;">{stats.get('median_errors', 0):.1f}</div>
                                 <div style="font-size:.85rem;color:#666;">Median Errors</div>
@@ -506,13 +515,18 @@ def create_professional_system_html_with_trends(system_name, data, stats, date_s
                                 <div style="font-size:1.1rem;font-weight:700;">{stats.get('p95_errors', 0):.1f}</div>
                                 <div style="font-size:.85rem;color:#666;">P95 Errors</div>
                             </div>
+                            <div>
+                                <div style="font-size:1.1rem;font-weight:700;">{stats.get('zero_error_rate', 0):.1f}%</div>
+                                <div style="font-size:.85rem;color:#666;">Zero-Error Rate</div>
+                            </div>
                         </div>
                     </div>
-                    <div class="callout">
-                        <strong>Focus:</strong>
-                        <div style="margin-top:8px;">
-                            {'Prioritize root-cause analysis on critical services.' if stats.get('critical_services',0)>0 else 'Maintain current stability practices and monitoring.'}
-                        </div>
+                    <div style="background:#e0e5ec;padding:18px;border-radius:12px;box-shadow:inset 5px 5px 10px #cbced1, inset -5px -5px 10px #ffffff;">
+                        <h4 style="margin:0 0 10px 0;">Focus</h4>
+                        <p style="margin:0;color:#555;">
+                            Top {stats.get('pareto_top_n', 0)} services ≈ {stats.get('pareto_share', 0):.1f}% of errors.<br/>
+                            Most impacted: <strong>{stats.get('most_impacted_domain', 'N/A')}</strong> / <strong>{stats.get('most_impacted_type', 'N/A')}</strong>.
+                        </p>
                     </div>
                 </div>
                 
@@ -548,36 +562,6 @@ def create_professional_system_html_with_trends(system_name, data, stats, date_s
                         👉 We encourage you to <strong>prioritize the analysis of critical services</strong>, then work
                         on recurring error causes to strengthen the overall system resilience.
                     </p>
-                </div>
-
-                <!-- Details Tables -->
-                <h2 style="margin-top: 16px;">🧭 Breakdown</h2>
-                <div class="two-col">
-                    <div>
-                        <h4 style="margin:10px 0;">Top Offenders</h4>
-                        <table class="simple">
-                            <thead><tr><th>Service</th><th style="text-align:right">Errors</th></tr></thead>
-                            <tbody>
-                                {top_services_rows}
-                            </tbody>
-                        </table>
-                    </div>
-                    <div>
-                        <h4 style="margin:10px 0;">By Domain</h4>
-                        <table class="simple">
-                            <thead><tr><th>Domain</th><th style="text-align:right">Errors</th></tr></thead>
-                            <tbody>
-                                {by_domain_rows}
-                            </tbody>
-                        </table>
-                        <h4 style="margin:14px 0 10px;">By Type</h4>
-                        <table class="simple">
-                            <thead><tr><th>Type</th><th style="text-align:right">Errors</th></tr></thead>
-                            <tbody>
-                                {by_type_rows}
-                            </tbody>
-                        </table>
-                    </div>
                 </div>
             </div>
             
@@ -725,46 +709,39 @@ def create_executive_summary_html_with_trends(systems_data, all_stats, date_str)
         global_status = "➡️ SYSTEMS STABLE"
         global_class = "info"
     
-    # Comparative table rows
-    compare_rows = "".join([
-        f"<tr>"
-        f"<td>{sys}</td>"
-        f"<td style=\"text-align:right\">{st.get('total_errors',0)}</td>"
-        f"<td style=\"text-align:right\">{st.get('critical_services',0)}</td>"
-        f"<td style=\"text-align:right\">{st.get('health_percentage',0):.1f}%</td>"
-        f"<td style=\"text-align:right\">{st.get('error_trend',0):+d}</td>"
-        f"</tr>" for sys, st in all_stats.items()
-    ])
+    css_block = """
+        <style>
+            body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #e0e5ec; color:#3e4652; }
+            .container { max-width: 1400px; margin: 20px auto; background: #e0e5ec; border-radius: 20px; box-shadow: 9px 9px 16px rgba(163,177,198,0.6), -9px -9px 16px rgba(255,255,255,0.5); }
+            .header { background: #e0e5ec; color: #3e4652; padding: 50px; text-align: center; }
+            .header h1 { font-size: 3rem; margin: 0 0 15px; font-weight: 700; }
+            .global-status { padding: 15px 30px; border-radius: 25px; font-weight: 700; margin-top: 20px; display: inline-block; box-shadow: 4px 4px 8px rgba(163,177,198,0.4), -4px -4px 8px rgba(255,255,255,0.7); }
+            .content { padding: 50px; }
+            .trend-summary { background: #e0e5ec; color: #3e4652; padding: 30px; border-radius: 12px; margin: 30px 0; box-shadow: inset 5px 5px 10px #cbced1, inset -5px -5px 10px #ffffff; }
+            .systems-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 25px; margin: 30px 0; }
+            .system-card { background: #e0e5ec; border-radius: 12px; padding: 25px; box-shadow: inset 5px 5px 10px #cbced1, inset -5px -5px 10px #ffffff; }
+            .system-name { font-size: 1.3rem; font-weight: 700; margin-bottom: 15px; }
+            .trend-indicator { font-size: 1.1rem; margin: 10px 0; padding: 8px 15px; border-radius: 20px; display: inline-block; }
+            .improving { background: #d4edda; color: #155724; }
+            .degrading { background: #f8d7da; color: #721c24; }
+            .stable { background: #d1ecf1; color: #0c5460; }
+            .danger { color: #e74c3c; }
+            .success { color: #27ae60; }
+            .warning { color: #f39c12; }
+            .footer { background: #e0e5ec; color: #3e4652; padding: 30px; text-align: center; box-shadow: inset 5px 5px 10px #cbced1, inset -5px -5px 10px #ffffff; }
+            table.simple { width:100%; border-collapse: collapse; }
+            table.simple th, table.simple td { padding: 10px; border-bottom: 1px solid #eee; text-align: left; }
+            table.simple th { color:#666; font-size:.85rem; text-transform:uppercase; letter-spacing:.5px; }
+            .callout { background:#e0e5ec; border-left:4px solid #f39c12; padding:14px 18px; border-radius:12px; box-shadow: inset 4px 4px 8px #cbced1, inset -4px -4px 8px #ffffff; }
+        </style>
+    """
 
     html = f"""
     <!DOCTYPE html>
     <html>
     <head>
         <meta charset="UTF-8">
-        <style>
-            body {{ font-family: 'Segoe UI', sans-serif; margin: 0; background: #f5f7fa; }}
-            .container {{ max-width: 1400px; margin: 20px auto; background: white; border-radius: 15px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); }}
-            .header {{ background: linear-gradient(135deg, #1e3c72, #2a5298); color: black; padding: 50px; text-align: center; }}
-            .header h1 {{ font-size: 3rem; margin: 0 0 15px; font-weight: 700; }}
-            .global-status {{ padding: 15px 30px; border-radius: 25px; font-weight: 700; margin-top: 20px; display: inline-block; }}
-            .content {{ padding: 50px; }}
-            .trend-summary {{ background: linear-gradient(135deg, #667eea, #764ba2); color: black; padding: 30px; border-radius: 12px; margin: 30px 0; }}
-            .systems-grid {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 25px; margin: 30px 0; }}
-            .system-card {{ background: white; border-radius: 12px; padding: 25px; box-shadow: 0 8px 20px rgba(0,0,0,0.08); }}
-            .system-name {{ font-size: 1.3rem; font-weight: 700; margin-bottom: 15px; }}
-            .trend-indicator {{ font-size: 1.1rem; margin: 10px 0; padding: 8px 15px; border-radius: 20px; display: inline-block; }}
-            .improving {{ background: #d4edda; color: #155724; }}
-            .degrading {{ background: #f8d7da; color: #721c24; }}
-            .stable {{ background: #d1ecf1; color: #0c5460; }}
-            .danger {{ color: #e74c3c; }}
-            .success {{ color: #27ae60; }}
-            .warning {{ color: #f39c12; }}
-            .footer {{ background: #2c3e50; color: white; padding: 30px; text-align: center; }}
-            table.simple {{ width:100%; border-collapse: collapse; }}
-            table.simple th, table.simple td {{ padding: 10px; border-bottom: 1px solid #eee; text-align: left; }}
-            table.simple th {{ color:#666; font-size:.85rem; text-transform:uppercase; letter-spacing:.5px; }}
-            .callout {{ background:#fff9db; border-left:4px solid #f39c12; padding:14px 18px; border-radius:8px; }}
-        </style>
+        {css_block}
     </head>
     <body>
         <div class="container">
@@ -835,25 +812,6 @@ def create_executive_summary_html_with_trends(systems_data, all_stats, date_str)
     html += f"""
                 </div>
                 
-                <h2 style="color:#2c3e50; margin: 20px 0 12px;">🧮 Comparative Overview</h2>
-                <div class="callout" style="margin-bottom:12px;">
-                    Use this table to quickly identify which system needs attention based on current errors, critical services, and trend movement vs yesterday.
-                </div>
-                <table class="simple">
-                    <thead>
-                        <tr>
-                            <th>System</th>
-                            <th style="text-align:right">Errors</th>
-                            <th style="text-align:right">Critical</th>
-                            <th style="text-align:right">Health</th>
-                            <th style="text-align:right">Trend</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {compare_rows}
-                    </tbody>
-                </table>
-
                 <div style="background: linear-gradient(135deg, #ff7675, #fd79a8); color: black; padding: 35px; border-radius: 12px; margin: 40px 0;">
                     <h3 style="font-size: 1.5rem; margin-bottom: 20px;">🎯 Strategic Recommendations</h3>
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 25px;">
@@ -955,18 +913,14 @@ def send_email_with_reports(from_email, to_emails, subject, html_body, chart_ima
         msg = MIMEMultipart('related')
         msg['From'] = from_email
         msg['To'] = ', '.join(to_emails)
-        # Add consistent, communicative subject and preheader
         msg['Subject'] = subject
         
         # Corps HTML
         msg_html = MIMEMultipart('alternative')
         msg.attach(msg_html)
         
-        # Preheader for better email previews
-        preheader = "<div style=\"display:none;max-height:0;overflow:hidden;opacity:0;color:transparent;\">Automated monitoring insights and trend analysis inside.</div>"
-
         # Ajouter les graphiques
-        html_with_images = preheader + html_body
+        html_with_images = html_body
         for i, chart_data in enumerate(chart_images):
             if chart_data:
                 cid = f"chart{i}"
@@ -997,14 +951,6 @@ def send_email_with_reports(from_email, to_emails, subject, html_body, chart_ima
         
     except Exception as e:
         print(f'Erreur envoi email: {e}')
-        # Fallback: save HTML locally for inspection
-        try:
-            fallback_name = f"email_fallback_{datetime.now().strftime('%Y%m%d_%H%M%S')}.html"
-            with open(fallback_name, 'w', encoding='utf-8') as f:
-                f.write(html_body)
-            print(f"Copie locale du rapport sauvegardée: {fallback_name}")
-        except Exception:
-            pass
         return False
 
 def main():
