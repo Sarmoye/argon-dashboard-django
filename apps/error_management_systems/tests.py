@@ -27,34 +27,55 @@ EMAIL_CONFIG = {
     'smtp_server': '10.77.152.66',
     'smtp_port': 25,
     'from_email': 'noreply.errormonitor@mtn.com',
-    'cis_recipients': ['Sarmoye.AmitoureHaidara@mtn.com', 'Hospice.Solevo@mtn.com',],
-    'irm_recipients': ['Sarmoye.AmitoureHaidara@mtn.com', 'Hospice.Solevo@mtn.com',],
-    'ecw_recipients': ['Sarmoye.AmitoureHaidara@mtn.com', 'Hospice.Solevo@mtn.com',],
-    'summary_recipients': ['Sarmoye.AmitoureHaidara@mtn.com', 'Hospice.Solevo@mtn.com',]
+    'cis_recipients': ['Sarmoye.AmitoureHaidara@mtn.com'],
+    'irm_recipients': ['Sarmoye.AmitoureHaidara@mtn.com'],
+    'ecw_recipients': ['Sarmoye.AmitoureHaidara@mtn.com'],
+    'summary_recipients': ['Sarmoye.AmitoureHaidara@mtn.com']
 }
 
-def get_files_by_date_range(directory, days=7):
-    """Récupère les fichiers CSV des N derniers jours"""
+import os
+import glob
+from datetime import datetime
+
+def get_latest_file_per_day(directory, days=7):
+    """
+    Retrieves the latest CSV file for each of the last N days.
+
+    Args:
+        directory (str): The directory to search for files.
+        days (int): The number of days to look back.
+
+    Returns:
+        list: A sorted list of the latest file paths, one for each day.
+    """
     try:
         csv_files = glob.glob(os.path.join(directory, "*.csv"))
         if not csv_files:
             return []
-        
-        # Filtrer les fichiers des 7 derniers jours
-        now = datetime.now()
-        recent_files = []
-        
+
+        # Create a dictionary to hold the latest file for each day
+        latest_files_per_day = {}
+
         for file_path in csv_files:
             file_time = datetime.fromtimestamp(os.path.getctime(file_path))
+            
+            # Filter for files within the last N days
+            now = datetime.now()
             if (now - file_time).days <= days:
-                recent_files.append((file_path, file_time))
+                file_date = file_time.date()
+                
+                # Check if this file is newer than the one already stored for this day
+                if file_date not in latest_files_per_day or file_time > latest_files_per_day[file_date][1]:
+                    latest_files_per_day[file_date] = (file_path, file_time)
+
+        # Sort the results by date (most recent first)
+        sorted_files = sorted(latest_files_per_day.values(), key=lambda x: x[1], reverse=True)
         
-        # Trier par date (plus récent d'abord)
-        recent_files.sort(key=lambda x: x[1], reverse=True)
-        return [f[0] for f in recent_files]
-        
+        # Return only the file paths
+        return [f[0] for f in sorted_files]
+
     except Exception as e:
-        print(f"Erreur récupération fichiers: {e}")
+        print(f"Error retrieving files: {e}")
         return []
 
 def get_latest_csv_file(directory):
