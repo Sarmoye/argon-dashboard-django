@@ -188,17 +188,19 @@ def calculate_enhanced_stats(data, system_name, trends_data=None):
             base_stats.update(trends_data)
         return base_stats
 
-    print(f'DATA {data}')
+    print(f"RAW DATA {data.shape}: {data.head()}")
 
-    # --- Regrouper par service pour éviter les doublons ---
-    service_errors = data.groupby('Service Name', as_index=False)['Error Count'].sum()
-    print(f'SERVICES ERROR {service_errors}')
+    # --- Agréger par service unique (évite les doublons dus aux Error Reason) ---
+    service_errors = (
+        data.groupby(['Domain', 'Service Type', 'Service Name'], as_index=False)['Error Count']
+            .sum()
+    )
+
+    print(f"AGGREGATED DATA {service_errors.shape}: {service_errors.head()}")
 
     # Statistiques de base améliorées
     total_errors = int(service_errors['Error Count'].sum())
-    print(f'TOTAL ERROR {total_errors}')
     total_services = service_errors['Service Name'].nunique()
-    print(f'TOTAL SERVICES (distinct) {total_services}')
 
     affected_services = int((service_errors['Error Count'] > 0).sum())
     critical_services = int((service_errors['Error Count'] >= 10).sum())
@@ -211,7 +213,7 @@ def calculate_enhanced_stats(data, system_name, trends_data=None):
     error_density = round(total_errors / total_services, 2) if total_services > 0 else 0
     reliability_score = max(0, round(100 - (error_density * 5), 1))
 
-    # Distribution des erreurs (Percentiles pour identifier les outliers)
+    # Distribution des erreurs (Percentiles sur services, pas sur Error Reason)
     error_percentiles = {
         'p50': service_errors['Error Count'].quantile(0.5),
         'p75': service_errors['Error Count'].quantile(0.75),
@@ -226,6 +228,8 @@ def calculate_enhanced_stats(data, system_name, trends_data=None):
     if not high_impact_services.empty:
         for _, service in high_impact_services.iterrows():
             top_5_errors.append({
+                'domain': service['Domain'],
+                'service_type': service['Service Type'],
                 'service': service['Service Name'],
                 'errors': int(service['Error Count']),
                 'impact_level': 'CRITICAL' if service['Error Count'] >= 20 else 'HIGH'
@@ -235,8 +239,9 @@ def calculate_enhanced_stats(data, system_name, trends_data=None):
     top_service_details = {'name': 'N/A', 'errors': 0, 'percentage': 0}
     if total_errors > 0:
         max_idx = service_errors['Error Count'].idxmax()
-        top_service_name = service_errors.loc[max_idx, 'Service Name']
-        top_service_errors = int(service_errors.loc[max_idx, 'Error Count'])
+        top_service_row = service_errors.loc[max_idx]
+        top_service_name = top_service_row['Service Name']
+        top_service_errors = int(top_service_row['Error Count'])
         top_service_details = {
             'name': top_service_name,
             'errors': top_service_errors,
@@ -282,7 +287,7 @@ def calculate_enhanced_stats(data, system_name, trends_data=None):
         'status': status,
         'mtbf_hours': mtbf_hours,
         
-        # Métriques de concentration
+        # Métriques de concentration (sur services uniques)
         'error_concentration_ratio': calculate_error_concentration(service_errors),
         'service_stability_index': calculate_stability_index(service_errors),
     }
