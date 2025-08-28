@@ -93,15 +93,33 @@ def analyze_historical_trends(directory, system_name, days=7):
     if len(files) < 2:
         return None
     
+    # Group files by date (ignoring time)
+    files_by_date = {}
+    for file_path in files:
+        try:
+            file_date = datetime.fromtimestamp(os.path.getctime(file_path))
+            date_key = file_date.date()  # Use only the date part
+            if date_key not in files_by_date:
+                files_by_date[date_key] = []
+            files_by_date[date_key].append((file_path, file_date))
+        except Exception as e:
+            print(f"Erreur lecture date fichier {file_path}: {e}")
+            continue
+    
+    # For each date, use the latest file
+    daily_data = []
     trends_data = []
     
-    for file_path in files:
+    for date_key, file_list in sorted(files_by_date.items()):
+        # Get the latest file for this date
+        latest_file = max(file_list, key=lambda x: x[1])
+        file_path, file_datetime = latest_file
+        
         try:
             data = read_csv_data(file_path, system_name)
             if data is not None and not data.empty:
                 grouped_data = data.groupby('Service Name')['Error Count'].sum().reset_index()
                 
-                file_date = datetime.fromtimestamp(os.path.getctime(file_path))
                 total_errors = grouped_data['Error Count'].sum()
                 
                 # Récupérer les listes de services
@@ -113,7 +131,8 @@ def analyze_historical_trends(directory, system_name, days=7):
                 total_services = len(grouped_data)
                 
                 trends_data.append({
-                    'date': file_date,
+                    'date': date_key,  # Store only the date for proper comparison
+                    'datetime': file_datetime,  # Keep original datetime for reference
                     'total_errors': total_errors,
                     'affected_services': affected_services_count,
                     'critical_services': critical_services_count,
@@ -132,6 +151,11 @@ def analyze_historical_trends(directory, system_name, days=7):
     
     trends_df = pd.DataFrame(trends_data)
     trends_df = trends_df.sort_values('date')
+    
+    # Ensure we have at least 2 different dates
+    unique_dates = trends_df['date'].nunique()
+    if unique_dates < 2:
+        return None
     
     current = trends_df.iloc[-1]
     previous = trends_df.iloc[-2]
@@ -166,7 +190,6 @@ def analyze_historical_trends(directory, system_name, days=7):
     predicted_errors = max(0, current['total_errors'] + error_trend)
     prediction_confidence = "HIGH" if len(trends_df) >= 5 else "MEDIUM" if len(trends_df) >= 3 else "LOW"
 
-    # Ajout des listes de services dans le dictionnaire de retour
     return {
         'data': trends_df,
         'current_errors': int(current['total_errors']),
