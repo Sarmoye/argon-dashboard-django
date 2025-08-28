@@ -843,24 +843,20 @@ def create_professional_system_html_with_trends(system_name, data, stats, date_s
                         <div class="stat-label">Affected Services</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-number {'success' if stats['health_percentage'] > 80 else 'warning' if stats['health_percentage'] > 60 else 'danger'}">{stats.get('health_percentage', 0)}%</div>
-                        <div class="stat-label">Health Rate</div>
-                    </div>
-                    <div class="stat-card">
                         <div class="stat-number {'danger' if stats['critical_services'] > 0 else 'success'}">{stats.get('critical_services', 0)}</div>
                         <div class="stat-label">Critical Services</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number {'warning' if stats['avg_errors'] > 2 else 'success'}">{stats.get('avg_errors', 0)}</div>
-                        <div class="stat-label">Avg Errors/Service</div>
                     </div>
                 </div>
 
                 <h2>📈 Advanced Metrics & Insights</h2>
                 <div class="advanced-stats-grid">
-                    <div class="advanced-stat-card" style="border-left: 4px solid #2ecc71;">
-                        <div class="stat-number {'success' if stats.get('stability_index', 0) > 70 else 'warning' if stats.get('stability_index', 0) > 50 else 'danger'}">{stats.get('stability_index', 0)}</div>
-                        <div class="stat-label">Stability Index (0-100)</div>
+                <div class="stat-card">
+                        <div class="stat-number {'warning' if stats['avg_errors'] > 2 else 'success'}">{stats.get('avg_errors', 0)}</div>
+                        <div class="stat-label">Avg Errors/Service</div>
+                    </div>
+                    <div class="advanced-stat-card" style="border-left: 4px solid #f1c40f;">
+                        <div class="stat-number">{stats.get('top_error_service', 'N/A')}</div>
+                        <div class="stat-label">Top Error Service</div>
                     </div>
                     <div class="advanced-stat-card" style="border-left: 4px solid #e67e22;">
                         <div class="stat-number">
@@ -868,9 +864,13 @@ def create_professional_system_html_with_trends(system_name, data, stats, date_s
                         </div>
                         <div class="stat-label">Risk Level</div>
                     </div>
-                    <div class="advanced-stat-card" style="border-left: 4px solid #f1c40f;">
-                        <div class="stat-number">{stats.get('top_error_service', 'N/A')}</div>
-                        <div class="stat-label">Top Error Service</div>
+                    <div class="stat-card">
+                        <div class="stat-number {'success' if stats['health_percentage'] > 80 else 'warning' if stats['health_percentage'] > 60 else 'danger'}">{stats.get('health_percentage', 0)}%</div>
+                        <div class="stat-label">Health Rate</div>
+                    </div>
+                    <div class="advanced-stat-card" style="border-left: 4px solid #2ecc71;">
+                        <div class="stat-number {'success' if stats.get('stability_index', 0) > 70 else 'warning' if stats.get('stability_index', 0) > 50 else 'danger'}">{stats.get('stability_index', 0)}</div>
+                        <div class="stat-label">Stability Index (0-100)</div>
                     </div>
                 </div>
                 
