@@ -25,13 +25,30 @@ IRM_ERROR_REPORT_OUTPUT_DIR = "/srv/itsea_files/irm_error_report_files"
 # Configuration email (inchangée)
 # Configuration email par système
 EMAIL_CONFIG = {
-    'smtp_server': '10.77.152.66',
+    'smtp_server': '10.77.152.66',  # Adresse IP de votre serveur SMTP
     'smtp_port': 25,
     'from_email': 'noreply.errormonitor@mtn.com',
-    'cis_recipients': ['Sarmoye.AmitoureHaidara@mtn.com', 'Hospice.Solevo@mtn.com',],
-    'irm_recipients': ['Sarmoye.AmitoureHaidara@mtn.com', 'Hospice.Solevo@mtn.com',],
-    'ecw_recipients': ['Sarmoye.AmitoureHaidara@mtn.com', 'Hospice.Solevo@mtn.com',],
-    'summary_recipients': ['Sarmoye.AmitoureHaidara@mtn.com', 'Hospice.Solevo@mtn.com',]
+    
+    # Destinataires par système
+    'cis_recipients': [
+        'Sarmoye.AmitoureHaidara@mtn.com',
+        
+    ],
+    
+    'irm_recipients': [
+        'Sarmoye.AmitoureHaidara@mtn.com',
+        
+    ],
+    
+    'ecw_recipients': [
+        'Sarmoye.AmitoureHaidara@mtn.com',
+        
+    ],
+    
+    # Destinataires pour le rapport de synthèse
+    'summary_recipients': [
+        'Sarmoye.AmitoureHaidara@mtn.com',
+    ]
 }
 
 def get_files_by_date_range(directory, days=7):
@@ -514,11 +531,87 @@ def create_professional_system_html_with_trends(system_name, data, stats, date_s
             .content {{ padding: 40px; line-height: 1.6; }}
             .intro {{ background: #ecf0f1; padding: 20px; border-radius: 12px; margin-bottom: 25px; border: 1px solid #dfe6e9; }}
             .intro h2 {{ margin-top: 0; color: #2c3e50; }}
-            .stats-grid {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin: 30px 0; }}
-            .stat-card {{ background: linear-gradient(135deg, #f8f9fa, #e9ecef); padding: 25px; border-radius: 12px; text-align: center; border-left: 4px solid #3498db; transition: transform 0.2s; }}
+            
+            /* Styles pour les cartes d'indicateurs clés - une seule ligne responsive */
+            .stats-grid {{ 
+                display: flex; 
+                flex-wrap: wrap;
+                gap: 15px; 
+                margin: 30px 0; 
+                justify-content: space-between;
+            }}
+            .stat-card {{ 
+                background: linear-gradient(135deg, #f8f9fa, #e9ecef); 
+                padding: 20px; 
+                border-radius: 12px; 
+                text-align: center; 
+                border-left: 4px solid #3498db; 
+                transition: transform 0.2s;
+                flex: 1;
+                min-width: 150px;
+                max-width: 180px;
+            }}
             .stat-card:hover {{ transform: translateY(-5px); box-shadow: 0 4px 15px rgba(0,0,0,0.1); }}
-            .stat-number {{ font-size: 2.5rem; font-weight: 700; color: #2c3e50; margin-bottom: 8px; }}
-            .stat-label {{ font-size: 0.9rem; color: #7f8c8d; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }}
+            .stat-number {{ font-size: 2rem; font-weight: 700; color: #2c3e50; margin-bottom: 8px; }}
+            .stat-label {{ font-size: 0.8rem; color: #7f8c8d; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }}
+            
+            /* Styles pour les métriques avancées - une seule ligne responsive */
+            .advanced-stats-grid {{ 
+                display: flex; 
+                flex-wrap: wrap;
+                gap: 20px; 
+                margin: 30px 0; 
+                justify-content: space-between;
+            }}
+            .advanced-stat-card {{ 
+                background: linear-gradient(135deg, #f8f9fa, #e9ecef); 
+                padding: 25px; 
+                border-radius: 12px; 
+                text-align: center; 
+                transition: transform 0.2s;
+                flex: 1;
+                min-width: 200px;
+                max-width: 280px;
+            }}
+            .advanced-stat-card:hover {{ transform: translateY(-5px); box-shadow: 0 4px 15px rgba(0,0,0,0.1); }}
+            
+            /* Media queries pour la responsivité */
+            @media (max-width: 1200px) {{
+                .stats-grid {{
+                    justify-content: center;
+                }}
+                .stat-card {{
+                    min-width: 130px;
+                    max-width: 160px;
+                }}
+                .advanced-stats-grid {{
+                    justify-content: center;
+                }}
+                .advanced-stat-card {{
+                    min-width: 180px;
+                    max-width: 250px;
+                }}
+            }}
+            
+            @media (max-width: 768px) {{
+                .stats-grid {{
+                    flex-direction: column;
+                    align-items: center;
+                }}
+                .stat-card {{
+                    max-width: 300px;
+                    width: 100%;
+                }}
+                .advanced-stats-grid {{
+                    flex-direction: column;
+                    align-items: center;
+                }}
+                .advanced-stat-card {{
+                    max-width: 300px;
+                    width: 100%;
+                }}
+            }}
+            
             .danger {{ color: #e74c3c !important; }}
             .success {{ color: #27ae60 !important; }}
             .warning {{ color: #f39c12 !important; }}
@@ -595,22 +688,22 @@ def create_professional_system_html_with_trends(system_name, data, stats, date_s
                 </div>
 
                 <h2>📈 Advanced Metrics & Insights</h2>
-                <div class="stats-grid">
-                    <div class="stat-card" style="border-left-color: #2ecc71;">
+                <div class="advanced-stats-grid">
+                    <div class="advanced-stat-card" style="border-left: 4px solid #2ecc71;">
                         <div class="stat-number {'success' if stats.get('stability_index', 0) > 70 else 'warning' if stats.get('stability_index', 0) > 50 else 'danger'}">{stats.get('stability_index', 0)}</div>
                         <div class="stat-label">Stability Index (0-100)</div>
                     </div>
-                    <div class="stat-card" style="border-left-color: #e67e22;">
+                    <div class="advanced-stat-card" style="border-left: 4px solid #e67e22;">
                         <div class="stat-number">
                             <span class="{stats.get('risk_level', '').lower()}">{stats.get('risk_level', 'N/A')}</span>
                         </div>
                         <div class="stat-label">Risk Level</div>
                     </div>
-                    <div class="stat-card" style="border-left-color: #f1c40f;">
+                    <div class="advanced-stat-card" style="border-left: 4px solid #f1c40f;">
                         <div class="stat-number">{stats.get('top_error_service', 'N/A')}</div>
                         <div class="stat-label">Top Error Service</div>
                     </div>
-                    <div class="stat-card" style="border-left-color: #34495e;">
+                    <div class="advanced-stat-card" style="border-left: 4px solid #34495e;">
                         <div class="stat-number {'danger' if stats.get('sla_status') == 'BREACH' else 'warning' if stats.get('sla_status') == 'AT_RISK' else 'success'}">{stats.get('uptime_percentage', 0)}%</div>
                         <div class="stat-label">Uptime Percentage</div>
                     </div>
