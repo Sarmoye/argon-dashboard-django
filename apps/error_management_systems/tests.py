@@ -93,33 +93,15 @@ def analyze_historical_trends(directory, system_name, days=7):
     if len(files) < 2:
         return None
     
-    # Group files by date (ignoring time)
-    files_by_date = {}
-    for file_path in files:
-        try:
-            file_date = datetime.fromtimestamp(os.path.getctime(file_path))
-            date_key = file_date.date()  # Use only the date part
-            if date_key not in files_by_date:
-                files_by_date[date_key] = []
-            files_by_date[date_key].append((file_path, file_date))
-        except Exception as e:
-            print(f"Erreur lecture date fichier {file_path}: {e}")
-            continue
-    
-    # For each date, use the latest file
-    daily_data = []
     trends_data = []
     
-    for date_key, file_list in sorted(files_by_date.items()):
-        # Get the latest file for this date
-        latest_file = max(file_list, key=lambda x: x[1])
-        file_path, file_datetime = latest_file
-        
+    for file_path in files:
         try:
             data = read_csv_data(file_path, system_name)
             if data is not None and not data.empty:
                 grouped_data = data.groupby('Service Name')['Error Count'].sum().reset_index()
                 
+                file_date = datetime.fromtimestamp(os.path.getctime(file_path))
                 total_errors = grouped_data['Error Count'].sum()
                 
                 # Récupérer les listes de services
@@ -131,8 +113,7 @@ def analyze_historical_trends(directory, system_name, days=7):
                 total_services = len(grouped_data)
                 
                 trends_data.append({
-                    'date': date_key,  # Store only the date for proper comparison
-                    'datetime': file_datetime,  # Keep original datetime for reference
+                    'date': file_date,
                     'total_errors': total_errors,
                     'affected_services': affected_services_count,
                     'critical_services': critical_services_count,
@@ -140,7 +121,9 @@ def analyze_historical_trends(directory, system_name, days=7):
                     'error_density': total_errors / total_services if total_services > 0 else 0,
                     'reliability_score': ((total_services - affected_services_count) / total_services * 100) if total_services > 0 else 0,
                     'affected_services_list': affected_services_list,
-                    'critical_services_list': critical_services_list
+                    'critical_services_list': critical_services_list,
+                    'hour': file_date.hour,
+                    'minute': file_date.minute
                 })
         except Exception as e:
             print(f"Erreur analyse fichier {file_path}: {e}")
@@ -152,16 +135,42 @@ def analyze_historical_trends(directory, system_name, days=7):
     trends_df = pd.DataFrame(trends_data)
     trends_df = trends_df.sort_values('date')
     
-    # Ensure we have at least 2 different dates
-    unique_dates = trends_df['date'].nunique()
-    if unique_dates < 2:
-        return None
-    
+    # Trouver le fichier le plus récent (current)
     current = trends_df.iloc[-1]
-    previous = trends_df.iloc[-2]
+    current_time = current['date']
+    
+    # Trouver le fichier de la veille à la même heure (±30 minutes)
+    previous_day = current_time - timedelta(days=1)
+    time_window_start = previous_day.replace(hour=current_time.hour, minute=current_time.minute - 30, second=0, microsecond=0)
+    time_window_end = previous_day.replace(hour=current_time.hour, minute=current_time.minute + 30, second=0, microsecond=0)
+    
+    # Filtrer les fichiers dans la fenêtre horaire de la veille
+    previous_files = trends_df[
+        (trends_df['date'] >= time_window_start) & 
+        (trends_df['date'] <= time_window_end)
+    ]
+    
+    if previous_files.empty:
+        # Si aucun fichier à la même heure hier, prendre le plus proche
+        previous_files = trends_df[trends_df['date'].dt.date == previous_day.date()]
+        if previous_files.empty:
+            return None
+        # Prendre le fichier le plus proche de l'heure actuelle
+        previous_files = previous_files.copy()
+        previous_files['time_diff'] = abs((previous_files['date'] - previous_day.replace(
+            hour=current_time.hour, minute=current_time.minute)).dt.total_seconds())
+        previous = previous_files.loc[previous_files['time_diff'].idxmin()]
+    else:
+        # Prendre le fichier le plus proche de l'heure exacte
+        previous_files = previous_files.copy()
+        previous_files['time_diff'] = abs((previous_files['date'] - previous_day.replace(
+            hour=current_time.hour, minute=current_time.minute)).dt.total_seconds())
+        previous = previous_files.loc[previous_files['time_diff'].idxmin()]
 
     print(f'CURRENT {current}')
     print(f'PREVIOUS {previous}')
+    print(f'Current time: {current_time}')
+    print(f'Previous day same time window: {time_window_start} - {time_window_end}')
     
     error_trend = current['total_errors'] - previous['total_errors']
     affected_trend = current['affected_services'] - previous['affected_services']
@@ -169,6 +178,7 @@ def analyze_historical_trends(directory, system_name, days=7):
     reliability_trend = current['reliability_score'] - previous['reliability_score']
     
     if len(trends_df) >= 4:
+        # Pour la tendance hebdomadaire, utiliser tous les fichiers
         avg_recent = trends_df.tail(3)['total_errors'].mean()
         avg_older = trends_df.head(3)['total_errors'].mean()
         week_trend = avg_recent - avg_older
@@ -181,11 +191,15 @@ def analyze_historical_trends(directory, system_name, days=7):
     
     momentum = "NEUTRAL"
     if len(trends_df) >= 3:
-        trend_yesterday = trends_df.iloc[-2]['total_errors'] - trends_df.iloc[-3]['total_errors']
-        if error_trend > trend_yesterday + 2:
-            momentum = "ACCELERATING"
-        elif error_trend < trend_yesterday - 2:
-            momentum = "DECELERATING"
+        # Pour le momentum, comparer avec l'avant-dernier jour complet
+        day_before_previous = previous['date'] - timedelta(days=1)
+        day_before_files = trends_df[trends_df['date'].dt.date == day_before_previous.date()]
+        if not day_before_files.empty:
+            trend_yesterday = previous['total_errors'] - day_before_files.iloc[-1]['total_errors']
+            if error_trend > trend_yesterday + 2:
+                momentum = "ACCELERATING"
+            elif error_trend < trend_yesterday - 2:
+                momentum = "DECELERATING"
     
     predicted_errors = max(0, current['total_errors'] + error_trend)
     prediction_confidence = "HIGH" if len(trends_df) >= 5 else "MEDIUM" if len(trends_df) >= 3 else "LOW"
@@ -210,7 +224,8 @@ def analyze_historical_trends(directory, system_name, days=7):
         'peak_errors': int(trends_df['total_errors'].max()),
         'best_day_errors': int(trends_df['total_errors'].min()),
         'current_affected_services_list': current['affected_services_list'],
-        'current_critical_services_list': current['critical_services_list']
+        'current_critical_services_list': current['critical_services_list'],
+        'comparison_time_info': f"Comparé à {previous['date'].strftime('%Y-%m-%d %H:%M')} (même heure ±30min)"
     }
 
 import numpy as np
