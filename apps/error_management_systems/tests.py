@@ -105,72 +105,6 @@ def read_csv_data(file_path, system_name=None):
         print(f"Erreur lecture CSV: {e}")
         return None
 
-def analyze_historical_trends(directory, system_name, days=7):
-    """Analyse les tendances sur les N derniers jours"""
-    files = get_files_by_date_range(directory, days)
-    if len(files) < 2:
-        return None
-    
-    trends_data = []
-    
-    for file_path in files:
-        try:
-            data = read_csv_data(file_path, system_name)
-            if data is not None:
-                file_date = datetime.fromtimestamp(os.path.getctime(file_path))
-                total_errors = data['Error Count'].sum()
-                affected_services = (data['Error Count'] > 0).sum()
-                critical_services = (data['Error Count'] >= 10).sum()
-                
-                trends_data.append({
-                    'date': file_date,
-                    'total_errors': total_errors,
-                    'affected_services': affected_services,
-                    'critical_services': critical_services,
-                    'total_services': len(data)
-                })
-        except Exception as e:
-            print(f"Erreur analyse fichier {file_path}: {e}")
-            continue
-    
-    if not trends_data:
-        return None
-    
-    # Convertir en DataFrame et trier par date
-    trends_df = pd.DataFrame(trends_data)
-    trends_df = trends_df.sort_values('date')
-    
-    # Calculer les tendances
-    if len(trends_df) >= 2:
-        current = trends_df.iloc[-1]
-        previous = trends_df.iloc[-2]
-        
-        error_trend = current['total_errors'] - previous['total_errors']
-        affected_trend = current['affected_services'] - previous['affected_services']
-        critical_trend = current['critical_services'] - previous['critical_services']
-        
-        # Calculer la tendance sur 7 jours (si assez de données)
-        if len(trends_df) >= 4:
-            avg_recent = trends_df.tail(3)['total_errors'].mean()
-            avg_older = trends_df.head(3)['total_errors'].mean()
-            week_trend = avg_recent - avg_older
-        else:
-            week_trend = error_trend
-        
-        return {
-            'data': trends_df,
-            'current_errors': int(current['total_errors']),
-            'previous_errors': int(previous['total_errors']),
-            'error_trend': int(error_trend),
-            'affected_trend': int(affected_trend),
-            'critical_trend': int(critical_trend),
-            'week_trend': week_trend,
-            'improvement_rate': round((error_trend / previous['total_errors'] * 100) if previous['total_errors'] > 0 else 0, 1),
-            'days_analyzed': len(trends_df)
-        }
-    
-    return None
-
 def create_trend_chart(trends_data, system_name):
     """Crée un graphique de tendance sur 7 jours"""
     if not trends_data or trends_data['data'].empty:
@@ -232,67 +166,500 @@ def create_trend_chart(trends_data, system_name):
         plt.close()
         return None
 
+import pandas as pd
+import numpy as np
+from datetime import datetime, timedelta
+from collections import Counter
+import os
+
 def calculate_enhanced_stats(data, system_name, trends_data=None):
-    """Calcule des statistiques avancées avec analyse de tendance"""
+    """Calcule des statistiques avancées avec analyse de tendance pour rapport professionnel"""
     base_stats = {
         'total_errors': 0, 'total_services': 0, 'affected_services': 0,
         'health_percentage': 0, 'critical_services': 0, 'avg_errors': 0,
-        'top_error_service': 'N/A', 'status': 'NO_DATA'
+        'top_error_service': 'N/A', 'status': 'NO_DATA',
+        # Nouvelles métriques professionnelles
+        'error_density': 0, 'reliability_score': 100, 'mtbf_hours': 0,
+        'sla_compliance': 100, 'risk_level': 'LOW', 'alert_priority': 'INFO'
     }
     
     if data is None or data.empty:
         if trends_data:
-            base_stats.update({
-                'error_trend': trends_data.get('error_trend', 0),
-                'improvement_rate': trends_data.get('improvement_rate', 0),
-                'trend_status': 'NO_DATA'
-            })
+            base_stats.update(trends_data)
         return base_stats
     
-    # Statistiques de base
+    # Statistiques de base améliorées
     total_errors = int(data['Error Count'].sum())
     total_services = len(data)
     affected_services = int((data['Error Count'] > 0).sum())
     critical_services = int((data['Error Count'] >= 10).sum())
-    health_percentage = round(((total_services - affected_services) / total_services) * 100, 1)
-    avg_errors = round(total_errors / total_services, 2) if total_services > 0 else 0
+    warning_services = int(((data['Error Count'] >= 5) & (data['Error Count'] < 10)).sum())
+    healthy_services = total_services - affected_services
     
-    # Service le plus impacté
-    top_service = 'N/A'
+    # Métriques de qualité professionnelles
+    health_percentage = round((healthy_services / total_services) * 100, 1) if total_services > 0 else 100
+    availability_percentage = round(((total_services - critical_services) / total_services) * 100, 1) if total_services > 0 else 100
+    error_density = round(total_errors / total_services, 2) if total_services > 0 else 0
+    reliability_score = max(0, round(100 - (error_density * 5), 1))
+    
+    # Distribution des erreurs (Percentiles pour identifier les outliers)
+    error_percentiles = {
+        'p50': data['Error Count'].quantile(0.5),
+        'p75': data['Error Count'].quantile(0.75),
+        'p90': data['Error Count'].quantile(0.9),
+        'p95': data['Error Count'].quantile(0.95),
+        'p99': data['Error Count'].quantile(0.99)
+    }
+    
+    # Services critiques détaillés
+    high_impact_services = data[data['Error Count'] >= 10].nlargest(5, 'Error Count')
+    top_5_errors = []
+    if not high_impact_services.empty:
+        for _, service in high_impact_services.iterrows():
+            top_5_errors.append({
+                'service': service['Service Name'],
+                'errors': int(service['Error Count']),
+                'impact_level': 'CRITICAL' if service['Error Count'] >= 20 else 'HIGH'
+            })
+    
+    # Service le plus impacté avec contexte
+    top_service_details = {'name': 'N/A', 'errors': 0, 'percentage': 0}
     if total_errors > 0:
         max_idx = data['Error Count'].idxmax()
-        top_service = data.loc[max_idx, 'Service Name']
+        top_service_name = data.loc[max_idx, 'Service Name']
+        top_service_errors = int(data.loc[max_idx, 'Error Count'])
+        top_service_details = {
+            'name': top_service_name,
+            'errors': top_service_errors,
+            'percentage': round((top_service_errors / total_errors) * 100, 1)
+        }
     
-    # Statut global
-    if total_errors == 0:
-        status = 'HEALTHY'
-    elif critical_services > 0:
-        status = 'CRITICAL'
-    else:
-        status = 'WARNING'
+    # Évaluation du risque et priorité
+    risk_level, alert_priority, sla_compliance = calculate_risk_assessment(
+        critical_services, total_services, error_density, health_percentage
+    )
+    
+    # Statut global amélioré
+    status = determine_system_status(critical_services, warning_services, health_percentage)
+    
+    # MTBF estimation (Mean Time Between Failures)
+    mtbf_hours = estimate_mtbf(affected_services, total_services)
     
     stats = {
+        # Métriques de base
         'total_errors': total_errors,
         'total_services': total_services,
         'affected_services': affected_services,
-        'health_percentage': health_percentage,
+        'healthy_services': healthy_services,
         'critical_services': critical_services,
-        'avg_errors': avg_errors,
-        'top_error_service': top_service,
-        'status': status
+        'warning_services': warning_services,
+        
+        # Métriques de qualité
+        'health_percentage': health_percentage,
+        'availability_percentage': availability_percentage,
+        'reliability_score': reliability_score,
+        'sla_compliance': sla_compliance,
+        'error_density': error_density,
+        'avg_errors': round(total_errors / total_services, 2) if total_services > 0 else 0,
+        
+        # Distribution et analyse
+        'error_percentiles': error_percentiles,
+        'top_service_details': top_service_details,
+        'top_5_critical_services': top_5_errors,
+        
+        # Évaluation des risques
+        'risk_level': risk_level,
+        'alert_priority': alert_priority,
+        'status': status,
+        'mtbf_hours': mtbf_hours,
+        
+        # Métriques de concentration
+        'error_concentration_ratio': calculate_error_concentration(data),
+        'service_stability_index': calculate_stability_index(data),
     }
     
     # Ajouter les données de tendance si disponibles
     if trends_data:
-        stats.update({
-            'error_trend': trends_data.get('error_trend', 0),
-            'improvement_rate': trends_data.get('improvement_rate', 0),
-            'week_trend': trends_data.get('week_trend', 0),
-            'days_analyzed': trends_data.get('days_analyzed', 0),
-            'trend_status': 'IMPROVING' if trends_data.get('error_trend', 0) < 0 else 'DEGRADING' if trends_data.get('error_trend', 0) > 0 else 'STABLE'
-        })
+        stats.update(trends_data)
+        # Calculer des métriques de tendance supplémentaires
+        stats.update(calculate_trend_insights(trends_data, stats))
     
     return stats
+
+def analyze_historical_trends(directory, system_name, days=7):
+    """Analyse avancée des tendances avec métriques professionnelles"""
+    files = get_files_by_date_range(directory, days)
+    if len(files) < 2:
+        return None
+    
+    trends_data = []
+    
+    for file_path in files:
+        try:
+            data = read_csv_data(file_path, system_name)
+            if data is not None:
+                file_date = datetime.fromtimestamp(os.path.getctime(file_path))
+                total_errors = data['Error Count'].sum()
+                affected_services = (data['Error Count'] > 0).sum()
+                critical_services = (data['Error Count'] >= 10).sum()
+                warning_services = ((data['Error Count'] >= 5) & (data['Error Count'] < 10)).sum()
+                
+                # Métriques supplémentaires
+                error_density = total_errors / len(data) if len(data) > 0 else 0
+                health_percentage = ((len(data) - affected_services) / len(data) * 100) if len(data) > 0 else 100
+                
+                trends_data.append({
+                    'date': file_date,
+                    'total_errors': total_errors,
+                    'affected_services': affected_services,
+                    'critical_services': critical_services,
+                    'warning_services': warning_services,
+                    'total_services': len(data),
+                    'error_density': error_density,
+                    'health_percentage': health_percentage
+                })
+        except Exception as e:
+            print(f"Erreur analyse fichier {file_path}: {e}")
+            continue
+    
+    if not trends_data:
+        return None
+    
+    # Convertir en DataFrame et trier par date
+    trends_df = pd.DataFrame(trends_data)
+    trends_df = trends_df.sort_values('date')
+    
+    # Analyses de tendance avancées
+    if len(trends_df) >= 2:
+        current = trends_df.iloc[-1]
+        previous = trends_df.iloc[-2]
+        
+        # Tendances de base
+        error_trend = current['total_errors'] - previous['total_errors']
+        affected_trend = current['affected_services'] - previous['affected_services']
+        critical_trend = current['critical_services'] - previous['critical_services']
+        health_trend = current['health_percentage'] - previous['health_percentage']
+        
+        # Analyses statistiques avancées
+        error_volatility = calculate_volatility(trends_df['total_errors'])
+        trend_strength = calculate_trend_strength(trends_df)
+        regression_analysis = perform_regression_analysis(trends_df)
+        
+        # Prédictions basiques
+        next_day_prediction = predict_next_day_errors(trends_df)
+        
+        # Tendance sur période complète
+        if len(trends_df) >= 4:
+            period_start = trends_df.head(2)['total_errors'].mean()
+            period_end = trends_df.tail(2)['total_errors'].mean()
+            period_trend = period_end - period_start
+        else:
+            period_trend = error_trend
+        
+        # Calcul du taux d'amélioration/dégradation
+        improvement_rate = 0
+        if previous['total_errors'] > 0:
+            improvement_rate = round((error_trend / previous['total_errors'] * 100), 1)
+        
+        # Détection d'anomalies
+        anomaly_score = detect_anomalies(trends_df)
+        
+        return {
+            # Données brutes
+            'data': trends_df,
+            'days_analyzed': len(trends_df),
+            
+            # Tendances de base
+            'current_errors': int(current['total_errors']),
+            'previous_errors': int(previous['total_errors']),
+            'error_trend': int(error_trend),
+            'affected_trend': int(affected_trend),
+            'critical_trend': int(critical_trend),
+            'health_trend': round(health_trend, 1),
+            'period_trend': round(period_trend, 1),
+            
+            # Métriques de performance
+            'improvement_rate': improvement_rate,
+            'error_volatility': round(error_volatility, 2),
+            'trend_strength': trend_strength,
+            'stability_score': round(100 - error_volatility * 10, 1),
+            
+            # Analyses avancées
+            'regression_slope': round(regression_analysis['slope'], 3),
+            'trend_reliability': regression_analysis['r_squared'],
+            'anomaly_score': round(anomaly_score, 2),
+            
+            # Prédictions
+            'predicted_next_day_errors': int(next_day_prediction),
+            'trend_direction': 'IMPROVING' if error_trend < -2 else 'DEGRADING' if error_trend > 2 else 'STABLE',
+            'trend_confidence': calculate_trend_confidence(trends_df),
+            
+            # Alertes de tendance
+            'trend_alerts': generate_trend_alerts(trends_df, current, previous),
+        }
+    
+    return None
+
+def calculate_risk_assessment(critical_services, total_services, error_density, health_percentage):
+    """Évalue le niveau de risque et la priorité d'alerte"""
+    critical_ratio = critical_services / total_services if total_services > 0 else 0
+    
+    # Calcul du score de risque composite
+    risk_score = (critical_ratio * 40) + (error_density * 20) + ((100 - health_percentage) * 0.4)
+    
+    # Détermination du niveau de risque
+    if risk_score >= 30 or critical_ratio >= 0.2:
+        risk_level = 'CRITICAL'
+        alert_priority = 'URGENT'
+        sla_compliance = max(0, 100 - risk_score * 2)
+    elif risk_score >= 15 or critical_ratio >= 0.1:
+        risk_level = 'HIGH'
+        alert_priority = 'HIGH'
+        sla_compliance = max(80, 100 - risk_score * 1.5)
+    elif risk_score >= 5 or critical_ratio >= 0.05:
+        risk_level = 'MEDIUM'
+        alert_priority = 'MEDIUM'
+        sla_compliance = max(90, 100 - risk_score)
+    else:
+        risk_level = 'LOW'
+        alert_priority = 'INFO'
+        sla_compliance = min(100, 100 - risk_score * 0.5)
+    
+    return risk_level, alert_priority, round(sla_compliance, 1)
+
+def determine_system_status(critical_services, warning_services, health_percentage):
+    """Détermine le statut système avec plus de granularité"""
+    if critical_services > 0:
+        if critical_services >= 5:
+            return 'CRITICAL'
+        else:
+            return 'DEGRADED'
+    elif warning_services > 0:
+        if health_percentage < 80:
+            return 'WARNING'
+        else:
+            return 'MINOR_ISSUES'
+    elif health_percentage >= 95:
+        return 'OPTIMAL'
+    elif health_percentage >= 90:
+        return 'HEALTHY'
+    else:
+        return 'STABLE'
+
+def calculate_error_concentration(data):
+    """Calcule le ratio de concentration des erreurs (Gini-like)"""
+    if data.empty or data['Error Count'].sum() == 0:
+        return 0
+    
+    errors = data['Error Count'].sort_values(ascending=False)
+    total_errors = errors.sum()
+    
+    # Top 20% des services concentrent combien % des erreurs ?
+    top_20_percent = max(1, int(len(errors) * 0.2))
+    concentration = errors.head(top_20_percent).sum() / total_errors
+    
+    return round(concentration * 100, 1)
+
+def calculate_stability_index(data):
+    """Index de stabilité basé sur la variance des erreurs"""
+    if data.empty:
+        return 100
+    
+    error_variance = data['Error Count'].var()
+    mean_errors = data['Error Count'].mean()
+    
+    if mean_errors == 0:
+        return 100
+    
+    cv = error_variance / (mean_errors ** 2)  # Coefficient de variation squared
+    stability_index = max(0, 100 - cv * 10)
+    
+    return round(stability_index, 1)
+
+def estimate_mtbf(affected_services, total_services):
+    """Estime le MTBF en heures (approximation)"""
+    if affected_services == 0:
+        return 720  # 30 jours si aucun service affecté
+    
+    failure_rate = affected_services / total_services
+    mtbf = 24 / failure_rate if failure_rate > 0 else 720
+    
+    return round(min(mtbf, 720), 1)  # Cap à 30 jours
+
+def calculate_volatility(error_series):
+    """Calcule la volatilité des erreurs (écart-type normalisé)"""
+    if len(error_series) < 2:
+        return 0
+    
+    mean_errors = error_series.mean()
+    if mean_errors == 0:
+        return 0
+    
+    return error_series.std() / mean_errors
+
+def calculate_trend_strength(trends_df):
+    """Calcule la force de la tendance"""
+    if len(trends_df) < 3:
+        return 'INSUFFICIENT_DATA'
+    
+    errors = trends_df['total_errors'].values
+    x = np.arange(len(errors))
+    
+    correlation = np.corrcoef(x, errors)[0, 1]
+    abs_correlation = abs(correlation)
+    
+    if abs_correlation >= 0.8:
+        return 'STRONG'
+    elif abs_correlation >= 0.5:
+        return 'MODERATE'
+    elif abs_correlation >= 0.3:
+        return 'WEAK'
+    else:
+        return 'NONE'
+
+def perform_regression_analysis(trends_df):
+    """Analyse de régression simple"""
+    if len(trends_df) < 3:
+        return {'slope': 0, 'r_squared': 0}
+    
+    x = np.arange(len(trends_df))
+    y = trends_df['total_errors'].values
+    
+    slope, intercept = np.polyfit(x, y, 1)
+    correlation = np.corrcoef(x, y)[0, 1]
+    r_squared = correlation ** 2
+    
+    return {
+        'slope': slope,
+        'intercept': intercept,
+        'r_squared': r_squared
+    }
+
+def predict_next_day_errors(trends_df):
+    """Prédiction simple du nombre d'erreurs du lendemain"""
+    if len(trends_df) < 2:
+        return 0
+    
+    if len(trends_df) >= 3:
+        # Moyenne mobile pondérée
+        weights = [0.5, 0.3, 0.2]
+        recent_errors = trends_df['total_errors'].tail(3).values
+        if len(recent_errors) == 3:
+            prediction = sum(w * e for w, e in zip(weights, reversed(recent_errors)))
+        else:
+            prediction = trends_df['total_errors'].iloc[-1]
+    else:
+        # Tendance simple
+        current = trends_df['total_errors'].iloc[-1]
+        previous = trends_df['total_errors'].iloc[-2]
+        trend = current - previous
+        prediction = max(0, current + trend * 0.5)  # Atténuation de la tendance
+    
+    return max(0, prediction)
+
+def detect_anomalies(trends_df):
+    """Détecte les anomalies dans les données (score Z modifié)"""
+    if len(trends_df) < 4:
+        return 0
+    
+    errors = trends_df['total_errors']
+    median = errors.median()
+    mad = np.median(np.abs(errors - median))  # Median Absolute Deviation
+    
+    if mad == 0:
+        return 0
+    
+    # Score Z modifié pour le dernier point
+    last_error = errors.iloc[-1]
+    modified_z_score = 0.6745 * (last_error - median) / mad
+    
+    return abs(modified_z_score)
+
+def calculate_trend_confidence(trends_df):
+    """Calcule la confiance dans la tendance détectée"""
+    if len(trends_df) < 3:
+        return 'LOW'
+    
+    regression = perform_regression_analysis(trends_df)
+    r_squared = regression['r_squared']
+    volatility = calculate_volatility(trends_df['total_errors'])
+    
+    confidence_score = r_squared * (1 - min(volatility, 1))
+    
+    if confidence_score >= 0.7:
+        return 'HIGH'
+    elif confidence_score >= 0.4:
+        return 'MEDIUM'
+    else:
+        return 'LOW'
+
+def generate_trend_alerts(trends_df, current, previous):
+    """Génère des alertes basées sur l'analyse des tendances"""
+    alerts = []
+    
+    error_change = current['total_errors'] - previous['total_errors']
+    critical_change = current['critical_services'] - previous['critical_services']
+    health_change = current['health_percentage'] - previous['health_percentage']
+    
+    # Alertes de dégradation
+    if error_change > 10:
+        alerts.append({
+            'type': 'ERROR_SPIKE',
+            'severity': 'HIGH',
+            'message': f"Augmentation significative des erreurs: +{error_change}"
+        })
+    
+    if critical_change > 0:
+        alerts.append({
+            'type': 'CRITICAL_INCREASE',
+            'severity': 'CRITICAL',
+            'message': f"Nouveaux services critiques détectés: +{critical_change}"
+        })
+    
+    if health_change < -10:
+        alerts.append({
+            'type': 'HEALTH_DEGRADATION',
+            'severity': 'HIGH',
+            'message': f"Dégradation de la santé système: {health_change:.1f}%"
+        })
+    
+    # Alertes d'amélioration
+    if error_change < -5 and previous['total_errors'] > 0:
+        alerts.append({
+            'type': 'IMPROVEMENT',
+            'severity': 'INFO',
+            'message': f"Amélioration détectée: -{abs(error_change)} erreurs"
+        })
+    
+    return alerts
+
+def calculate_trend_insights(trends_data, current_stats):
+    """Calcule des insights supplémentaires basés sur les tendances"""
+    insights = {}
+    
+    if 'error_trend' in trends_data:
+        error_trend = trends_data['error_trend']
+        current_errors = current_stats['total_errors']
+        
+        # Projection sur 7 jours
+        if error_trend != 0:
+            projected_errors = max(0, current_errors + (error_trend * 7))
+            insights['weekly_projection'] = int(projected_errors)
+            insights['projection_change'] = round(((projected_errors - current_errors) / current_errors * 100) if current_errors > 0 else 0, 1)
+        
+        # Évaluation de la trajectoire
+        if error_trend < -2:
+            insights['trajectory'] = 'IMPROVING_FAST'
+        elif error_trend < 0:
+            insights['trajectory'] = 'IMPROVING_SLOW'
+        elif error_trend == 0:
+            insights['trajectory'] = 'STABLE'
+        elif error_trend <= 2:
+            insights['trajectory'] = 'DEGRADING_SLOW'
+        else:
+            insights['trajectory'] = 'DEGRADING_FAST'
+    
+    return insights
 
 #
 # Generates a professional, enhanced HTML report with trend analysis and explanatory text.
@@ -315,14 +682,15 @@ def create_professional_system_html_with_trends(system_name, data, stats, date_s
     }
     
     # Get status color and text based on the stats dictionary
-    status_color, status_text = status_colors[stats['status']]
+    status_color, status_text = status_colors.get(stats['status'], ('#95a5a6', '⚪ NO DATA'))
     
     # Trend analysis section
     trend_section = ""
     # Check if trend data exists and an error trend is present
     if trends_data and 'error_trend' in stats:
         # Determine the color and text for the trend status
-        trend_color, trend_text = trend_colors[stats.get('trend_status', 'STABLE')]
+        trend_status = 'IMPROVING' if stats['error_trend'] < -2 else 'DEGRADING' if stats['error_trend'] > 2 else 'STABLE'
+        trend_color, trend_text = trend_colors[trend_status]
         # Set the arrow icon based on the error trend
         trend_arrow = '⬇️' if stats['error_trend'] < 0 else '⬆️' if stats['error_trend'] > 0 else '➡️'
         
@@ -334,7 +702,7 @@ def create_professional_system_html_with_trends(system_name, data, stats, date_s
                 <div><strong>Error Change:</strong> {stats['error_trend']:+d} <small>({stats['improvement_rate']:+.1f}%)</small></div>
                 <div><strong>Previous Day:</strong> {trends_data.get('previous_errors', 0)} errors</div>
                 <div><strong>Current Day:</strong> {stats['total_errors']} errors</div>
-                <div><strong>7-Day Trend:</strong> {stats.get('week_trend', 0):+.1f} avg</div>
+                <div><strong>7-Day Trend:</strong> {stats.get('period_trend', 0):+.1f} avg</div>
             </div>
         </div>
         """
