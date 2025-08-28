@@ -188,6 +188,8 @@ def calculate_enhanced_stats(data, system_name, trends_data=None):
             base_stats.update(trends_data)
         return base_stats
     
+    print(f'DATA : {data}')
+    
     # Statistiques de base améliorées
     total_errors = int(data['Error Count'].sum())
     total_services = len(data)
