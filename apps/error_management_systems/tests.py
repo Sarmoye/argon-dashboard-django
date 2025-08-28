@@ -22,33 +22,15 @@ ECW_ERROR_REPORT_OUTPUT_DIR = "/srv/itsea_files/ecw_error_report_files"
 ECW_ERROR_REPORT_OUTPUT_DIR2 = "/srv/itsea_files/ecw_error_report_files_second"
 IRM_ERROR_REPORT_OUTPUT_DIR = "/srv/itsea_files/irm_error_report_files"
 
-# Configuration email (inchangée)
 # Configuration email par système
 EMAIL_CONFIG = {
-    'smtp_server': '10.77.152.66',  # Adresse IP de votre serveur SMTP
+    'smtp_server': '10.77.152.66',
     'smtp_port': 25,
     'from_email': 'noreply.errormonitor@mtn.com',
-    
-    # Destinataires par système
-    'cis_recipients': [
-        'Sarmoye.AmitoureHaidara@mtn.com',
-        
-    ],
-    
-    'irm_recipients': [
-        'Sarmoye.AmitoureHaidara@mtn.com',
-        
-    ],
-    
-    'ecw_recipients': [
-        'Sarmoye.AmitoureHaidara@mtn.com',
-        
-    ],
-    
-    # Destinataires pour le rapport de synthèse
-    'summary_recipients': [
-        'Sarmoye.AmitoureHaidara@mtn.com',
-    ]
+    'cis_recipients': ['Sarmoye.AmitoureHaidara@mtn.com', 'Hospice.Solevo@mtn.com',],
+    'irm_recipients': ['Sarmoye.AmitoureHaidara@mtn.com', 'Hospice.Solevo@mtn.com',],
+    'ecw_recipients': ['Sarmoye.AmitoureHaidara@mtn.com', 'Hospice.Solevo@mtn.com',],
+    'summary_recipients': ['Sarmoye.AmitoureHaidara@mtn.com', 'Hospice.Solevo@mtn.com',]
 }
 
 def get_files_by_date_range(directory, days=7):
@@ -1222,7 +1204,7 @@ def create_executive_summary_html_with_trends(systems_data, all_stats, date_str)
             
             .footer {{ 
                 background: linear-gradient(145deg, #2d3748, #1a202c);
-                color: white; 
+                color: black; 
                 padding: 40px; 
                 text-align: center;
                 position: relative;
