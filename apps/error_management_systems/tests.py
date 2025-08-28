@@ -476,15 +476,15 @@ def create_professional_system_html_with_trends(system_name, data, stats, date_s
         prediction_text = f"{stats.get('predicted_errors', 0)} errors ({stats.get('prediction_confidence', 'LOW')} confidence)"
 
         trend_section = f"""
-        <div style="background: linear-gradient(135deg, #eaf4fd, #d1e7fd); color: #1f3a5f; padding: 25px; border-radius: 12px; margin: 20px 0; border: 1px solid #cce5ff;">
-            <h3 style="margin: 0 0 15px 0; font-size: 1.3rem; color: #004085;">{trend_arrow} Trend Analysis (Last days)</h3>
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
-                <div><strong>Current Trend:</strong> <span style="color: {trend_color}; font-weight: bold;">{trend_text}</span></div>
-                <div><strong>Error Change (D-1):</strong> <span style="color: {trend_color};">{stats.get('error_trend', 0):+d}</span> ({stats.get('improvement_rate', 0):+.1f}%)</div>
-                <div><strong>7-Day Avg Trend:</strong> <span style="color: {trend_color};">{trends_data.get('week_trend', 0):+.1f} avg</span></div>
-                <div><strong>Momentum:</strong> <span style="color: {momentum_color}; font-weight: bold;">{momentum.replace('_', ' ')}</span></div>
-                <div><strong>Volatility:</strong> <span style="color: {stability_color}; font-weight: bold;">{stability.replace('_', ' ')}</span></div>
-                <div><strong>Predicted Errors:</strong> <span style="color: {momentum_colors.get(momentum, 'black')};">{prediction_text}</span></div>
+        <div class="trend-analysis">
+            <h3>{trend_arrow} Trend Analysis (Last days)</h3>
+            <div class="trend-grid">
+                <div class="trend-item"><strong>Current Trend:</strong> <span style="color: {trend_color}; font-weight: bold;">{trend_text}</span></div>
+                <div class="trend-item"><strong>Error Change (D-1):</strong> <span style="color: {trend_color};">{stats.get('error_trend', 0):+d}</span> ({stats.get('improvement_rate', 0):+.1f}%)</div>
+                <div class="trend-item"><strong>7-Day Avg Trend:</strong> <span style="color: {trend_color};">{trends_data.get('week_trend', 0):+.1f} avg</span></div>
+                <div class="trend-item"><strong>Momentum:</strong> <span style="color: {momentum_color}; font-weight: bold;">{momentum.replace('_', ' ')}</span></div>
+                <div class="trend-item"><strong>Volatility:</strong> <span style="color: {stability_color}; font-weight: bold;">{stability.replace('_', ' ')}</span></div>
+                <div class="trend-item"><strong>Predicted Errors:</strong> <span style="color: {momentum_colors.get(momentum, 'black')};">{prediction_text}</span></div>
             </div>
         </div>
         """
@@ -523,13 +523,84 @@ def create_professional_system_html_with_trends(system_name, data, stats, date_s
         <meta charset="UTF-8">
         <title>{system_name} - System Health Report</title>
         <style>
-            body {{ font-family: 'Segoe UI', Arial, sans-serif; margin: 0; background: #f5f7fa; color: #333; }}
-            .container {{ max-width: 1200px; margin: 20px auto; background: white; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); overflow: hidden; }}
-            .header {{ background: linear-gradient(135deg, #2c3e50, #34495e); color: black; padding: 40px; text-align: center; }}
-            .header h1 {{ font-size: 2.5rem; margin: 0 0 10px; font-weight: 700; }}
-            .status-badge {{ background: {status_color}; color: black; padding: 12px 25px; border-radius: 25px; font-weight: 600; margin-top: 15px; display: inline-block; }}
-            .content {{ padding: 40px; line-height: 1.6; }}
-            .intro {{ background: #ecf0f1; padding: 20px; border-radius: 12px; margin-bottom: 25px; border: 1px solid #dfe6e9; }}
+            body {{ 
+                font-family: 'Inter', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif; 
+                margin: 0; 
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                min-height: 100vh;
+                color: #2d3748;
+            }}
+            .container {{ 
+                max-width: 1200px; 
+                margin: 20px auto; 
+                background: rgba(255, 255, 255, 0.95); 
+                border-radius: 24px; 
+                backdrop-filter: blur(20px);
+                box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.1);
+                overflow: hidden;
+            }}
+            .header {{ 
+                background: linear-gradient(145deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05)); 
+                color: #1a202c; 
+                padding: 50px 40px; 
+                text-align: center; 
+                position: relative;
+                overflow: hidden;
+            }}
+            .header::before {{
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M30 30c0-11.046-8.954-20-20-20s-20 8.954-20 20 8.954 20 20 20 20-8.954 20-20zM0 0h20v20H0V0zm40 40h20v20H40V40z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E") repeat;
+                opacity: 0.1;
+            }}
+            .header h1 {{ 
+                font-size: 2.8rem; 
+                margin: 0 0 15px; 
+                font-weight: 800; 
+                background: linear-gradient(135deg, #667eea, #764ba2);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+                position: relative;
+                z-index: 1;
+            }}
+            .header p {{
+                position: relative;
+                z-index: 1;
+                font-size: 1.1rem;
+                opacity: 0.9;
+            }}
+            .status-badge {{ 
+                background: {status_color}; 
+                color: white; 
+                padding: 14px 28px; 
+                border-radius: 50px; 
+                font-weight: 700; 
+                margin-top: 20px; 
+                display: inline-block;
+                box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+                position: relative;
+                z-index: 1;
+            }}
+            .content {{ 
+                padding: 50px; 
+                line-height: 1.6; 
+            }}
+            .intro {{ 
+                background: linear-gradient(145deg, #f7fafc, #edf2f7);
+                padding: 30px; 
+                border-radius: 18px; 
+                margin-bottom: 30px;
+                box-shadow: 
+                    12px 12px 24px #d1d9e6,
+                    -12px -12px 24px #ffffff,
+                    inset 1px 1px 3px rgba(255,255,255,0.8);
+                border: 1px solid rgba(255, 255, 255, 0.3);
+            }}
             .intro h2 {{ margin-top: 0; color: #2c3e50; }}
             
             /* Styles pour les cartes d'indicateurs clés - une seule ligne responsive */
@@ -545,7 +616,7 @@ def create_professional_system_html_with_trends(system_name, data, stats, date_s
                 padding: 20px; 
                 border-radius: 12px; 
                 text-align: center; 
-                border: 3px solid #c9c9c9;
+                border-left: 4px solid #3498db; 
                 transition: transform 0.2s;
                 flex: 1;
                 min-width: 150px;
@@ -572,7 +643,6 @@ def create_professional_system_html_with_trends(system_name, data, stats, date_s
                 flex: 1;
                 min-width: 200px;
                 max-width: 280px;
-                border: 3px solid #c9c9c9; /* Added a subtle border to all sides */
             }}
             .advanced-stat-card:hover {{ transform: translateY(-5px); box-shadow: 0 4px 15px rgba(0,0,0,0.1); }}
             
@@ -686,19 +756,27 @@ def create_professional_system_html_with_trends(system_name, data, stats, date_s
                         <div class="stat-number {'warning' if stats['avg_errors'] > 2 else 'success'}">{stats.get('avg_errors', 0)}</div>
                         <div class="stat-label">Avg Errors/Service</div>
                     </div>
-                    <div class="stat-card" style="border-left: 4px solid #2ecc71;">
+                </div>
+
+                <h2>📈 Advanced Metrics & Insights</h2>
+                <div class="advanced-stats-grid">
+                    <div class="advanced-stat-card" style="border-left: 4px solid #2ecc71;">
                         <div class="stat-number {'success' if stats.get('stability_index', 0) > 70 else 'warning' if stats.get('stability_index', 0) > 50 else 'danger'}">{stats.get('stability_index', 0)}</div>
                         <div class="stat-label">Stability Index (0-100)</div>
                     </div>
-                    <div class="stat-card" style="border-left: 4px solid #e67e22;">
+                    <div class="advanced-stat-card" style="border-left: 4px solid #e67e22;">
                         <div class="stat-number">
                             <span class="{stats.get('risk_level', '').lower()}">{stats.get('risk_level', 'N/A')}</span>
                         </div>
                         <div class="stat-label">Risk Level</div>
                     </div>
-                    <div class="stat-card" style="border-left: 4px solid #f1c40f;">
+                    <div class="advanced-stat-card" style="border-left: 4px solid #f1c40f;">
                         <div class="stat-number">{stats.get('top_error_service', 'N/A')}</div>
                         <div class="stat-label">Top Error Service</div>
+                    </div>
+                    <div class="advanced-stat-card" style="border-left: 4px solid #34495e;">
+                        <div class="stat-number {'danger' if stats.get('sla_status') == 'BREACH' else 'warning' if stats.get('sla_status') == 'AT_RISK' else 'success'}">{stats.get('uptime_percentage', 0)}%</div>
+                        <div class="stat-label">Uptime Percentage</div>
                     </div>
                 </div>
                 
