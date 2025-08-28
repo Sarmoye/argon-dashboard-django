@@ -518,232 +518,234 @@ def create_professional_system_html_with_trends(system_name, data, stats, date_s
     # Return the complete HTML document as a single string
     return f"""
     <!DOCTYPE html>
-    <html>
-    <head>
-        <meta charset="UTF-8">
-        <title>{system_name} - System Health Report</title>
-        <style>
-            body {{ font-family: 'Segoe UI', Arial, sans-serif; margin: 0; background: #f5f7fa; color: #333; }}
-            .container {{ max-width: 1200px; margin: 20px auto; background: white; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); overflow: hidden; }}
-            .header {{ background: linear-gradient(135deg, #2c3e50, #34495e); color: black; padding: 40px; text-align: center; }}
-            .header h1 {{ font-size: 2.5rem; margin: 0 0 10px; font-weight: 700; }}
-            .status-badge {{ background: {status_color}; color: black; padding: 12px 25px; border-radius: 25px; font-weight: 600; margin-top: 15px; display: inline-block; }}
-            .content {{ padding: 40px; line-height: 1.6; }}
-            .intro {{ background: #ecf0f1; padding: 20px; border-radius: 12px; margin-bottom: 25px; border: 1px solid #dfe6e9; }}
-            .intro h2 {{ margin-top: 0; color: #2c3e50; }}
-            
-            /* Styles pour les cartes d'indicateurs clés - une seule ligne responsive */
-            .stats-grid {{ 
-                display: flex; 
-                flex-wrap: wrap;
-                gap: 15px; 
-                margin: 30px 0; 
-                justify-content: space-between;
-            }}
-            .stat-card {{ 
-                background: linear-gradient(135deg, #f8f9fa, #e9ecef); 
-                padding: 20px; 
-                border-radius: 12px; 
-                text-align: center; 
-                border-left: 4px solid #3498db; 
-                transition: transform 0.2s;
-                flex: 1;
-                min-width: 150px;
-                max-width: 180px;
-            }}
-            .stat-card:hover {{ transform: translateY(-5px); box-shadow: 0 4px 15px rgba(0,0,0,0.1); }}
-            .stat-number {{ font-size: 2rem; font-weight: 700; color: #2c3e50; margin-bottom: 8px; }}
-            .stat-label {{ font-size: 0.8rem; color: #7f8c8d; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }}
-            
-            /* Styles pour les métriques avancées - une seule ligne responsive */
-            .advanced-stats-grid {{ 
-                display: flex; 
-                flex-wrap: wrap;
-                gap: 20px; 
-                margin: 30px 0; 
-                justify-content: space-between;
-            }}
-            .advanced-stat-card {{ 
-                background: linear-gradient(135deg, #f8f9fa, #e9ecef); 
-                padding: 25px; 
-                border-radius: 12px; 
-                text-align: center; 
-                transition: transform 0.2s;
-                flex: 1;
-                min-width: 200px;
-                max-width: 280px;
-            }}
-            .advanced-stat-card:hover {{ transform: translateY(-5px); box-shadow: 0 4px 15px rgba(0,0,0,0.1); }}
-            
-            /* Media queries pour la responsivité */
-            @media (max-width: 1200px) {{
-                .stats-grid {{
-                    justify-content: center;
-                }}
-                .stat-card {{
-                    min-width: 130px;
-                    max-width: 160px;
-                }}
-                .advanced-stats-grid {{
-                    justify-content: center;
-                }}
-                .advanced-stat-card {{
-                    min-width: 180px;
-                    max-width: 250px;
-                }}
-            }}
-            
-            @media (max-width: 768px) {{
-                .stats-grid {{
-                    flex-direction: column;
-                    align-items: center;
-                }}
-                .stat-card {{
-                    max-width: 300px;
-                    width: 100%;
-                }}
-                .advanced-stats-grid {{
-                    flex-direction: column;
-                    align-items: center;
-                }}
-                .advanced-stat-card {{
-                    max-width: 300px;
-                    width: 100%;
-                }}
-            }}
-            
-            .danger {{ color: #e74c3c !important; }}
-            .success {{ color: #27ae60 !important; }}
-            .warning {{ color: #f39c12 !important; }}
-            .recommendations {{ background: linear-gradient(135deg, #d4edda, #c3e6cb); color: #155724; padding: 30px; border-radius: 12px; margin: 30px 0; border: 1px solid #c3e6cb; }}
-            .recommendations h3 {{ margin-bottom: 20px; font-size: 1.4rem; color: #155724; }}
-            .recommendations ul {{ padding-left: 20px; }}
-            .recommendations li {{ margin-bottom: 10px; font-weight: 500; }}
-            .footer {{ background: #2c3e50; color: white; padding: 25px; text-align: center; }}
-            .trend-info {{ font-size: 1.1rem; margin-bottom: 10px; }}
-            .service-lists-container {{ display: flex; justify-content: space-around; gap: 30px; margin-top: 30px; }}
-            .service-list-card {{ flex: 1; background: #fff; padding: 25px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }}
-            .service-list-card h4 {{ margin-top: 0; border-bottom: 2px solid #ecf0f1; padding-bottom: 10px; }}
-            .service-list-card ul {{ list-style-type: none; padding: 0; margin: 0; }}
-            .service-list-card li {{ padding: 8px 0; border-bottom: 1px solid #eee; }}
-            .service-list-card li:last-child {{ border-bottom: none; }}
-        </style>
-    </head>
-    <body>
-        <div class="container">
-            <div class="header">
-                <h1>System {system_name}</h1>
-                <p>Advanced Error Analysis Report - {date_str}</p>
-                <div class="status-badge">{status_text}</div>
-            </div>
-            
-            <div class="content">
-                <div class="intro">
-                    <h2>🔎 Report Objective</h2>
-                    <p>
-                        This report provides a detailed analysis of the errors and incidents encountered on the
-                        <strong>{system_name}</strong> system. You will find a summary of the key indicators,
-                        the observed trends, as well as recommendations to improve stability
-                        and reduce the impact on your services.
-                    </p>
-                    <p>
-                        The objective is to provide you with a clear vision of the system's health status,
-                        to facilitate decision-making and the implementation of corrective or preventive actions.
-                    </p>
-                </div>
-                
-                {trend_section}
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        <title>{system_name} - System Health Report</title>
+        <style>
+            body {{ font-family: 'Segoe UI', Arial, sans-serif; margin: 0; background: #f5f7fa; color: #333; }}
+            .container {{ max-width: 1200px; margin: 20px auto; background: white; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); overflow: hidden; }}
+            .header {{ background: linear-gradient(135deg, #2c3e50, #34495e); color: black; padding: 40px; text-align: center; }}
+            .header h1 {{ font-size: 2.5rem; margin: 0 0 10px; font-weight: 700; }}
+            .status-badge {{ background: {status_color}; color: black; padding: 12px 25px; border-radius: 25px; font-weight: 600; margin-top: 15px; display: inline-block; }}
+            .content {{ padding: 40px; line-height: 1.6; }}
+            .intro {{ background: #ecf0f1; padding: 20px; border-radius: 12px; margin-bottom: 25px; border: 1px solid #dfe6e9; }}
+            .intro h2 {{ margin-top: 0; color: #2c3e50; }}
+            
+            /* Styles pour les cartes d'indicateurs clés - une seule ligne responsive */
+            .stats-grid {{ 
+                display: flex; 
+                flex-wrap: wrap;
+                gap: 15px; 
+                margin: 30px 0; 
+                justify-content: space-between;
+            }}
+            .stat-card {{ 
+                background: linear-gradient(135deg, #f8f9fa, #e9ecef); 
+                padding: 20px; 
+                border-radius: 12px; 
+                text-align: center; 
+                /* MODIFIED: Increased border-left width and added a general border */
+                border: 1px solid #c9c9c9; /* Added a subtle border to all sides */
+                border-left: 8px solid #3498db; /* Increased left border width */
+                transition: transform 0.2s;
+                flex: 1;
+                min-width: 150px;
+                max-width: 180px;
+            }}
+            .stat-card:hover {{ transform: translateY(-5px); box-shadow: 0 4px 15px rgba(0,0,0,0.1); }}
+            .stat-number {{ font-size: 2rem; font-weight: 700; color: #2c3e50; margin-bottom: 8px; }}
+            .stat-label {{ font-size: 0.8rem; color: #7f8c8d; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }}
+            
+            /* Styles pour les métriques avancées - une seule ligne responsive */
+            .advanced-stats-grid {{ 
+                display: flex; 
+                flex-wrap: wrap;
+                gap: 20px; 
+                margin: 30px 0; 
+                justify-content: space-between;
+            }}
+            .advanced-stat-card {{ 
+                background: linear-gradient(135deg, #f8f9fa, #e9ecef); 
+                padding: 25px; 
+                border-radius: 12px; 
+                text-align: center; 
+                transition: transform 0.2s;
+                flex: 1;
+                min-width: 200px;
+                max-width: 280px;
+            }}
+            .advanced-stat-card:hover {{ transform: translateY(-5px); box-shadow: 0 4px 15px rgba(0,0,0,0.1); }}
+            
+            /* Media queries pour la responsivité */
+            @media (max-width: 1200px) {{
+                .stats-grid {{
+                    justify-content: center;
+                }}
+                .stat-card {{
+                    min-width: 130px;
+                    max-width: 160px;
+                }}
+                .advanced-stats-grid {{
+                    justify-content: center;
+                }}
+                .advanced-stat-card {{
+                    min-width: 180px;
+                    max-width: 250px;
+                }}
+            }}
+            
+            @media (max-width: 768px) {{
+                .stats-grid {{
+                    flex-direction: column;
+                    align-items: center;
+                }}
+                .stat-card {{
+                    max-width: 300px;
+                    width: 100%;
+                }}
+                .advanced-stats-grid {{
+                    flex-direction: column;
+                    align-items: center;
+                }}
+                .advanced-stat-card {{
+                    max-width: 300px;
+                    width: 100%;
+                }}
+            }}
+            
+            .danger {{ color: #e74c3c !important; }}
+            .success {{ color: #27ae60 !important; }}
+            .warning {{ color: #f39c12 !important; }}
+            .recommendations {{ background: linear-gradient(135deg, #d4edda, #c3e6cb); color: #155724; padding: 30px; border-radius: 12px; margin: 30px 0; border: 1px solid #c3e6cb; }}
+            .recommendations h3 {{ margin-bottom: 20px; font-size: 1.4rem; color: #155724; }}
+            .recommendations ul {{ padding-left: 20px; }}
+            .recommendations li {{ margin-bottom: 10px; font-weight: 500; }}
+            .footer {{ background: #2c3e50; color: white; padding: 25px; text-align: center; }}
+            .trend-info {{ font-size: 1.1rem; margin-bottom: 10px; }}
+            .service-lists-container {{ display: flex; justify-content: space-around; gap: 30px; margin-top: 30px; }}
+            .service-list-card {{ flex: 1; background: #fff; padding: 25px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }}
+            .service-list-card h4 {{ margin-top: 0; border-bottom: 2px solid #ecf0f1; padding-bottom: 10px; }}
+            .service-list-card ul {{ list-style-type: none; padding: 0; margin: 0; }}
+            .service-list-card li {{ padding: 8px 0; border-bottom: 1px solid #eee; }}
+            .service-list-card li:last-child {{ border-bottom: none; }}
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <h1>System {system_name}</h1>
+                <p>Advanced Error Analysis Report - {date_str}</p>
+                <div class="status-badge">{status_text}</div>
+            </div>
+            
+            <div class="content">
+                <div class="intro">
+                    <h2>🔎 Report Objective</h2>
+                    <p>
+                        This report provides a detailed analysis of the errors and incidents encountered on the
+                        <strong>{system_name}</strong> system. You will find a summary of the key indicators,
+                        the observed trends, as well as recommendations to improve stability
+                        and reduce the impact on your services.
+                    </p>
+                    <p>
+                        The objective is to provide you with a clear vision of the system's health status,
+                        to facilitate decision-making and the implementation of corrective or preventive actions.
+                    </p>
+                </div>
+                
+                {trend_section}
 
-                <h2>📊 Key Indicators</h2>
-                <p>
-                    The figures below summarize the current state of the system.
-                    They allow for a quick identification of the volume of errors, the number of affected services,
-                    and the overall health level.
-                </p>
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-number {'danger' if stats['total_errors'] > 0 else 'success'}">{stats.get('total_errors', 0)}</div>
-                        <div class="stat-label">Total Errors</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number">{stats.get('total_services', 0)}</div>
-                        <div class="stat-label">Total Services</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number {'danger' if stats['affected_services'] > 0 else 'success'}">{stats.get('affected_services', 0)}</div>
-                        <div class="stat-label">Affected Services</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number {'success' if stats['health_percentage'] > 80 else 'warning' if stats['health_percentage'] > 60 else 'danger'}">{stats.get('health_percentage', 0)}%</div>
-                        <div class="stat-label">Health Rate</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number {'danger' if stats['critical_services'] > 0 else 'success'}">{stats.get('critical_services', 0)}</div>
-                        <div class="stat-label">Critical Services</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number {'warning' if stats['avg_errors'] > 2 else 'success'}">{stats.get('avg_errors', 0)}</div>
-                        <div class="stat-label">Avg Errors/Service</div>
-                    </div>
-                </div>
+                <h2>📊 Key Indicators</h2>
+                <p>
+                    The figures below summarize the current state of the system.
+                    They allow for a quick identification of the volume of errors, the number of affected services,
+                    and the overall health level.
+                </p>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number {'danger' if stats['total_errors'] > 0 else 'success'}">{stats.get('total_errors', 0)}</div>
+                        <div class="stat-label">Total Errors</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">{stats.get('total_services', 0)}</div>
+                        <div class="stat-label">Total Services</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number {'danger' if stats['affected_services'] > 0 else 'success'}">{stats.get('affected_services', 0)}</div>
+                        <div class="stat-label">Affected Services</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number {'success' if stats['health_percentage'] > 80 else 'warning' if stats['health_percentage'] > 60 else 'danger'}">{stats.get('health_percentage', 0)}%</div>
+                        <div class="stat-label">Health Rate</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number {'danger' if stats['critical_services'] > 0 else 'success'}">{stats.get('critical_services', 0)}</div>
+                        <div class="stat-label">Critical Services</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number {'warning' if stats['avg_errors'] > 2 else 'success'}">{stats.get('avg_errors', 0)}</div>
+                        <div class="stat-label">Avg Errors/Service</div>
+                    </div>
+                </div>
 
-                <h2>📈 Advanced Metrics & Insights</h2>
-                <div class="advanced-stats-grid">
-                    <div class="advanced-stat-card" style="border-left: 4px solid #2ecc71;">
-                        <div class="stat-number {'success' if stats.get('stability_index', 0) > 70 else 'warning' if stats.get('stability_index', 0) > 50 else 'danger'}">{stats.get('stability_index', 0)}</div>
-                        <div class="stat-label">Stability Index (0-100)</div>
-                    </div>
-                    <div class="advanced-stat-card" style="border-left: 4px solid #e67e22;">
-                        <div class="stat-number">
-                            <span class="{stats.get('risk_level', '').lower()}">{stats.get('risk_level', 'N/A')}</span>
-                        </div>
-                        <div class="stat-label">Risk Level</div>
-                    </div>
-                    <div class="advanced-stat-card" style="border-left: 4px solid #f1c40f;">
-                        <div class="stat-number">{stats.get('top_error_service', 'N/A')}</div>
-                        <div class="stat-label">Top Error Service</div>
-                    </div>
-                    <div class="advanced-stat-card" style="border-left: 4px solid #34495e;">
-                        <div class="stat-number {'danger' if stats.get('sla_status') == 'BREACH' else 'warning' if stats.get('sla_status') == 'AT_RISK' else 'success'}">{stats.get('uptime_percentage', 0)}%</div>
-                        <div class="stat-label">Uptime Percentage</div>
-                    </div>
-                </div>
-                
-                <h2>📋 Service Details</h2>
-                <p>
-                    Below are the lists of services currently impacted. These lists provide a quick overview of which services require immediate attention.
-                </p>
-                <div class="service-lists-container">
-                    <div class="service-list-card">
-                        <h4 style="color: #f39c12;">Services Affected ({stats.get('affected_services', 0)})</h4>
-                        {affected_services_html}
-                    </div>
-                    <div class="service-list-card">
-                        <h4 style="color: #e74c3c;">Critical Services ({stats.get('critical_services', 0)})</h4>
-                        {critical_services_html}
-                    </div>
-                </div>
-                
-                <div class="recommendations">
-                    <h3>🎯 Strategic Insights & Action Plan</h3>
-                    <p>
-                        Here is an interpretation of the results and actions to consider to improve the situation.
-                        Please collaborate with the monitoring team to identify the root causes
-                        and implement effective solutions.
-                    </p>
-                    <ul>
-                        {recommendation_html}
-                    </ul>
-                </div>
-            </div>
-            
-            <div class="footer">
-                <p><strong>Enhanced MTN Monitoring System</strong> | Generated: {date_str}</p>
-                <p>📧 For urgent issues: Contact monitoring team immediately</p>
-            </div>
-        </div>
-    </body>
-    </html>
+                <h2>📈 Advanced Metrics & Insights</h2>
+                <div class="advanced-stats-grid">
+                    <div class="advanced-stat-card" style="border-left: 4px solid #2ecc71;">
+                        <div class="stat-number {'success' if stats.get('stability_index', 0) > 70 else 'warning' if stats.get('stability_index', 0) > 50 else 'danger'}">{stats.get('stability_index', 0)}</div>
+                        <div class="stat-label">Stability Index (0-100)</div>
+                    </div>
+                    <div class="advanced-stat-card" style="border-left: 4px solid #e67e22;">
+                        <div class="stat-number">
+                            <span class="{stats.get('risk_level', '').lower()}">{stats.get('risk_level', 'N/A')}</span>
+                        </div>
+                        <div class="stat-label">Risk Level</div>
+                    </div>
+                    <div class="advanced-stat-card" style="border-left: 4px solid #f1c40f;">
+                        <div class="stat-number">{stats.get('top_error_service', 'N/A')}</div>
+                        <div class="stat-label">Top Error Service</div>
+                    </div>
+                    <div class="advanced-stat-card" style="border-left: 4px solid #34495e;">
+                        <div class="stat-number {'danger' if stats.get('sla_status') == 'BREACH' else 'warning' if stats.get('sla_status') == 'AT_RISK' else 'success'}">{stats.get('uptime_percentage', 0)}%</div>
+                        <div class="stat-label">Uptime Percentage</div>
+                    </div>
+                </div>
+                
+                <h2>📋 Service Details</h2>
+                <p>
+                    Below are the lists of services currently impacted. These lists provide a quick overview of which services require immediate attention.
+                </p>
+                <div class="service-lists-container">
+                    <div class="service-list-card">
+                        <h4 style="color: #f39c12;">Services Affected ({stats.get('affected_services', 0)})</h4>
+                        {affected_services_html}
+                    </div>
+                    <div class="service-list-card">
+                        <h4 style="color: #e74c3c;">Critical Services ({stats.get('critical_services', 0)})</h4>
+                        {critical_services_html}
+                    </div>
+                </div>
+                
+                <div class="recommendations">
+                    <h3>🎯 Strategic Insights & Action Plan</h3>
+                    <p>
+                        Here is an interpretation of the results and actions to consider to improve the situation.
+                        Please collaborate with the monitoring team to identify the root causes
+                        and implement effective solutions.
+                    </p>
+                    <ul>
+                        {recommendation_html}
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="footer">
+                <p><strong>Enhanced MTN Monitoring System</strong> | Generated: {date_str}</p>
+                <p>📧 For urgent issues: Contact monitoring team immediately</p>
+            </div>
+        </div>
+    </body>
+    </html>
     """
 
 
