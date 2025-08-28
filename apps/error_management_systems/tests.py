@@ -187,36 +187,40 @@ def calculate_enhanced_stats(data, system_name, trends_data=None):
         if trends_data:
             base_stats.update(trends_data)
         return base_stats
-    
+
     print(f'DATA {data}')
-    
+
+    # --- Regrouper par service pour éviter les doublons ---
+    service_errors = data.groupby('Service Name', as_index=False)['Error Count'].sum()
+
     # Statistiques de base améliorées
-    total_errors = int(data['Error Count'].sum())
+    total_errors = int(service_errors['Error Count'].sum())
     print(f'TOTAL ERROR {total_errors}')
-    total_services = len(data)
-    print(f'TOTAL SERVICES {total_services}')
-    affected_services = int((data['Error Count'] > 0).sum())
-    critical_services = int((data['Error Count'] >= 10).sum())
-    warning_services = int(((data['Error Count'] >= 5) & (data['Error Count'] < 10)).sum())
+    total_services = service_errors['Service Name'].nunique()
+    print(f'TOTAL SERVICES (distinct) {total_services}')
+
+    affected_services = int((service_errors['Error Count'] > 0).sum())
+    critical_services = int((service_errors['Error Count'] >= 10).sum())
+    warning_services = int(((service_errors['Error Count'] >= 5) & (service_errors['Error Count'] < 10)).sum())
     healthy_services = total_services - affected_services
-    
+
     # Métriques de qualité professionnelles
     health_percentage = round((healthy_services / total_services) * 100, 1) if total_services > 0 else 100
     availability_percentage = round(((total_services - critical_services) / total_services) * 100, 1) if total_services > 0 else 100
     error_density = round(total_errors / total_services, 2) if total_services > 0 else 0
     reliability_score = max(0, round(100 - (error_density * 5), 1))
-    
+
     # Distribution des erreurs (Percentiles pour identifier les outliers)
     error_percentiles = {
-        'p50': data['Error Count'].quantile(0.5),
-        'p75': data['Error Count'].quantile(0.75),
-        'p90': data['Error Count'].quantile(0.9),
-        'p95': data['Error Count'].quantile(0.95),
-        'p99': data['Error Count'].quantile(0.99)
+        'p50': service_errors['Error Count'].quantile(0.5),
+        'p75': service_errors['Error Count'].quantile(0.75),
+        'p90': service_errors['Error Count'].quantile(0.9),
+        'p95': service_errors['Error Count'].quantile(0.95),
+        'p99': service_errors['Error Count'].quantile(0.99)
     }
-    
+
     # Services critiques détaillés
-    high_impact_services = data[data['Error Count'] >= 10].nlargest(5, 'Error Count')
+    high_impact_services = service_errors[service_errors['Error Count'] >= 10].nlargest(5, 'Error Count')
     top_5_errors = []
     if not high_impact_services.empty:
         for _, service in high_impact_services.iterrows():
@@ -225,30 +229,30 @@ def calculate_enhanced_stats(data, system_name, trends_data=None):
                 'errors': int(service['Error Count']),
                 'impact_level': 'CRITICAL' if service['Error Count'] >= 20 else 'HIGH'
             })
-    
+
     # Service le plus impacté avec contexte
     top_service_details = {'name': 'N/A', 'errors': 0, 'percentage': 0}
     if total_errors > 0:
-        max_idx = data['Error Count'].idxmax()
-        top_service_name = data.loc[max_idx, 'Service Name']
-        top_service_errors = int(data.loc[max_idx, 'Error Count'])
+        max_idx = service_errors['Error Count'].idxmax()
+        top_service_name = service_errors.loc[max_idx, 'Service Name']
+        top_service_errors = int(service_errors.loc[max_idx, 'Error Count'])
         top_service_details = {
             'name': top_service_name,
             'errors': top_service_errors,
             'percentage': round((top_service_errors / total_errors) * 100, 1)
         }
-    
+
     # Évaluation du risque et priorité
     risk_level, alert_priority, sla_compliance = calculate_risk_assessment(
         critical_services, total_services, error_density, health_percentage
     )
-    
+
     # Statut global amélioré
     status = determine_system_status(critical_services, warning_services, health_percentage)
-    
+
     # MTBF estimation (Mean Time Between Failures)
     mtbf_hours = estimate_mtbf(affected_services, total_services)
-    
+
     stats = {
         # Métriques de base
         'total_errors': total_errors,
@@ -278,17 +282,17 @@ def calculate_enhanced_stats(data, system_name, trends_data=None):
         'mtbf_hours': mtbf_hours,
         
         # Métriques de concentration
-        'error_concentration_ratio': calculate_error_concentration(data),
-        'service_stability_index': calculate_stability_index(data),
+        'error_concentration_ratio': calculate_error_concentration(service_errors),
+        'service_stability_index': calculate_stability_index(service_errors),
     }
     
     # Ajouter les données de tendance si disponibles
     if trends_data:
         stats.update(trends_data)
-        # Calculer des métriques de tendance supplémentaires
         stats.update(calculate_trend_insights(trends_data, stats))
     
     return stats
+
 
 def analyze_historical_trends(directory, system_name, days=7):
     """Analyse avancée des tendances avec métriques professionnelles"""
