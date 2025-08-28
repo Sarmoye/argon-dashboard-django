@@ -241,7 +241,7 @@ def analyze_historical_trends(directory, system_name, days=7):
 
 import numpy as np
 
-def create_trend_chart(trends_data, system_name):
+def create_trend_chart(directory, trends_data, system_name):
     """Crée un graphique de tendance avancé avec prédictions au style Soft UI."""
     if not trends_data or trends_data['data'].empty:
         return None
@@ -958,7 +958,7 @@ def generate_daily_reports_with_trends():
                 charts = []
                 # Graphique de tendance
                 if trends_data:
-                    trend_chart = create_trend_chart(trends_data, system_name)
+                    trend_chart = create_trend_chart(directory, trends_data, system_name)
                     if trend_chart:
                         charts.append(trend_chart)
                 
