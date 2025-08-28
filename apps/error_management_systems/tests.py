@@ -37,7 +37,7 @@ import os
 import glob
 from datetime import datetime
 
-def get_latest_file_per_day(directory, days=7):
+def get_files_by_date_range(directory, days=7):
     """
     Retrieves the latest CSV file for each of the last N days.
 
