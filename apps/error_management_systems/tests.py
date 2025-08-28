@@ -192,6 +192,7 @@ def calculate_enhanced_stats(data, system_name, trends_data=None):
 
     # --- Regrouper par service pour éviter les doublons ---
     service_errors = data.groupby('Service Name', as_index=False)['Error Count'].sum()
+    print(f'SERVICES ERROR {service_errors}')
 
     # Statistiques de base améliorées
     total_errors = int(service_errors['Error Count'].sum())
