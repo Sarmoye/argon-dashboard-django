@@ -872,10 +872,6 @@ def create_professional_system_html_with_trends(system_name, data, stats, date_s
                         <div class="stat-number">{stats.get('top_error_service', 'N/A')}</div>
                         <div class="stat-label">Top Error Service</div>
                     </div>
-                    <div class="advanced-stat-card" style="border-left: 4px solid #34495e;">
-                        <div class="stat-number {'danger' if stats.get('sla_status') == 'BREACH' else 'warning' if stats.get('sla_status') == 'AT_RISK' else 'success'}">{stats.get('uptime_percentage', 0)}%</div>
-                        <div class="stat-label">Uptime Percentage</div>
-                    </div>
                 </div>
                 
                 <h2>📋 Service Details</h2>
