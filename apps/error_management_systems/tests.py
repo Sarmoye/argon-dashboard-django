@@ -314,7 +314,7 @@ def create_trend_chart(trends_data, system_name):
         apply_soft_ui_to_ax(ax3)
         ax3.tick_params(axis='x', rotation=30)
         
-        # Graphique 4: Services impactés
+        """ # Graphique 4: Services impactés
         x_pos = np.arange(len(dates)) # Use numpy for cleaner bar positioning
         width = 0.35
         
@@ -329,7 +329,7 @@ def create_trend_chart(trends_data, system_name):
         ax4.set_xticks(x_pos)
         ax4.set_xticklabels(dates, rotation=30, ha='right')
         ax4.legend(fontsize=10, frameon=True, shadow=True, fancybox=True, loc='upper left')
-        apply_soft_ui_to_ax(ax4)
+        apply_soft_ui_to_ax(ax4) """
         
         plt.tight_layout(pad=3.0) # More padding between subplots
         fig.suptitle(f'System Performance Analysis: {system_name}', 
