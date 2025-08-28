@@ -206,7 +206,7 @@ def analyze_historical_trends(directory, system_name, days=7):
     }
 
 def create_trend_chart(trends_data, system_name):
-    """Crée un graphique de tendance avancé avec prédictions"""
+    """Crée un graphique de tendance avancé avec prédictions et labels"""
     if not trends_data or trends_data['data'].empty:
         return None
     
@@ -219,9 +219,19 @@ def create_trend_chart(trends_data, system_name):
         
         # Graphique 1: Evolution des erreurs avec prédiction
         dates = [d.strftime('%m/%d') for d in df['date']]
-        ax1.plot(dates, df['total_errors'], marker='o', linewidth=3, markersize=8, 
-                color=color, markerfacecolor='white', markeredgewidth=2, label='Erreurs réelles')
+        line1 = ax1.plot(dates, df['total_errors'], marker='o', linewidth=3, markersize=8, 
+                        color=color, markerfacecolor='white', markeredgewidth=2, label='Erreurs réelles')
         ax1.fill_between(dates, df['total_errors'], alpha=0.3, color=color)
+        
+        # Ajouter les labels pour les valeurs
+        for i, (date, value) in enumerate(zip(dates, df['total_errors'])):
+            ax1.annotate(f'{value:.0f}', 
+                        xy=(date, value),
+                        xytext=(0, 10),
+                        textcoords='offset points',
+                        ha='center', va='bottom',
+                        fontsize=9, fontweight='bold',
+                        bbox=dict(boxstyle='round,pad=0.2', facecolor='white', alpha=0.8))
         
         # Ajouter la prédiction
         if 'predicted_errors' in trends_data:
@@ -230,6 +240,15 @@ def create_trend_chart(trends_data, system_name):
             pred_line = list(df['total_errors']) + [trends_data['predicted_errors']]
             ax1.plot(all_dates[-2:], pred_line[-2:], 'r--', linewidth=2, alpha=0.7, label='Prédiction')
             ax1.scatter([pred_date], [trends_data['predicted_errors']], color='red', s=100, alpha=0.7)
+            
+            # Label pour la prédiction
+            ax1.annotate(f'{trends_data["predicted_errors"]:.0f}', 
+                        xy=(pred_date, trends_data['predicted_errors']),
+                        xytext=(0, 15),
+                        textcoords='offset points',
+                        ha='center', va='bottom',
+                        fontsize=9, fontweight='bold', color='red',
+                        bbox=dict(boxstyle='round,pad=0.2', facecolor='white', alpha=0.8))
         
         ax1.set_title(f'{system_name} - Analyse des Tendances & Prédictions', 
                      fontsize=14, fontweight='bold', pad=15)
@@ -238,10 +257,21 @@ def create_trend_chart(trends_data, system_name):
         ax1.legend()
         
         # Graphique 2: Score de fiabilité
-        ax2.plot(dates, df['reliability_score'], marker='s', linewidth=2, markersize=6, 
-                color='#27ae60', markerfacecolor='white', markeredgewidth=2)
+        line2 = ax2.plot(dates, df['reliability_score'], marker='s', linewidth=2, markersize=6, 
+                        color='#27ae60', markerfacecolor='white', markeredgewidth=2)
         ax2.fill_between(dates, df['reliability_score'], 95, alpha=0.2, color='green', label='Zone SLA')
         ax2.fill_between(dates, df['reliability_score'], 0, alpha=0.3, color='orange')
+        
+        # Labels pour le score de fiabilité
+        for i, (date, value) in enumerate(zip(dates, df['reliability_score'])):
+            ax2.annotate(f'{value:.1f}%', 
+                        xy=(date, value),
+                        xytext=(0, 10),
+                        textcoords='offset points',
+                        ha='center', va='bottom',
+                        fontsize=8, fontweight='bold',
+                        bbox=dict(boxstyle='round,pad=0.2', facecolor='white', alpha=0.8))
+        
         ax2.set_title('Score de Fiabilité (%)', fontsize=12, fontweight='bold')
         ax2.set_ylabel('Fiabilité (%)', fontsize=10)
         ax2.set_ylim(0, 100)
@@ -250,7 +280,18 @@ def create_trend_chart(trends_data, system_name):
         ax2.legend()
         
         # Graphique 3: Densité d'erreurs
-        ax3.bar(dates, df['error_density'], color=color, alpha=0.7)
+        bars3 = ax3.bar(dates, df['error_density'], color=color, alpha=0.7)
+        
+        # Labels pour la densité d'erreurs
+        for bar, value in zip(bars3, df['error_density']):
+            height = bar.get_height()
+            ax3.annotate(f'{value:.2f}', 
+                        xy=(bar.get_x() + bar.get_width() / 2, height),
+                        xytext=(0, 3),
+                        textcoords='offset points',
+                        ha='center', va='bottom',
+                        fontsize=8, fontweight='bold')
+        
         ax3.set_title('Densité d\'Erreurs (Erreurs/Service)', fontsize=12, fontweight='bold')
         ax3.set_ylabel('Erreurs par Service', fontsize=10)
         ax3.grid(True, alpha=0.3)
@@ -259,10 +300,30 @@ def create_trend_chart(trends_data, system_name):
         x_pos = range(len(dates))
         width = 0.35
         
-        ax4.bar([x - width/2 for x in x_pos], df['affected_services'], width,
-               label='Services Affectés', color='#f39c12', alpha=0.8)
-        ax4.bar([x + width/2 for x in x_pos], df['critical_services'], width,
-               label='Services Critiques', color='#e74c3c', alpha=0.8)
+        bars4a = ax4.bar([x - width/2 for x in x_pos], df['affected_services'], width,
+                       label='Services Affectés', color='#f39c12', alpha=0.8)
+        bars4b = ax4.bar([x + width/2 for x in x_pos], df['critical_services'], width,
+                       label='Services Critiques', color='#e74c3c', alpha=0.8)
+        
+        # Labels pour les services affectés
+        for bar, value in zip(bars4a, df['affected_services']):
+            height = bar.get_height()
+            ax4.annotate(f'{value:.0f}', 
+                        xy=(bar.get_x() + bar.get_width() / 2, height),
+                        xytext=(0, 3),
+                        textcoords='offset points',
+                        ha='center', va='bottom',
+                        fontsize=8, fontweight='bold')
+        
+        # Labels pour les services critiques
+        for bar, value in zip(bars4b, df['critical_services']):
+            height = bar.get_height()
+            ax4.annotate(f'{value:.0f}', 
+                        xy=(bar.get_x() + bar.get_width() / 2, height),
+                        xytext=(0, 3),
+                        textcoords='offset points',
+                        ha='center', va='bottom',
+                        fontsize=8, fontweight='bold')
         
         ax4.set_title('Impact sur les Services', fontsize=12, fontweight='bold')
         ax4.set_ylabel('Nombre de Services', fontsize=10)
