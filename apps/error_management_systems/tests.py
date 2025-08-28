@@ -135,6 +135,9 @@ def analyze_historical_trends(directory, system_name, days=7):
     
     current = trends_df.iloc[-1]
     previous = trends_df.iloc[-2]
+
+    print(f'CURRENT {current}')
+    print(f'PREVIOUS {previous}')
     
     error_trend = current['total_errors'] - previous['total_errors']
     affected_trend = current['affected_services'] - previous['affected_services']
