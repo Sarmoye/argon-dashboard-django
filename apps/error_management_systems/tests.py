@@ -666,180 +666,270 @@ def calculate_trend_insights(trends_data, current_stats):
 #
 from datetime import datetime
 
+import pandas as pd
+from datetime import datetime
+import numpy as np
+
 def create_professional_system_html_with_trends(system_name, data, stats, date_str, trends_data=None):
-    """Creates a professional HTML report enriched with trend analysis and explanatory text."""
+    """
+    Creates a professional, multi-section HTML report enriched with detailed
+    trend analysis, performance metrics, and strategic recommendations.
+
+    Args:
+        system_name (str): The name of the system.
+        data (pd.DataFrame): The raw service data.
+        stats (dict): The enhanced statistics dictionary.
+        date_str (str): The current date string for the report.
+        trends_data (dict, optional): The dictionary containing trend analysis data.
+
+    Returns:
+        str: A single string containing the complete HTML document.
+    """
+    
+    # -------------------
+    # Configuration Data
+    # -------------------
     status_colors = {
-        'HEALTHY': ('#27ae60', '✅ SYSTEM HEALTHY'),
-        'WARNING': ('#f39c12', '⚠️ SYSTEM WARNING'), 
-        'CRITICAL': ('#e74c3c', '🔴 SYSTEM CRITICAL'),
+        'OPTIMAL': ('#2ecc71', '✅ OPTIMAL'),
+        'HEALTHY': ('#27ae60', '✅ HEALTHY'),
+        'STABLE': ('#3498db', '➡️ STABLE'),
+        'MINOR_ISSUES': ('#f1c40f', '⚠️ MINOR ISSUES'),
+        'WARNING': ('#e67e22', '⚠️ WARNING'),
+        'DEGRADED': ('#d35400', '⚠️ DEGRADED'),
+        'CRITICAL': ('#e74c3c', '🔴 CRITICAL'),
         'NO_DATA': ('#95a5a6', '⚪ NO DATA')
     }
     
-    trend_colors = {
-        'IMPROVING': ('#27ae60', '📈 IMPROVING'),
-        'DEGRADING': ('#e74c3c', '📉 DEGRADING'), 
-        'STABLE': ('#3498db', '➡️ STABLE')
+    risk_colors = {
+        'LOW': '#2ecc71',
+        'MEDIUM': '#f1c40f',
+        'HIGH': '#e67e22',
+        'CRITICAL': '#e74c3c'
     }
     
     # Get status color and text based on the stats dictionary
-    status_color, status_text = status_colors.get(stats['status'], ('#95a5a6', '⚪ NO DATA'))
+    status_color, status_text = status_colors.get(stats['status'], status_colors['NO_DATA'])
     
-    # Trend analysis section
+    # -------------------
+    # Dynamic Content Generation
+    # -------------------
+    
+    # Trend Analysis Section
     trend_section = ""
     # Check if trend data exists and an error trend is present
     if trends_data and 'error_trend' in stats:
         # Determine the color and text for the trend status
-        trend_status = 'IMPROVING' if stats['error_trend'] < -2 else 'DEGRADING' if stats['error_trend'] > 2 else 'STABLE'
-        trend_color, trend_text = trend_colors[trend_status]
-        # Set the arrow icon based on the error trend
-        trend_arrow = '⬇️' if stats['error_trend'] < 0 else '⬆️' if stats['error_trend'] > 0 else '➡️'
+        trend_direction = stats.get('trend_direction', 'STABLE')
+        trend_arrow = '⬇️' if trend_direction == 'IMPROVING' else '⬆️' if trend_direction == 'DEGRADING' else '➡️'
+        trend_class = 'trend-improving' if trend_direction == 'IMPROVING' else 'trend-degrading' if trend_direction == 'DEGRADING' else 'trend-stable'
         
-        # Build the HTML for the trend section
+        # Trend alerts
+        alerts_html = ""
+        if 'trend_alerts' in stats and stats['trend_alerts']:
+            for alert in stats['trend_alerts']:
+                alert_icon = "🚨" if alert['severity'] in ['HIGH', 'CRITICAL'] else "💡"
+                alerts_html += f"<li>{alert_icon} {alert['message']}</li>"
+        
         trend_section = f"""
-        <div style="background: linear-gradient(135deg, {trend_color}, {trend_color}aa); color: black; padding: 25px; border-radius: 12px; margin: 20px 0;">
-            <h3 style="margin: 0 0 15px 0; font-size: 1.3rem;">{trend_arrow} TREND ANALYSIS (Last {stats.get('days_analyzed', 7)} days)</h3>
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
-                <div><strong>Error Change:</strong> {stats['error_trend']:+d} <small>({stats['improvement_rate']:+.1f}%)</small></div>
-                <div><strong>Previous Day:</strong> {trends_data.get('previous_errors', 0)} errors</div>
-                <div><strong>Current Day:</strong> {stats['total_errors']} errors</div>
-                <div><strong>7-Day Trend:</strong> {stats.get('period_trend', 0):+.1f} avg</div>
+        <div class="card {trend_class} trend-section">
+            <h3 class="card-title">{trend_arrow} TREND ANALYSIS (Last {stats.get('days_analyzed', 'N/A')} days)</h3>
+            <div class="stats-grid-small">
+                <div><strong>Errors:</strong> {stats.get('error_trend', 'N/A'):+d}</div>
+                <div><strong>Services:</strong> {stats.get('affected_trend', 'N/A'):+d}</div>
+                <div><strong>Health %:</strong> {stats.get('health_trend', 'N/A'):+.1f}%</div>
+                <div><strong>Volatility:</strong> {stats.get('error_volatility', 'N/A'):.2f}</div>
+                <div><strong>Slope:</strong> {stats.get('regression_slope', 'N/A'):.2f}</div>
+                <div><strong>Prediction:</strong> {stats.get('predicted_next_day_errors', 'N/A')} errors</div>
             </div>
+            {'<h4 style="margin-top:20px;">Trend Alerts:</h4><ul>' + alerts_html + '</ul>' if alerts_html else ''}
         </div>
         """
+        
+    # Top Critical Services Section
+    top_services_html = ""
+    if stats.get('top_5_critical_services'):
+        items_html = ""
+        for item in stats['top_5_critical_services']:
+            items_html += f"<li><strong>{item['service']}</strong>: {item['errors']} errors <small>({item['impact_level']})</small></li>"
+        
+        top_services_html = f"""
+        <div class="card">
+            <h3 class="card-title">🚨 Top 5 Critical Services</h3>
+            <ul class="clean-list">{items_html}</ul>
+        </div>
+        """
+        
+    # Strategic Recommendations Section
+    recommendations_html = ""
+    if stats.get('status') != 'NO_DATA':
+        rec_list = []
+        risk_level = stats.get('risk_level', 'LOW')
+        concentration_ratio = stats.get('error_concentration_ratio', 0)
+        
+        if risk_level in ['CRITICAL', 'HIGH']:
+            rec_list.append(f"<strong>Immediate Action:</strong> The system's risk level is <span class='risk-tag' style='background-color:{risk_colors[risk_level]};'>{risk_level}</span>. Prioritize the investigation and resolution of critical services to prevent major incidents.")
+        
+        if stats.get('trend_direction') == 'DEGRADING':
+            rec_list.append(f"<strong>Proactive Monitoring:</strong> The trend is <span class='risk-tag' style='background-color:{risk_colors['HIGH']};'>DEGRADING</span>. An increase of {stats.get('error_trend', 0)} errors was observed. Investigate the root cause of this decline to stabilize the system.")
+        
+        if concentration_ratio >= 50:
+            rec_list.append(f"<strong>Targeted Intervention:</strong> Errors are highly concentrated. The top 20% of services are responsible for {concentration_ratio}% of all errors. Focus your efforts on these high-impact services for maximum efficiency.")
+        
+        if not rec_list:
+            rec_list.append("<strong>Maintain Vigilance:</strong> The system is in a stable or improving state. Continue proactive monitoring and review the latest changes to maintain this positive trajectory.")
+            
+        rec_items = "".join([f"<li>👉 {rec}</li>" for rec in rec_list])
+        
+        recommendations_html = f"""
+        <div class="card recommendations">
+            <h3 class="card-title">🎯 Strategic Insights & Action Plan</h3>
+            <ul class="clean-list">{rec_items}</ul>
+        </div>
+        """
+
+    # -------------------
+    # Final HTML Assembly
+    # -------------------
     
-    # Return the complete HTML document as a single string
     return f"""
     <!DOCTYPE html>
     <html>
     <head>
         <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <style>
-            body {{ font-family: 'Segoe UI', sans-serif; margin: 0; background: #f5f7fa; color: #333; }}
-            .container {{ max-width: 1200px; margin: 20px auto; background: white; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); overflow: hidden; }}
-            .header {{ background: linear-gradient(135deg, #2c3e50, #34495e); color: white; padding: 40px; text-align: center; }}
-            .header h1 {{ font-size: 2.5rem; margin: 0 0 10px; font-weight: 700; }}
-            .status-badge {{ background: {status_color}; color: black; padding: 12px 25px; border-radius: 25px; font-weight: 600; margin-top: 15px; display: inline-block; }}
-            .content {{ padding: 40px; line-height: 1.6; }}
-            .intro {{ background: #ecf0f1; padding: 20px; border-radius: 12px; margin-bottom: 25px; }}
-            .intro h2 {{ margin-top: 0; color: #2c3e50; }}
-            .stats-grid {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin: 30px 0; }}
-            .stat-card {{ background: linear-gradient(135deg, #f8f9fa, #e9ecef); padding: 25px; border-radius: 12px; text-align: center; border-left: 4px solid #3498db; }}
-            .stat-number {{ font-size: 2.5rem; font-weight: 700; color: #2c3e50; margin-bottom: 8px; }}
-            .stat-label {{ font-size: 0.9rem; color: #7f8c8d; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }}
+            @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+            body {{ font-family: 'Inter', sans-serif; margin: 0; background: #f0f2f5; color: #333; line-height: 1.6; }}
+            .container {{ max-width: 1200px; margin: 20px auto; background: white; border-radius: 15px; box-shadow: 0 8px 20px rgba(0,0,0,0.1); overflow: hidden; }}
+            .header {{ background: linear-gradient(135deg, #2c3e50, #34495e); color: white; padding: 50px 20px; text-align: center; }}
+            .header h1 {{ font-size: 2.8rem; margin: 0 0 10px; font-weight: 700; }}
+            .status-badge {{ background: {status_color}; color: white; padding: 12px 25px; border-radius: 25px; font-weight: 600; margin-top: 15px; display: inline-block; box-shadow: 0 4px 8px rgba(0,0,0,0.2); }}
+            .content {{ padding: 30px; }}
+            .card {{ background: #ffffff; padding: 25px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-bottom: 25px; border: 1px solid #e0e0e0; }}
+            .card-title {{ font-size: 1.5rem; font-weight: 600; color: #2c3e50; margin-top: 0; margin-bottom: 20px; border-bottom: 2px solid #e0e0e0; padding-bottom: 10px; }}
+            .stats-grid, .stats-grid-small {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; }}
+            .stats-grid-small {{ grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }}
+            .stat-card {{ text-align: center; background: #f7f9fc; padding: 20px; border-radius: 10px; border: 1px solid #e0e0e0; }}
+            .stat-number {{ font-size: 2.2rem; font-weight: 700; color: #2c3e50; margin-bottom: 5px; }}
+            .stat-label {{ font-size: 0.9rem; color: #7f8c8d; text-transform: uppercase; letter-spacing: 1px; font-weight: 500; }}
             .danger {{ color: #e74c3c !important; }}
             .success {{ color: #27ae60 !important; }}
-            .warning {{ color: #f39c12 !important; }}
-            .recommendations {{ background: linear-gradient(135deg, #74b9ff, #0984e3); color: black; padding: 30px; border-radius: 12px; margin: 30px 0; }}
-            .recommendations h3 {{ margin-bottom: 20px; font-size: 1.4rem; }}
-            .footer {{ background: #2c3e50; color: white; padding: 25px; text-align: center; }}
+            .warning {{ color: #e67e22 !important; }}
+            .info {{ color: #3498db !important; }}
+            .clean-list {{ list-style-type: none; margin: 0; padding: 0; }}
+            .clean-list li {{ padding: 10px 0; border-bottom: 1px dashed #e0e0e0; }}
+            .clean-list li:last-child {{ border-bottom: none; }}
+            .recommendations {{ background: #e8f5e9; border-left: 5px solid #4caf50; }}
+            .risk-tag {{ display: inline-block; padding: 4px 10px; border-radius: 5px; font-size: 0.8rem; font-weight: 600; color: white; text-transform: uppercase; }}
+            .trend-section {{ border-left: 5px solid #3498db; }}
+            .trend-improving {{ border-left-color: #27ae60; }}
+            .trend-degrading {{ border-left-color: #e74c3c; }}
+            @media (max-width: 768px) {{
+                .stats-grid, .stats-grid-small {{ grid-template-columns: 1fr; }}
+            }}
         </style>
     </head>
     <body>
         <div class="container">
             <!-- Header -->
             <div class="header">
-                <h1>System {system_name}</h1>
-                <p>Advanced Error Analysis Report - {date_str}</p>
+                <h1>System Report - {system_name}</h1>
+                <p>Advanced Error Analysis - {date_str}</p>
                 <div class="status-badge">{status_text}</div>
             </div>
             
-            <!-- Intro -->
             <div class="content">
-                <div class="intro">
-                    <h2>🔎 Report Objective</h2>
+                <!-- Executive Summary -->
+                <div class="card">
+                    <h3 class="card-title">📝 Executive Summary</h3>
                     <p>
-                        This report provides a detailed analysis of the errors and incidents encountered on the
-                        <strong>{system_name}</strong> system. You will find a summary of the key indicators,
-                        the observed trends, as well as recommendations to improve stability
-                        and reduce the impact on your services.
-                    </p>
-                    <p>
-                        The objective is to provide you with a clear vision of the system's health status,
-                        in order to facilitate decision-making and the implementation of corrective or preventive actions.
+                        This report provides a comprehensive overview of the current state and performance trends for the <strong>{system_name}</strong> system.
+                        It includes key metrics, an assessment of reliability, and strategic recommendations to help maintain or improve system health.
                     </p>
                 </div>
-                
-                <!-- Trend Section -->
-                {trend_section}
 
-                <!-- Stats -->
-                <h2>📊 Key Indicators</h2>
-                <p>
-                    The figures below summarize the current state of the system.
-                    They allow for a quick identification of the volume of errors, the number of affected services,
-                    and the overall health level.
-                </p>
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-number {'danger' if stats['total_errors'] > 0 else 'success'}">{stats['total_errors']}</div>
-                        <div class="stat-label">Total Errors</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number">{stats['total_services']}</div>
-                        <div class="stat-label">Total Services</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number {'danger' if stats['affected_services'] > 0 else 'success'}">{stats['affected_services']}</div>
-                        <div class="stat-label">Affected Services</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number {'success' if stats['health_percentage'] > 80 else 'warning' if stats['health_percentage'] > 60 else 'danger'}">{stats['health_percentage']}%</div>
-                        <div class="stat-label">Health Rate</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number {'danger' if stats['critical_services'] > 0 else 'success'}">{stats['critical_services']}</div>
-                        <div class="stat-label">Critical Services</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number {'warning' if stats['avg_errors'] > 2 else 'success'}">{stats['avg_errors']}</div>
-                        <div class="stat-label">Avg Errors/Service</div>
+                <!-- Key Performance Indicators (KPIs) -->
+                <div class="card">
+                    <h3 class="card-title">📊 Key Performance Indicators</h3>
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-number danger">{stats.get('total_errors', 'N/A')}</div>
+                            <div class="stat-label">Total Errors</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number">{stats.get('total_services', 'N/A')}</div>
+                            <div class="stat-label">Total Services</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number warning">{stats.get('affected_services', 'N/A')}</div>
+                            <div class="stat-label">Affected Services</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number success">{stats.get('health_percentage', 'N/A')}%</div>
+                            <div class="stat-label">Health Rate</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number danger">{stats.get('critical_services', 'N/A')}</div>
+                            <div class="stat-label">Critical Services</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number info">{stats.get('avg_errors', 'N/A'):.2f}</div>
+                            <div class="stat-label">Avg Errors/Service</div>
+                        </div>
                     </div>
                 </div>
+
+                <!-- Performance & Reliability Metrics -->
+                <div class="card">
+                    <h3 class="card-title">🚀 Performance & Reliability Metrics</h3>
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-number">{stats.get('reliability_score', 'N/A')}</div>
+                            <div class="stat-label">Reliability Score</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number">{stats.get('sla_compliance', 'N/A')}%</div>
+                            <div class="stat-label">SLA Compliance</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number">{stats.get('mtbf_hours', 'N/A')}h</div>
+                            <div class="stat-label">MTBF (Est.)</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number">{stats.get('error_concentration_ratio', 'N/A')}%</div>
+                            <div class="stat-label">Error Concentration</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" style="color: {risk_colors.get(stats.get('risk_level', 'LOW'))};">{stats.get('risk_level', 'N/A')}</div>
+                            <div class="stat-label">Risk Level</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number">{stats.get('alert_priority', 'N/A')}</div>
+                            <div class="stat-label">Alert Priority</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Trend Analysis -->
+                {trend_section}
                 
-                <!-- Recommendations -->
-                <div class="recommendations">
-                    <h3>🎯 Strategic Insights & Action Plan</h3>
-                    <p>
-                        Here is an interpretation of the results and actions to consider to improve the situation.
-                        Please collaborate with the monitoring team to identify the root causes
-                        and implement effective solutions.
-                    </p>
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
-                        <div>
-                            <h4>📊 Current Status:</h4>
-                            <ul>
-                                {'<li>🚨 ' + str(stats["critical_services"]) + ' critical services need immediate attention</li>' if stats.get('critical_services', 0) > 0 else ''}
-                                {'<li>⚠️ ' + str(stats["affected_services"]) + ' services showing errors</li>' if stats.get('affected_services', 0) > 0 else ''}
-                                {'<li>✅ No errors detected - maintain practices</li>' if stats.get('total_errors', 0) == 0 else ''}
-                                <li>📈 Health Score: {stats.get('health_percentage', 0)}%</li>
-                            </ul>
-                        </div>
-                        <div>
-                            <h4>📈 Trend Analysis:</h4>
-                            <ul>
-                                {'<li>✅ Improving: ' + str(abs(stats.get("error_trend", 0))) + ' fewer errors than yesterday</li>' if stats.get('error_trend', 0) < 0 else ''}
-                                {'<li>⚠️ Degrading: ' + str(stats.get("error_trend", 0)) + ' more errors than yesterday</li>' if stats.get('error_trend', 0) > 0 else ''}
-                                {'<li>➡️ Stable: No change from yesterday</li>' if stats.get('error_trend', 0) == 0 else ''}
-                                <li>📊 Weekly trend: {stats.get('improvement_rate', 0):+.1f}%</li>
-                            </ul>
-                        </div>
-                    </div>
-                    <p>
-                        👉 We encourage you to <strong>prioritize the analysis of critical services</strong>, then work
-                        on recurring error causes to strengthen the overall system resilience.
-                    </p>
-                </div>
+                <!-- Top Critical Services -->
+                {top_services_html}
+
+                <!-- Strategic Recommendations -->
+                {recommendations_html}
             </div>
             
             <!-- Footer -->
-            <div class="footer">
-                <p><strong>Enhanced MTN Monitoring System</strong> | Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}</p>
-                <p>📧 For urgent issues: Contact monitoring team immediately</p>
+            <div class="header">
+                <p style="font-size: 1rem; margin: 0;"><strong>Enhanced System Monitoring</strong></p>
+                <p style="font-size: 0.8rem; margin: 5px 0 0;">Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}</p>
             </div>
         </div>
     </body>
     </html>
     """
+
 
 
 def generate_daily_reports_with_trends():
