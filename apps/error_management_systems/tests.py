@@ -241,7 +241,7 @@ def analyze_historical_trends(directory, system_name, days=7):
 
 import numpy as np
 
-def create_trend_chart(directory, trends_data, system_name):
+def create_trend_chart(trends_data, system_name):
     """Crée un graphique de tendance avancé avec prédictions au style Soft UI."""
     if not trends_data or trends_data['data'].empty:
         return None
@@ -293,26 +293,7 @@ def create_trend_chart(directory, trends_data, system_name):
         ax1.legend(fontsize=10, frameon=True, shadow=True, fancybox=True, loc='upper left')
         apply_soft_ui_to_ax(ax1)
         
-        # Graphique 2: Score de fiabilité
-        ax2.plot(dates, df['reliability_score'], marker='s', linewidth=2.5, markersize=7, 
-                 color='#28a745', markerfacecolor='white', markeredgewidth=2, markeredgecolor='#28a745')
-        ax2.fill_between(dates, df['reliability_score'], 100, alpha=0.1, color='#28a745')
-        ax2.set_title('Reliability Score (%)', fontsize=14, fontweight='bold', color='#333333')
-        ax2.set_ylabel('Reliability (%)', fontsize=12, color='#555555')
-        ax2.set_ylim(max(0, df['reliability_score'].min() - 10), 100)
-        ax2.axhline(y=95, color='#007bff', linestyle='--', alpha=0.7, label='SLA Target', linewidth=1.5)
-        ax2.legend(fontsize=10, frameon=True, shadow=True, fancybox=True)
-        apply_soft_ui_to_ax(ax2)
-        ax2.tick_params(axis='x', rotation=30)
-
-        # Graphique 3: Densité d'erreurs
-        ax3.bar(dates, df['error_density'], color=primary_color, alpha=0.7, width=0.6)
-        ax3.set_title('Error Density (Errors/Service)', fontsize=14, fontweight='bold', color='#333333')
-        ax3.set_ylabel('Errors per Service', fontsize=12, color='#555555')
-        apply_soft_ui_to_ax(ax3)
-        ax3.tick_params(axis='x', rotation=30)
-        
-        # Graphique 4: Répartition des erreurs par service (nouveau)
+        # Graphique 2: Répartition des erreurs par service
         # Obtenir les données du jour le plus récent
         latest_data = df.iloc[-1]
         
@@ -341,32 +322,51 @@ def create_trend_chart(directory, trends_data, system_name):
                     top_services = service_errors.head(10)
                     
                     # Créer un graphique à barres horizontales
-                    bars = ax4.barh(top_services['Service Name'], top_services['Error Count'], 
+                    bars = ax2.barh(top_services['Service Name'], top_services['Error Count'], 
                                    color=primary_color, alpha=0.7)
                     
                     # Ajouter les valeurs sur les barres
                     for bar in bars:
                         width = bar.get_width()
-                        ax4.text(width + 0.1, bar.get_y() + bar.get_height()/2, 
+                        ax2.text(width + 0.1, bar.get_y() + bar.get_height()/2, 
                                 f'{int(width)}', ha='left', va='center', fontsize=9)
                     
-                    ax4.set_title(f'Top 10 Services by Error Count\n({latest_date.strftime("%Y-%m-%d")})', 
+                    ax2.set_title(f'Top 10 Services by Error Count\n({latest_date.strftime("%Y-%m-%d")})', 
                                  fontsize=14, fontweight='bold', color='#333333')
-                    ax4.set_xlabel('Error Count', fontsize=12, color='#555555')
-                    ax4.set_ylabel('Service Name', fontsize=12, color='#555555')
+                    ax2.set_xlabel('Error Count', fontsize=12, color='#555555')
+                    ax2.set_ylabel('Service Name', fontsize=12, color='#555555')
                     
                     # Inverser l'axe Y pour avoir le service avec le plus d'erreurs en haut
-                    ax4.invert_yaxis()
+                    ax2.invert_yaxis()
                     
             except Exception as e:
                 print(f"Erreur lecture fichier {latest_file}: {e}")
-                ax4.text(0.5, 0.5, 'Données non disponibles', ha='center', va='center', 
-                        transform=ax4.transAxes, fontsize=12, color='red')
+                ax2.text(0.5, 0.5, 'Données non disponibles', ha='center', va='center', 
+                        transform=ax2.transAxes, fontsize=12, color='red')
         else:
-            ax4.text(0.5, 0.5, 'Fichier non trouvé', ha='center', va='center', 
-                    transform=ax4.transAxes, fontsize=12, color='red')
+            ax2.text(0.5, 0.5, 'Fichier non trouvé', ha='center', va='center', 
+                    transform=ax2.transAxes, fontsize=12, color='red')
         
+        apply_soft_ui_to_ax(ax2)
+
+        # Graphique 3: Densité d'erreurs
+        ax3.bar(dates, df['error_density'], color=primary_color, alpha=0.7, width=0.6)
+        ax3.set_title('Error Density (Errors/Service)', fontsize=14, fontweight='bold', color='#333333')
+        ax3.set_ylabel('Errors per Service', fontsize=12, color='#555555')
+        apply_soft_ui_to_ax(ax3)
+        ax3.tick_params(axis='x', rotation=30)
+        
+        # Graphique 4: Score de fiabilité
+        ax4.plot(dates, df['reliability_score'], marker='s', linewidth=2.5, markersize=7, 
+                 color='#28a745', markerfacecolor='white', markeredgewidth=2, markeredgecolor='#28a745')
+        ax4.fill_between(dates, df['reliability_score'], 100, alpha=0.1, color='#28a745')
+        ax4.set_title('Reliability Score (%)', fontsize=14, fontweight='bold', color='#333333')
+        ax4.set_ylabel('Reliability (%)', fontsize=12, color='#555555')
+        ax4.set_ylim(max(0, df['reliability_score'].min() - 10), 100)
+        ax4.axhline(y=95, color='#007bff', linestyle='--', alpha=0.7, label='SLA Target', linewidth=1.5)
+        ax4.legend(fontsize=10, frameon=True, shadow=True, fancybox=True)
         apply_soft_ui_to_ax(ax4)
+        ax4.tick_params(axis='x', rotation=30)
         
         plt.tight_layout(pad=3.0)
         fig.suptitle(f'System Performance Analysis: {system_name}', 
