@@ -117,22 +117,29 @@ def analyze_historical_trends(directory, system_name, days=7):
         try:
             data = read_csv_data(file_path, system_name)
             if data is not None and not data.empty:
-                # Utiliser la logique de regroupement par service
                 grouped_data = data.groupby('Service Name')['Error Count'].sum().reset_index()
                 
                 file_date = datetime.fromtimestamp(os.path.getctime(file_path))
                 total_errors = grouped_data['Error Count'].sum()
-                affected_services = (grouped_data['Error Count'] > 0).sum()
-                critical_services = (grouped_data['Error Count'] >= 10).sum()
+                
+                # Récupérer les listes de services
+                affected_services_list = grouped_data[grouped_data['Error Count'] > 0]['Service Name'].tolist()
+                critical_services_list = grouped_data[grouped_data['Error Count'] >= 10]['Service Name'].tolist()
+                
+                affected_services_count = len(affected_services_list)
+                critical_services_count = len(critical_services_list)
+                total_services = len(grouped_data)
                 
                 trends_data.append({
                     'date': file_date,
                     'total_errors': total_errors,
-                    'affected_services': affected_services,
-                    'critical_services': critical_services,
-                    'total_services': len(grouped_data),  # Compter les services uniques
-                    'error_density': total_errors / len(grouped_data) if len(grouped_data) > 0 else 0,
-                    'reliability_score': ((len(grouped_data) - affected_services) / len(grouped_data) * 100) if len(grouped_data) > 0 else 0
+                    'affected_services': affected_services_count,
+                    'critical_services': critical_services_count,
+                    'total_services': total_services,
+                    'error_density': total_errors / total_services if total_services > 0 else 0,
+                    'reliability_score': ((total_services - affected_services_count) / total_services * 100) if total_services > 0 else 0,
+                    'affected_services_list': affected_services_list,
+                    'critical_services_list': critical_services_list
                 })
         except Exception as e:
             print(f"Erreur analyse fichier {file_path}: {e}")
@@ -141,63 +148,62 @@ def analyze_historical_trends(directory, system_name, days=7):
     if not trends_data or len(trends_data) < 2:
         return None
     
-    # Le reste de la fonction reste inchangé
     trends_df = pd.DataFrame(trends_data)
     trends_df = trends_df.sort_values('date')
-
-    if len(trends_df) >= 2:
-        current = trends_df.iloc[-1]
-        previous = trends_df.iloc[-2]
-
-        error_trend = current['total_errors'] - previous['total_errors']
-        affected_trend = current['affected_services'] - previous['affected_services']
-        critical_trend = current['critical_services'] - previous['critical_services']
-        reliability_trend = current['reliability_score'] - previous['reliability_score']
-
-        if len(trends_df) >= 4:
-            avg_recent = trends_df.tail(3)['total_errors'].mean()
-            avg_older = trends_df.head(3)['total_errors'].mean()
-            week_trend = avg_recent - avg_older
-            volatility = trends_df['total_errors'].std()
-            stability_trend = "STABLE" if volatility < 5 else "MODERATE" if volatility < 15 else "HIGH_VOLATILITY"
-        else:
-            week_trend = error_trend
-            volatility = 0
-            stability_trend = "INSUFFICIENT_DATA"
-
-        momentum = "NEUTRAL"
-        if len(trends_df) >= 3:
-            trend_yesterday = trends_df.iloc[-2]['total_errors'] - trends_df.iloc[-3]['total_errors']
-            if error_trend > trend_yesterday + 2:
-                momentum = "ACCELERATING"
-            elif error_trend < trend_yesterday - 2:
-                momentum = "DECELERATING"
-
-        predicted_errors = max(0, current['total_errors'] + error_trend)
-        prediction_confidence = "HIGH" if len(trends_df) >= 5 else "MEDIUM" if len(trends_df) >= 3 else "LOW"
-
-        return {
-            'data': trends_df,
-            'current_errors': int(current['total_errors']),
-            'previous_errors': int(previous['total_errors']),
-            'error_trend': int(error_trend),
-            'affected_trend': int(affected_trend),
-            'critical_trend': int(critical_trend),
-            'reliability_trend': round(reliability_trend, 1),
-            'week_trend': week_trend,
-            'improvement_rate': round((error_trend / previous['total_errors'] * 100) if previous['total_errors'] > 0 else 0, 1),
-            'days_analyzed': len(trends_df),
-            'volatility': round(volatility, 2),
-            'stability_trend': stability_trend,
-            'momentum': momentum,
-            'predicted_errors': int(predicted_errors),
-            'prediction_confidence': prediction_confidence,
-            'avg_error_density': round(trends_df['error_density'].mean(), 2),
-            'peak_errors': int(trends_df['total_errors'].max()),
-            'best_day_errors': int(trends_df['total_errors'].min())
-        }
     
-    return None
+    current = trends_df.iloc[-1]
+    previous = trends_df.iloc[-2]
+    
+    error_trend = current['total_errors'] - previous['total_errors']
+    affected_trend = current['affected_services'] - previous['affected_services']
+    critical_trend = current['critical_services'] - previous['critical_services']
+    reliability_trend = current['reliability_score'] - previous['reliability_score']
+    
+    if len(trends_df) >= 4:
+        avg_recent = trends_df.tail(3)['total_errors'].mean()
+        avg_older = trends_df.head(3)['total_errors'].mean()
+        week_trend = avg_recent - avg_older
+        volatility = trends_df['total_errors'].std()
+        stability_trend = "STABLE" if volatility < 5 else "MODERATE" if volatility < 15 else "HIGH_VOLATILITY"
+    else:
+        week_trend = error_trend
+        volatility = 0
+        stability_trend = "INSUFFICIENT_DATA"
+    
+    momentum = "NEUTRAL"
+    if len(trends_df) >= 3:
+        trend_yesterday = trends_df.iloc[-2]['total_errors'] - trends_df.iloc[-3]['total_errors']
+        if error_trend > trend_yesterday + 2:
+            momentum = "ACCELERATING"
+        elif error_trend < trend_yesterday - 2:
+            momentum = "DECELERATING"
+    
+    predicted_errors = max(0, current['total_errors'] + error_trend)
+    prediction_confidence = "HIGH" if len(trends_df) >= 5 else "MEDIUM" if len(trends_df) >= 3 else "LOW"
+
+    # Ajout des listes de services dans le dictionnaire de retour
+    return {
+        'data': trends_df,
+        'current_errors': int(current['total_errors']),
+        'previous_errors': int(previous['total_errors']),
+        'error_trend': int(error_trend),
+        'affected_trend': int(affected_trend),
+        'critical_trend': int(critical_trend),
+        'reliability_trend': round(reliability_trend, 1),
+        'week_trend': week_trend,
+        'improvement_rate': round((error_trend / previous['total_errors'] * 100) if previous['total_errors'] > 0 else 0, 1),
+        'days_analyzed': len(trends_df),
+        'volatility': round(volatility, 2),
+        'stability_trend': stability_trend,
+        'momentum': momentum,
+        'predicted_errors': int(predicted_errors),
+        'prediction_confidence': prediction_confidence,
+        'avg_error_density': round(trends_df['error_density'].mean(), 2),
+        'peak_errors': int(trends_df['total_errors'].max()),
+        'best_day_errors': int(trends_df['total_errors'].min()),
+        'current_affected_services_list': current['affected_services_list'],
+        'current_critical_services_list': current['critical_services_list']
+    }
 
 def create_trend_chart(trends_data, system_name):
     """Crée un graphique de tendance avancé avec prédictions"""
@@ -288,7 +294,9 @@ def calculate_enhanced_stats(data, system_name, trends_data=None):
         'total_errors': 0, 'total_services': 0, 'affected_services': 0,
         'health_percentage': 0, 'critical_services': 0, 'avg_errors': 0,
         'top_error_service': 'N/A', 'status': 'NO_DATA',
-        'stability_index': 0, 'risk_level': 'UNKNOWN', 'business_impact': 'UNKNOWN'
+        'stability_index': 0, 'risk_level': 'UNKNOWN', 'business_impact': 'UNKNOWN',
+        'affected_services_list': [],
+        'critical_services_list': []
     }
 
     if data is None or data.empty:
@@ -302,15 +310,20 @@ def calculate_enhanced_stats(data, system_name, trends_data=None):
             })
         return base_stats
 
-    # Regrouper les données par service pour éviter les doublons
     grouped_data = data.groupby('Service Name')['Error Count'].sum().reset_index()
 
     # Statistiques de base
     total_errors = int(grouped_data['Error Count'].sum())
     total_services = len(grouped_data)
-    affected_services = int((grouped_data['Error Count'] > 0).sum())
-    critical_services = int((grouped_data['Error Count'] >= 10).sum())
-    health_percentage = round(((total_services - affected_services) / total_services) * 100, 1) if total_services > 0 else 0
+    
+    # Récupérer les listes de services
+    affected_services_list = grouped_data[grouped_data['Error Count'] > 0]['Service Name'].tolist()
+    critical_services_list = grouped_data[grouped_data['Error Count'] >= 10]['Service Name'].tolist()
+    
+    affected_services_count = len(affected_services_list)
+    critical_services_count = len(critical_services_list)
+    
+    health_percentage = round(((total_services - affected_services_count) / total_services) * 100, 1) if total_services > 0 else 0
     avg_errors = round(total_errors / total_services, 2) if total_services > 0 else 0
 
     # Service le plus impacté
@@ -323,11 +336,11 @@ def calculate_enhanced_stats(data, system_name, trends_data=None):
     health_weight = health_percentage * 0.4
     error_density = total_errors / total_services if total_services > 0 else 0
     density_score = max(0, 100 - (error_density * 10)) * 0.3
-    critical_penalty = max(0, 100 - (critical_services / total_services * 200)) * 0.3 if total_services > 0 else 100
+    critical_penalty = max(0, 100 - (critical_services_count / total_services * 200)) * 0.3 if total_services > 0 else 100
     stability_index = round(health_weight + density_score + critical_penalty, 1)
 
     # Évaluation des risques
-    critical_ratio = critical_services / total_services if total_services > 0 else 0
+    critical_ratio = critical_services_count / total_services if total_services > 0 else 0
     if critical_ratio > 0.3 or error_density > 10:
         risk_level = 'HIGH'
         business_impact = 'SEVERE'
@@ -341,7 +354,7 @@ def calculate_enhanced_stats(data, system_name, trends_data=None):
     # Statut global amélioré
     if total_errors == 0:
         status = 'HEALTHY'
-    elif critical_services > 0 or stability_index < 50:
+    elif critical_services_count > 0 or stability_index < 50:
         status = 'CRITICAL'
     elif stability_index < 70:
         status = 'WARNING'
@@ -357,15 +370,15 @@ def calculate_enhanced_stats(data, system_name, trends_data=None):
     }
 
     # SLA et métriques de performance
-    uptime_percentage = round(((total_services - affected_services) / total_services) * 100, 2) if total_services > 0 else 0
+    uptime_percentage = round(((total_services - affected_services_count) / total_services) * 100, 2) if total_services > 0 else 0
     sla_status = 'MEETING' if uptime_percentage >= 99.5 else 'AT_RISK' if uptime_percentage >= 95 else 'BREACH'
 
     stats = {
         'total_errors': total_errors,
         'total_services': total_services,
-        'affected_services': affected_services,
+        'affected_services': affected_services_count,
         'health_percentage': health_percentage,
-        'critical_services': critical_services,
+        'critical_services': critical_services_count,
         'avg_errors': avg_errors,
         'top_error_service': top_service,
         'status': status,
@@ -376,12 +389,20 @@ def calculate_enhanced_stats(data, system_name, trends_data=None):
         'uptime_percentage': uptime_percentage,
         'sla_status': sla_status,
         'error_density': round(error_density, 3),
-        'critical_ratio': round(critical_ratio * 100, 1)
+        'critical_ratio': round(critical_ratio * 100, 1),
+        'affected_services_list': affected_services_list,
+        'critical_services_list': critical_services_list
     }
 
     # Ajouter les données de tendance si disponibles
     if trends_data:
         trend_status = 'IMPROVING' if trends_data.get('error_trend', 0) < 0 else 'DEGRADING' if trends_data.get('error_trend', 0) > 0 else 'STABLE'
+        
+        # S'assurer que les listes de tendances sont passées si elles existent
+        if 'current_affected_services_list' in trends_data:
+            stats['affected_services_list'] = trends_data['current_affected_services_list']
+        if 'current_critical_services_list' in trends_data:
+            stats['critical_services_list'] = trends_data['current_critical_services_list']
 
         stats.update({
             'error_trend': trends_data.get('error_trend', 0),
@@ -456,7 +477,7 @@ def create_professional_system_html_with_trends(system_name, data, stats, date_s
 
         trend_section = f"""
         <div style="background: linear-gradient(135deg, #eaf4fd, #d1e7fd); color: #1f3a5f; padding: 25px; border-radius: 12px; margin: 20px 0; border: 1px solid #cce5ff;">
-            <h3 style="margin: 0 0 15px 0; font-size: 1.3rem; color: #004085;">{trend_arrow} Trend Analysis (Last days)</h3>
+            <h3 style="margin: 0 0 15px 0; font-size: 1.3rem; color: #004085;">{trend_arrow} Trend Analysis (Last {trends_data.get('days_analyzed', 0)} days)</h3>
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
                 <div><strong>Current Trend:</strong> <span style="color: {trend_color}; font-weight: bold;">{trend_text}</span></div>
                 <div><strong>Error Change (D-1):</strong> <span style="color: {trend_color};">{stats.get('error_trend', 0):+d}</span> ({stats.get('improvement_rate', 0):+.1f}%)</div>
@@ -485,6 +506,15 @@ def create_professional_system_html_with_trends(system_name, data, stats, date_s
 
     recommendation_html = "".join(recommendation_list)
 
+    # HTML for affected and critical service lists
+    affected_services_html = "<p>No affected services.</p>"
+    if stats.get('affected_services_list'):
+        affected_services_html = "<ul>" + "".join([f"<li>{service}</li>" for service in stats['affected_services_list']]) + "</ul>"
+
+    critical_services_html = "<p>No critical services.</p>"
+    if stats.get('critical_services_list'):
+        critical_services_html = "<ul>" + "".join([f"<li style='color: #e74c3c; font-weight: bold;'>{service}</li>" for service in stats['critical_services_list']]) + "</ul>"
+
     # Return the complete HTML document as a single string
     return f"""
     <!DOCTYPE html>
@@ -495,7 +525,7 @@ def create_professional_system_html_with_trends(system_name, data, stats, date_s
         <style>
             body {{ font-family: 'Segoe UI', Arial, sans-serif; margin: 0; background: #f5f7fa; color: #333; }}
             .container {{ max-width: 1200px; margin: 20px auto; background: white; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); overflow: hidden; }}
-            .header {{ background: linear-gradient(135deg, #2c3e50, #34495e); color: black; padding: 40px; text-align: center; }}
+            .header {{ background: linear-gradient(135deg, #2c3e50, #34495e); color: white; padding: 40px; text-align: center; }}
             .header h1 {{ font-size: 2.5rem; margin: 0 0 10px; font-weight: 700; }}
             .status-badge {{ background: {status_color}; color: black; padding: 12px 25px; border-radius: 25px; font-weight: 600; margin-top: 15px; display: inline-block; }}
             .content {{ padding: 40px; line-height: 1.6; }}
@@ -515,6 +545,12 @@ def create_professional_system_html_with_trends(system_name, data, stats, date_s
             .recommendations li {{ margin-bottom: 10px; font-weight: 500; }}
             .footer {{ background: #2c3e50; color: white; padding: 25px; text-align: center; }}
             .trend-info {{ font-size: 1.1rem; margin-bottom: 10px; }}
+            .service-lists-container {{ display: flex; justify-content: space-around; gap: 30px; margin-top: 30px; }}
+            .service-list-card {{ flex: 1; background: #fff; padding: 25px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }}
+            .service-list-card h4 {{ margin-top: 0; border-bottom: 2px solid #ecf0f1; padding-bottom: 10px; }}
+            .service-list-card ul {{ list-style-type: none; padding: 0; margin: 0; }}
+            .service-list-card li {{ padding: 8px 0; border-bottom: 1px solid #eee; }}
+            .service-list-card li:last-child {{ border-bottom: none; }}
         </style>
     </head>
     <body>
@@ -596,7 +632,22 @@ def create_professional_system_html_with_trends(system_name, data, stats, date_s
                         <div class="stat-label">Uptime Percentage</div>
                     </div>
                 </div>
-
+                
+                <h2>📋 Service Details</h2>
+                <p>
+                    Below are the lists of services currently impacted. These lists provide a quick overview of which services require immediate attention.
+                </p>
+                <div class="service-lists-container">
+                    <div class="service-list-card">
+                        <h4 style="color: #f39c12;">Services Affected ({stats.get('affected_services', 0)})</h4>
+                        {affected_services_html}
+                    </div>
+                    <div class="service-list-card">
+                        <h4 style="color: #e74c3c;">Critical Services ({stats.get('critical_services', 0)})</h4>
+                        {critical_services_html}
+                    </div>
+                </div>
+                
                 <div class="recommendations">
                     <h3>🎯 Strategic Insights & Action Plan</h3>
                     <p>
