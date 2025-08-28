@@ -910,38 +910,66 @@ def create_executive_summary_html_with_trends(systems_data, all_stats, date_str)
         critical_services_html = "<p>No critical services found across all systems. Excellent!</p>"
 
     # --- Start HTML Generation ---
-    html = f"""
+    html = """
     <!DOCTYPE html>
     <html>
     <head>
         <meta charset="UTF-8">
         <style>
-            body {{ font-family: 'Segoe UI', sans-serif; margin: 0; background: #f5f7fa; }}
-            .container {{ max-width: 1400px; margin: 20px auto; background: white; border-radius: 15px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); }}
-            .header {{ background: linear-gradient(135deg, #1e3c72, #2a5298); color: black; padding: 50px; text-align: center; }}
-            .header h1 {{ font-size: 3rem; margin: 0 0 15px; font-weight: 700; }}
-            .global-status {{ padding: 15px 30px; border-radius: 25px; font-weight: 700; margin-top: 20px; display: inline-block; }}
-            .content {{ padding: 50px; }}
-            .trend-summary {{ background: linear-gradient(135deg, #667eea, #764ba2); color: black; padding: 30px; border-radius: 12px; margin: 30px 0; }}
-            .systems-grid {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 25px; margin: 30px 0; }}
-            .system-card {{ background: white; border-radius: 12px; padding: 25px; box-shadow: 0 8px 20px rgba(0,0,0,0.08); transition: transform 0.2s; }}
-            .system-card:hover {{ transform: translateY(-5px); box-shadow: 0 12px 25px rgba(0,0,0,0.12); }}
-            .system-name {{ font-size: 1.3rem; font-weight: 700; margin-bottom: 15px; }}
-            .trend-indicator {{ font-size: 1.1rem; margin: 10px 0; padding: 8px 15px; border-radius: 20px; display: inline-block; }}
-            .improving {{ background: #d4edda; color: #155724; }}
-            .degrading {{ background: #f8d7da; color: #721c24; }}
-            .stable {{ background: #d1ecf1; color: #0c5460; }}
-            .danger {{ color: #e74c3c; }}
-            .success {{ color: #27ae60; }}
-            .warning {{ color: #f39c12; }}
-            .info {{ color: #0c5460; background: #d1ecf1; }}
-            .footer {{ background: #2c3e50; color: white; padding: 30px; text-align: center; }}
-            .list-section {{ display: flex; justify-content: space-between; gap: 30px; margin-top: 40px; }}
-            .list-card {{ flex: 1; background: #f8f9fa; padding: 25px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }}
-            .list-card h4 {{ margin-top: 0; color: #2c3e50; border-bottom: 2px solid #e9ecef; padding-bottom: 10px; }}
-            .list-card ul {{ list-style-type: none; padding: 0; margin: 0; }}
-            .list-card li {{ padding: 10px 0; border-bottom: 1px solid #dee2e6; font-size: 1rem; }}
-            .list-card li:last-child {{ border-bottom: none; }}
+            body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #f5f7fa; }
+            .container { max-width: 1400px; margin: 20px auto; background: white; border-radius: 15px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); }
+            .header { background: linear-gradient(135deg, #1e3c72, #2a5298); color: black; padding: 50px; text-align: center; }
+            .header h1 { font-size: 3rem; margin: 0 0 15px; font-weight: 700; }
+            .global-status { padding: 15px 30px; border-radius: 25px; font-weight: 700; margin-top: 20px; display: inline-block; }
+            .content { padding: 50px; }
+            
+            /* Updated Trend Summary CSS */
+            .trend-summary {
+                background: linear-gradient(135deg, #667eea, #764ba2);
+                color: white; /* Changed text color for better contrast with the gradient */
+                padding: 30px;
+                border-radius: 12px;
+                margin: 30px 0;
+            }
+
+            /* Updated Grid to Flexbox */
+            .trend-stats-container {
+                display: flex;
+                justify-content: space-around; /* Distributes items evenly with space between them */
+                align-items: center;
+                gap: 20px; /* Space between each item */
+            }
+            
+            .trend-stat-item {
+                text-align: center;
+                flex-grow: 1; /* Allows items to grow to fill available space */
+                min-width: 150px; /* Ensures items don't get too small */
+            }
+
+            .trend-number {
+                font-size: 2rem;
+                font-weight: bold;
+            }
+
+            .systems-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 25px; margin: 30px 0; }
+            .system-card { background: white; border-radius: 12px; padding: 25px; box-shadow: 0 8px 20px rgba(0,0,0,0.08); transition: transform 0.2s; }
+            .system-card:hover { transform: translateY(-5px); box-shadow: 0 12px 25px rgba(0,0,0,0.12); }
+            .system-name { font-size: 1.3rem; font-weight: 700; margin-bottom: 15px; }
+            .trend-indicator { font-size: 1.1rem; margin: 10px 0; padding: 8px 15px; border-radius: 20px; display: inline-block; }
+            .improving { background: #d4edda; color: #155724; }
+            .degrading { background: #f8d7da; color: #721c24; }
+            .stable { background: #d1ecf1; color: #0c5460; }
+            .danger { color: #e74c3c; }
+            .success { color: #27ae60; }
+            .warning { color: #f39c12; }
+            .info { color: #0c5460; background: #d1ecf1; }
+            .footer { background: #2c3e50; color: white; padding: 30px; text-align: center; }
+            .list-section { display: flex; justify-content: space-between; gap: 30px; margin-top: 40px; }
+            .list-card { flex: 1; background: #f8f9fa; padding: 25px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+            .list-card h4 { margin-top: 0; color: #2c3e50; border-bottom: 2px solid #e9ecef; padding-bottom: 10px; }
+            .list-card ul { list-style-type: none; padding: 0; margin: 0; }
+            .list-card li { padding: 10px 0; border-bottom: 1px solid #dee2e6; font-size: 1rem; }
+            .list-card li:last-child { border-bottom: none; }
         </style>
     </head>
     <body>
@@ -956,29 +984,29 @@ def create_executive_summary_html_with_trends(systems_data, all_stats, date_str)
             <div class="content">
                 <div class="trend-summary">
                     <h3 style="margin: 0 0 20px 0; font-size: 1.5rem;">📈 Global Trend Analysis</h3>
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
-                        <div style="text-align: center;">
-                            <div style="font-size: 2rem; font-weight: bold;">{improving_systems}</div>
+                    <div class="trend-stats-container">
+                        <div class="trend-stat-item">
+                            <div class="trend-number">{improving_systems}</div>
                             <div>Systems Improving</div>
                         </div>
-                        <div style="text-align: center;">
-                            <div style="font-size: 2rem; font-weight: bold;">{degrading_systems}</div>
+                        <div class="trend-stat-item">
+                            <div class="trend-number">{degrading_systems}</div>
                             <div>Systems Degrading</div>
                         </div>
-                        <div style="text-align: center;">
-                            <div style="font-size: 2rem; font-weight: bold;">{total_affected_services}</div>
+                        <div class="trend-stat-item">
+                            <div class="trend-number">{total_affected_services}</div>
                             <div>Affected Services</div>
                         </div>
-                        <div style="text-align: center;">
-                            <div style="font-size: 2rem; font-weight: bold;">{total_critical_services}</div>
+                        <div class="trend-stat-item">
+                            <div class="trend-number">{total_critical_services}</div>
                             <div>Critical Services</div>
                         </div>
-                        <div style="text-align: center;">
-                            <div style="font-size: 2rem; font-weight: bold;">{total_errors}</div>
+                        <div class="trend-stat-item">
+                            <div class="trend-number">{total_errors}</div>
                             <div>Total Current Errors</div>
                         </div>
-                        <div style="text-align: center;">
-                            <div style="font-size: 2rem; font-weight: bold;">{total_services_monitored}</div>
+                        <div class="trend-stat-item">
+                            <div class="trend-number">{total_services_monitored}</div>
                             <div>Total Services Monitored</div>
                         </div>
                     </div>
@@ -986,7 +1014,7 @@ def create_executive_summary_html_with_trends(systems_data, all_stats, date_str)
                 
                 <h2 style="color: #2c3e50; margin: 40px 0 25px; font-size: 1.8rem;">🖥️ Systems Performance Dashboard</h2>
                 <div class="systems-grid">
-    """
+"""
     
     # Adding system cards with trends
     for system_name, stats in all_stats.items():
