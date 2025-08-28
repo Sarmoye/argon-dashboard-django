@@ -748,8 +748,11 @@ def create_professional_system_html_with_trends(system_name, data, stats, date_s
     # Top Critical Services Section
     top_services_html = ""
     if stats.get('top_5_critical_services'):
+        # Ensure there are no duplicates by converting to a set and back to a list
+        unique_critical_services = list({item['service']: item for item in stats['top_5_critical_services']}.values())
+        
         items_html = ""
-        for item in stats['top_5_critical_services']:
+        for item in unique_critical_services:
             items_html += f"<li><strong>{item['service']}</strong>: {item['errors']} errors <small>({item['impact_level']})</small></li>"
         
         top_services_html = f"""
@@ -758,7 +761,40 @@ def create_professional_system_html_with_trends(system_name, data, stats, date_s
             <ul class="clean-list">{items_html}</ul>
         </div>
         """
+    
+    # New section for detailed service lists
+    services_list_html = ""
+    # Check if data DataFrame is not empty
+    if not data.empty:
+        # Create a list of all services, affected services, and critical services
+        all_services = sorted(data['service'].unique())
+        affected_services = sorted(data[data['errors'] > 0]['service'].unique())
+        critical_services = sorted(data[data['risk_level'] == 'CRITICAL']['service'].unique())
         
+        all_services_items = "".join([f"<li>{service}</li>" for service in all_services])
+        affected_services_items = "".join([f"<li>{service}</li>" for service in affected_services])
+        critical_services_items = "".join([f"<li>🚨 {service}</li>" for service in critical_services])
+        
+        services_list_html = f"""
+        <div class="card services-list-card">
+            <h3 class="card-title">Detailed Service Status</h3>
+            <div class="stats-grid-small">
+                <div>
+                    <h4>All Services ({len(all_services)})</h4>
+                    <ul class="clean-list">{all_services_items}</ul>
+                </div>
+                <div>
+                    <h4>Affected Services ({len(affected_services)})</h4>
+                    <ul class="clean-list">{affected_services_items}</ul>
+                </div>
+                <div>
+                    <h4>Critical Services ({len(critical_services)})</h4>
+                    <ul class="clean-list">{critical_services_items}</ul>
+                </div>
+            </div>
+        </div>
+        """
+
     # Strategic Recommendations Section
     recommendations_html = ""
     if stats.get('status') != 'NO_DATA':
@@ -820,6 +856,7 @@ def create_professional_system_html_with_trends(system_name, data, stats, date_s
             .clean-list li {{ padding: 10px 0; border-bottom: 1px dashed #e0e0e0; }}
             .clean-list li:last-child {{ border-bottom: none; }}
             .recommendations {{ background: #e8f5e9; border-left: 5px solid #4caf50; }}
+            .services-list-card {{ border-left: 5px solid #3498db; }}
             .risk-tag {{ display: inline-block; padding: 4px 10px; border-radius: 5px; font-size: 0.8rem; font-weight: 600; color: white; text-transform: uppercase; }}
             .trend-section {{ border-left: 5px solid #3498db; }}
             .trend-improving {{ border-left-color: #27ae60; }}
@@ -915,6 +952,9 @@ def create_professional_system_html_with_trends(system_name, data, stats, date_s
                 
                 <!-- Top Critical Services -->
                 {top_services_html}
+                
+                <!-- Detailed Service Status Lists -->
+                {services_list_html}
 
                 <!-- Strategic Recommendations -->
                 {recommendations_html}
