@@ -494,7 +494,7 @@ def create_professional_system_html_with_trends(system_name, data, stats, date_s
         <style>
             body {{ font-family: 'Segoe UI', Arial, sans-serif; margin: 0; background: #f5f7fa; color: #333; }}
             .container {{ max-width: 1200px; margin: 20px auto; background: white; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); overflow: hidden; }}
-            .header {{ background: linear-gradient(135deg, #2c3e50, #34495e); color: white; padding: 40px; text-align: center; }}
+            .header {{ background: linear-gradient(135deg, #2c3e50, #34495e); color: black; padding: 40px; text-align: center; }}
             .header h1 {{ font-size: 2.5rem; margin: 0 0 10px; font-weight: 700; }}
             .status-badge {{ background: {status_color}; color: black; padding: 12px 25px; border-radius: 25px; font-weight: 600; margin-top: 15px; display: inline-block; }}
             .content {{ padding: 40px; line-height: 1.6; }}
