@@ -545,7 +545,7 @@ def create_professional_system_html_with_trends(system_name, data, stats, date_s
                 padding: 20px; 
                 border-radius: 12px; 
                 text-align: center; 
-                border: 4px solid #3498db; 
+                border-left: 4px solid #3498db; 
                 transition: transform 0.2s;
                 flex: 1;
                 min-width: 150px;
@@ -572,7 +572,7 @@ def create_professional_system_html_with_trends(system_name, data, stats, date_s
                 flex: 1;
                 min-width: 200px;
                 max-width: 280px;
-                border: 4px solid #c9c9c9; /* Added a subtle border to all sides */
+                border: 3px solid #c9c9c9; /* Added a subtle border to all sides */
             }}
             .advanced-stat-card:hover {{ transform: translateY(-5px); box-shadow: 0 4px 15px rgba(0,0,0,0.1); }}
             
