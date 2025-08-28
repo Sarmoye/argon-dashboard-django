@@ -25,30 +25,13 @@ IRM_ERROR_REPORT_OUTPUT_DIR = "/srv/itsea_files/irm_error_report_files"
 # Configuration email (inchangée)
 # Configuration email par système
 EMAIL_CONFIG = {
-    'smtp_server': '10.77.152.66',  # Adresse IP de votre serveur SMTP
+    'smtp_server': '10.77.152.66',
     'smtp_port': 25,
     'from_email': 'noreply.errormonitor@mtn.com',
-    
-    # Destinataires par système
-    'cis_recipients': [
-        'Sarmoye.AmitoureHaidara@mtn.com',
-        
-    ],
-    
-    'irm_recipients': [
-        'Sarmoye.AmitoureHaidara@mtn.com',
-        
-    ],
-    
-    'ecw_recipients': [
-        'Sarmoye.AmitoureHaidara@mtn.com',
-        
-    ],
-    
-    # Destinataires pour le rapport de synthèse
-    'summary_recipients': [
-        'Sarmoye.AmitoureHaidara@mtn.com',
-    ]
+    'cis_recipients': ['Sarmoye.AmitoureHaidara@mtn.com', 'Hospice.Solevo@mtn.com',],
+    'irm_recipients': ['Sarmoye.AmitoureHaidara@mtn.com', 'Hospice.Solevo@mtn.com',],
+    'ecw_recipients': ['Sarmoye.AmitoureHaidara@mtn.com', 'Hospice.Solevo@mtn.com',],
+    'summary_recipients': ['Sarmoye.AmitoureHaidara@mtn.com', 'Hospice.Solevo@mtn.com',]
 }
 
 def get_files_by_date_range(directory, days=7):
@@ -849,11 +832,11 @@ def create_executive_summary_html_with_trends(systems_data, all_stats, date_str)
         <style>
             body {{ font-family: 'Segoe UI', sans-serif; margin: 0; background: #f5f7fa; }}
             .container {{ max-width: 1400px; margin: 20px auto; background: white; border-radius: 15px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); }}
-            .header {{ background: linear-gradient(135deg, #1e3c72, #2a5298); color: white; padding: 50px; text-align: center; }}
+            .header {{ background: linear-gradient(135deg, #1e3c72, #2a5298); color: black; padding: 50px; text-align: center; }}
             .header h1 {{ font-size: 3rem; margin: 0 0 15px; font-weight: 700; }}
             .global-status {{ padding: 15px 30px; border-radius: 25px; font-weight: 700; margin-top: 20px; display: inline-block; }}
             .content {{ padding: 50px; }}
-            .trend-summary {{ background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 30px; border-radius: 12px; margin: 30px 0; }}
+            .trend-summary {{ background: linear-gradient(135deg, #667eea, #764ba2); color: black; padding: 30px; border-radius: 12px; margin: 30px 0; }}
             .systems-grid {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 25px; margin: 30px 0; }}
             .system-card {{ background: white; border-radius: 12px; padding: 25px; box-shadow: 0 8px 20px rgba(0,0,0,0.08); transition: transform 0.2s; }}
             .system-card:hover {{ transform: translateY(-5px); box-shadow: 0 12px 25px rgba(0,0,0,0.12); }}
