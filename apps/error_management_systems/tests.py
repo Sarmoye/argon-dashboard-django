@@ -195,15 +195,10 @@ def calculate_enhanced_stats(data, system_name, trends_data=None):
     print(f'TOTAL ERROR {total_errors}')
     total_services = data['Service Name'].nunique()
     print(f'TOTAL SERVICES {total_services}')
-    affected_services = int((data.groupby('Service Name')['Error Count'].sum() > 0).sum())
-    critical_services = int((data.groupby('Service Name')['Error Count'].sum() >= 10).sum())
-    warning_services = int(((data.groupby('Service Name')['Error Count'].sum() >= 5) & 
-                            (data.groupby('Service Name')['Error Count'].sum() < 10)).sum())
+    affected_services = int((data['Error Count'] > 0).sum())
+    critical_services = int((data['Error Count'] >= 10).sum())
+    warning_services = int(((data['Error Count'] >= 5) & (data['Error Count'] < 10)).sum())
     healthy_services = total_services - affected_services
-    print(f'AFF SERVICES {affected_services}')
-    print(f'CRITI SERVICES {critical_services}')
-    print(f'WAR SERVICES {warning_services}')
-    print(f'HEalth SERVICES {healthy_services}')
     
     # Métriques de qualité professionnelles
     health_percentage = round((healthy_services / total_services) * 100, 1) if total_services > 0 else 100
