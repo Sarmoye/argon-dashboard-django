@@ -187,6 +187,8 @@ def analyze_historical_trends(directory, system_name, days=7):
         'current_critical_services_list': current['critical_services_list']
     }
 
+import numpy as np
+
 def create_trend_chart(trends_data, system_name):
     """Crée un graphique de tendance avancé avec prédictions au style Soft UI."""
     if not trends_data or trends_data['data'].empty:
