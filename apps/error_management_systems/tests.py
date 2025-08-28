@@ -545,7 +545,7 @@ def create_professional_system_html_with_trends(system_name, data, stats, date_s
                 padding: 20px; 
                 border-radius: 12px; 
                 text-align: center; 
-                border-left: 4px solid #3498db; 
+                border: 3px solid #3498db; 
                 transition: transform 0.2s;
                 flex: 1;
                 min-width: 150px;
