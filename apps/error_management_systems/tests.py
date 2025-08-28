@@ -251,7 +251,7 @@ def create_trend_chart(trends_data, system_name):
         
         # --- Soft UI Enhancements ---
         plt.style.use('seaborn-v0_8-whitegrid') # A good starting point for clean aesthetics
-        fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, figsize=(18, 14)) # Slightly larger figure for better spacing
+        fig, ((ax1, ax2), (ax3)) = plt.subplots(2, 2, figsize=(18, 14)) # Slightly larger figure for better spacing
         fig.patch.set_facecolor('#f0f2f5') # Light background for the whole figure
         
         colors_map = {'CIS': '#e74c3c', 'IRM': '#f39c12', 'ECW': '#27ae60'}
