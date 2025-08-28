@@ -855,7 +855,7 @@ from datetime import datetime
 from datetime import timedelta
 
 def create_executive_summary_html_with_trends(systems_data, all_stats, date_str):
-    """Enhanced version of the executive summary with trends"""
+    """Enhanced version of the executive summary with trends and Soft UI design"""
     
     # Global calculations
     total_errors = sum(stats.get('total_errors', 0) for stats in all_stats.values())
@@ -910,111 +910,368 @@ def create_executive_summary_html_with_trends(systems_data, all_stats, date_str)
         critical_services_html = "<p>No critical services found across all systems. Excellent!</p>"
 
     # --- Start HTML Generation ---
-    html = """
+    html = f"""
     <!DOCTYPE html>
     <html>
     <head>
         <meta charset="UTF-8">
         <style>
-            body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #f5f7fa; }
-            .container { max-width: 1400px; margin: 20px auto; background: white; border-radius: 15px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); }
-            .header { background: linear-gradient(135deg, #1e3c72, #2a5298); color: black; padding: 50px; text-align: center; }
-            .header h1 { font-size: 3rem; margin: 0 0 15px; font-weight: 700; }
-            .global-status { padding: 15px 30px; border-radius: 25px; font-weight: 700; margin-top: 20px; display: inline-block; }
-            .content { padding: 50px; }
+            body {{ 
+                font-family: 'Inter', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif; 
+                margin: 0; 
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                min-height: 100vh;
+                color: #2d3748;
+            }}
+            .container {{ 
+                max-width: 1400px; 
+                margin: 20px auto; 
+                background: rgba(255, 255, 255, 0.95); 
+                border-radius: 24px; 
+                backdrop-filter: blur(20px);
+                box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.1);
+                overflow: hidden;
+            }}
             
-            /* Updated Trend Summary CSS */
-            .trend-summary {
+            .header {{ 
+                background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05)); 
+                color: #1a202c; 
+                padding: 60px 50px; 
+                text-align: center; 
+                position: relative;
+                overflow: hidden;
+            }}
+            .header::before {{
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M30 30c0-11.046-8.954-20-20-20s-20 8.954-20 20 8.954 20 20 20 20-8.954 20-20zM0 0h20v20H0V0zm40 40h20v20H40V40z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E") repeat;
+                opacity: 0.1;
+            }}
+            .header h1 {{ 
+                font-size: 3.2rem; 
+                margin: 0 0 15px; 
+                font-weight: 800; 
                 background: linear-gradient(135deg, #667eea, #764ba2);
-                color: white; /* Changed text color for better contrast with the gradient */
-                padding: 30px;
-                border-radius: 12px;
-                margin: 30px 0;
-            }
-
-            /* Updated Grid to Flexbox */
-            .trend-stats-container {
-                display: flex;
-                justify-content: space-around; /* Distributes items evenly with space between them */
-                align-items: center;
-                gap: 20px; /* Space between each item */
-            }
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+                position: relative;
+                z-index: 1;
+            }}
+            .header p {{
+                position: relative;
+                z-index: 1;
+            }}
             
-            .trend-stat-item {
+            .global-status {{ 
+                padding: 16px 32px; 
+                border-radius: 50px; 
+                font-weight: 700; 
+                margin-top: 25px; 
+                display: inline-block;
+                box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+                position: relative;
+                z-index: 1;
+            }}
+            
+            .content {{ 
+                padding: 50px; 
+            }}
+            
+            /* Soft UI Trend Summary avec cartes en ligne */
+            .trend-summary {{ 
+                background: linear-gradient(145deg, #ffffff, #f7fafc);
+                border-radius: 20px; 
+                padding: 40px; 
+                margin: 30px 0;
+                box-shadow: 
+                    20px 20px 60px #d1d9e6, 
+                    -20px -20px 60px #ffffff,
+                    inset 2px 2px 5px rgba(255,255,255,0.8),
+                    inset -2px -2px 5px rgba(0,0,0,0.1);
+                border: 1px solid rgba(255, 255, 255, 0.2);
+            }}
+            .trend-summary h3 {{
+                margin: 0 0 30px 0; 
+                font-size: 1.8rem;
+                font-weight: 700;
+                color: #2d3748;
                 text-align: center;
-                flex-grow: 1; /* Allows items to grow to fill available space */
-                min-width: 150px; /* Ensures items don't get too small */
-            }
-
-            .trend-number {
-                font-size: 2rem;
-                font-weight: bold;
-            }
-
-            .systems-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 25px; margin: 30px 0; }
-            .system-card { background: white; border-radius: 12px; padding: 25px; box-shadow: 0 8px 20px rgba(0,0,0,0.08); transition: transform 0.2s; }
-            .system-card:hover { transform: translateY(-5px); box-shadow: 0 12px 25px rgba(0,0,0,0.12); }
-            .system-name { font-size: 1.3rem; font-weight: 700; margin-bottom: 15px; }
-            .trend-indicator { font-size: 1.1rem; margin: 10px 0; padding: 8px 15px; border-radius: 20px; display: inline-block; }
-            .improving { background: #d4edda; color: #155724; }
-            .degrading { background: #f8d7da; color: #721c24; }
-            .stable { background: #d1ecf1; color: #0c5460; }
-            .danger { color: #e74c3c; }
-            .success { color: #27ae60; }
-            .warning { color: #f39c12; }
-            .info { color: #0c5460; background: #d1ecf1; }
-            .footer { background: #2c3e50; color: white; padding: 30px; text-align: center; }
-            .list-section { display: flex; justify-content: space-between; gap: 30px; margin-top: 40px; }
-            .list-card { flex: 1; background: #f8f9fa; padding: 25px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-            .list-card h4 { margin-top: 0; color: #2c3e50; border-bottom: 2px solid #e9ecef; padding-bottom: 10px; }
-            .list-card ul { list-style-type: none; padding: 0; margin: 0; }
-            .list-card li { padding: 10px 0; border-bottom: 1px solid #dee2e6; font-size: 1rem; }
-            .list-card li:last-child { border-bottom: none; }
+                text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);
+            }}
+            
+            /* Grid pour les métriques en une ligne responsive */
+            .trend-metrics-grid {{ 
+                display: flex;
+                flex-wrap: wrap;
+                gap: 20px; 
+                justify-content: space-between;
+            }}
+            .trend-metric-card {{ 
+                flex: 1;
+                min-width: 160px;
+                max-width: 200px;
+                text-align: center;
+                padding: 25px 20px;
+                background: linear-gradient(145deg, #f7fafc, #edf2f7);
+                border-radius: 16px;
+                box-shadow: 
+                    6px 6px 12px #d1d9e6,
+                    -6px -6px 12px #ffffff,
+                    inset 1px 1px 2px rgba(255,255,255,0.8);
+                transition: all 0.3s ease;
+                border: 1px solid rgba(255, 255, 255, 0.3);
+            }}
+            .trend-metric-card:hover {{
+                transform: translateY(-3px);
+                box-shadow: 
+                    8px 8px 16px #d1d9e6,
+                    -8px -8px 16px #ffffff,
+                    inset 2px 2px 4px rgba(255,255,255,0.9);
+            }}
+            .trend-metric-number {{
+                font-size: 2.2rem; 
+                font-weight: 800;
+                color: #4a5568;
+                text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);
+                margin-bottom: 8px;
+            }}
+            .trend-metric-label {{
+                font-size: 0.9rem;
+                color: #718096;
+                font-weight: 600;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+            }}
+            
+            /* Media queries pour la responsivité */
+            @media (max-width: 1200px) {{
+                .trend-metrics-grid {{
+                    justify-content: center;
+                }}
+                .trend-metric-card {{
+                    min-width: 140px;
+                    max-width: 180px;
+                }}
+            }}
+            @media (max-width: 768px) {{
+                .trend-metrics-grid {{
+                    flex-direction: column;
+                    align-items: center;
+                }}
+                .trend-metric-card {{
+                    max-width: 280px;
+                    width: 100%;
+                }}
+            }}
+            
+            .systems-grid {{ 
+                display: grid; 
+                grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); 
+                gap: 30px; 
+                margin: 40px 0; 
+            }}
+            .system-card {{ 
+                background: linear-gradient(145deg, #ffffff, #f7fafc);
+                border-radius: 20px; 
+                padding: 30px; 
+                box-shadow: 
+                    15px 15px 30px #d1d9e6, 
+                    -15px -15px 30px #ffffff,
+                    inset 1px 1px 3px rgba(255,255,255,0.8);
+                transition: all 0.3s ease;
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                position: relative;
+                overflow: hidden;
+            }}
+            .system-card::before {{
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 4px;
+                background: linear-gradient(90deg, #667eea, #764ba2);
+                border-radius: 20px 20px 0 0;
+            }}
+            .system-card:hover {{ 
+                transform: translateY(-8px); 
+                box-shadow: 
+                    20px 20px 40px #d1d9e6, 
+                    -20px -20px 40px #ffffff,
+                    inset 2px 2px 5px rgba(255,255,255,0.9);
+            }}
+            .system-name {{ 
+                font-size: 1.4rem; 
+                font-weight: 700; 
+                margin-bottom: 20px; 
+                color: #2d3748;
+                text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);
+            }}
+            .trend-indicator {{ 
+                font-size: 1rem; 
+                margin: 15px 0; 
+                padding: 10px 18px; 
+                border-radius: 25px; 
+                display: inline-block;
+                font-weight: 600;
+                box-shadow: inset 2px 2px 5px rgba(0,0,0,0.1), inset -2px -2px 5px rgba(255,255,255,0.8);
+            }}
+            .improving {{ 
+                background: linear-gradient(145deg, #c6f6d5, #9ae6b4); 
+                color: #22543d; 
+            }}
+            .degrading {{ 
+                background: linear-gradient(145deg, #fed7d7, #feb2b2); 
+                color: #742a2a; 
+            }}
+            .stable {{ 
+                background: linear-gradient(145deg, #bee3f8, #90cdf4); 
+                color: #2a4365; 
+            }}
+            .danger {{ color: #e53e3e; }}
+            .success {{ color: #38a169; }}
+            .warning {{ color: #d69e2e; }}
+            .info {{ 
+                color: #2b6cb0; 
+                background: linear-gradient(145deg, #bee3f8, #90cdf4);
+                box-shadow: inset 2px 2px 5px rgba(0,0,0,0.1), inset -2px -2px 5px rgba(255,255,255,0.8);
+            }}
+            
+            .footer {{ 
+                background: linear-gradient(145deg, #2d3748, #1a202c);
+                color: white; 
+                padding: 40px; 
+                text-align: center;
+                position: relative;
+                overflow: hidden;
+            }}
+            .footer::before {{
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: linear-gradient(45deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+            }}
+            .footer p {{
+                position: relative;
+                z-index: 1;
+                text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+            }}
+            
+            .list-section {{ 
+                display: flex; 
+                justify-content: space-between; 
+                gap: 30px; 
+                margin-top: 40px; 
+            }}
+            .list-card {{ 
+                flex: 1; 
+                background: linear-gradient(145deg, #f7fafc, #edf2f7);
+                padding: 30px; 
+                border-radius: 18px; 
+                box-shadow: 
+                    12px 12px 24px #d1d9e6,
+                    -12px -12px 24px #ffffff,
+                    inset 1px 1px 3px rgba(255,255,255,0.8);
+                border: 1px solid rgba(255, 255, 255, 0.3);
+            }}
+            .list-card h4 {{ 
+                margin-top: 0; 
+                color: #2d3748; 
+                border-bottom: 2px solid rgba(102, 126, 234, 0.2);
+                padding-bottom: 15px;
+                text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);
+                font-weight: 700;
+            }}
+            .list-card ul {{ 
+                list-style-type: none; 
+                padding: 0; 
+                margin: 0; 
+            }}
+            .list-card li {{ 
+                padding: 12px 0; 
+                border-bottom: 1px solid rgba(0,0,0,0.05);
+                font-size: 1rem;
+                transition: all 0.2s ease;
+            }}
+            .list-card li:hover {{
+                padding-left: 10px;
+                color: #667eea;
+            }}
+            .list-card li:last-child {{ 
+                border-bottom: none; 
+            }}
+            
+            .recommendations {{
+                background: linear-gradient(145deg, #fff5f5, #fed7d7);
+                padding: 40px; 
+                border-radius: 20px; 
+                margin: 40px 0;
+                box-shadow: 
+                    15px 15px 30px #d1d9e6,
+                    -15px -15px 30px #ffffff,
+                    inset 1px 1px 3px rgba(255,255,255,0.8);
+                border: 1px solid rgba(255, 255, 255, 0.3);
+            }}
+            .recommendations h3 {{
+                font-size: 1.6rem; 
+                margin-bottom: 25px;
+                color: #742a2a;
+                text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);
+                font-weight: 700;
+            }}
         </style>
     </head>
     <body>
         <div class="container">
             <div class="header">
-                <h1>📊 Executive Dashboard with Trends</h1>
-                <p style="font-size: 1.2rem; opacity: 0.9;">All Systems Performance & Evolution Analysis</p>
-                <p>{date_str}</p>
+                <h1>📊 Executive Dashboard</h1>
+                <p style="font-size: 1.3rem; opacity: 0.9; font-weight: 500;">All Systems Performance & Evolution Analysis</p>
+                <p style="font-size: 1.1rem; opacity: 0.8;">{date_str}</p>
                 <div class="global-status {global_class}">{global_status}</div>
             </div>
             
             <div class="content">
                 <div class="trend-summary">
-                    <h3 style="margin: 0 0 20px 0; font-size: 1.5rem;">📈 Global Trend Analysis</h3>
-                    <div class="trend-stats-container">
-                        <div class="trend-stat-item">
-                            <div class="trend-number">{improving_systems}</div>
-                            <div>Systems Improving</div>
+                    <h3>📈 Global Trend Analysis</h3>
+                    <div class="trend-metrics-grid">
+                        <div class="trend-metric-card">
+                            <div class="trend-metric-number" style="color: #38a169;">{improving_systems}</div>
+                            <div class="trend-metric-label">Systems Improving</div>
                         </div>
-                        <div class="trend-stat-item">
-                            <div class="trend-number">{degrading_systems}</div>
-                            <div>Systems Degrading</div>
+                        <div class="trend-metric-card">
+                            <div class="trend-metric-number" style="color: #e53e3e;">{degrading_systems}</div>
+                            <div class="trend-metric-label">Systems Degrading</div>
                         </div>
-                        <div class="trend-stat-item">
-                            <div class="trend-number">{total_affected_services}</div>
-                            <div>Affected Services</div>
+                        <div class="trend-metric-card">
+                            <div class="trend-metric-number" style="color: #d69e2e;">{total_affected_services}</div>
+                            <div class="trend-metric-label">Affected Services</div>
                         </div>
-                        <div class="trend-stat-item">
-                            <div class="trend-number">{total_critical_services}</div>
-                            <div>Critical Services</div>
+                        <div class="trend-metric-card">
+                            <div class="trend-metric-number" style="color: #e53e3e;">{total_critical_services}</div>
+                            <div class="trend-metric-label">Critical Services</div>
                         </div>
-                        <div class="trend-stat-item">
-                            <div class="trend-number">{total_errors}</div>
-                            <div>Total Current Errors</div>
+                        <div class="trend-metric-card">
+                            <div class="trend-metric-number" style="color: #2b6cb0;">{total_errors}</div>
+                            <div class="trend-metric-label">Total Errors</div>
                         </div>
-                        <div class="trend-stat-item">
-                            <div class="trend-number">{total_services_monitored}</div>
-                            <div>Total Services Monitored</div>
+                        <div class="trend-metric-card">
+                            <div class="trend-metric-number" style="color: #4a5568;">{total_services_monitored}</div>
+                            <div class="trend-metric-label">Services Monitored</div>
                         </div>
                     </div>
                 </div>
                 
-                <h2 style="color: #2c3e50; margin: 40px 0 25px; font-size: 1.8rem;">🖥️ Systems Performance Dashboard</h2>
+                <h2 style="color: #2d3748; margin: 50px 0 30px; font-size: 2rem; font-weight: 700; text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);">🖥️ Systems Performance Dashboard</h2>
                 <div class="systems-grid">
-"""
+    """
     
     # Adding system cards with trends
     for system_name, stats in all_stats.items():
@@ -1028,20 +1285,20 @@ def create_executive_summary_html_with_trends(systems_data, all_stats, date_str)
                         <div class="trend-indicator {trend_class}">
                             {trend_text} vs yesterday
                         </div>
-                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin: 15px 0;">
-                            <div style="text-align: center; padding: 10px; background: #f8f9fa; border-radius: 8px;">
-                                <div style="font-size: 1.4rem; font-weight: bold; color: {'#e74c3c' if stats.get('total_errors', 0) > 0 else '#27ae60'};">{stats.get('total_errors', 0)}</div>
-                                <div style="font-size: 0.9rem; color: #666;">Current Errors</div>
+                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin: 20px 0;">
+                            <div style="text-align: center; padding: 15px; background: linear-gradient(145deg, #edf2f7, #e2e8f0); border-radius: 12px; box-shadow: inset 3px 3px 6px #d1d9e6, inset -3px -3px 6px #ffffff;">
+                                <div style="font-size: 1.6rem; font-weight: 800; color: {'#e53e3e' if stats.get('total_errors', 0) > 0 else '#38a169'}; text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);">{stats.get('total_errors', 0)}</div>
+                                <div style="font-size: 0.9rem; color: #718096; font-weight: 600;">Current Errors</div>
                             </div>
-                            <div style="text-align: center; padding: 10px; background: #f8f9fa; border-radius: 8px;">
-                                <div style="font-size: 1.4rem; font-weight: bold;">{stats.get('health_percentage', 0):.1f}%</div>
-                                <div style="font-size: 0.9rem; color: #666;">Health Rate</div>
+                            <div style="text-align: center; padding: 15px; background: linear-gradient(145deg, #edf2f7, #e2e8f0); border-radius: 12px; box-shadow: inset 3px 3px 6px #d1d9e6, inset -3px -3px 6px #ffffff;">
+                                <div style="font-size: 1.6rem; font-weight: 800; color: #4a5568; text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);">{stats.get('health_percentage', 0):.1f}%</div>
+                                <div style="font-size: 0.9rem; color: #718096; font-weight: 600;">Health Rate</div>
                             </div>
                         </div>
-                        <div style="margin-top: 15px; font-size: 0.9rem; color: #666;">
-                            <div>Critical Services: <span style="font-weight: bold; color: {'#e74c3c' if stats.get('critical_services', 0) > 0 else '#27ae60'};">{stats.get('critical_services', 0)}</span></div>
-                            <div>Most Impacted: <span style="font-weight: bold;">{stats.get('top_error_service', 'N/A')}</span></div>
-                            {f'<div>Weekly Trend: <span style="font-weight: bold;">{stats.get("improvement_rate", 0):+.1f}%</span></div>' if 'improvement_rate' in stats else ''}
+                        <div style="margin-top: 20px; font-size: 0.95rem; color: #4a5568; line-height: 1.6;">
+                            <div style="margin-bottom: 8px;">Critical Services: <span style="font-weight: 700; color: {'#e53e3e' if stats.get('critical_services', 0) > 0 else '#38a169'};">{stats.get('critical_services', 0)}</span></div>
+                            <div style="margin-bottom: 8px;">Most Impacted: <span style="font-weight: 700; color: #667eea;">{stats.get('top_error_service', 'N/A')}</span></div>
+                            {f'<div>Weekly Trend: <span style="font-weight: 700; color: #764ba2;">{stats.get("improvement_rate", 0):+.1f}%</span></div>' if 'improvement_rate' in stats else ''}
                         </div>
                     </div>
         """
@@ -1049,36 +1306,36 @@ def create_executive_summary_html_with_trends(systems_data, all_stats, date_str)
     html += f"""
                 </div>
                 
-                <h2 style="color: #2c3e50; margin: 40px 0 25px; font-size: 1.8rem;">❗ Actionable Insights</h2>
+                <h2 style="color: #2d3748; margin: 50px 0 30px; font-size: 2rem; font-weight: 700; text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);">❗ Actionable Insights</h2>
                 <div class="list-section">
                     <div class="list-card">
-                        <h4 style="color: #e74c3c;">Top 5 Degrading Systems ({len(top_degrading_systems)})</h4>
+                        <h4 style="color: #e53e3e;">Top 5 Degrading Systems ({len(top_degrading_systems)})</h4>
                         {top_degrading_html}
                     </div>
                     <div class="list-card">
-                        <h4 style="color: #e74c3c;">Global Critical Services ({len(all_critical_services_list)})</h4>
+                        <h4 style="color: #e53e3e;">Global Critical Services ({len(all_critical_services_list)})</h4>
                         {critical_services_html}
                     </div>
                 </div>
 
-                <div style="background: linear-gradient(135deg, #ff7675, #fd79a8); color: black; padding: 35px; border-radius: 12px; margin: 40px 0;">
-                    <h3 style="font-size: 1.5rem; margin-bottom: 20px;">🎯 Strategic Recommendations</h3>
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 25px;">
-                        <div>
-                            <h4>⚡ Immediate Actions:</h4>
-                            <ul style="margin: 0; padding-left: 20px;">
-                                {'<li>Investigate degrading systems immediately</li>' if degrading_systems > 0 else '<li>Maintain current monitoring practices</li>'}
-                                {'<li>Replicate improvement strategies across systems</li>' if improving_systems > 0 else '<li>Review error prevention measures</li>'}
-                                <li>Focus on critical services requiring attention</li>
+                <div class="recommendations">
+                    <h3>🎯 Strategic Recommendations</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 30px;">
+                        <div style="background: linear-gradient(145deg, #ffffff, #f7fafc); padding: 25px; border-radius: 16px; box-shadow: inset 3px 3px 6px #d1d9e6, inset -3px -3px 6px #ffffff;">
+                            <h4 style="color: #742a2a; margin-bottom: 15px; font-size: 1.2rem;">⚡ Immediate Actions:</h4>
+                            <ul style="margin: 0; padding-left: 20px; color: #2d3748;">
+                                {'<li style="margin-bottom: 8px;">Investigate degrading systems immediately</li>' if degrading_systems > 0 else '<li style="margin-bottom: 8px;">Maintain current monitoring practices</li>'}
+                                {'<li style="margin-bottom: 8px;">Replicate improvement strategies across systems</li>' if improving_systems > 0 else '<li style="margin-bottom: 8px;">Review error prevention measures</li>'}
+                                <li style="margin-bottom: 8px;">Focus on critical services requiring attention</li>
                             </ul>
                         </div>
-                        <div>
-                            <h4>📊 Strategic Insights:</h4>
-                            <ul style="margin: 0; padding-left: 20px;">
-                                <li>Track daily trends to identify patterns</li>
-                                <li>Implement predictive maintenance where possible</li>
-                                <li>Document successful improvement strategies</li>
-                                <li>Plan capacity upgrades for consistently problematic services</li>
+                        <div style="background: linear-gradient(145deg, #ffffff, #f7fafc); padding: 25px; border-radius: 16px; box-shadow: inset 3px 3px 6px #d1d9e6, inset -3px -3px 6px #ffffff;">
+                            <h4 style="color: #742a2a; margin-bottom: 15px; font-size: 1.2rem;">📊 Strategic Insights:</h4>
+                            <ul style="margin: 0; padding-left: 20px; color: #2d3748;">
+                                <li style="margin-bottom: 8px;">Track daily trends to identify patterns</li>
+                                <li style="margin-bottom: 8px;">Implement predictive maintenance where possible</li>
+                                <li style="margin-bottom: 8px;">Document successful improvement strategies</li>
+                                <li style="margin-bottom: 8px;">Plan capacity upgrades for consistently problematic services</li>
                             </ul>
                         </div>
                     </div>
@@ -1086,9 +1343,9 @@ def create_executive_summary_html_with_trends(systems_data, all_stats, date_str)
             </div>
             
             <div class="footer">
-                <p><strong>🚀 Advanced MTN Systems Monitoring</strong></p>
-                <p>📈 Trend Analysis • 📊 Performance Tracking • ⚡ Real-time Insights</p>
-                <p>Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} | Next Analysis: {(datetime.now() + timedelta(days=1)).strftime('%Y-%m-%d')}</p>
+                <p style="font-size: 1.2rem; font-weight: 700; margin-bottom: 10px;"><strong>🚀 Advanced MTN Systems Monitoring</strong></p>
+                <p style="font-size: 1rem; margin-bottom: 10px;">📈 Trend Analysis • 📊 Performance Tracking • ⚡ Real-time Insights</p>
+                <p style="font-size: 0.9rem; opacity: 0.9;">Generated: {date_str} | Next Analysis: Tomorrow</p>
             </div>
         </div>
     </body>
