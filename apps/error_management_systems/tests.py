@@ -106,7 +106,7 @@ def read_csv_data(file_path, system_name=None):
         return None
 
 def analyze_historical_trends(directory, system_name, days=7):
-    """Analyse les tendances sur les N derniers jours"""
+    """Analyse les tendances sur les N derniers jours avec insights avancés"""
     files = get_files_by_date_range(directory, days)
     if len(files) < 2:
         return None
@@ -127,7 +127,9 @@ def analyze_historical_trends(directory, system_name, days=7):
                     'total_errors': total_errors,
                     'affected_services': affected_services,
                     'critical_services': critical_services,
-                    'total_services': len(data)
+                    'total_services': len(data),
+                    'error_density': total_errors / len(data) if len(data) > 0 else 0,
+                    'reliability_score': ((len(data) - affected_services) / len(data) * 100) if len(data) > 0 else 0
                 })
         except Exception as e:
             print(f"Erreur analyse fichier {file_path}: {e}")
@@ -140,7 +142,7 @@ def analyze_historical_trends(directory, system_name, days=7):
     trends_df = pd.DataFrame(trends_data)
     trends_df = trends_df.sort_values('date')
     
-    # Calculer les tendances
+    # Calculer les tendances avancées
     if len(trends_df) >= 2:
         current = trends_df.iloc[-1]
         previous = trends_df.iloc[-2]
@@ -148,14 +150,33 @@ def analyze_historical_trends(directory, system_name, days=7):
         error_trend = current['total_errors'] - previous['total_errors']
         affected_trend = current['affected_services'] - previous['affected_services']
         critical_trend = current['critical_services'] - previous['critical_services']
+        reliability_trend = current['reliability_score'] - previous['reliability_score']
         
         # Calculer la tendance sur 7 jours (si assez de données)
         if len(trends_df) >= 4:
             avg_recent = trends_df.tail(3)['total_errors'].mean()
             avg_older = trends_df.head(3)['total_errors'].mean()
             week_trend = avg_recent - avg_older
+            
+            # Analyse de volatilité
+            volatility = trends_df['total_errors'].std()
+            stability_trend = "STABLE" if volatility < 5 else "MODERATE" if volatility < 15 else "HIGH_VOLATILITY"
         else:
             week_trend = error_trend
+            stability_trend = "INSUFFICIENT_DATA"
+        
+        # Calcul du momentum (accélération/décélération)
+        momentum = "NEUTRAL"
+        if len(trends_df) >= 3:
+            trend_yesterday = trends_df.iloc[-2]['total_errors'] - trends_df.iloc[-3]['total_errors']
+            if error_trend > trend_yesterday + 2:
+                momentum = "ACCELERATING"
+            elif error_trend < trend_yesterday - 2:
+                momentum = "DECELERATING"
+        
+        # Prédiction basique pour le lendemain
+        predicted_errors = max(0, current['total_errors'] + error_trend)
+        prediction_confidence = "HIGH" if len(trends_df) >= 5 else "MEDIUM" if len(trends_df) >= 3 else "LOW"
         
         return {
             'data': trends_df,
@@ -164,57 +185,88 @@ def analyze_historical_trends(directory, system_name, days=7):
             'error_trend': int(error_trend),
             'affected_trend': int(affected_trend),
             'critical_trend': int(critical_trend),
+            'reliability_trend': round(reliability_trend, 1),
             'week_trend': week_trend,
             'improvement_rate': round((error_trend / previous['total_errors'] * 100) if previous['total_errors'] > 0 else 0, 1),
-            'days_analyzed': len(trends_df)
+            'days_analyzed': len(trends_df),
+            'volatility': round(volatility if len(trends_df) >= 4 else 0, 2),
+            'stability_trend': stability_trend,
+            'momentum': momentum,
+            'predicted_errors': int(predicted_errors),
+            'prediction_confidence': prediction_confidence,
+            'avg_error_density': round(trends_df['error_density'].mean(), 2),
+            'peak_errors': int(trends_df['total_errors'].max()),
+            'best_day_errors': int(trends_df['total_errors'].min())
         }
     
     return None
 
 def create_trend_chart(trends_data, system_name):
-    """Crée un graphique de tendance sur 7 jours"""
+    """Crée un graphique de tendance avancé avec prédictions"""
     if not trends_data or trends_data['data'].empty:
         return None
     
     try:
         df = trends_data['data']
         
-        fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(14, 10))
+        fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, figsize=(16, 12))
         colors_map = {'CIS': '#e74c3c', 'IRM': '#f39c12', 'ECW': '#27ae60'}
         color = colors_map.get(system_name, '#3498db')
         
-        # Graphique 1: Evolution des erreurs totales
+        # Graphique 1: Evolution des erreurs avec prédiction
         dates = [d.strftime('%m/%d') for d in df['date']]
         ax1.plot(dates, df['total_errors'], marker='o', linewidth=3, markersize=8, 
-                color=color, markerfacecolor='white', markeredgewidth=2)
+                color=color, markerfacecolor='white', markeredgewidth=2, label='Erreurs réelles')
         ax1.fill_between(dates, df['total_errors'], alpha=0.3, color=color)
         
-        ax1.set_title(f'{system_name} - Error Trend Analysis (7 Days)', 
-                     fontsize=16, fontweight='bold', pad=20)
-        ax1.set_ylabel('Total Errors', fontsize=12, fontweight='bold')
+        # Ajouter la prédiction
+        if 'predicted_errors' in trends_data:
+            pred_date = (df['date'].iloc[-1] + timedelta(days=1)).strftime('%m/%d')
+            all_dates = dates + [pred_date]
+            pred_line = list(df['total_errors']) + [trends_data['predicted_errors']]
+            ax1.plot(all_dates[-2:], pred_line[-2:], 'r--', linewidth=2, alpha=0.7, label='Prédiction')
+            ax1.scatter([pred_date], [trends_data['predicted_errors']], color='red', s=100, alpha=0.7)
+        
+        ax1.set_title(f'{system_name} - Analyse des Tendances & Prédictions', 
+                     fontsize=14, fontweight='bold', pad=15)
+        ax1.set_ylabel('Erreurs Totales', fontsize=11, fontweight='bold')
         ax1.grid(True, alpha=0.3)
+        ax1.legend()
         
-        # Ajouter les valeurs sur les points
-        for i, (date, errors) in enumerate(zip(dates, df['total_errors'])):
-            ax1.annotate(f'{int(errors)}', (i, errors), textcoords="offset points", 
-                        xytext=(0,10), ha='center', fontweight='bold')
+        # Graphique 2: Score de fiabilité
+        ax2.plot(dates, df['reliability_score'], marker='s', linewidth=2, markersize=6, 
+                color='#27ae60', markerfacecolor='white', markeredgewidth=2)
+        ax2.fill_between(dates, df['reliability_score'], 95, alpha=0.2, color='green', label='Zone SLA')
+        ax2.fill_between(dates, df['reliability_score'], 0, alpha=0.3, color='orange')
+        ax2.set_title('Score de Fiabilité (%)', fontsize=12, fontweight='bold')
+        ax2.set_ylabel('Fiabilité (%)', fontsize=10)
+        ax2.set_ylim(0, 100)
+        ax2.grid(True, alpha=0.3)
+        ax2.axhline(y=95, color='green', linestyle='--', alpha=0.7, label='SLA Target')
+        ax2.legend()
         
-        # Graphique 2: Services affectés et critiques
+        # Graphique 3: Densité d'erreurs
+        ax3.bar(dates, df['error_density'], color=color, alpha=0.7)
+        ax3.set_title('Densité d\'Erreurs (Erreurs/Service)', fontsize=12, fontweight='bold')
+        ax3.set_ylabel('Erreurs par Service', fontsize=10)
+        ax3.grid(True, alpha=0.3)
+        
+        # Graphique 4: Services impactés
         x_pos = range(len(dates))
         width = 0.35
         
-        ax2.bar([x - width/2 for x in x_pos], df['affected_services'], width,
-               label='Affected Services', color='#f39c12', alpha=0.8)
-        ax2.bar([x + width/2 for x in x_pos], df['critical_services'], width,
-               label='Critical Services', color='#e74c3c', alpha=0.8)
+        ax4.bar([x - width/2 for x in x_pos], df['affected_services'], width,
+               label='Services Affectés', color='#f39c12', alpha=0.8)
+        ax4.bar([x + width/2 for x in x_pos], df['critical_services'], width,
+               label='Services Critiques', color='#e74c3c', alpha=0.8)
         
-        ax2.set_title('Services Impact Trend', fontsize=14, fontweight='bold')
-        ax2.set_ylabel('Number of Services', fontsize=12, fontweight='bold')
-        ax2.set_xlabel('Date', fontsize=12, fontweight='bold')
-        ax2.set_xticks(x_pos)
-        ax2.set_xticklabels(dates)
-        ax2.legend()
-        ax2.grid(True, alpha=0.3)
+        ax4.set_title('Impact sur les Services', fontsize=12, fontweight='bold')
+        ax4.set_ylabel('Nombre de Services', fontsize=10)
+        ax4.set_xlabel('Date', fontsize=10)
+        ax4.set_xticks(x_pos)
+        ax4.set_xticklabels(dates)
+        ax4.legend()
+        ax4.grid(True, alpha=0.3)
         
         plt.tight_layout()
         
@@ -233,11 +285,12 @@ def create_trend_chart(trends_data, system_name):
         return None
 
 def calculate_enhanced_stats(data, system_name, trends_data=None):
-    """Calcule des statistiques avancées avec analyse de tendance"""
+    """Calcule des statistiques avancées avec insights professionnels"""
     base_stats = {
         'total_errors': 0, 'total_services': 0, 'affected_services': 0,
         'health_percentage': 0, 'critical_services': 0, 'avg_errors': 0,
-        'top_error_service': 'N/A', 'status': 'NO_DATA'
+        'top_error_service': 'N/A', 'status': 'NO_DATA',
+        'stability_index': 0, 'risk_level': 'UNKNOWN', 'business_impact': 'UNKNOWN'
     }
     
     if data is None or data.empty:
@@ -245,7 +298,9 @@ def calculate_enhanced_stats(data, system_name, trends_data=None):
             base_stats.update({
                 'error_trend': trends_data.get('error_trend', 0),
                 'improvement_rate': trends_data.get('improvement_rate', 0),
-                'trend_status': 'NO_DATA'
+                'trend_status': 'NO_DATA',
+                'predicted_errors': trends_data.get('predicted_errors', 0),
+                'volatility': trends_data.get('volatility', 0)
             })
         return base_stats
     
@@ -263,13 +318,46 @@ def calculate_enhanced_stats(data, system_name, trends_data=None):
         max_idx = data['Error Count'].idxmax()
         top_service = data.loc[max_idx, 'Service Name']
     
-    # Statut global
+    # Calcul de l'index de stabilité (0-100)
+    health_weight = health_percentage * 0.4
+    error_density = total_errors / total_services if total_services > 0 else 0
+    density_score = max(0, 100 - (error_density * 10)) * 0.3
+    critical_penalty = max(0, 100 - (critical_services / total_services * 200)) * 0.3
+    stability_index = round(health_weight + density_score + critical_penalty, 1)
+    
+    # Évaluation des risques
+    critical_ratio = critical_services / total_services if total_services > 0 else 0
+    if critical_ratio > 0.3 or error_density > 10:
+        risk_level = 'HIGH'
+        business_impact = 'SEVERE'
+    elif critical_ratio > 0.1 or error_density > 5:
+        risk_level = 'MEDIUM'
+        business_impact = 'MODERATE'
+    else:
+        risk_level = 'LOW'
+        business_impact = 'MINIMAL'
+    
+    # Statut global amélioré
     if total_errors == 0:
         status = 'HEALTHY'
-    elif critical_services > 0:
+    elif critical_services > 0 or stability_index < 50:
         status = 'CRITICAL'
-    else:
+    elif stability_index < 70:
         status = 'WARNING'
+    else:
+        status = 'HEALTHY'
+    
+    # Métriques avancées
+    error_distribution = {
+        'zero_errors': int((data['Error Count'] == 0).sum()),
+        'low_errors': int((data['Error Count'].between(1, 5)).sum()),
+        'medium_errors': int((data['Error Count'].between(6, 10)).sum()),
+        'high_errors': int((data['Error Count'] > 10).sum())
+    }
+    
+    # SLA et métriques de performance
+    uptime_percentage = round(((total_services - affected_services) / total_services) * 100, 2) if total_services > 0 else 0
+    sla_status = 'MEETING' if uptime_percentage >= 99.5 else 'AT_RISK' if uptime_percentage >= 95 else 'BREACH'
     
     stats = {
         'total_errors': total_errors,
@@ -279,17 +367,33 @@ def calculate_enhanced_stats(data, system_name, trends_data=None):
         'critical_services': critical_services,
         'avg_errors': avg_errors,
         'top_error_service': top_service,
-        'status': status
+        'status': status,
+        'stability_index': stability_index,
+        'risk_level': risk_level,
+        'business_impact': business_impact,
+        'error_distribution': error_distribution,
+        'uptime_percentage': uptime_percentage,
+        'sla_status': sla_status,
+        'error_density': round(error_density, 3),
+        'critical_ratio': round(critical_ratio * 100, 1)
     }
     
     # Ajouter les données de tendance si disponibles
     if trends_data:
+        trend_status = 'IMPROVING' if trends_data.get('error_trend', 0) < 0 else 'DEGRADING' if trends_data.get('error_trend', 0) > 0 else 'STABLE'
+        
         stats.update({
             'error_trend': trends_data.get('error_trend', 0),
             'improvement_rate': trends_data.get('improvement_rate', 0),
             'week_trend': trends_data.get('week_trend', 0),
             'days_analyzed': trends_data.get('days_analyzed', 0),
-            'trend_status': 'IMPROVING' if trends_data.get('error_trend', 0) < 0 else 'DEGRADING' if trends_data.get('error_trend', 0) > 0 else 'STABLE'
+            'trend_status': trend_status,
+            'volatility': trends_data.get('volatility', 0),
+            'momentum': trends_data.get('momentum', 'NEUTRAL'),
+            'predicted_errors': trends_data.get('predicted_errors', 0),
+            'prediction_confidence': trends_data.get('prediction_confidence', 'LOW'),
+            'reliability_trend': trends_data.get('reliability_trend', 0),
+            'stability_trend': trends_data.get('stability_trend', 'STABLE')
         })
     
     return stats
@@ -301,81 +405,125 @@ from datetime import datetime
 
 def create_professional_system_html_with_trends(system_name, data, stats, date_str, trends_data=None):
     """Creates a professional HTML report enriched with trend analysis and explanatory text."""
+    
+    # Define color mappings and text
     status_colors = {
         'HEALTHY': ('#27ae60', '✅ SYSTEM HEALTHY'),
-        'WARNING': ('#f39c12', '⚠️ SYSTEM WARNING'), 
+        'WARNING': ('#f39c12', '⚠️ SYSTEM WARNING'),
         'CRITICAL': ('#e74c3c', '🔴 SYSTEM CRITICAL'),
         'NO_DATA': ('#95a5a6', '⚪ NO DATA')
     }
-    
+
     trend_colors = {
         'IMPROVING': ('#27ae60', '📈 IMPROVING'),
-        'DEGRADING': ('#e74c3c', '📉 DEGRADING'), 
+        'DEGRADING': ('#e74c3c', '📉 DEGRADING'),
         'STABLE': ('#3498db', '➡️ STABLE')
     }
-    
+
+    momentum_colors = {
+        'ACCELERATING': '#e74c3c',
+        'DECELERATING': '#27ae60',
+        'NEUTRAL': '#3498db',
+        'INSUFFICIENT_DATA': '#95a5a6'
+    }
+
+    stability_colors = {
+        'HIGH_VOLATILITY': '#e74c3c',
+        'MODERATE': '#f39c12',
+        'STABLE': '#27ae60',
+        'INSUFFICIENT_DATA': '#95a5a6'
+    }
+
     # Get status color and text based on the stats dictionary
-    status_color, status_text = status_colors[stats['status']]
-    
-    # Trend analysis section
+    status_color, status_text = status_colors.get(stats['status'], status_colors['NO_DATA'])
+
+    # Trend analysis section HTML
     trend_section = ""
-    # Check if trend data exists and an error trend is present
-    if trends_data and 'error_trend' in stats:
-        # Determine the color and text for the trend status
-        trend_color, trend_text = trend_colors[stats.get('trend_status', 'STABLE')]
-        # Set the arrow icon based on the error trend
-        trend_arrow = '⬇️' if stats['error_trend'] < 0 else '⬆️' if stats['error_trend'] > 0 else '➡️'
+    if trends_data and trends_data.get('days_analyzed', 0) >= 2:
+        trend_status = stats.get('trend_status', 'STABLE')
+        trend_color, trend_text = trend_colors.get(trend_status, trend_colors['STABLE'])
+        trend_arrow = '⬇️' if stats.get('error_trend', 0) < 0 else '⬆️' if stats.get('error_trend', 0) > 0 else '➡️'
         
-        # Build the HTML for the trend section
+        # Determine momentum and stability info
+        momentum = trends_data.get('momentum', 'INSUFFICIENT_DATA')
+        momentum_color = momentum_colors.get(momentum, momentum_colors['INSUFFICIENT_DATA'])
+        
+        stability = trends_data.get('stability_trend', 'INSUFFICIENT_DATA')
+        stability_color = stability_colors.get(stability, stability_colors['INSUFFICIENT_DATA'])
+        
+        prediction_text = f"{stats.get('predicted_errors', 0)} errors ({stats.get('prediction_confidence', 'LOW')} confidence)"
+
         trend_section = f"""
-        <div style="background: linear-gradient(135deg, {trend_color}, {trend_color}aa); color: black; padding: 25px; border-radius: 12px; margin: 20px 0;">
-            <h3 style="margin: 0 0 15px 0; font-size: 1.3rem;">{trend_arrow} TREND ANALYSIS (Last {stats.get('days_analyzed', 7)} days)</h3>
+        <div style="background: linear-gradient(135deg, #eaf4fd, #d1e7fd); color: #1f3a5f; padding: 25px; border-radius: 12px; margin: 20px 0; border: 1px solid #cce5ff;">
+            <h3 style="margin: 0 0 15px 0; font-size: 1.3rem; color: #004085;">{trend_arrow} Trend Analysis (Last {trends_data.get('days_analyzed', 0)} days)</h3>
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
-                <div><strong>Error Change:</strong> {stats['error_trend']:+d} <small>({stats['improvement_rate']:+.1f}%)</small></div>
-                <div><strong>Previous Day:</strong> {trends_data.get('previous_errors', 0)} errors</div>
-                <div><strong>Current Day:</strong> {stats['total_errors']} errors</div>
-                <div><strong>7-Day Trend:</strong> {stats.get('week_trend', 0):+.1f} avg</div>
+                <div><strong>Current Trend:</strong> <span style="color: {trend_color}; font-weight: bold;">{trend_text}</span></div>
+                <div><strong>Error Change (D-1):</strong> <span style="color: {trend_color};">{stats.get('error_trend', 0):+d}</span> ({stats.get('improvement_rate', 0):+.1f}%)</div>
+                <div><strong>7-Day Avg Trend:</strong> <span style="color: {trend_color};">{trends_data.get('week_trend', 0):+.1f} avg</span></div>
+                <div><strong>Momentum:</strong> <span style="color: {momentum_color}; font-weight: bold;">{momentum.replace('_', ' ')}</span></div>
+                <div><strong>Volatility:</strong> <span style="color: {stability_color}; font-weight: bold;">{stability.replace('_', ' ')}</span></div>
+                <div><strong>Predicted Errors:</strong> <span style="color: {momentum_colors.get(momentum, 'black')};">{prediction_text}</span></div>
             </div>
         </div>
         """
     
+    # Determine recommendation text based on status and trends
+    recommendation_list = []
+    if stats['status'] == 'CRITICAL':
+        recommendation_list.append(f"<li>🚨 Immediate action is required. Investigate the <strong>{stats.get('critical_services', 0)} critical services</strong> to identify and resolve the root cause of high error counts.</li>")
+    if stats['status'] == 'WARNING' and stats['affected_services'] > 0:
+        recommendation_list.append(f"<li>⚠️ The system is showing signs of instability. Prioritize the <strong>{stats.get('affected_services', 0)} affected services</strong> for analysis.</li>")
+    if stats.get('trend_status') == 'DEGRADING':
+        recommendation_list.append(f"<li>📉 The number of errors is increasing. Analyze the cause of the degradation trend and implement preventative measures.</li>")
+    if stats.get('stability_trend') == 'HIGH_VOLATILITY':
+        recommendation_list.append(f"<li>📊 The system is highly volatile. Monitor error peaks and investigate services with erratic behavior.</li>")
+    if stats.get('momentum') == 'ACCELERATING':
+        recommendation_list.append(f"<li>🔥 Error growth is accelerating. A swift intervention is crucial to prevent the situation from becoming critical.</li>")
+    if not recommendation_list:
+        recommendation_list.append("<li>✅ The system is stable and healthy. Continue to monitor and perform routine maintenance to ensure long-term reliability.</li>")
+
+    recommendation_html = "".join(recommendation_list)
+
     # Return the complete HTML document as a single string
     return f"""
     <!DOCTYPE html>
     <html>
     <head>
         <meta charset="UTF-8">
+        <title>{system_name} - System Health Report</title>
         <style>
-            body {{ font-family: 'Segoe UI', sans-serif; margin: 0; background: #f5f7fa; color: #333; }}
+            body {{ font-family: 'Segoe UI', Arial, sans-serif; margin: 0; background: #f5f7fa; color: #333; }}
             .container {{ max-width: 1200px; margin: 20px auto; background: white; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); overflow: hidden; }}
             .header {{ background: linear-gradient(135deg, #2c3e50, #34495e); color: white; padding: 40px; text-align: center; }}
             .header h1 {{ font-size: 2.5rem; margin: 0 0 10px; font-weight: 700; }}
             .status-badge {{ background: {status_color}; color: black; padding: 12px 25px; border-radius: 25px; font-weight: 600; margin-top: 15px; display: inline-block; }}
             .content {{ padding: 40px; line-height: 1.6; }}
-            .intro {{ background: #ecf0f1; padding: 20px; border-radius: 12px; margin-bottom: 25px; }}
+            .intro {{ background: #ecf0f1; padding: 20px; border-radius: 12px; margin-bottom: 25px; border: 1px solid #dfe6e9; }}
             .intro h2 {{ margin-top: 0; color: #2c3e50; }}
             .stats-grid {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin: 30px 0; }}
-            .stat-card {{ background: linear-gradient(135deg, #f8f9fa, #e9ecef); padding: 25px; border-radius: 12px; text-align: center; border-left: 4px solid #3498db; }}
+            .stat-card {{ background: linear-gradient(135deg, #f8f9fa, #e9ecef); padding: 25px; border-radius: 12px; text-align: center; border-left: 4px solid #3498db; transition: transform 0.2s; }}
+            .stat-card:hover {{ transform: translateY(-5px); box-shadow: 0 4px 15px rgba(0,0,0,0.1); }}
             .stat-number {{ font-size: 2.5rem; font-weight: 700; color: #2c3e50; margin-bottom: 8px; }}
             .stat-label {{ font-size: 0.9rem; color: #7f8c8d; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }}
             .danger {{ color: #e74c3c !important; }}
             .success {{ color: #27ae60 !important; }}
             .warning {{ color: #f39c12 !important; }}
-            .recommendations {{ background: linear-gradient(135deg, #74b9ff, #0984e3); color: black; padding: 30px; border-radius: 12px; margin: 30px 0; }}
-            .recommendations h3 {{ margin-bottom: 20px; font-size: 1.4rem; }}
+            .recommendations {{ background: linear-gradient(135deg, #d4edda, #c3e6cb); color: #155724; padding: 30px; border-radius: 12px; margin: 30px 0; border: 1px solid #c3e6cb; }}
+            .recommendations h3 {{ margin-bottom: 20px; font-size: 1.4rem; color: #155724; }}
+            .recommendations ul {{ padding-left: 20px; }}
+            .recommendations li {{ margin-bottom: 10px; font-weight: 500; }}
             .footer {{ background: #2c3e50; color: white; padding: 25px; text-align: center; }}
+            .trend-info {{ font-size: 1.1rem; margin-bottom: 10px; }}
         </style>
     </head>
     <body>
         <div class="container">
-            <!-- Header -->
             <div class="header">
                 <h1>System {system_name}</h1>
                 <p>Advanced Error Analysis Report - {date_str}</p>
                 <div class="status-badge">{status_text}</div>
             </div>
             
-            <!-- Intro -->
             <div class="content">
                 <div class="intro">
                     <h2>🔎 Report Objective</h2>
@@ -387,14 +535,12 @@ def create_professional_system_html_with_trends(system_name, data, stats, date_s
                     </p>
                     <p>
                         The objective is to provide you with a clear vision of the system's health status,
-                        in order to facilitate decision-making and the implementation of corrective or preventive actions.
+                        to facilitate decision-making and the implementation of corrective or preventive actions.
                     </p>
                 </div>
                 
-                <!-- Trend Section -->
                 {trend_section}
 
-                <!-- Stats -->
                 <h2>📊 Key Indicators</h2>
                 <p>
                     The figures below summarize the current state of the system.
@@ -403,32 +549,53 @@ def create_professional_system_html_with_trends(system_name, data, stats, date_s
                 </p>
                 <div class="stats-grid">
                     <div class="stat-card">
-                        <div class="stat-number {'danger' if stats['total_errors'] > 0 else 'success'}">{stats['total_errors']}</div>
+                        <div class="stat-number {'danger' if stats['total_errors'] > 0 else 'success'}">{stats.get('total_errors', 0)}</div>
                         <div class="stat-label">Total Errors</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-number">{stats['total_services']}</div>
+                        <div class="stat-number">{stats.get('total_services', 0)}</div>
                         <div class="stat-label">Total Services</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-number {'danger' if stats['affected_services'] > 0 else 'success'}">{stats['affected_services']}</div>
+                        <div class="stat-number {'danger' if stats['affected_services'] > 0 else 'success'}">{stats.get('affected_services', 0)}</div>
                         <div class="stat-label">Affected Services</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-number {'success' if stats['health_percentage'] > 80 else 'warning' if stats['health_percentage'] > 60 else 'danger'}">{stats['health_percentage']}%</div>
+                        <div class="stat-number {'success' if stats['health_percentage'] > 80 else 'warning' if stats['health_percentage'] > 60 else 'danger'}">{stats.get('health_percentage', 0)}%</div>
                         <div class="stat-label">Health Rate</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-number {'danger' if stats['critical_services'] > 0 else 'success'}">{stats['critical_services']}</div>
+                        <div class="stat-number {'danger' if stats['critical_services'] > 0 else 'success'}">{stats.get('critical_services', 0)}</div>
                         <div class="stat-label">Critical Services</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-number {'warning' if stats['avg_errors'] > 2 else 'success'}">{stats['avg_errors']}</div>
+                        <div class="stat-number {'warning' if stats['avg_errors'] > 2 else 'success'}">{stats.get('avg_errors', 0)}</div>
                         <div class="stat-label">Avg Errors/Service</div>
                     </div>
                 </div>
-                
-                <!-- Recommendations -->
+
+                <h2>📈 Advanced Metrics & Insights</h2>
+                <div class="stats-grid">
+                    <div class="stat-card" style="border-left-color: #2ecc71;">
+                        <div class="stat-number {'success' if stats.get('stability_index', 0) > 70 else 'warning' if stats.get('stability_index', 0) > 50 else 'danger'}">{stats.get('stability_index', 0)}</div>
+                        <div class="stat-label">Stability Index (0-100)</div>
+                    </div>
+                    <div class="stat-card" style="border-left-color: #e67e22;">
+                        <div class="stat-number">
+                            <span class="{stats.get('risk_level', '').lower()}">{stats.get('risk_level', 'N/A')}</span>
+                        </div>
+                        <div class="stat-label">Risk Level</div>
+                    </div>
+                    <div class="stat-card" style="border-left-color: #f1c40f;">
+                        <div class="stat-number">{stats.get('top_error_service', 'N/A')}</div>
+                        <div class="stat-label">Top Error Service</div>
+                    </div>
+                    <div class="stat-card" style="border-left-color: #34495e;">
+                        <div class="stat-number {'danger' if stats.get('sla_status') == 'BREACH' else 'warning' if stats.get('sla_status') == 'AT_RISK' else 'success'}">{stats.get('uptime_percentage', 0)}%</div>
+                        <div class="stat-label">Uptime Percentage</div>
+                    </div>
+                </div>
+
                 <div class="recommendations">
                     <h3>🎯 Strategic Insights & Action Plan</h3>
                     <p>
@@ -436,36 +603,14 @@ def create_professional_system_html_with_trends(system_name, data, stats, date_s
                         Please collaborate with the monitoring team to identify the root causes
                         and implement effective solutions.
                     </p>
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
-                        <div>
-                            <h4>📊 Current Status:</h4>
-                            <ul>
-                                {'<li>🚨 ' + str(stats["critical_services"]) + ' critical services need immediate attention</li>' if stats.get('critical_services', 0) > 0 else ''}
-                                {'<li>⚠️ ' + str(stats["affected_services"]) + ' services showing errors</li>' if stats.get('affected_services', 0) > 0 else ''}
-                                {'<li>✅ No errors detected - maintain practices</li>' if stats.get('total_errors', 0) == 0 else ''}
-                                <li>📈 Health Score: {stats.get('health_percentage', 0)}%</li>
-                            </ul>
-                        </div>
-                        <div>
-                            <h4>📈 Trend Analysis:</h4>
-                            <ul>
-                                {'<li>✅ Improving: ' + str(abs(stats.get("error_trend", 0))) + ' fewer errors than yesterday</li>' if stats.get('error_trend', 0) < 0 else ''}
-                                {'<li>⚠️ Degrading: ' + str(stats.get("error_trend", 0)) + ' more errors than yesterday</li>' if stats.get('error_trend', 0) > 0 else ''}
-                                {'<li>➡️ Stable: No change from yesterday</li>' if stats.get('error_trend', 0) == 0 else ''}
-                                <li>📊 Weekly trend: {stats.get('improvement_rate', 0):+.1f}%</li>
-                            </ul>
-                        </div>
-                    </div>
-                    <p>
-                        👉 We encourage you to <strong>prioritize the analysis of critical services</strong>, then work
-                        on recurring error causes to strengthen the overall system resilience.
-                    </p>
+                    <ul>
+                        {recommendation_html}
+                    </ul>
                 </div>
             </div>
             
-            <!-- Footer -->
             <div class="footer">
-                <p><strong>Enhanced MTN Monitoring System</strong> | Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}</p>
+                <p><strong>Enhanced MTN Monitoring System</strong> | Generated: {date_str}</p>
                 <p>📧 For urgent issues: Contact monitoring team immediately</p>
             </div>
         </div>
