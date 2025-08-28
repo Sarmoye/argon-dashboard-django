@@ -720,11 +720,20 @@ def create_professional_system_html_with_trends(system_name, data, stats, date_s
         </div>
         """
     
+    # Use a set to remove duplicates from the critical services list if they exist.
+    # We assume 'top_5_critical_services' is a list of dictionaries.
+    unique_critical_services = []
+    seen_services = set()
+    for service in stats.get('top_5_critical_services', []):
+        if service['service'] not in seen_services:
+            unique_critical_services.append(service)
+            seen_services.add(service['service'])
+
     # Critical services section
     critical_services_section = ""
-    if stats.get('top_5_critical_services') and len(stats['top_5_critical_services']) > 0:
+    if unique_critical_services:
         services_html = ""
-        for service in stats['top_5_critical_services']:
+        for service in unique_critical_services:
             services_html += f"""
             <div style="display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #eee;">
                 <span>{service['service']}</span>
@@ -795,7 +804,11 @@ def create_professional_system_html_with_trends(system_name, data, stats, date_s
     </div>
     """
     
-    # Risk assessment section
+    # Risk assessment section - updated to display service lists
+    critical_service_list = list(set(stats.get('critical_services_list', [])))
+    warning_service_list = list(set(stats.get('warning_services_list', [])))
+    affected_service_list = list(set(stats.get('affected_services_list', [])))
+
     risk_section = f"""
     <div style="background: {risk_color}22; padding: 20px; border-radius: 12px; margin: 20px 0; border-left: 4px solid {risk_color};">
         <h3 style="margin: 0 0 15px 0; font-size: 1.3rem;">⚠️ Risk Assessment</h3>
@@ -806,9 +819,9 @@ def create_professional_system_html_with_trends(system_name, data, stats, date_s
             <div>Alert Priority: <strong>{stats.get('alert_priority', 'INFO')}</strong></div>
         </div>
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
-            <div><strong>Critical Services:</strong> {stats.get('critical_services', 0)}</div>
-            <div><strong>Warning Services:</strong> {stats.get('warning_services', 0)}</div>
-            <div><strong>Affected Services:</strong> {stats.get('affected_services', 0)} / {stats.get('total_services', 0)}</div>
+            <div><strong>Critical Services:</strong> {', '.join(critical_service_list) if critical_service_list else 'None'}</div>
+            <div><strong>Warning Services:</strong> {', '.join(warning_service_list) if warning_service_list else 'None'}</div>
+            <div><strong>Affected Services:</strong> {len(affected_service_list)} / {stats.get('total_services', 0)} ({', '.join(affected_service_list)})</div>
         </div>
     </div>
     """
@@ -854,16 +867,13 @@ def create_professional_system_html_with_trends(system_name, data, stats, date_s
     </head>
     <body>
         <div class="container">
-            <!-- Header -->
             <div class="header">
                 <h1>System {system_name}</h1>
                 <p>Comprehensive Health Analysis Report - {date_str}</p>
                 <div class="status-badge">{status_text}</div>
             </div>
             
-            <!-- Content -->
             <div class="content">
-                <!-- Intro -->
                 <div class="intro">
                     <h2>🔎 Executive Summary</h2>
                     <p>
@@ -878,13 +888,10 @@ def create_professional_system_html_with_trends(system_name, data, stats, date_s
                     </p>
                 </div>
                 
-                <!-- Risk Assessment -->
                 {risk_section}
                 
-                <!-- Trend Section -->
                 {trend_section if trends_data else ""}
                 
-                <!-- Key Metrics -->
                 <h2>📊 Key Performance Indicators</h2>
                 <p>
                     Core metrics providing an overview of system health and performance.
@@ -916,16 +923,12 @@ def create_professional_system_html_with_trends(system_name, data, stats, date_s
                     </div>
                 </div>
                 
-                <!-- Advanced Metrics -->
                 {advanced_metrics_section}
                 
-                <!-- Percentiles -->
                 {percentiles_section}
                 
-                <!-- Critical Services -->
                 {critical_services_section}
                 
-                <!-- Recommendations -->
                 <div class="recommendations">
                     <h3>🎯 Strategic Insights & Action Plan</h3>
                     <p>
@@ -951,7 +954,6 @@ def create_professional_system_html_with_trends(system_name, data, stats, date_s
                 </div>
             </div>
             
-            <!-- Footer -->
             <div class="footer">
                 <p><strong>Enhanced System Monitoring Platform</strong> | Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}</p>
                 <p>📧 For questions: monitoring-team@company.com | 🚨 Emergency Line: x5555</p>
@@ -960,7 +962,6 @@ def create_professional_system_html_with_trends(system_name, data, stats, date_s
     </body>
     </html>
     """
-
 
 def generate_recommendations(stats, trends_data):
     """Generate recommendations based on system status and trends"""
