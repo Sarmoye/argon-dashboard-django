@@ -37,6 +37,65 @@ class SystemStats:
     error_distribution: Dict[str, int] = field(default_factory=dict)
     comparison_time_info: str = ""
     
+    @property
+    def is_healthy(self):
+        return self.status == 'HEALTHY'
+    
+    @property
+    def is_warning(self):
+        return self.status == 'WARNING'
+    
+    @property
+    def is_critical(self):
+        return self.status == 'CRITICAL'
+    
+    @property
+    def is_improving(self):
+        return self.trend_status == 'IMPROVING'
+    
+    @property
+    def is_degrading(self):
+        return self.trend_status == 'DEGRADING'
+    
+    @property
+    def is_stable(self):
+        return self.trend_status == 'STABLE'
+    
+    def to_dict(self):
+        """Convertit l'objet en dictionnaire pour compatibilité avec l'ancien code"""
+        return {
+            'total_errors': self.total_errors,
+            'total_services': self.total_services,
+            'affected_services': self.affected_services,
+            'health_percentage': self.health_percentage,
+            'critical_services': self.critical_services,
+            'avg_errors': self.avg_errors,
+            'top_error_service': self.top_error_service,
+            'status': self.status,
+            'stability_index': self.stability_index,
+            'risk_level': self.risk_level,
+            'business_impact': self.business_impact,
+            'uptime_percentage': self.uptime_percentage,
+            'sla_status': self.sla_status,
+            'error_density': self.error_density,
+            'critical_ratio': self.critical_ratio,
+            'error_trend': self.error_trend,
+            'improvement_rate': self.improvement_rate,
+            'week_trend': self.week_trend,
+            'days_analyzed': self.days_analyzed,
+            'trend_status': self.trend_status,
+            'volatility': self.volatility,
+            'momentum': self.momentum,
+            'predicted_errors': self.predicted_errors,
+            'prediction_confidence': self.prediction_confidence,
+            'reliability_trend': self.reliability_trend,
+            'stability_trend': self.stability_trend,
+            'affected_services_list': self.affected_services_list,
+            'critical_services_list': self.critical_services_list,
+            'error_distribution': self.error_distribution,
+            'comparison_time_info': self.comparison_time_info
+        }
+    
     @classmethod
     def from_data(cls, system_name: str, data, trends_data=None):
         """Crée des statistiques à partir des données brutes"""
