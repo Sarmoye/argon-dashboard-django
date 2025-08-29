@@ -242,100 +242,67 @@ def analyze_historical_trends(directory, system_name, days=7):
 import numpy as np
 
 def create_trend_chart(directory, trends_data, system_name):
-    """Crée un graphique de tendance avancé avec prédictions au style Modern UI."""
+    """Crée un graphique de tendance avancé avec prédictions au style Soft UI."""
     if not trends_data or trends_data['data'].empty:
         return None
     
     try:
         df = trends_data['data']
         
-        # --- Modern UI Configuration ---
-        plt.style.use('default')  # Reset to default for more control
-        plt.rcParams['font.family'] = 'sans-serif'
-        plt.rcParams['font.sans-serif'] = ['Segoe UI', 'DejaVu Sans', 'Arial']
+        # --- Soft UI Enhancements ---
+        plt.style.use('seaborn-v0_8-whitegrid')
+        fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, figsize=(18, 14))
+        fig.patch.set_facecolor('#f0f2f5')
         
-        # Create figure with modern layout
-        fig = plt.figure(figsize=(20, 16), facecolor='#f8f9fa')
-        gs = fig.add_gridspec(2, 2, hspace=0.3, wspace=0.2)
+        colors_map = {'CIS': '#e74c3c', 'IRM': '#f39c12', 'ECW': '#27ae60'}
+        primary_color = colors_map.get(system_name, '#3498db')
         
-        # Define modern color palette
-        colors_map = {
-            'CIS': ['#ff6b6b', '#ff8e8e', '#ff5252'],  # Red gradient
-            'IRM': ['#ffa726', '#ffb74d', '#ff9800'],  # Orange gradient
-            'ECW': ['#66bb6a', '#81c784', '#4caf50']   # Green gradient
-        }
-        
-        # Fallback to blue gradient if system not in map
-        primary_gradient = colors_map.get(system_name, ['#42a5f5', '#64b5f6', '#2196f3'])
-        primary_color = primary_gradient[0]
-        secondary_color = primary_gradient[2]
-        
-        # Helper for modern styling
-        def apply_modern_ui_to_ax(ax, show_grid=True):
-            ax.set_facecolor('#ffffff')
-            for spine in ax.spines.values():
-                spine.set_color('#dee2e6')
-                spine.set_linewidth(0.5)
-            if show_grid:
-                ax.grid(True, color='#e9ecef', linestyle='-', linewidth=0.5)
-            ax.tick_params(colors='#495057', labelsize=10)
-            ax.title.set_fontsize(14)
-            ax.title.set_fontweight(600)
-            ax.title.set_color('#212529')
-            ax.xaxis.label.set_color('#495057')
-            ax.yaxis.label.set_color('#495057')
+        # Helper for common styling
+        def apply_soft_ui_to_ax(ax):
+            ax.set_facecolor('white')
+            ax.spines['top'].set_visible(False)
+            ax.spines['right'].set_visible(False)
+            ax.spines['left'].set_color('#cccccc')
+            ax.spines['bottom'].set_color('#cccccc')
+            ax.tick_params(axis='x', colors='#555555')
+            ax.tick_params(axis='y', colors='#555555')
+            ax.grid(color='#e0e0e0', linestyle='--', linewidth=0.7, alpha=0.7)
 
         # Graphique 1: Evolution des erreurs avec prédiction
-        ax1 = fig.add_subplot(gs[0, 0])
         dates = [d.strftime('%b %d') for d in df['date']]
-        
-        # Main line with gradient fill
-        line = ax1.plot(dates, df['total_errors'], marker='o', linewidth=3.5, markersize=9, 
-                        color=primary_color, markerfacecolor='white', markeredgewidth=2.5, 
-                        markeredgecolor=primary_color, label='Actual Errors', zorder=5)
-        
-        # Gradient fill under the line
-        ax1.fill_between(dates, df['total_errors'], alpha=0.2, color=primary_color)
+        ax1.plot(dates, df['total_errors'], marker='o', linewidth=3, markersize=8, 
+                 color=primary_color, markerfacecolor='white', markeredgewidth=2, 
+                 markeredgecolor=primary_color, label='Actual Errors')
+        ax1.fill_between(dates, df['total_errors'], alpha=0.1, color=primary_color)
         
         # Ajouter la prédiction
         if 'predicted_errors' in trends_data:
             pred_date = (df['date'].iloc[-1] + timedelta(days=1)).strftime('%b %d')
             all_dates = dates + [pred_date]
             pred_line = list(df['total_errors']) + [trends_data['predicted_errors']]
-            
-            # Prediction line with different style
-            ax1.plot(all_dates[-2:], pred_line[-2:], '--', linewidth=2.5, 
-                    color='#6c757d', alpha=0.8, label='Prediction')
-            
-            # Prediction point with modern marker
-            ax1.scatter([pred_date], [trends_data['predicted_errors']], 
-                       color='#dc3545', s=150, alpha=0.9, zorder=6, 
-                       edgecolors='white', linewidth=1.5)
-            
-            # Prediction annotation with modern style
-            ax1.annotate(f"{int(trends_data['predicted_errors'])}", 
-                        xy=(pred_date, trends_data['predicted_errors']),
-                        xytext=(0, 15), textcoords='offset points',
-                        ha='center', va='bottom', fontsize=11, fontweight=600,
-                        color='#dc3545',
-                        bbox=dict(boxstyle="round,pad=0.3", facecolor='white', 
-                                 edgecolor='#dee2e6', alpha=0.9))
+            ax1.plot(all_dates[-2:], pred_line[-2:], 'r--', linewidth=2, alpha=0.6, label='Prediction')
+            ax1.scatter([pred_date], [trends_data['predicted_errors']], color='red', s=120, alpha=0.7, zorder=5)
+            ax1.text(pred_date, trends_data['predicted_errors'] * 1.05, 
+                     f"{int(trends_data['predicted_errors'])}", color='red', 
+                     ha='center', va='bottom', fontsize=10, fontweight='bold')
         
-        ax1.set_title(f'{system_name} - Error Trends & Predictions', pad=15)
-        ax1.set_ylabel('Total Errors', fontsize=12, fontweight=600)
-        ax1.tick_params(axis='x', rotation=45)
-        ax1.legend(frameon=True, shadow=False, fancybox=True, 
-                  loc='upper left', facecolor='white', edgecolor='#dee2e6')
-        apply_modern_ui_to_ax(ax1)
+        ax1.set_title(f'{system_name} - Error Trends & Predictions', 
+                      fontsize=16, fontweight='bold', color='#333333', pad=20)
+        ax1.set_ylabel('Total Errors', fontsize=12, fontweight='bold', color='#555555')
+        ax1.tick_params(axis='x', rotation=30)
+        ax1.legend(fontsize=10, frameon=True, shadow=True, fancybox=True, loc='upper left')
+        apply_soft_ui_to_ax(ax1)
         
         # Graphique 2: Répartition des erreurs par service
-        ax2 = fig.add_subplot(gs[0, 1])
+        # Obtenir les données du jour le plus récent
         latest_data = df.iloc[-1]
+        
+        # Lire le fichier CSV du jour le plus récent pour obtenir la répartition par service
         latest_date = latest_data['date']
         latest_file = None
         
         # Trouver le fichier correspondant à la date la plus récente
-        for file_path in get_files_by_date_range(directory, 1):
+        for file_path in get_files_by_date_range(directory, 1):  # On cherche dans les fichiers du dernier jour
             file_date = datetime.fromtimestamp(os.path.getctime(file_path))
             if file_date.date() == latest_date.date():
                 latest_file = file_path
@@ -343,96 +310,70 @@ def create_trend_chart(directory, trends_data, system_name):
         
         if latest_file:
             try:
+                # Lire les données du fichier
                 data = read_csv_data(latest_file, system_name)
                 if data is not None and not data.empty:
+                    # Grouper par service et sommer les erreurs
                     service_errors = data.groupby('Service Name')['Error Count'].sum().reset_index()
+                    # Trier par nombre d'erreurs décroissant
                     service_errors = service_errors.sort_values('Error Count', ascending=False)
+                    
+                    # Prendre les 10 services avec le plus d'erreurs (ou moins si moins de 10)
                     top_services = service_errors.head(10)
                     
-                    # Create horizontal bar chart with modern style
+                    # Créer un graphique à barres horizontales
                     bars = ax2.barh(top_services['Service Name'], top_services['Error Count'], 
-                                   color=primary_gradient, alpha=0.85, 
-                                   height=0.7, edgecolor='white', linewidth=0.5)
+                                   color=primary_color, alpha=0.7)
                     
-                    # Add value labels with modern styling
+                    # Ajouter les valeurs sur les barres
                     for bar in bars:
                         width = bar.get_width()
-                        ax2.text(width + (max(top_services['Error Count']) * 0.01), 
-                                bar.get_y() + bar.get_height()/2, 
-                                f'{int(width)}', ha='left', va='center', 
-                                fontsize=10, fontweight=500, color='#495057')
+                        ax2.text(width + 0.1, bar.get_y() + bar.get_height()/2, 
+                                f'{int(width)}', ha='left', va='center', fontsize=9)
                     
-                    ax2.set_title(f'Top Services by Error Count\n({latest_date.strftime("%Y-%m-%d")})', pad=15)
-                    ax2.set_xlabel('Error Count', fontsize=12, fontweight=600)
-                    ax2.set_ylabel('Service Name', fontsize=12, fontweight=600)
+                    ax2.set_title(f'Services by Error Count\n({latest_date.strftime("%Y-%m-%d")})', 
+                                 fontsize=14, fontweight='bold', color='#333333')
+                    ax2.set_xlabel('Error Count', fontsize=12, color='#555555')
+                    ax2.set_ylabel('Service Name', fontsize=12, color='#555555')
+                    
+                    # Inverser l'axe Y pour avoir le service avec le plus d'erreurs en haut
                     ax2.invert_yaxis()
-                    
-                    # Remove top and right spines
-                    ax2.spines['top'].set_visible(False)
-                    ax2.spines['right'].set_visible(False)
                     
             except Exception as e:
                 print(f"Erreur lecture fichier {latest_file}: {e}")
                 ax2.text(0.5, 0.5, 'Données non disponibles', ha='center', va='center', 
-                        transform=ax2.transAxes, fontsize=12, color='#6c757d',
-                        bbox=dict(boxstyle="round", facecolor='#f8f9fa', 
-                                 edgecolor='#dee2e6', alpha=0.7))
+                        transform=ax2.transAxes, fontsize=12, color='red')
         else:
             ax2.text(0.5, 0.5, 'Fichier non trouvé', ha='center', va='center', 
-                    transform=ax2.transAxes, fontsize=12, color='#6c757d',
-                    bbox=dict(boxstyle="round", facecolor='#f8f9fa', 
-                             edgecolor='#dee2e6', alpha=0.7))
+                    transform=ax2.transAxes, fontsize=12, color='red')
         
-        apply_modern_ui_to_ax(ax2, show_grid=False)
+        apply_soft_ui_to_ax(ax2)
 
         # Graphique 3: Densité d'erreurs
-        ax3 = fig.add_subplot(gs[1, 0])
-        
-        # Bar chart with gradient
-        bars = ax3.bar(dates, df['error_density'], color=primary_gradient, 
-                      alpha=0.85, width=0.6, edgecolor='white', linewidth=0.5)
-        
-        ax3.set_title('Error Density (Errors/Service)', pad=15)
-        ax3.set_ylabel('Errors per Service', fontsize=12, fontweight=600)
-        apply_modern_ui_to_ax(ax3)
-        ax3.tick_params(axis='x', rotation=45)
+        ax3.bar(dates, df['error_density'], color=primary_color, alpha=0.7, width=0.6)
+        ax3.set_title('Error Density (Errors/Service)', fontsize=14, fontweight='bold', color='#333333')
+        ax3.set_ylabel('Errors per Service', fontsize=12, color='#555555')
+        apply_soft_ui_to_ax(ax3)
+        ax3.tick_params(axis='x', rotation=30)
         
         # Graphique 4: Score de fiabilité
-        ax4 = fig.add_subplot(gs[1, 1])
-        
-        # Reliability line with modern styling
-        ax4.plot(dates, df['reliability_score'], marker='s', linewidth=3, markersize=8, 
-                 color='#20c997', markerfacecolor='white', markeredgewidth=2.5, 
-                 markeredgecolor='#20c997', zorder=5)
-        
-        # Gradient fill
-        ax4.fill_between(dates, df['reliability_score'], 100, alpha=0.1, color='#20c997')
-        
-        # SLA target line
-        ax4.axhline(y=95, color='#6f42c1', linestyle='--', alpha=0.8, 
-                   label='SLA Target', linewidth=2)
-        
-        ax4.set_title('Reliability Score (%)', pad=15)
-        ax4.set_ylabel('Reliability (%)', fontsize=12, fontweight=600)
+        ax4.plot(dates, df['reliability_score'], marker='s', linewidth=2.5, markersize=7, 
+                 color='#28a745', markerfacecolor='white', markeredgewidth=2, markeredgecolor='#28a745')
+        ax4.fill_between(dates, df['reliability_score'], 100, alpha=0.1, color='#28a745')
+        ax4.set_title('Reliability Score (%)', fontsize=14, fontweight='bold', color='#333333')
+        ax4.set_ylabel('Reliability (%)', fontsize=12, color='#555555')
         ax4.set_ylim(max(0, df['reliability_score'].min() - 10), 100)
-        ax4.legend(frameon=True, shadow=False, fancybox=True, 
-                  loc='lower left', facecolor='white', edgecolor='#dee2e6')
-        apply_modern_ui_to_ax(ax4)
-        ax4.tick_params(axis='x', rotation=45)
+        ax4.axhline(y=95, color='#007bff', linestyle='--', alpha=0.7, label='SLA Target', linewidth=1.5)
+        ax4.legend(fontsize=10, frameon=True, shadow=True, fancybox=True)
+        apply_soft_ui_to_ax(ax4)
+        ax4.tick_params(axis='x', rotation=30)
         
-        # Add overall title with modern styling
+        plt.tight_layout(pad=3.0)
         fig.suptitle(f'System Performance Analysis: {system_name}', 
-                     fontsize=22, fontweight=700, color='#212529', y=0.98)
-        
-        # Add subtle border to the figure
-        for spine in fig.gca().spines.values():
-            spine.set_visible(False)
-        
-        plt.tight_layout(rect=[0, 0, 1, 0.96])
+                     fontsize=20, fontweight='bold', color='#222222', y=1.02)
         
         buffer = BytesIO()
-        plt.savefig(buffer, format='png', dpi=300, bbox_inches='tight', 
-                   facecolor=fig.get_facecolor(), edgecolor='none')
+        plt.savefig(buffer, format='png', dpi=300, bbox_inches='tight', facecolor=fig.patch.get_facecolor())
         buffer.seek(0)
         chart_data = buffer.getvalue()
         buffer.close()
