@@ -242,119 +242,94 @@ def analyze_historical_trends(directory, system_name, days=7):
 import numpy as np
 
 def create_trend_chart(directory, trends_data, system_name):
-    """Crée un graphique de tendance avancé avec prédictions au style Skeuomorphisme UI."""
+    """Crée un graphique de tendance avancé avec prédictions au style Modern UI."""
     if not trends_data or trends_data['data'].empty:
         return None
     
     try:
         df = trends_data['data']
         
-        # --- Skeuomorphisme UI Enhancements ---
-        plt.style.use('default')
-        fig = plt.figure(figsize=(20, 16), facecolor='#e8e8e8')
-        gs = fig.add_gridspec(2, 2, hspace=0.3, wspace=0.25)
+        # --- Modern UI Configuration ---
+        plt.style.use('default')  # Reset to default for more control
+        plt.rcParams['font.family'] = 'sans-serif'
+        plt.rcParams['font.sans-serif'] = ['Segoe UI', 'DejaVu Sans', 'Arial']
         
-        # Créer des axes avec un effet 3D
-        ax1 = fig.add_subplot(gs[0, 0])
-        ax2 = fig.add_subplot(gs[0, 1])
-        ax3 = fig.add_subplot(gs[1, 0])
-        ax4 = fig.add_subplot(gs[1, 1])
+        # Create figure with modern layout
+        fig = plt.figure(figsize=(20, 16), facecolor='#f8f9fa')
+        gs = fig.add_gridspec(2, 2, hspace=0.3, wspace=0.2)
         
-        # Appliquer un fond texturé pour l'effet skeuomorphisme
-        fig.patch.set_facecolor('#e8e8e8')
-        for ax in [ax1, ax2, ax3, ax4]:
-            ax.set_facecolor('#f5f5f5')
-            # Ajouter un effet de bordure 3D
+        # Define modern color palette
+        colors_map = {
+            'CIS': ['#ff6b6b', '#ff8e8e', '#ff5252'],  # Red gradient
+            'IRM': ['#ffa726', '#ffb74d', '#ff9800'],  # Orange gradient
+            'ECW': ['#66bb6a', '#81c784', '#4caf50']   # Green gradient
+        }
+        
+        # Fallback to blue gradient if system not in map
+        primary_gradient = colors_map.get(system_name, ['#42a5f5', '#64b5f6', '#2196f3'])
+        primary_color = primary_gradient[0]
+        secondary_color = primary_gradient[2]
+        
+        # Helper for modern styling
+        def apply_modern_ui_to_ax(ax, show_grid=True):
+            ax.set_facecolor('#ffffff')
             for spine in ax.spines.values():
-                spine.set_color('#cccccc')
-                spine.set_linewidth(2)
-                spine.set_zorder(10)
-        
-        # Palette de couleurs adaptée au skeuomorphisme
-        colors_map = {'CIS': '#c44e52', 'IRM': '#dd8452', 'ECW': '#55a868'}
-        primary_color = colors_map.get(system_name, '#4c72b0')
-        secondary_color = '#8c8c8c'
-        
-        # Helper pour l'ombrage et les effets 3D
-        def add_shadow(ax, offset=2, alpha=0.1):
-            # Créer un effet d'ombre pour le graphique
-            shadow = matplotlib.patches.Rectangle(
-                (offset, -offset), 
-                width=ax.get_xlim()[1]-ax.get_xlim()[0], 
-                height=ax.get_ylim()[1]-ax.get_ylim()[0],
-                facecolor='black', alpha=alpha, transform=ax.transData, zorder=-1
-            )
-            ax.add_patch(shadow)
-            return shadow
-
-        # Helper pour les effets de relief
-        def apply_skeuomorphism_to_ax(ax, has_grid=True):
-            ax.set_facecolor('#f8f8f8')
-            # Ajouter un dégradé de fond
-            grad = matplotlib.patches.Rectangle(
-                (0, 0), 1, 1, transform=ax.transAxes,
-                color='#f0f0f0', alpha=0.5, zorder=0
-            )
-            ax.add_patch(grad)
-            
-            # Style des grilles
-            if has_grid:
-                ax.grid(True, color='#ffffff', linestyle='-', linewidth=1, alpha=0.8)
-                ax.set_axisbelow(True)
-            
-            # Style des ticks
-            ax.tick_params(axis='both', which='both', colors='#555555', labelsize=10)
-            
-            # Ajouter une bordure en relief
-            for spine in ax.spines.values():
-                spine.set_color('#cccccc')
-                spine.set_linewidth(2)
-            
-            # Ajouter un effet d'ombre
-            add_shadow(ax, offset=3, alpha=0.08)
+                spine.set_color('#dee2e6')
+                spine.set_linewidth(0.5)
+            if show_grid:
+                ax.grid(True, color='#e9ecef', linestyle='-', linewidth=0.5)
+            ax.tick_params(colors='#495057', labelsize=10)
+            ax.title.set_fontsize(14)
+            ax.title.set_fontweight(600)
+            ax.title.set_color('#212529')
+            ax.xaxis.label.set_color('#495057')
+            ax.yaxis.label.set_color('#495057')
 
         # Graphique 1: Evolution des erreurs avec prédiction
+        ax1 = fig.add_subplot(gs[0, 0])
         dates = [d.strftime('%b %d') for d in df['date']]
-        line = ax1.plot(dates, df['total_errors'], marker='o', linewidth=4, markersize=10, 
-                 color=primary_color, markerfacecolor='white', markeredgewidth=3, 
-                 markeredgecolor=primary_color, label='Actual Errors', zorder=5)
         
-        # Ajouter un effet de profondeur à la ligne
-        ax1.plot(dates, df['total_errors'], linewidth=8, color=primary_color, alpha=0.1, zorder=4)
+        # Main line with gradient fill
+        line = ax1.plot(dates, df['total_errors'], marker='o', linewidth=3.5, markersize=9, 
+                        color=primary_color, markerfacecolor='white', markeredgewidth=2.5, 
+                        markeredgecolor=primary_color, label='Actual Errors', zorder=5)
         
-        # Remplissage avec effet de dégradé
-        gradient_fill(ax1, dates, df['total_errors'], primary_color, 0.3)
+        # Gradient fill under the line
+        ax1.fill_between(dates, df['total_errors'], alpha=0.2, color=primary_color)
         
         # Ajouter la prédiction
         if 'predicted_errors' in trends_data:
             pred_date = (df['date'].iloc[-1] + timedelta(days=1)).strftime('%b %d')
             all_dates = dates + [pred_date]
             pred_line = list(df['total_errors']) + [trends_data['predicted_errors']]
-            ax1.plot(all_dates[-2:], pred_line[-2:], '--', linewidth=3, alpha=0.8, 
-                    color='#d62728', label='Prediction', zorder=6)
             
-            # Point de prédiction avec effet 3D
-            pred_point = ax1.scatter([pred_date], [trends_data['predicted_errors']], 
-                                   color='#d62728', s=150, alpha=1, zorder=7,
-                                   edgecolors='white', linewidth=2)
+            # Prediction line with different style
+            ax1.plot(all_dates[-2:], pred_line[-2:], '--', linewidth=2.5, 
+                    color='#6c757d', alpha=0.8, label='Prediction')
             
-            # Annotation en relief
-            ax1.text(pred_date, trends_data['predicted_errors'] * 1.05, 
-                     f"{int(trends_data['predicted_errors'])}", color='#d62728', 
-                     ha='center', va='bottom', fontsize=11, fontweight='bold',
-                     bbox=dict(boxstyle="round,pad=0.3", facecolor='white', 
-                              edgecolor='#d62728', alpha=0.9))
+            # Prediction point with modern marker
+            ax1.scatter([pred_date], [trends_data['predicted_errors']], 
+                       color='#dc3545', s=150, alpha=0.9, zorder=6, 
+                       edgecolors='white', linewidth=1.5)
+            
+            # Prediction annotation with modern style
+            ax1.annotate(f"{int(trends_data['predicted_errors'])}", 
+                        xy=(pred_date, trends_data['predicted_errors']),
+                        xytext=(0, 15), textcoords='offset points',
+                        ha='center', va='bottom', fontsize=11, fontweight=600,
+                        color='#dc3545',
+                        bbox=dict(boxstyle="round,pad=0.3", facecolor='white', 
+                                 edgecolor='#dee2e6', alpha=0.9))
         
-        ax1.set_title(f'{system_name} - Error Trends & Predictions', 
-                      fontsize=16, fontweight='bold', color='#333333', pad=20)
-        ax1.set_ylabel('Total Errors', fontsize=12, fontweight='bold', color='#555555')
-        ax1.tick_params(axis='x', rotation=30)
-        ax1.legend(fontsize=10, frameon=True, shadow=True, 
-                  fancybox=True, loc='upper left',
-                  facecolor='white', edgecolor='#cccccc')
-        apply_skeuomorphism_to_ax(ax1)
+        ax1.set_title(f'{system_name} - Error Trends & Predictions', pad=15)
+        ax1.set_ylabel('Total Errors', fontsize=12, fontweight=600)
+        ax1.tick_params(axis='x', rotation=45)
+        ax1.legend(frameon=True, shadow=False, fancybox=True, 
+                  loc='upper left', facecolor='white', edgecolor='#dee2e6')
+        apply_modern_ui_to_ax(ax1)
         
         # Graphique 2: Répartition des erreurs par service
+        ax2 = fig.add_subplot(gs[0, 1])
         latest_data = df.iloc[-1]
         latest_date = latest_data['date']
         latest_file = None
@@ -374,107 +349,90 @@ def create_trend_chart(directory, trends_data, system_name):
                     service_errors = service_errors.sort_values('Error Count', ascending=False)
                     top_services = service_errors.head(10)
                     
-                    # Créer un graphique à barres avec effet 3D
-                    y_pos = np.arange(len(top_services))
-                    bars = ax2.barh(y_pos, top_services['Error Count'], 
-                                   color=primary_color, alpha=0.9, height=0.7,
-                                   edgecolor='white', linewidth=1.5)
+                    # Create horizontal bar chart with modern style
+                    bars = ax2.barh(top_services['Service Name'], top_services['Error Count'], 
+                                   color=primary_gradient, alpha=0.85, 
+                                   height=0.7, edgecolor='white', linewidth=0.5)
                     
-                    # Ajouter un effet d'ombre aux barres
+                    # Add value labels with modern styling
                     for bar in bars:
-                        bar.set_zorder(5)
+                        width = bar.get_width()
+                        ax2.text(width + (max(top_services['Error Count']) * 0.01), 
+                                bar.get_y() + bar.get_height()/2, 
+                                f'{int(width)}', ha='left', va='center', 
+                                fontsize=10, fontweight=500, color='#495057')
                     
-                    # Ajouter les valeurs avec un effet d'encadrement
-                    for i, (bar, value) in enumerate(zip(bars, top_services['Error Count'])):
-                        ax2.text(value + max(top_services['Error Count']) * 0.01, 
-                                i, f'{int(value)}', ha='left', va='center', 
-                                fontsize=10, fontweight='bold',
-                                bbox=dict(boxstyle="round,pad=0.2", facecolor='white', 
-                                         edgecolor='#cccccc', alpha=0.8))
-                    
-                    ax2.set_yticks(y_pos)
-                    ax2.set_yticklabels(top_services['Service Name'], fontsize=10)
-                    ax2.set_title(f'Services by Error Count\n({latest_date.strftime("%Y-%m-%d")})', 
-                                 fontsize=14, fontweight='bold', color='#333333')
-                    ax2.set_xlabel('Error Count', fontsize=12, color='#555555')
+                    ax2.set_title(f'Top Services by Error Count\n({latest_date.strftime("%Y-%m-%d")})', pad=15)
+                    ax2.set_xlabel('Error Count', fontsize=12, fontweight=600)
+                    ax2.set_ylabel('Service Name', fontsize=12, fontweight=600)
                     ax2.invert_yaxis()
+                    
+                    # Remove top and right spines
+                    ax2.spines['top'].set_visible(False)
+                    ax2.spines['right'].set_visible(False)
                     
             except Exception as e:
                 print(f"Erreur lecture fichier {latest_file}: {e}")
                 ax2.text(0.5, 0.5, 'Données non disponibles', ha='center', va='center', 
-                        transform=ax2.transAxes, fontsize=12, color='red',
-                        bbox=dict(boxstyle="round,pad=0.5", facecolor='white', 
-                                 edgecolor='#cccccc', alpha=0.8))
+                        transform=ax2.transAxes, fontsize=12, color='#6c757d',
+                        bbox=dict(boxstyle="round", facecolor='#f8f9fa', 
+                                 edgecolor='#dee2e6', alpha=0.7))
         else:
             ax2.text(0.5, 0.5, 'Fichier non trouvé', ha='center', va='center', 
-                    transform=ax2.transAxes, fontsize=12, color='red',
-                    bbox=dict(boxstyle="round,pad=0.5", facecolor='white', 
-                             edgecolor='#cccccc', alpha=0.8))
+                    transform=ax2.transAxes, fontsize=12, color='#6c757d',
+                    bbox=dict(boxstyle="round", facecolor='#f8f9fa', 
+                             edgecolor='#dee2e6', alpha=0.7))
         
-        apply_skeuomorphism_to_ax(ax2, has_grid=False)
+        apply_modern_ui_to_ax(ax2, show_grid=False)
 
         # Graphique 3: Densité d'erreurs
-        bars = ax3.bar(dates, df['error_density'], color=primary_color, 
-                      alpha=0.9, width=0.6, edgecolor='white', linewidth=1.5)
+        ax3 = fig.add_subplot(gs[1, 0])
         
-        # Ajouter un effet de dégradé aux barres
-        for bar in bars:
-            bar.set_zorder(5)
+        # Bar chart with gradient
+        bars = ax3.bar(dates, df['error_density'], color=primary_gradient, 
+                      alpha=0.85, width=0.6, edgecolor='white', linewidth=0.5)
         
-        ax3.set_title('Error Density (Errors/Service)', 
-                     fontsize=14, fontweight='bold', color='#333333')
-        ax3.set_ylabel('Errors per Service', fontsize=12, color='#555555')
-        apply_skeuomorphism_to_ax(ax3)
-        ax3.tick_params(axis='x', rotation=30)
+        ax3.set_title('Error Density (Errors/Service)', pad=15)
+        ax3.set_ylabel('Errors per Service', fontsize=12, fontweight=600)
+        apply_modern_ui_to_ax(ax3)
+        ax3.tick_params(axis='x', rotation=45)
         
         # Graphique 4: Score de fiabilité
-        line = ax4.plot(dates, df['reliability_score'], marker='s', linewidth=3, markersize=8, 
-                 color='#2e8b57', markerfacecolor='white', markeredgewidth=3, 
-                 markeredgecolor='#2e8b57', zorder=5)
+        ax4 = fig.add_subplot(gs[1, 1])
         
-        # Ajouter un effet d'épaisseur à la ligne
-        ax4.plot(dates, df['reliability_score'], linewidth=8, color='#2e8b57', alpha=0.1, zorder=4)
+        # Reliability line with modern styling
+        ax4.plot(dates, df['reliability_score'], marker='s', linewidth=3, markersize=8, 
+                 color='#20c997', markerfacecolor='white', markeredgewidth=2.5, 
+                 markeredgecolor='#20c997', zorder=5)
         
-        # Remplissage avec effet de dégradé
-        gradient_fill(ax4, dates, df['reliability_score'], '#2e8b57', 0.2)
+        # Gradient fill
+        ax4.fill_between(dates, df['reliability_score'], 100, alpha=0.1, color='#20c997')
         
-        ax4.fill_between(dates, df['reliability_score'], 100, alpha=0.1, color='#2e8b57')
-        ax4.set_title('Reliability Score (%)', fontsize=14, fontweight='bold', color='#333333')
-        ax4.set_ylabel('Reliability (%)', fontsize=12, color='#555555')
+        # SLA target line
+        ax4.axhline(y=95, color='#6f42c1', linestyle='--', alpha=0.8, 
+                   label='SLA Target', linewidth=2)
+        
+        ax4.set_title('Reliability Score (%)', pad=15)
+        ax4.set_ylabel('Reliability (%)', fontsize=12, fontweight=600)
         ax4.set_ylim(max(0, df['reliability_score'].min() - 10), 100)
+        ax4.legend(frameon=True, shadow=False, fancybox=True, 
+                  loc='lower left', facecolor='white', edgecolor='#dee2e6')
+        apply_modern_ui_to_ax(ax4)
+        ax4.tick_params(axis='x', rotation=45)
         
-        # Ligne de référence SLA avec effet d'ombre
-        sla_line = ax4.axhline(y=95, color='#4169e1', linestyle='--', alpha=0.9, 
-                              label='SLA Target', linewidth=2.5, zorder=6)
-        
-        # Annotation pour la ligne SLA
-        ax4.text(len(dates)-0.5, 95, ' SLA Target (95%)', va='center', ha='left',
-                color='#4169e1', fontsize=10, fontweight='bold',
-                bbox=dict(boxstyle="round,pad=0.2", facecolor='white', 
-                         edgecolor='#4169e1', alpha=0.8))
-        
-        apply_skeuomorphism_to_ax(ax4)
-        ax4.tick_params(axis='x', rotation=30)
-        
-        # Titre principal avec effet d'ombre
+        # Add overall title with modern styling
         fig.suptitle(f'System Performance Analysis: {system_name}', 
-                     fontsize=20, fontweight='bold', color='#222222', y=0.98,
-                     bbox=dict(boxstyle="round,pad=0.5", facecolor='white', 
-                              edgecolor='#cccccc', alpha=0.9))
+                     fontsize=22, fontweight=700, color='#212529', y=0.98)
         
-        # Ajouter un effet d'ombre au cadre principal
-        shadow_patch = matplotlib.patches.Rectangle(
-            (0.01, 0.01), 0.98, 0.96, transform=fig.transFigure,
-            facecolor='none', edgecolor='none', linewidth=0,
-            zorder=-1
-        )
-        fig.patches.append(shadow_patch)
+        # Add subtle border to the figure
+        for spine in fig.gca().spines.values():
+            spine.set_visible(False)
         
         plt.tight_layout(rect=[0, 0, 1, 0.96])
         
         buffer = BytesIO()
         plt.savefig(buffer, format='png', dpi=300, bbox_inches='tight', 
-                   facecolor=fig.patch.get_facecolor(), edgecolor='none')
+                   facecolor=fig.get_facecolor(), edgecolor='none')
         buffer.seek(0)
         chart_data = buffer.getvalue()
         buffer.close()
@@ -486,38 +444,6 @@ def create_trend_chart(directory, trends_data, system_name):
         print(f"Erreur graphique tendance: {e}")
         plt.close()
         return None
-
-import matplotlib
-
-# Fonction utilitaire pour créer des dégradés
-def gradient_fill(ax, x, y, color, alpha):
-    """Ajoute un remplissage avec dégradé sous la courbe."""
-    import numpy as np
-    from matplotlib.colors import LightSource
-    
-    # Créer un dégradé de lumière
-    ls = LightSource(azdeg=90, altdeg=20)
-    rgb = matplotlib.colors.colorConverter.to_rgb(color)
-    
-    # Convertir les valeurs x en positions numériques
-    x_num = np.arange(len(x))
-    
-    # Créer un polygone pour le remplissage
-    verts = [(x_num[0], 0), *zip(x_num, y), (x_num[-1], 0)]
-    poly = matplotlib.patches.Polygon(verts, facecolor='none', closed=True, alpha=0)
-    
-    # Générer les couleurs dégradées
-    gradient = ls.shade_rgb(np.array([list(rgb) + [alpha]]), plt.cm.Greys)
-    
-    # Ajouter le dégradé
-    im = ax.imshow(gradient, aspect='auto', extent=[x_num[0], x_num[-1], 0, max(y)], 
-                  cmap=plt.cm.Greys, alpha=alpha, origin='lower')
-    
-    # Masquer les parties non nécessaires
-    clip_path = poly.get_path()
-    poly = matplotlib.patches.Polygon(verts, facecolor='none', edgecolor='none', closed=True)
-    ax.add_patch(poly)
-    im.set_clip_path(poly)
 
 def calculate_enhanced_stats(data, system_name, trends_data=None):
     """Calcule des statistiques avancées avec insights professionnels"""
