@@ -37,7 +37,7 @@ class MonitoringEngine:
                 
                 # Génération du rapport HTML
                 html_body = create_professional_system_html_with_trends(
-                    system_name, current_data, stats, datetime.now().strftime('%Y-%m-%d'), trends_data
+                    system_name, current_data, stats.to_dict(), datetime.now().strftime('%Y-%m-%d'), trends_data
                 )
                 
                 # Graphiques
@@ -82,7 +82,9 @@ class MonitoringEngine:
         print("\n📊 Génération du rapport de synthèse...")
         if self.all_stats:
             summary_html = create_executive_summary_html_with_trends(
-                self.systems_data, self.all_stats, datetime.now().strftime('%Y-%m-%d')
+                self.systems_data, 
+                {name: stats.to_dict() for name, stats in self.all_stats.items()}, 
+                datetime.now().strftime('%Y-%m-%d')
             )
             
             # Déterminer priorité
