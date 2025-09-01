@@ -87,14 +87,36 @@ def read_csv_data(file_path, system_name=None):
         print(f"Erreur lecture CSV: {e}")
         return None
 
-def analyze_historical_trends(directory, system_name, days=7):
-    """Analyse les tendances sur les N derniers jours avec insights avancés"""
+import pandas as pd
+import numpy as np
+from datetime import datetime, timedelta
+import os
+from typing import Dict, List, Optional, Tuple
+import warnings
+warnings.filterwarnings('ignore')
+
+def analyze_historical_trends(directory: str, system_name: str, days: int = 7) -> Optional[Dict]:
+    """
+    Analyse les tendances sur les N derniers jours avec insights avancés et prédictions
+    
+    Args:
+        directory: Chemin du répertoire des fichiers
+        system_name: Nom du système à analyser
+        days: Nombre de jours d'historique à considérer
+    
+    Returns:
+        Dict contenant les données d'analyse et prédictions avec marges d'erreur
+    """
+    
+    # Récupération des fichiers dans la plage de dates
     files = get_files_by_date_range(directory, days)
     if len(files) < 2:
+        print("❌ Données insuffisantes pour l'analyse (moins de 2 fichiers)")
         return None
     
     trends_data = []
     
+    # Lecture et traitement de chaque fichier
     for file_path in files:
         try:
             data = read_csv_data(file_path, system_name)
@@ -104,7 +126,7 @@ def analyze_historical_trends(directory, system_name, days=7):
                 file_date = datetime.fromtimestamp(os.path.getctime(file_path))
                 total_errors = grouped_data['Error Count'].sum()
                 
-                # Récupérer les listes de services
+                # Calcul des métriques de service
                 affected_services_list = grouped_data[grouped_data['Error Count'] > 0]['Service Name'].tolist()
                 critical_services_list = grouped_data[grouped_data['Error Count'] >= 10]['Service Name'].tolist()
                 
@@ -112,6 +134,7 @@ def analyze_historical_trends(directory, system_name, days=7):
                 critical_services_count = len(critical_services_list)
                 total_services = len(grouped_data)
                 
+                # Stockage des données de tendance
                 trends_data.append({
                     'date': file_date,
                     'total_errors': total_errors,
@@ -124,120 +147,529 @@ def analyze_historical_trends(directory, system_name, days=7):
                     'critical_services_list': critical_services_list
                 })
         except Exception as e:
-            print(f"Erreur analyse fichier {file_path}: {e}")
+            print(f"⚠️ Erreur analyse fichier {file_path}: {e}")
             continue
             
     if not trends_data or len(trends_data) < 2:
+        print("❌ Aucune donnée valide trouvée")
         return None
     
+    # Création du DataFrame et tri par date
     trends_df = pd.DataFrame(trends_data)
     trends_df = trends_df.sort_values('date')
     
-    # Trouver le fichier le plus récent (current)
+    # Données actuelles (dernier fichier)
     current = trends_df.iloc[-1]
     current_time = current['date']
     
-    # Calculer la veille à la même heure avec gestion des minutes négatives
-    previous_day = current_time - timedelta(days=1)
+    # Recherche du point de comparaison précédent
+    previous = find_previous_comparison_point(trends_df, current_time)
+    if previous is None:
+        print("❌ Impossible de trouver un point de comparaison valide")
+        return None
     
-    # Créer la fenêtre horaire de ±30 minutes de manière sécurisée
-    time_target = previous_day.replace(hour=current_time.hour, minute=current_time.minute, second=0, microsecond=0)
-    time_window_start = time_target - timedelta(minutes=30)
-    time_window_end = time_target + timedelta(minutes=30)
-    
-    # Filtrer les fichiers dans la fenêtre horaire de la veille
-    previous_files = trends_df[
-        (trends_df['date'] >= time_window_start) & 
-        (trends_df['date'] <= time_window_end)
-    ]
-    
-    if previous_files.empty:
-        # Si aucun fichier à la même heure hier, prendre le fichier le plus proche de la veille
-        previous_day_files = trends_df[trends_df['date'].dt.date == previous_day.date()]
-        if previous_day_files.empty:
-            # Si aucun fichier la veille, prendre le précédent disponible
-            previous_files_all = trends_df[trends_df['date'] < current_time]
-            if previous_files_all.empty:
-                return None
-            previous = previous_files_all.iloc[-1]
-        else:
-            # Prendre le fichier le plus proche de l'heure cible
-            previous_day_files = previous_day_files.copy()
-            previous_day_files['time_diff'] = abs((previous_day_files['date'] - time_target).dt.total_seconds())
-            previous = previous_day_files.loc[previous_day_files['time_diff'].idxmin()]
-    else:
-        # Prendre le fichier le plus proche de l'heure exacte dans la fenêtre
-        previous_files = previous_files.copy()
-        previous_files['time_diff'] = abs((previous_files['date'] - time_target).dt.total_seconds())
-        previous = previous_files.loc[previous_files['time_diff'].idxmin()]
-
-    print(f'CURRENT {current}')
-    print(f'PREVIOUS {previous}')
-    print(f'Current time: {current_time}')
-    print(f'Target time for previous day: {time_target}')
-    print(f'Time window: {time_window_start} - {time_window_end}')
-    
+    # Calcul des tendances de base
     error_trend = current['total_errors'] - previous['total_errors']
     affected_trend = current['affected_services'] - previous['affected_services']
     critical_trend = current['critical_services'] - previous['critical_services']
     reliability_trend = current['reliability_score'] - previous['reliability_score']
     
-    if len(trends_df) >= 4:
-        avg_recent = trends_df.tail(3)['total_errors'].mean()
-        avg_older = trends_df.head(3)['total_errors'].mean()
-        week_trend = avg_recent - avg_older
-        volatility = trends_df['total_errors'].std()
-        stability_trend = "STABLE" if volatility < 5 else "MODERATE" if volatility < 15 else "HIGH_VOLATILITY"
-    else:
-        week_trend = error_trend
-        volatility = 0
-        stability_trend = "INSUFFICIENT_DATA"
+    # Analyse des tendances avancées
+    trend_analysis = analyze_advanced_trends(trends_df)
     
-    momentum = "NEUTRAL"
-    if len(trends_df) >= 3:
-        # Pour le momentum, trouver le jour précédent du previous
-        previous_time = previous['date']
-        day_before_previous = previous_time - timedelta(days=1)
-        day_before_files = trends_df[trends_df['date'].dt.date == day_before_previous.date()]
-        if not day_before_files.empty:
-            # Trouver le fichier le plus proche de la même heure que previous
-            target_time_prev = day_before_previous.replace(hour=previous_time.hour, minute=previous_time.minute)
-            day_before_files = day_before_files.copy()
-            day_before_files['time_diff'] = abs((day_before_files['date'] - target_time_prev).dt.total_seconds())
-            day_before = day_before_files.loc[day_before_files['time_diff'].idxmin()]
-            
-            trend_yesterday = previous['total_errors'] - day_before['total_errors']
-            if error_trend > trend_yesterday + 2:
-                momentum = "ACCELERATING"
-            elif error_trend < trend_yesterday - 2:
-                momentum = "DECELERATING"
+    # Prédictions avec marges d'erreur
+    predictions = generate_predictions(trends_df, current, error_trend)
     
-    predicted_errors = max(0, current['total_errors'] + error_trend)
-    prediction_confidence = "HIGH" if len(trends_df) >= 5 else "MEDIUM" if len(trends_df) >= 3 else "LOW"
-
+    # Analyse des patterns saisonniers
+    seasonal_patterns = analyze_seasonal_patterns(trends_df)
+    
+    # Détection d'anomalies
+    anomalies = detect_anomalies(trends_df)
+    
     return {
+        # Données brutes
         'data': trends_df,
+        'current_time': current_time,
+        'comparison_time': previous['date'],
+        
+        # Tendance basique
         'current_errors': int(current['total_errors']),
         'previous_errors': int(previous['total_errors']),
         'error_trend': int(error_trend),
         'affected_trend': int(affected_trend),
         'critical_trend': int(critical_trend),
         'reliability_trend': round(reliability_trend, 1),
-        'week_trend': week_trend,
-        'improvement_rate': round((error_trend / previous['total_errors'] * 100) if previous['total_errors'] > 0 else 0, 1),
-        'days_analyzed': len(trends_df),
-        'volatility': round(volatility, 2),
-        'stability_trend': stability_trend,
-        'momentum': momentum,
-        'predicted_errors': int(predicted_errors),
-        'prediction_confidence': prediction_confidence,
-        'avg_error_density': round(trends_df['error_density'].mean(), 2),
-        'peak_errors': int(trends_df['total_errors'].max()),
-        'best_day_errors': int(trends_df['total_errors'].min()),
+        
+        # Analyse avancée
+        **trend_analysis,
+        
+        # Prédictions
+        **predictions,
+        
+        # Patterns saisonniers
+        'seasonal_patterns': seasonal_patterns,
+        
+        # Anomalies
+        'anomalies_detected': anomalies,
+        
+        # Listes de services
         'current_affected_services_list': current['affected_services_list'],
         'current_critical_services_list': current['critical_services_list'],
-        'comparison_time_info': f"Comparé à {previous['date'].strftime('%Y-%m-%d %H:%M')} (cible: {time_target.strftime('%H:%M')})"
+        'previous_affected_services_list': previous['affected_services_list'],
+        
+        # Métadonnées
+        'days_analyzed': len(trends_df),
+        'analysis_period': f"{trends_df['date'].min().strftime('%Y-%m-%d')} to {trends_df['date'].max().strftime('%Y-%m-%d')}",
+        'data_quality_score': calculate_data_quality_score(trends_df)
     }
+
+def find_previous_comparison_point(trends_df: pd.DataFrame, current_time: datetime) -> Optional[pd.Series]:
+    """
+    Trouve le point de comparaison précédent optimal
+    """
+    previous_day = current_time - timedelta(days=1)
+    time_target = previous_day.replace(
+        hour=current_time.hour, 
+        minute=current_time.minute, 
+        second=0, 
+        microsecond=0
+    )
+    
+    # Fenêtre horaire de ±30 minutes
+    time_window_start = time_target - timedelta(minutes=30)
+    time_window_end = time_target + timedelta(minutes=30)
+    
+    # Filtrage dans la fenêtre horaire
+    previous_files = trends_df[
+        (trends_df['date'] >= time_window_start) & 
+        (trends_df['date'] <= time_window_end)
+    ]
+    
+    if not previous_files.empty:
+        previous_files = previous_files.copy()
+        previous_files['time_diff'] = abs((previous_files['date'] - time_target).dt.total_seconds())
+        return previous_files.loc[previous_files['time_diff'].idxmin()]
+    
+    # Fallback: fichiers du jour précédent
+    previous_day_files = trends_df[trends_df['date'].dt.date == previous_day.date()]
+    if not previous_day_files.empty:
+        previous_day_files = previous_day_files.copy()
+        previous_day_files['time_diff'] = abs((previous_day_files['date'] - time_target).dt.total_seconds())
+        return previous_day_files.loc[previous_day_files['time_diff'].idxmin()]
+    
+    # Fallback: dernier fichier disponible avant current_time
+    previous_files_all = trends_df[trends_df['date'] < current_time]
+    if not previous_files_all.empty:
+        return previous_files_all.iloc[-1]
+    
+    return None
+
+def analyze_advanced_trends(trends_df: pd.DataFrame) -> Dict:
+    """
+    Analyse les tendances avancées et la volatilité
+    """
+    result = {}
+    
+    # Tendance hebdomadaire
+    if len(trends_df) >= 4:
+        avg_recent = trends_df.tail(3)['total_errors'].mean()
+        avg_older = trends_df.head(max(1, len(trends_df) - 3))['total_errors'].mean()
+        result['week_trend'] = avg_recent - avg_older
+        result['week_trend_percentage'] = round((result['week_trend'] / avg_older * 100) if avg_older > 0 else 0, 1)
+    else:
+        result['week_trend'] = 0
+        result['week_trend_percentage'] = 0
+    
+    # Volatilité et stabilité
+    volatility = trends_df['total_errors'].std()
+    result['volatility'] = round(volatility, 2)
+    
+    if volatility < 5:
+        result['stability_trend'] = "STABLE"
+    elif volatility < 15:
+        result['stability_trend'] = "MODERATE"
+    else:
+        result['stability_trend'] = "HIGH_VOLATILITY"
+    
+    # Momentum
+    result['momentum'] = calculate_momentum(trends_df)
+    
+    # Métriques supplémentaires
+    result['avg_error_density'] = round(trends_df['error_density'].mean(), 2)
+    result['peak_errors'] = int(trends_df['total_errors'].max())
+    result['best_day_errors'] = int(trends_df['total_errors'].min())
+    result['error_reduction_potential'] = result['peak_errors'] - result['best_day_errors']
+    
+    return result
+
+def calculate_momentum(trends_df: pd.DataFrame) -> str:
+    """
+    Calcule le momentum des erreurs
+    """
+    if len(trends_df) < 3:
+        return "INSUFFICIENT_DATA"
+    
+    # Utilise une régression linéaire simple pour le momentum
+    X = np.arange(len(trends_df)).reshape(-1, 1)
+    y = trends_df['total_errors'].values
+    
+    try:
+        slope = np.polyfit(range(len(trends_df)), y, 1)[0]
+        if slope > 2:
+            return "ACCELERATING"
+        elif slope < -2:
+            return "DECELERATING"
+        else:
+            return "NEUTRAL"
+    except:
+        return "NEUTRAL"
+
+def generate_predictions(trends_df: pd.DataFrame, current: pd.Series, error_trend: float) -> Dict:
+    """
+    Génère des prédictions avec marges d'erreur
+    """
+    predictions = {}
+    
+    # Méthode 1: Trend simple
+    simple_pred = max(0, current['total_errors'] + error_trend)
+    
+    # Méthode 2: Moyenne mobile
+    if len(trends_df) >= 3:
+        moving_avg = trends_df['total_errors'].rolling(window=3).mean().iloc[-1]
+        ma_pred = max(0, moving_avg + error_trend)
+    else:
+        ma_pred = simple_pred
+    
+    # Méthode 3: Régression linéaire
+    if len(trends_df) >= 5:
+        try:
+            X = np.arange(len(trends_df)).reshape(-1, 1)
+            y = trends_df['total_errors'].values
+            model = np.polyfit(range(len(trends_df)), y, 1)
+            regression_pred = max(0, np.polyval(model, len(trends_df)))
+        except:
+            regression_pred = simple_pred
+    else:
+        regression_pred = simple_pred
+    
+    # Prédiction consensus (moyenne pondérée)
+    weights = {
+        'simple': 0.3 if len(trends_df) < 3 else 0.2,
+        'moving_avg': 0.4 if len(trends_df) >= 3 else 0,
+        'regression': 0.4 if len(trends_df) >= 5 else 0.3
+    }
+    
+    total_weight = weights['simple'] + weights['moving_avg'] + weights['regression']
+    consensus_pred = (
+        weights['simple'] * simple_pred +
+        weights['moving_avg'] * ma_pred +
+        weights['regression'] * regression_pred
+    ) / total_weight
+    
+    # Calcul de la marge d'erreur
+    error_margin = calculate_error_margin(trends_df, consensus_pred)
+    
+    # Niveau de confiance
+    if len(trends_df) >= 7:
+        confidence = "HIGH"
+        confidence_level = 0.85
+    elif len(trends_df) >= 4:
+        confidence = "MEDIUM"
+        confidence_level = 0.70
+    else:
+        confidence = "LOW"
+        confidence_level = 0.55
+    
+    predictions.update({
+        'predicted_errors_simple': int(simple_pred),
+        'predicted_errors_moving_avg': int(ma_pred),
+        'predicted_errors_regression': int(regression_pred),
+        'predicted_errors_consensus': int(consensus_pred),
+        'prediction_confidence': confidence,
+        'confidence_level': confidence_level,
+        'error_margin_lower': int(max(0, consensus_pred - error_margin)),
+        'error_margin_upper': int(consensus_pred + error_margin),
+        'error_margin_range': int(error_margin),
+        'prediction_accuracy_estimate': f"±{int(error_margin)} erreurs",
+        'recommended_action': get_recommendation(consensus_pred, current['total_errors'], error_margin)
+    })
+    
+    return predictions
+
+def calculate_error_margin(trends_df: pd.DataFrame, prediction: float) -> float:
+    """
+    Calcule la marge d'erreur des prédictions basée sur l'historique
+    """
+    if len(trends_df) < 3:
+        return prediction * 0.3  # Marge conservatrice si peu de données
+    
+    # Calcul de l'erreur absolue moyenne des prédictions passées
+    actual_errors = trends_df['total_errors'].values
+    mae_values = []
+    
+    for i in range(2, len(actual_errors)):
+        # Prédiction basée sur la tendance précédente
+        predicted = actual_errors[i-1] + (actual_errors[i-1] - actual_errors[i-2])
+        mae_values.append(abs(predicted - actual_errors[i]))
+    
+    if mae_values:
+        avg_mae = np.mean(mae_values)
+        # Ajoute un buffer basé sur la volatilité
+        volatility_factor = trends_df['total_errors'].std() * 0.5
+        return avg_mae + volatility_factor
+    else:
+        return prediction * 0.25
+
+def analyze_seasonal_patterns(trends_df: pd.DataFrame) -> Dict:
+    """
+    Analyse les patterns saisonniers (quotidiens, hebdomadaires)
+    """
+    patterns = {
+        'daily_pattern': {},
+        'weekly_pattern': {},
+        'peak_hours': [],
+        'quiet_hours': []
+    }
+    
+    if len(trends_df) < 7:
+        patterns['data_sufficiency'] = "INSUFFICIENT_FOR_SEASONAL_ANALYSIS"
+        return patterns
+    
+    # Analyse par heure de la journée
+    trends_df['hour'] = trends_df['date'].dt.hour
+    hourly_pattern = trends_df.groupby('hour')['total_errors'].mean()
+    
+    if not hourly_pattern.empty:
+        patterns['daily_pattern'] = {
+            'peak_hour': hourly_pattern.idxmax(),
+            'peak_errors': int(hourly_pattern.max()),
+            'quiet_hour': hourly_pattern.idxmin(),
+            'quiet_errors': int(hourly_pattern.min())
+        }
+    
+    # Analyse par jour de la semaine
+    trends_df['weekday'] = trends_df['date'].dt.day_name()
+    weekday_pattern = trends_df.groupby('weekday')['total_errors'].mean()
+    
+    if not weekday_pattern.empty:
+        patterns['weekly_pattern'] = weekday_pattern.to_dict()
+    
+    patterns['data_sufficiency'] = "SUFFICIENT"
+    return patterns
+
+def detect_anomalies(trends_df: pd.DataFrame) -> List[Dict]:
+    """
+    Détecte les anomalies dans les données historiques
+    """
+    anomalies = []
+    
+    if len(trends_df) < 5:
+        return anomalies
+    
+    # Détection basée sur l'écart interquartile
+    Q1 = trends_df['total_errors'].quantile(0.25)
+    Q3 = trends_df['total_errors'].quantile(0.75)
+    IQR = Q3 - Q1
+    lower_bound = Q1 - 1.5 * IQR
+    upper_bound = Q3 + 1.5 * IQR
+    
+    for idx, row in trends_df.iterrows():
+        if row['total_errors'] < lower_bound or row['total_errors'] > upper_bound:
+            anomalies.append({
+                'date': row['date'],
+                'errors': int(row['total_errors']),
+                'type': 'LOW' if row['total_errors'] < lower_bound else 'HIGH',
+                'deviation': round((row['total_errors'] - trends_df['total_errors'].mean()) / trends_df['total_errors'].std(), 2)
+            })
+    
+    return anomalies
+
+def calculate_data_quality_score(trends_df: pd.DataFrame) -> float:
+    """
+    Calcule un score de qualité des données (0-100)
+    """
+    if len(trends_df) < 2:
+        return 0
+    
+    # Facteurs de qualité
+    completeness = 1.0  # Tous les fichiers ont été lus avec succès
+    consistency = 1 - (trends_df['total_services'].std() / trends_df['total_services'].mean()) if trends_df['total_services'].mean() > 0 else 0.8
+    timeliness = min(1.0, len(trends_df) / 7)  # Basé sur le nombre de jours de données
+    
+    return round((completeness * 0.4 + consistency * 0.3 + timeliness * 0.3) * 100, 1)
+
+def get_recommendation(predicted_errors: float, current_errors: float, error_margin: float) -> str:
+    """
+    Génère une recommandation basée sur les prédictions
+    """
+    if predicted_errors > current_errors + error_margin:
+        return "INCREASE_MONITORING"
+    elif predicted_errors < current_errors - error_margin:
+        return "MAINTAIN_CURRENT"
+    else:
+        return "NO_SIGNIFICANT_CHANGE"
+
+def calculate_enhanced_stats(data, system_name, trends_data=None):
+    """Calcule des statistiques avancées avec insights professionnels et prédictions"""
+    base_stats = {
+        'total_errors': 0, 'total_services': 0, 'affected_services': 0,
+        'health_percentage': 0, 'critical_services': 0, 'avg_errors': 0,
+        'top_error_service': 'N/A', 'status': 'NO_DATA',
+        'stability_index': 0, 'risk_level': 'UNKNOWN', 'business_impact': 'UNKNOWN',
+        'affected_services_list': [],
+        'critical_services_list': [],
+        'predicted_errors_consensus': 0,
+        'error_margin_range': 0,
+        'prediction_accuracy': 'N/A',
+        'confidence_level': 0,
+        'recommended_action': 'NO_DATA'
+    }
+
+    if data is None or data.empty:
+        if trends_data:
+            # Mise à jour avec les nouvelles données de tendance
+            base_stats.update({
+                'error_trend': trends_data.get('error_trend', 0),
+                'improvement_rate': trends_data.get('improvement_rate', 0),
+                'trend_status': 'NO_DATA',
+                'predicted_errors_consensus': trends_data.get('predicted_errors_consensus', 0),
+                'error_margin_lower': trends_data.get('error_margin_lower', 0),
+                'error_margin_upper': trends_data.get('error_margin_upper', 0),
+                'error_margin_range': trends_data.get('error_margin_range', 0),
+                'prediction_accuracy': trends_data.get('prediction_accuracy_estimate', 'N/A'),
+                'confidence_level': trends_data.get('confidence_level', 0),
+                'recommended_action': trends_data.get('recommended_action', 'NO_DATA'),
+                'volatility': trends_data.get('volatility', 0),
+                'week_trend': trends_data.get('week_trend', 0),
+                'momentum': trends_data.get('momentum', 'NEUTRAL'),
+                'stability_trend': trends_data.get('stability_trend', 'STABLE')
+            })
+        return base_stats
+
+    grouped_data = data.groupby('Service Name')['Error Count'].sum().reset_index()
+
+    # Statistiques de base
+    total_errors = int(grouped_data['Error Count'].sum())
+    total_services = len(grouped_data)
+    
+    # Récupérer les listes de services
+    affected_services_list = grouped_data[grouped_data['Error Count'] > 0]['Service Name'].tolist()
+    critical_services_list = grouped_data[grouped_data['Error Count'] >= 10]['Service Name'].tolist()
+    
+    affected_services_count = len(affected_services_list)
+    critical_services_count = len(critical_services_list)
+    
+    health_percentage = round(((total_services - affected_services_count) / total_services) * 100, 1) if total_services > 0 else 0
+    avg_errors = round(total_errors / total_services, 2) if total_services > 0 else 0
+
+    # Service le plus impacté
+    top_service = 'N/A'
+    if total_errors > 0:
+        max_idx = grouped_data['Error Count'].idxmax()
+        top_service = grouped_data.loc[max_idx, 'Service Name']
+
+    # Calcul de l'index de stabilité (0-100)
+    health_weight = health_percentage * 0.4
+    error_density = total_errors / total_services if total_services > 0 else 0
+    density_score = max(0, 100 - (error_density * 10)) * 0.3
+    critical_penalty = max(0, 100 - (critical_services_count / total_services * 200)) * 0.3 if total_services > 0 else 100
+    stability_index = round(health_weight + density_score + critical_penalty, 1)
+
+    # Évaluation des risques
+    critical_ratio = critical_services_count / total_services if total_services > 0 else 0
+    if critical_ratio > 0.3 or error_density > 10:
+        risk_level = 'HIGH'
+        business_impact = 'SEVERE'
+    elif critical_ratio > 0.1 or error_density > 5:
+        risk_level = 'MEDIUM'
+        business_impact = 'MODERATE'
+    else:
+        risk_level = 'LOW'
+        business_impact = 'MINIMAL'
+
+    # Statut global amélioré
+    if total_errors == 0:
+        status = 'HEALTHY'
+    elif critical_services_count > 0 or stability_index < 50:
+        status = 'CRITICAL'
+    elif stability_index < 70:
+        status = 'WARNING'
+    else:
+        status = 'HEALTHY'
+
+    # Métriques avancées
+    error_distribution = {
+        'zero_errors': int((grouped_data['Error Count'] == 0).sum()),
+        'low_errors': int((grouped_data['Error Count'].between(1, 5)).sum()),
+        'medium_errors': int((grouped_data['Error Count'].between(6, 10)).sum()),
+        'high_errors': int((grouped_data['Error Count'] > 10).sum())
+    }
+
+    # SLA et métriques de performance
+    uptime_percentage = round(((total_services - affected_services_count) / total_services) * 100, 2) if total_services > 0 else 0
+    sla_status = 'MEETING' if uptime_percentage >= 99.5 else 'AT_RISK' if uptime_percentage >= 95 else 'BREACH'
+
+    stats = {
+        'total_errors': total_errors,
+        'total_services': total_services,
+        'affected_services': affected_services_count,
+        'health_percentage': health_percentage,
+        'critical_services': critical_services_count,
+        'avg_errors': avg_errors,
+        'top_error_service': top_service,
+        'status': status,
+        'stability_index': stability_index,
+        'risk_level': risk_level,
+        'business_impact': business_impact,
+        'error_distribution': error_distribution,
+        'uptime_percentage': uptime_percentage,
+        'sla_status': sla_status,
+        'error_density': round(error_density, 3),
+        'critical_ratio': round(critical_ratio * 100, 1),
+        'affected_services_list': affected_services_list,
+        'critical_services_list': critical_services_list,
+        'predicted_errors_consensus': 0,
+        'error_margin_range': 0,
+        'prediction_accuracy': 'N/A',
+        'confidence_level': 0,
+        'recommended_action': 'NO_DATA'
+    }
+
+    # Ajouter les données de tendance si disponibles
+    if trends_data:
+        trend_status = 'IMPROVING' if trends_data.get('error_trend', 0) < 0 else 'DEGRADING' if trends_data.get('error_trend', 0) > 0 else 'STABLE'
+        
+        # Mise à jour avec les nouvelles métriques de prédiction
+        stats.update({
+            'error_trend': trends_data.get('error_trend', 0),
+            'improvement_rate': trends_data.get('improvement_rate', 0),
+            'week_trend': trends_data.get('week_trend', 0),
+            'days_analyzed': trends_data.get('days_analyzed', 0),
+            'trend_status': trend_status,
+            'volatility': trends_data.get('volatility', 0),
+            'momentum': trends_data.get('momentum', 'NEUTRAL'),
+            'reliability_trend': trends_data.get('reliability_trend', 0),
+            'stability_trend': trends_data.get('stability_trend', 'STABLE'),
+            'predicted_errors_consensus': trends_data.get('predicted_errors_consensus', 0),
+            'error_margin_lower': trends_data.get('error_margin_lower', 0),
+            'error_margin_upper': trends_data.get('error_margin_upper', 0),
+            'error_margin_range': trends_data.get('error_margin_range', 0),
+            'prediction_accuracy': trends_data.get('prediction_accuracy_estimate', 'N/A'),
+            'confidence_level': trends_data.get('confidence_level', 0),
+            'recommended_action': trends_data.get('recommended_action', 'NO_DATA'),
+            'predicted_errors_simple': trends_data.get('predicted_errors_simple', 0),
+            'predicted_errors_moving_avg': trends_data.get('predicted_errors_moving_avg', 0),
+            'predicted_errors_regression': trends_data.get('predicted_errors_regression', 0),
+            'prediction_confidence': trends_data.get('prediction_confidence', 'LOW')
+        })
+
+        # S'assurer que les listes de tendances sont passées si elles existent
+        if 'current_affected_services_list' in trends_data:
+            stats['affected_services_list'] = trends_data['current_affected_services_list']
+        if 'current_critical_services_list' in trends_data:
+            stats['critical_services_list'] = trends_data['current_critical_services_list']
+
+    return stats
 
 import numpy as np
 
@@ -385,139 +817,7 @@ def create_trend_chart(directory, trends_data, system_name):
         print(f"Erreur graphique tendance: {e}")
         plt.close()
         return None
-
-def calculate_enhanced_stats(data, system_name, trends_data=None):
-    """Calcule des statistiques avancées avec insights professionnels"""
-    base_stats = {
-        'total_errors': 0, 'total_services': 0, 'affected_services': 0,
-        'health_percentage': 0, 'critical_services': 0, 'avg_errors': 0,
-        'top_error_service': 'N/A', 'status': 'NO_DATA',
-        'stability_index': 0, 'risk_level': 'UNKNOWN', 'business_impact': 'UNKNOWN',
-        'affected_services_list': [],
-        'critical_services_list': []
-    }
-
-    if data is None or data.empty:
-        if trends_data:
-            base_stats.update({
-                'error_trend': trends_data.get('error_trend', 0),
-                'improvement_rate': trends_data.get('improvement_rate', 0),
-                'trend_status': 'NO_DATA',
-                'predicted_errors': trends_data.get('predicted_errors', 0),
-                'volatility': trends_data.get('volatility', 0)
-            })
-        return base_stats
-
-    grouped_data = data.groupby('Service Name')['Error Count'].sum().reset_index()
-
-    # Statistiques de base
-    total_errors = int(grouped_data['Error Count'].sum())
-    total_services = len(grouped_data)
     
-    # Récupérer les listes de services
-    affected_services_list = grouped_data[grouped_data['Error Count'] > 0]['Service Name'].tolist()
-    critical_services_list = grouped_data[grouped_data['Error Count'] >= 10]['Service Name'].tolist()
-    
-    affected_services_count = len(affected_services_list)
-    critical_services_count = len(critical_services_list)
-    
-    health_percentage = round(((total_services - affected_services_count) / total_services) * 100, 1) if total_services > 0 else 0
-    avg_errors = round(total_errors / total_services, 2) if total_services > 0 else 0
-
-    # Service le plus impacté
-    top_service = 'N/A'
-    if total_errors > 0:
-        max_idx = grouped_data['Error Count'].idxmax()
-        top_service = grouped_data.loc[max_idx, 'Service Name']
-
-    # Calcul de l'index de stabilité (0-100)
-    health_weight = health_percentage * 0.4
-    error_density = total_errors / total_services if total_services > 0 else 0
-    density_score = max(0, 100 - (error_density * 10)) * 0.3
-    critical_penalty = max(0, 100 - (critical_services_count / total_services * 200)) * 0.3 if total_services > 0 else 100
-    stability_index = round(health_weight + density_score + critical_penalty, 1)
-
-    # Évaluation des risques
-    critical_ratio = critical_services_count / total_services if total_services > 0 else 0
-    if critical_ratio > 0.3 or error_density > 10:
-        risk_level = 'HIGH'
-        business_impact = 'SEVERE'
-    elif critical_ratio > 0.1 or error_density > 5:
-        risk_level = 'MEDIUM'
-        business_impact = 'MODERATE'
-    else:
-        risk_level = 'LOW'
-        business_impact = 'MINIMAL'
-
-    # Statut global amélioré
-    if total_errors == 0:
-        status = 'HEALTHY'
-    elif critical_services_count > 0 or stability_index < 50:
-        status = 'CRITICAL'
-    elif stability_index < 70:
-        status = 'WARNING'
-    else:
-        status = 'HEALTHY'
-
-    # Métriques avancées
-    error_distribution = {
-        'zero_errors': int((grouped_data['Error Count'] == 0).sum()),
-        'low_errors': int((grouped_data['Error Count'].between(1, 5)).sum()),
-        'medium_errors': int((grouped_data['Error Count'].between(6, 10)).sum()),
-        'high_errors': int((grouped_data['Error Count'] > 10).sum())
-    }
-
-    # SLA et métriques de performance
-    uptime_percentage = round(((total_services - affected_services_count) / total_services) * 100, 2) if total_services > 0 else 0
-    sla_status = 'MEETING' if uptime_percentage >= 99.5 else 'AT_RISK' if uptime_percentage >= 95 else 'BREACH'
-
-    stats = {
-        'total_errors': total_errors,
-        'total_services': total_services,
-        'affected_services': affected_services_count,
-        'health_percentage': health_percentage,
-        'critical_services': critical_services_count,
-        'avg_errors': avg_errors,
-        'top_error_service': top_service,
-        'status': status,
-        'stability_index': stability_index,
-        'risk_level': risk_level,
-        'business_impact': business_impact,
-        'error_distribution': error_distribution,
-        'uptime_percentage': uptime_percentage,
-        'sla_status': sla_status,
-        'error_density': round(error_density, 3),
-        'critical_ratio': round(critical_ratio * 100, 1),
-        'affected_services_list': affected_services_list,
-        'critical_services_list': critical_services_list
-    }
-
-    # Ajouter les données de tendance si disponibles
-    if trends_data:
-        trend_status = 'IMPROVING' if trends_data.get('error_trend', 0) < 0 else 'DEGRADING' if trends_data.get('error_trend', 0) > 0 else 'STABLE'
-        
-        # S'assurer que les listes de tendances sont passées si elles existent
-        if 'current_affected_services_list' in trends_data:
-            stats['affected_services_list'] = trends_data['current_affected_services_list']
-        if 'current_critical_services_list' in trends_data:
-            stats['critical_services_list'] = trends_data['current_critical_services_list']
-
-        stats.update({
-            'error_trend': trends_data.get('error_trend', 0),
-            'improvement_rate': trends_data.get('improvement_rate', 0),
-            'week_trend': trends_data.get('week_trend', 0),
-            'days_analyzed': trends_data.get('days_analyzed', 0),
-            'trend_status': trend_status,
-            'volatility': trends_data.get('volatility', 0),
-            'momentum': trends_data.get('momentum', 'NEUTRAL'),
-            'predicted_errors': trends_data.get('predicted_errors', 0),
-            'prediction_confidence': trends_data.get('prediction_confidence', 'LOW'),
-            'reliability_trend': trends_data.get('reliability_trend', 0),
-            'stability_trend': trends_data.get('stability_trend', 'STABLE')
-        })
-
-    return stats
-
 #
 # Generates a professional, enhanced HTML report with trend analysis and explanatory text.
 #
@@ -1038,6 +1338,10 @@ def create_executive_summary_html_with_trends(systems_data, all_stats, date_str)
     total_affected_services = sum(len(stats.get('affected_services_list', [])) for stats in all_stats.values())
     total_critical_services = sum(len(stats.get('critical_services_list', [])) for stats in all_stats.values())
     
+    # Calcul des prédictions globales
+    total_predicted_errors = sum(stats.get('predicted_errors_consensus', 0) for stats in all_stats.values())
+    avg_confidence = np.mean([stats.get('confidence_level', 0) for stats in all_stats.values() if stats.get('confidence_level', 0) > 0])
+    
     # Global status with trend
     if degrading_systems > improving_systems:
         global_status = "📉 SYSTEMS DEGRADING"
@@ -1053,19 +1357,22 @@ def create_executive_summary_html_with_trends(systems_data, all_stats, date_str)
     # Top 5 degrading services
     all_trends = []
     for system_name, stats in all_stats.items():
-        if stats.get('data') is not None and not stats['data'].empty:
-            # Check for error_trend and previous_errors to calculate degradation
-            current_errors = stats.get('total_errors', 0)
-            previous_errors = stats.get('previous_errors', 0)
-            if current_errors > previous_errors:
-                degradation_amount = current_errors - previous_errors
-                all_trends.append({'system': system_name, 'errors': degradation_amount})
+        if stats.get('error_trend', 0) > 0:
+            all_trends.append({
+                'system': system_name, 
+                'errors': stats.get('error_trend', 0),
+                'current': stats.get('total_errors', 0),
+                'predicted': stats.get('predicted_errors_consensus', 0)
+            })
 
     top_degrading_systems = sorted(all_trends, key=lambda x: x['errors'], reverse=True)[:5]
     
     top_degrading_html = ""
     if top_degrading_systems:
-        top_degrading_html = "<ul>" + "".join([f"<li><strong>{d['system']}</strong>: +{d['errors']} errors</li>" for d in top_degrading_systems]) + "</ul>"
+        top_degrading_html = "<ul>" + "".join([
+            f"<li><strong>{d['system']}</strong>: +{d['errors']} errors (Current: {d['current']}, Predicted: {d['predicted']})</li>" 
+            for d in top_degrading_systems
+        ]) + "</ul>"
     else:
         top_degrading_html = "<p>No degrading systems identified.</p>"
     
@@ -1088,316 +1395,34 @@ def create_executive_summary_html_with_trends(systems_data, all_stats, date_str)
     <head>
         <meta charset="UTF-8">
         <style>
-            body {{ 
-                font-family: 'Inter', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif; 
-                margin: 0; 
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                min-height: 100vh;
-                color: #2d3748;
-            }}
-            .container {{ 
-                max-width: 1400px; 
-                margin: 20px auto; 
-                background: rgba(255, 255, 255, 0.95); 
-                border-radius: 24px; 
-                backdrop-filter: blur(20px);
-                box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.1);
-                overflow: hidden;
-            }}
-            
-            .header {{ 
-                background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05)); 
-                color: #1a202c; 
-                padding: 60px 50px; 
-                text-align: center; 
-                position: relative;
-                overflow: hidden;
-            }}
-            .header::before {{
-                content: '';
-                position: absolute;
-                top: 0;
-                left: 0;
-                right: 0;
-                bottom: 0;
-                background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M30 30c0-11.046-8.954-20-20-20s-20 8.954-20 20 8.954 20 20 20 20-8.954 20-20zM0 0h20v20H0V0zm40 40h20v20H40V40z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E") repeat;
-                opacity: 0.1;
-            }}
-            .header h1 {{ 
-                font-size: 3.2rem; 
-                margin: 0 0 15px; 
-                font-weight: 800; 
-                background: linear-gradient(135deg, #667eea, #764ba2);
-                -webkit-background-clip: text;
-                -webkit-text-fill-color: transparent;
-                background-clip: text;
-                position: relative;
-                z-index: 1;
-            }}
-            .header p {{
-                position: relative;
-                z-index: 1;
-            }}
-            
-            .global-status {{ 
-                padding: 16px 32px; 
-                border-radius: 50px; 
-                font-weight: 700; 
-                margin-top: 25px; 
-                display: inline-block;
-                box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.2);
-                position: relative;
-                z-index: 1;
-            }}
-            
-            .content {{ 
-                padding: 50px; 
-            }}
-            
-            /* Soft UI Trend Summary avec cartes en ligne */
-            .trend-summary {{ 
-                background: linear-gradient(145deg, #ffffff, #f7fafc);
-                border-radius: 20px; 
-                padding: 40px; 
-                margin: 30px 0;
-                box-shadow: 
-                    20px 20px 60px #d1d9e6, 
-                    -20px -20px 60px #ffffff,
-                    inset 2px 2px 5px rgba(255,255,255,0.8),
-                    inset -2px -2px 5px rgba(0,0,0,0.1);
-                border: 1px solid rgba(255, 255, 255, 0.2);
-            }}
-            .trend-summary h3 {{
-                margin: 0 0 30px 0; 
-                font-size: 1.8rem;
-                font-weight: 700;
-                color: #2d3748;
-                text-align: center;
-                text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);
-            }}
-            
-            /* Grid pour les métriques en une ligne responsive */
-            .trend-metrics-grid {{ 
-                display: flex;
-                flex-wrap: wrap;
-                gap: 20px; 
-                justify-content: space-between;
-            }}
-            .trend-metric-card {{ 
-                flex: 1;
-                min-width: 160px;
-                max-width: 200px;
-                text-align: center;
-                padding: 25px 20px;
-                background: linear-gradient(145deg, #f7fafc, #edf2f7);
+            /* [VOTRE CSS EXISTANT] */
+            .prediction-card {{
+                background: linear-gradient(145deg, #f0fff4, #c6f6d5);
+                padding: 25px;
                 border-radius: 16px;
-                box-shadow: 
-                    6px 6px 12px #d1d9e6,
-                    -6px -6px 12px #ffffff,
-                    inset 1px 1px 2px rgba(255,255,255,0.8);
-                transition: all 0.3s ease;
-                border: 1px solid rgba(255, 255, 255, 0.3);
+                margin: 20px 0;
+                box-shadow: 8px 8px 16px #d1d9e6, -8px -8px 16px #ffffff;
+                border-left: 4px solid #38a169;
             }}
-            .trend-metric-card:hover {{
-                transform: translateY(-3px);
-                box-shadow: 
-                    8px 8px 16px #d1d9e6,
-                    -8px -8px 16px #ffffff,
-                    inset 2px 2px 4px rgba(255,255,255,0.9);
-            }}
-            .trend-metric-number {{
-                font-size: 2.2rem; 
-                font-weight: 800;
-                color: #4a5568;
-                text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);
-                margin-bottom: 8px;
-            }}
-            .trend-metric-label {{
-                font-size: 0.9rem;
-                color: #718096;
-                font-weight: 600;
-                text-transform: uppercase;
-                letter-spacing: 0.5px;
-            }}
-            
-            /* Media queries pour la responsivité */
-            @media (max-width: 1200px) {{
-                .trend-metrics-grid {{
-                    justify-content: center;
-                }}
-                .trend-metric-card {{
-                    min-width: 140px;
-                    max-width: 180px;
-                }}
-            }}
-            @media (max-width: 768px) {{
-                .trend-metrics-grid {{
-                    flex-direction: column;
-                    align-items: center;
-                }}
-                .trend-metric-card {{
-                    max-width: 280px;
-                    width: 100%;
-                }}
-            }}
-            
-            .systems-grid {{ 
-                display: grid; 
-                grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); 
-                gap: 30px; 
-                margin: 40px 0; 
-            }}
-            .system-card {{ 
-                background: linear-gradient(145deg, #ffffff, #f7fafc);
-                border-radius: 20px; 
-                padding: 30px; 
-                box-shadow: 
-                    15px 15px 30px #d1d9e6, 
-                    -15px -15px 30px #ffffff,
-                    inset 1px 1px 3px rgba(255,255,255,0.8);
-                transition: all 0.3s ease;
-                border: 1px solid rgba(255, 255, 255, 0.2);
-                position: relative;
-                overflow: hidden;
-            }}
-            .system-card::before {{
-                content: '';
-                position: absolute;
-                top: 0;
-                left: 0;
-                right: 0;
-                height: 4px;
-                background: linear-gradient(90deg, #667eea, #764ba2);
-                border-radius: 20px 20px 0 0;
-            }}
-            .system-card:hover {{ 
-                transform: translateY(-8px); 
-                box-shadow: 
-                    20px 20px 40px #d1d9e6, 
-                    -20px -20px 40px #ffffff,
-                    inset 2px 2px 5px rgba(255,255,255,0.9);
-            }}
-            .system-name {{ 
-                font-size: 1.4rem; 
-                font-weight: 700; 
-                margin-bottom: 20px; 
-                color: #2d3748;
-                text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);
-            }}
-            .trend-indicator {{ 
-                font-size: 1rem; 
-                margin: 15px 0; 
-                padding: 10px 18px; 
-                border-radius: 25px; 
-                display: inline-block;
-                font-weight: 600;
-                box-shadow: inset 2px 2px 5px rgba(0,0,0,0.1), inset -2px -2px 5px rgba(255,255,255,0.8);
-            }}
-            .improving {{ 
-                background: linear-gradient(145deg, #c6f6d5, #9ae6b4); 
-                color: #22543d; 
-            }}
-            .degrading {{ 
-                background: linear-gradient(145deg, #fed7d7, #feb2b2); 
-                color: #742a2a; 
-            }}
-            .stable {{ 
-                background: linear-gradient(145deg, #bee3f8, #90cdf4); 
-                color: #2a4365; 
-            }}
-            .danger {{ color: #e53e3e; }}
-            .success {{ color: #38a169; }}
-            .warning {{ color: #d69e2e; }}
-            .info {{ 
-                color: #2b6cb0; 
+            .prediction-range {{
                 background: linear-gradient(145deg, #bee3f8, #90cdf4);
-                box-shadow: inset 2px 2px 5px rgba(0,0,0,0.1), inset -2px -2px 5px rgba(255,255,255,0.8);
-            }}
-            
-            .footer {{ 
-                background: linear-gradient(145deg, #2d3748, #1a202c);
-                color: black; 
-                padding: 40px; 
+                padding: 15px;
+                border-radius: 12px;
+                margin: 15px 0;
                 text-align: center;
-                position: relative;
+            }}
+            .confidence-meter {{
+                height: 20px;
+                background: #e2e8f0;
+                border-radius: 10px;
+                margin: 10px 0;
                 overflow: hidden;
             }}
-            .footer::before {{
-                content: '';
-                position: absolute;
-                top: 0;
-                left: 0;
-                right: 0;
-                bottom: 0;
-                background: linear-gradient(45deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
-            }}
-            .footer p {{
-                position: relative;
-                z-index: 1;
-                text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
-            }}
-            
-            .list-section {{ 
-                display: flex; 
-                justify-content: space-between; 
-                gap: 30px; 
-                margin-top: 40px; 
-            }}
-            .list-card {{ 
-                flex: 1; 
-                background: linear-gradient(145deg, #f7fafc, #edf2f7);
-                padding: 30px; 
-                border-radius: 18px; 
-                box-shadow: 
-                    12px 12px 24px #d1d9e6,
-                    -12px -12px 24px #ffffff,
-                    inset 1px 1px 3px rgba(255,255,255,0.8);
-                border: 1px solid rgba(255, 255, 255, 0.3);
-            }}
-            .list-card h4 {{ 
-                margin-top: 0; 
-                color: #2d3748; 
-                border-bottom: 2px solid rgba(102, 126, 234, 0.2);
-                padding-bottom: 15px;
-                text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);
-                font-weight: 700;
-            }}
-            .list-card ul {{ 
-                list-style-type: none; 
-                padding: 0; 
-                margin: 0; 
-            }}
-            .list-card li {{ 
-                padding: 12px 0; 
-                border-bottom: 1px solid rgba(0,0,0,0.05);
-                font-size: 1rem;
-                transition: all 0.2s ease;
-            }}
-            .list-card li:hover {{
-                padding-left: 10px;
-                color: #667eea;
-            }}
-            .list-card li:last-child {{ 
-                border-bottom: none; 
-            }}
-            
-            .recommendations {{
-                background: linear-gradient(145deg, #fff5f5, #fed7d7);
-                padding: 40px; 
-                border-radius: 20px; 
-                margin: 40px 0;
-                box-shadow: 
-                    15px 15px 30px #d1d9e6,
-                    -15px -15px 30px #ffffff,
-                    inset 1px 1px 3px rgba(255,255,255,0.8);
-                border: 1px solid rgba(255, 255, 255, 0.3);
-            }}
-            .recommendations h3 {{
-                font-size: 1.6rem; 
-                margin-bottom: 25px;
-                color: #742a2a;
-                text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);
-                font-weight: 700;
+            .confidence-fill {{
+                height: 100%;
+                border-radius: 10px;
+                background: linear-gradient(90deg, #38a169, #68d391);
+                transition: width 0.5s ease;
             }}
         </style>
     </head>
@@ -1439,17 +1464,40 @@ def create_executive_summary_html_with_trends(systems_data, all_stats, date_str)
                             <div class="trend-metric-label">Services Monitored</div>
                         </div>
                     </div>
+                    
+                    <!-- Section Prédictions Globales -->
+                    <div class="prediction-card">
+                        <h4 style="margin: 0 0 15px 0; color: #22543d; font-weight: 700;">🔮 Global Predictions</h4>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
+                            <div style="text-align: center;">
+                                <div style="font-size: 2rem; font-weight: 800; color: #2d3748;">{int(total_predicted_errors)}</div>
+                                <div style="font-size: 0.9rem; color: #4a5568;">Predicted Errors</div>
+                            </div>
+                            <div style="text-align: center;">
+                                <div style="font-size: 1.5rem; font-weight: 800; color: #38a169;">{avg_confidence:.0%}</div>
+                                <div style="font-size: 0.9rem; color: #4a5568;">Avg Confidence</div>
+                                <div class="confidence-meter">
+                                    <div class="confidence-fill" style="width: {avg_confidence * 100}%;"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 
-                <h2 style="color: #2d3748; margin: 50px 0 30px; font-size: 2rem; font-weight: 700; text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);">🖥️ Systems Performance Dashboard</h2>
+                <h2 style="color: #2d3748; margin: 50px 0 30px; font-size: 2rem; font-weight: 700;">🖥️ Systems Performance Dashboard</h2>
                 <div class="systems-grid">
     """
     
-    # Adding system cards with trends
+    # Adding system cards with trends and predictions
     for system_name, stats in all_stats.items():
         error_trend = stats.get('error_trend', 0)
         trend_class = 'improving' if error_trend < 0 else 'degrading' if error_trend > 0 else 'stable'
         trend_text = f'📈 -{abs(error_trend)} errors' if error_trend < 0 else f'📉 +{error_trend} errors' if error_trend > 0 else '➡️ No change'
+        
+        # Données de prédiction
+        predicted_errors = stats.get('predicted_errors_consensus', 0)
+        error_margin = stats.get('error_margin_range', 0)
+        confidence = stats.get('confidence_level', 0)
         
         html += f"""
                     <div class="system-card">
@@ -1459,14 +1507,22 @@ def create_executive_summary_html_with_trends(systems_data, all_stats, date_str)
                         </div>
                         <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin: 20px 0;">
                             <div style="text-align: center; padding: 15px; background: linear-gradient(145deg, #edf2f7, #e2e8f0); border-radius: 12px; box-shadow: inset 3px 3px 6px #d1d9e6, inset -3px -3px 6px #ffffff;">
-                                <div style="font-size: 1.6rem; font-weight: 800; color: {'#e53e3e' if stats.get('total_errors', 0) > 0 else '#38a169'}; text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);">{stats.get('total_errors', 0)}</div>
+                                <div style="font-size: 1.6rem; font-weight: 800; color: {'#e53e3e' if stats.get('total_errors', 0) > 0 else '#38a169'};">{stats.get('total_errors', 0)}</div>
                                 <div style="font-size: 0.9rem; color: #718096; font-weight: 600;">Current Errors</div>
                             </div>
                             <div style="text-align: center; padding: 15px; background: linear-gradient(145deg, #edf2f7, #e2e8f0); border-radius: 12px; box-shadow: inset 3px 3px 6px #d1d9e6, inset -3px -3px 6px #ffffff;">
-                                <div style="font-size: 1.6rem; font-weight: 800; color: #4a5568; text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);">{stats.get('health_percentage', 0):.1f}%</div>
+                                <div style="font-size: 1.6rem; font-weight: 800; color: #4a5568;">{stats.get('health_percentage', 0):.1f}%</div>
                                 <div style="font-size: 0.9rem; color: #718096; font-weight: 600;">Health Rate</div>
                             </div>
                         </div>
+                        
+                        <!-- Section Prédiction -->
+                        <div style="background: linear-gradient(145deg, #f0fff4, #c6f6d5); padding: 15px; border-radius: 12px; margin: 15px 0; border-left: 3px solid #38a169;">
+                            <div style="font-size: 0.9rem; font-weight: 700; color: #22543d; margin-bottom: 8px;">🔮 Prediction: {int(predicted_errors)} ±{int(error_margin)}</div>
+                            <div style="font-size: 0.8rem; color: #38a169;">Confidence: {confidence:.0%}</div>
+                            <div style="font-size: 0.8rem; color: #2d3748; margin-top: 5px;">{stats.get('recommended_action', '').replace('_', ' ').title()}</div>
+                        </div>
+                        
                         <div style="margin-top: 20px; font-size: 0.95rem; color: #4a5568; line-height: 1.6;">
                             <div style="margin-bottom: 8px;">Critical Services: <span style="font-weight: 700; color: {'#e53e3e' if stats.get('critical_services', 0) > 0 else '#38a169'};">{stats.get('critical_services', 0)}</span></div>
                             <div style="margin-bottom: 8px;">Most Impacted: <span style="font-weight: 700; color: #667eea;">{stats.get('top_error_service', 'N/A')}</span></div>
@@ -1478,7 +1534,7 @@ def create_executive_summary_html_with_trends(systems_data, all_stats, date_str)
     html += f"""
                 </div>
                 
-                <h2 style="color: #2d3748; margin: 50px 0 30px; font-size: 2rem; font-weight: 700; text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);">❗ Actionable Insights</h2>
+                <h2 style="color: #2d3748; margin: 50px 0 30px; font-size: 2rem; font-weight: 700;">❗ Actionable Insights</h2>
                 <div class="list-section">
                     <div class="list-card">
                         <h4 style="color: #e53e3e;">Top 5 Degrading Systems ({len(top_degrading_systems)})</h4>
@@ -1499,6 +1555,7 @@ def create_executive_summary_html_with_trends(systems_data, all_stats, date_str)
                                 {'<li style="margin-bottom: 8px;">Investigate degrading systems immediately</li>' if degrading_systems > 0 else '<li style="margin-bottom: 8px;">Maintain current monitoring practices</li>'}
                                 {'<li style="margin-bottom: 8px;">Replicate improvement strategies across systems</li>' if improving_systems > 0 else '<li style="margin-bottom: 8px;">Review error prevention measures</li>'}
                                 <li style="margin-bottom: 8px;">Focus on critical services requiring attention</li>
+                                <li style="margin-bottom: 8px;">Monitor predicted error ranges closely</li>
                             </ul>
                         </div>
                         <div style="background: linear-gradient(145deg, #ffffff, #f7fafc); padding: 25px; border-radius: 16px; box-shadow: inset 3px 3px 6px #d1d9e6, inset -3px -3px 6px #ffffff;">
@@ -1508,6 +1565,7 @@ def create_executive_summary_html_with_trends(systems_data, all_stats, date_str)
                                 <li style="margin-bottom: 8px;">Implement predictive maintenance where possible</li>
                                 <li style="margin-bottom: 8px;">Document successful improvement strategies</li>
                                 <li style="margin-bottom: 8px;">Plan capacity upgrades for consistently problematic services</li>
+                                <li style="margin-bottom: 8px;">Use prediction confidence levels for resource allocation</li>
                             </ul>
                         </div>
                     </div>
@@ -1516,7 +1574,7 @@ def create_executive_summary_html_with_trends(systems_data, all_stats, date_str)
             
             <div class="footer">
                 <p style="font-size: 1.2rem; font-weight: 700; margin-bottom: 10px;"><strong>🚀 Advanced MTN Systems Monitoring</strong></p>
-                <p style="font-size: 1rem; margin-bottom: 10px;">📈 Trend Analysis • 📊 Performance Tracking • ⚡ Real-time Insights</p>
+                <p style="font-size: 1rem; margin-bottom: 10px;">📈 Trend Analysis • 📊 Performance Tracking • 🔮 Predictive Insights</p>
                 <p style="font-size: 0.9rem; opacity: 0.9;">Generated: {date_str} | Next Analysis: Tomorrow</p>
             </div>
         </div>
