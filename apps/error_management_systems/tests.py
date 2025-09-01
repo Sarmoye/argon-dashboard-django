@@ -1669,7 +1669,7 @@ def create_executive_summary_html_with_trends(systems_data, all_stats, date_str)
     top_degrading_html = ""
     if top_degrading_systems:
         top_degrading_html = "<ul>" + "".join([
-            f"<li><strong>{d['system']}</strong>: +{d['errors']} errors (Current: {d['current']}, Predicted: {d['predicted']}, Confidence: {d['confidence']:.0%})</li>" 
+            f"<li><strong>{d['system']}</strong>: +{d['errors']} errors (Current: {d['current']}, Predicted: {d['predicted']}, Confidence: {d['confidence']}%)</li>" 
             for d in top_degrading_systems
         ]) + "</ul>"
     else:
