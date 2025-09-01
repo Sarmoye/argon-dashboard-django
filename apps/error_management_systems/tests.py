@@ -2266,11 +2266,6 @@ def create_executive_summary_html_with_trends(systems_data, all_stats, date_str)
             <div class="footer">
                 <p style="font-size: 1.2rem; font-weight: 700; margin-bottom: 10px;"><strong>🚀 Advanced MTN Systems Monitoring</strong></p>
                 <p style="font-size: 1rem; margin-bottom: 10px;">📈 Trend Analysis • 🔮 Predictive Analytics • 📊 Performance Tracking • ⚡ Real-time Insights</p>
-                <p style="font-size: 0.9rem; opacity: 0.9;">Generated: {date_str} | Next Analysis: Tomorrow | Prediction Model: v2.0</p>
-                <p style="font-size: 0.8rem; opacity: 0.8; margin-top: 15px;">
-                    Global Confidence: {avg_confidence_level:.1f}% | Total Predictions: {int(total_predicted_errors)} errors | 
-                    Risk Assessment: {high_risk_systems} high-risk systems detected
-                </p>
             </div>
         </div>
     </body>
