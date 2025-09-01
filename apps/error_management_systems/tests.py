@@ -1636,6 +1636,10 @@ def create_executive_summary_html_with_trends(systems_data, all_stats, date_str)
     total_affected_services = sum(len(stats.get('affected_services_list', [])) for stats in all_stats.values())
     total_critical_services = sum(len(stats.get('critical_services_list', [])) for stats in all_stats.values())
     
+    # Calcul des prédictions globales
+    total_predicted_errors = sum(stats.get('predicted_errors_consensus', 0) for stats in all_stats.values())
+    avg_confidence = np.mean([stats.get('confidence_level', 0) for stats in all_stats.values() if stats.get('confidence_level', 0) > 0])
+    
     # Global status with trend
     if degrading_systems > improving_systems:
         global_status = "📉 SYSTEMS DEGRADING"
@@ -1651,19 +1655,23 @@ def create_executive_summary_html_with_trends(systems_data, all_stats, date_str)
     # Top 5 degrading services
     all_trends = []
     for system_name, stats in all_stats.items():
-        if stats.get('data') is not None and not stats['data'].empty:
-            # Check for error_trend and previous_errors to calculate degradation
-            current_errors = stats.get('total_errors', 0)
-            previous_errors = stats.get('previous_errors', 0)
-            if current_errors > previous_errors:
-                degradation_amount = current_errors - previous_errors
-                all_trends.append({'system': system_name, 'errors': degradation_amount})
+        if stats.get('error_trend', 0) > 0:
+            all_trends.append({
+                'system': system_name, 
+                'errors': stats.get('error_trend', 0),
+                'current': stats.get('total_errors', 0),
+                'predicted': stats.get('predicted_errors_consensus', 0),
+                'confidence': stats.get('confidence_level', 0)
+            })
 
     top_degrading_systems = sorted(all_trends, key=lambda x: x['errors'], reverse=True)[:5]
     
     top_degrading_html = ""
     if top_degrading_systems:
-        top_degrading_html = "<ul>" + "".join([f"<li><strong>{d['system']}</strong>: +{d['errors']} errors</li>" for d in top_degrading_systems]) + "</ul>"
+        top_degrading_html = "<ul>" + "".join([
+            f"<li><strong>{d['system']}</strong>: +{d['errors']} errors (Current: {d['current']}, Predicted: {d['predicted']}, Confidence: {d['confidence']:.0%})</li>" 
+            for d in top_degrading_systems
+        ]) + "</ul>"
     else:
         top_degrading_html = "<p>No degrading systems identified.</p>"
     
@@ -1997,6 +2005,42 @@ def create_executive_summary_html_with_trends(systems_data, all_stats, date_str)
                 text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);
                 font-weight: 700;
             }}
+            
+            /* Styles pour les prédictions */
+            .prediction-section {{
+                background: linear-gradient(145deg, #f0fff4, #c6f6d5);
+                border-radius: 20px;
+                padding: 30px;
+                margin: 30px 0;
+                box-shadow: 
+                    15px 15px 30px #d1d9e6,
+                    -15px -15px 30px #ffffff,
+                    inset 1px 1px 3px rgba(255,255,255,0.8);
+                border: 1px solid rgba(255, 255, 255, 0.3);
+            }}
+            .prediction-card {{
+                background: linear-gradient(145deg, #ffffff, #f7fafc);
+                padding: 20px;
+                border-radius: 16px;
+                margin: 15px 0;
+                box-shadow: 
+                    8px 8px 16px #d1d9e6,
+                    -8px -8px 16px #ffffff,
+                    inset 1px 1px 2px rgba(255,255,255,0.8);
+                border-left: 4px solid #38a169;
+            }}
+            .confidence-meter {{
+                height: 15px;
+                background: #e2e8f0;
+                border-radius: 8px;
+                margin: 10px 0;
+                overflow: hidden;
+            }}
+            .confidence-fill {{
+                height: 100%;
+                border-radius: 8px;
+                background: linear-gradient(90deg, #38a169, #68d391);
+            }}
         </style>
     </head>
     <body>
@@ -2039,6 +2083,35 @@ def create_executive_summary_html_with_trends(systems_data, all_stats, date_str)
                     </div>
                 </div>
                 
+                <!-- Nouvelle section Prédictions -->
+                <div class="prediction-section">
+                    <h3 style="margin: 0 0 25px 0; font-size: 1.8rem; font-weight: 700; color: #22543d; text-align: center;">🔮 Predictive Insights</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+                        <div class="prediction-card">
+                            <h4 style="margin: 0 0 15px 0; color: #22543d; font-weight: 700;">Total Predicted Errors</h4>
+                            <div style="font-size: 2.5rem; font-weight: 800; color: #2d3748; text-align: center;">{int(total_predicted_errors)}</div>
+                            <div style="text-align: center; color: #4a5568; margin-top: 10px;">Across all systems</div>
+                        </div>
+                        <div class="prediction-card">
+                            <h4 style="margin: 0 0 15px 0; color: #22543d; font-weight: 700;">Average Confidence</h4>
+                            <div style="font-size: 2rem; font-weight: 800; color: #38a169; text-align: center;">{avg_confidence:.0%}</div>
+                            <div class="confidence-meter">
+                                <div class="confidence-fill" style="width: {avg_confidence * 100}%;"></div>
+                            </div>
+                            <div style="text-align: center; color: #4a5568; margin-top: 10px;">Prediction accuracy</div>
+                        </div>
+                        <div class="prediction-card">
+                            <h4 style="margin: 0 0 15px 0; color: #22543d; font-weight: 700;">Trend Outlook</h4>
+                            <div style="text-align: center; font-size: 1.2rem; font-weight: 700; color: {'#e53e3e' if degrading_systems > improving_systems else '#38a169'};">
+                                {'📉 Degrading' if degrading_systems > improving_systems else '📈 Improving' if improving_systems > 0 else '➡️ Stable'}
+                            </div>
+                            <div style="text-align: center; color: #4a5568; margin-top: 10px;">
+                                {degrading_systems} systems degrading, {improving_systems} improving
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
                 <h2 style="color: #2d3748; margin: 50px 0 30px; font-size: 2rem; font-weight: 700; text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);">🖥️ Systems Performance Dashboard</h2>
                 <div class="systems-grid">
     """
@@ -2048,6 +2121,11 @@ def create_executive_summary_html_with_trends(systems_data, all_stats, date_str)
         error_trend = stats.get('error_trend', 0)
         trend_class = 'improving' if error_trend < 0 else 'degrading' if error_trend > 0 else 'stable'
         trend_text = f'📈 -{abs(error_trend)} errors' if error_trend < 0 else f'📉 +{error_trend} errors' if error_trend > 0 else '➡️ No change'
+        
+        # Données de prédiction
+        predicted_errors = stats.get('predicted_errors_consensus', 0)
+        error_margin = stats.get('error_margin_range', 0)
+        confidence = stats.get('confidence_level', 0)
         
         html += f"""
                     <div class="system-card">
@@ -2065,6 +2143,14 @@ def create_executive_summary_html_with_trends(systems_data, all_stats, date_str)
                                 <div style="font-size: 0.9rem; color: #718096; font-weight: 600;">Health Rate</div>
                             </div>
                         </div>
+                        
+                        <!-- Section Prédiction dans la carte système -->
+                        <div style="background: linear-gradient(145deg, #f0fff4, #c6f6d5); padding: 15px; border-radius: 12px; margin: 15px 0; border-left: 3px solid #38a169;">
+                            <div style="font-size: 0.9rem; font-weight: 700; color: #22543d; margin-bottom: 8px;">🔮 Prediction: {int(predicted_errors)} ±{int(error_margin)}</div>
+                            <div style="font-size: 0.8rem; color: #38a169;">Confidence: {confidence:.0%}</div>
+                            <div style="font-size: 0.8rem; color: #2d3748; margin-top: 5px;">{stats.get('recommended_action', '').replace('_', ' ').title()}</div>
+                        </div>
+                        
                         <div style="margin-top: 20px; font-size: 0.95rem; color: #4a5568; line-height: 1.6;">
                             <div style="margin-bottom: 8px;">Critical Services: <span style="font-weight: 700; color: {'#e53e3e' if stats.get('critical_services', 0) > 0 else '#38a169'};">{stats.get('critical_services', 0)}</span></div>
                             <div style="margin-bottom: 8px;">Most Impacted: <span style="font-weight: 700; color: #667eea;">{stats.get('top_error_service', 'N/A')}</span></div>
@@ -2097,6 +2183,7 @@ def create_executive_summary_html_with_trends(systems_data, all_stats, date_str)
                                 {'<li style="margin-bottom: 8px;">Investigate degrading systems immediately</li>' if degrading_systems > 0 else '<li style="margin-bottom: 8px;">Maintain current monitoring practices</li>'}
                                 {'<li style="margin-bottom: 8px;">Replicate improvement strategies across systems</li>' if improving_systems > 0 else '<li style="margin-bottom: 8px;">Review error prevention measures</li>'}
                                 <li style="margin-bottom: 8px;">Focus on critical services requiring attention</li>
+                                <li style="margin-bottom: 8px;">Monitor predicted error ranges closely</li>
                             </ul>
                         </div>
                         <div style="background: linear-gradient(145deg, #ffffff, #f7fafc); padding: 25px; border-radius: 16px; box-shadow: inset 3px 3px 6px #d1d9e6, inset -3px -3px 6px #ffffff;">
@@ -2106,6 +2193,7 @@ def create_executive_summary_html_with_trends(systems_data, all_stats, date_str)
                                 <li style="margin-bottom: 8px;">Implement predictive maintenance where possible</li>
                                 <li style="margin-bottom: 8px;">Document successful improvement strategies</li>
                                 <li style="margin-bottom: 8px;">Plan capacity upgrades for consistently problematic services</li>
+                                <li style="margin-bottom: 8px;">Use prediction confidence levels for resource allocation</li>
                             </ul>
                         </div>
                     </div>
@@ -2114,7 +2202,7 @@ def create_executive_summary_html_with_trends(systems_data, all_stats, date_str)
             
             <div class="footer">
                 <p style="font-size: 1.2rem; font-weight: 700; margin-bottom: 10px;"><strong>🚀 Advanced MTN Systems Monitoring</strong></p>
-                <p style="font-size: 1rem; margin-bottom: 10px;">📈 Trend Analysis • 📊 Performance Tracking • ⚡ Real-time Insights</p>
+                <p style="font-size: 1rem; margin-bottom: 10px;">📈 Trend Analysis • 📊 Performance Tracking • 🔮 Predictive Insights</p>
                 <p style="font-size: 0.9rem; opacity: 0.9;">Generated: {date_str} | Next Analysis: Tomorrow</p>
             </div>
         </div>
