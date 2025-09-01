@@ -1625,7 +1625,7 @@ from datetime import datetime
 from datetime import timedelta
 
 def create_executive_summary_html_with_trends(systems_data, all_stats, date_str):
-    """Version améliorée avec design Soft UI professionnel et meilleure disposition"""
+    """Enhanced version of the executive summary with comprehensive trends and predictions"""
     
     # Global calculations
     total_errors = sum(stats.get('total_errors', 0) for stats in all_stats.values())
@@ -1636,13 +1636,13 @@ def create_executive_summary_html_with_trends(systems_data, all_stats, date_str)
     total_affected_services = sum(len(stats.get('affected_services_list', [])) for stats in all_stats.values())
     total_critical_services = sum(len(stats.get('critical_services_list', [])) for stats in all_stats.values())
     
-    # Métriques globales
+    # Nouvelles métriques globales
     avg_stability_index = sum(stats.get('stability_index', 0) for stats in all_stats.values()) / len(all_stats) if all_stats else 0
     avg_confidence_level = sum(stats.get('confidence_level', 0) for stats in all_stats.values()) / len(all_stats) if all_stats else 0
     total_predicted_errors = sum(stats.get('predicted_errors_consensus', 0) for stats in all_stats.values())
     high_risk_systems = sum(1 for stats in all_stats.values() if stats.get('risk_level') == 'HIGH')
     
-    # Global status
+    # Global status with trend
     if degrading_systems > improving_systems:
         global_status = "📉 SYSTEMS DEGRADING"
         global_class = "warning"
@@ -1653,20 +1653,35 @@ def create_executive_summary_html_with_trends(systems_data, all_stats, date_str)
         global_status = "➡️ SYSTEMS STABLE"
         global_class = "info"
         
-    # Collecte des données pour les listes
+    # --- Collect enhanced lists ---
+    # Top 5 degrading services with more details
     all_trends = []
     for system_name, stats in all_stats.items():
         if stats.get('error_trend', 0) > 0:
+            degradation_amount = stats.get('error_trend', 0)
+            volatility = stats.get('volatility', 0)
+            risk_level = stats.get('risk_level', 'UNKNOWN')
             all_trends.append({
                 'system': system_name, 
-                'errors': stats.get('error_trend', 0),
-                'volatility': stats.get('volatility', 0),
-                'risk': stats.get('risk_level', 'UNKNOWN')
+                'errors': degradation_amount,
+                'volatility': volatility,
+                'risk': risk_level
             })
 
     top_degrading_systems = sorted(all_trends, key=lambda x: x['errors'], reverse=True)[:5]
     
-    # Systèmes avec haute précision de prédiction
+    top_degrading_html = ""
+    if top_degrading_systems:
+        top_degrading_html = "<ul>" + "".join([
+            f"<li><strong>{d['system']}</strong>: +{d['errors']} errors "
+            f"<span style='color: #e53e3e; font-size: 0.8em;'>({d['risk']} RISK)</span>"
+            f"<br/><small>Volatility: {d['volatility']:.1f}%</small></li>" 
+            for d in top_degrading_systems
+        ]) + "</ul>"
+    else:
+        top_degrading_html = "<p>No degrading systems identified.</p>"
+    
+    # Systems with high prediction accuracy
     high_accuracy_systems = []
     for system_name, stats in all_stats.items():
         if stats.get('prediction_confidence') == 'HIGH' or stats.get('confidence_level', 0) > 80:
@@ -1677,864 +1692,621 @@ def create_executive_summary_html_with_trends(systems_data, all_stats, date_str)
                 'accuracy': stats.get('prediction_accuracy', 'N/A')
             })
     
-    # Services critiques globaux
+    high_accuracy_html = ""
+    if high_accuracy_systems:
+        high_accuracy_html = "<ul>" + "".join([
+            f"<li><strong>{s['system']}</strong>: {s['confidence']:.1f}% confidence"
+            f"<br/><small>Predicted: {s['predicted']} errors | Accuracy: {s['accuracy']}</small></li>"
+            for s in high_accuracy_systems[:5]
+        ]) + "</ul>"
+    else:
+        high_accuracy_html = "<p>Prediction models still learning from data patterns.</p>"
+    
+    # Global critical services list with enhanced info
     all_critical_services_list = []
     for system_name, stats in all_stats.items():
         for service in stats.get('critical_services_list', []):
+            stability = stats.get('stability_index', 0)
             all_critical_services_list.append({
                 'system': system_name,
                 'service': service,
-                'stability': stats.get('stability_index', 0)
+                'stability': stability
             })
 
-    # Génération du HTML amélioré
+    critical_services_html = ""
+    if all_critical_services_list:
+        critical_services_html = "<ul>" + "".join([
+            f"<li>🚨 <strong>{s['system']}</strong>: {s['service']}"
+            f"<br/><small>Stability: {s['stability']:.1f}/100</small></li>"
+            for s in all_critical_services_list[:10]
+        ]) + "</ul>"
+    else:
+        critical_services_html = "<p>No critical services found across all systems. Excellent!</p>"
+
+    # Déterminer la couleur de confiance moyenne
+    confidence_color = '#38a169' if avg_confidence_level > 80 else '#d69e2e' if avg_confidence_level > 50 else '#e53e3e'
+    
+    # --- Start HTML Generation ---
     html = f"""
     <!DOCTYPE html>
-    <html lang="fr">
+    <html>
     <head>
         <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Executive Dashboard - MTN Systems</title>
         <style>
-            @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
-            
-            * {{
-                margin: 0;
-                padding: 0;
-                box-sizing: border-box;
-            }}
-            
-            :root {{
-                --primary-color: #667eea;
-                --secondary-color: #764ba2;
-                --success-color: #10b981;
-                --warning-color: #f59e0b;
-                --danger-color: #ef4444;
-                --info-color: #3b82f6;
-                
-                --bg-primary: #f8fafc;
-                --bg-secondary: #ffffff;
-                --bg-tertiary: #f1f5f9;
-                
-                --text-primary: #1e293b;
-                --text-secondary: #64748b;
-                --text-tertiary: #94a3b8;
-                
-                --shadow-soft: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-                --shadow-medium: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-                --shadow-large: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-                
-                --border-radius-sm: 8px;
-                --border-radius-md: 12px;
-                --border-radius-lg: 16px;
-                --border-radius-xl: 20px;
-                
-                --spacing-xs: 0.5rem;
-                --spacing-sm: 1rem;
-                --spacing-md: 1.5rem;
-                --spacing-lg: 2rem;
-                --spacing-xl: 3rem;
-            }}
-            
-            body {{
-                font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            body {{ 
+                font-family: 'Inter', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif; 
+                margin: 0; 
                 background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
                 min-height: 100vh;
-                color: var(--text-primary);
-                line-height: 1.6;
+                color: #2d3748;
             }}
-            
-            .container {{
-                max-width: 1400px;
-                margin: 0 auto;
-                padding: var(--spacing-lg);
-            }}
-            
-            /* Header Section */
-            .header {{
-                background: rgba(255, 255, 255, 0.95);
+            .container {{ 
+                max-width: 1400px; 
+                margin: 20px auto; 
+                background: rgba(255, 255, 255, 0.95); 
+                border-radius: 24px; 
                 backdrop-filter: blur(20px);
-                border-radius: var(--border-radius-xl);
-                padding: var(--spacing-xl) var(--spacing-lg);
-                text-align: center;
-                margin-bottom: var(--spacing-xl);
-                box-shadow: var(--shadow-large);
-                position: relative;
+                box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.1);
                 overflow: hidden;
             }}
             
+            .header {{ 
+                background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05)); 
+                color: #1a202c; 
+                padding: 60px 50px; 
+                text-align: center; 
+                position: relative;
+                overflow: hidden;
+            }}
             .header::before {{
                 content: '';
                 position: absolute;
                 top: 0;
                 left: 0;
                 right: 0;
-                height: 4px;
-                background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
-                border-radius: var(--border-radius-xl) var(--border-radius-xl) 0 0;
+                bottom: 0;
+                background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M30 30c0-11.046-8.954-20-20-20s-20 8.954-20 20 8.954 20 20 20 20-8.954 20-20zM0 0h20v20H0V0zm40 40h20v20H40V40z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E") repeat;
+                opacity: 0.1;
             }}
-            
-            .header h1 {{
-                font-size: 3rem;
-                font-weight: 800;
-                margin-bottom: var(--spacing-md);
-                background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            .header h1 {{ 
+                font-size: 3.2rem; 
+                margin: 0 0 15px; 
+                font-weight: 800; 
+                background: linear-gradient(135deg, #667eea, #764ba2);
                 -webkit-background-clip: text;
                 -webkit-text-fill-color: transparent;
                 background-clip: text;
+                position: relative;
+                z-index: 1;
+            }}
+            .header p {{
+                position: relative;
+                z-index: 1;
             }}
             
-            .header-subtitle {{
-                font-size: 1.25rem;
-                color: var(--text-secondary);
-                margin-bottom: var(--spacing-sm);
-                font-weight: 500;
+            .global-status {{ 
+                padding: 16px 32px; 
+                border-radius: 50px; 
+                font-weight: 700; 
+                margin-top: 25px; 
+                display: inline-block;
+                box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+                position: relative;
+                z-index: 1;
             }}
             
-            .header-date {{
-                font-size: 1rem;
-                color: var(--text-tertiary);
-                margin-bottom: var(--spacing-lg);
+            .content {{ 
+                padding: 50px; 
             }}
             
-            .global-status {{
-                display: inline-flex;
-                align-items: center;
-                padding: var(--spacing-sm) var(--spacing-lg);
-                border-radius: 50px;
+            /* Enhanced Trend Summary */
+            .trend-summary {{ 
+                background: linear-gradient(145deg, #ffffff, #f7fafc);
+                border-radius: 20px; 
+                padding: 40px; 
+                margin: 30px 0;
+                box-shadow: 
+                    20px 20px 60px #d1d9e6, 
+                    -20px -20px 60px #ffffff,
+                    inset 2px 2px 5px rgba(255,255,255,0.8),
+                    inset -2px -2px 5px rgba(0,0,0,0.1);
+                border: 1px solid rgba(255, 255, 255, 0.2);
+            }}
+            .trend-summary h3 {{
+                margin: 0 0 30px 0; 
+                font-size: 1.8rem;
                 font-weight: 700;
-                font-size: 1.1rem;
-                box-shadow: var(--shadow-medium);
-            }}
-            
-            .global-status.success {{
-                background: linear-gradient(135deg, #dcfce7, #bbf7d0);
-                color: #166534;
-            }}
-            
-            .global-status.warning {{
-                background: linear-gradient(135deg, #fef3c7, #fde68a);
-                color: #92400e;
-            }}
-            
-            .global-status.info {{
-                background: linear-gradient(135deg, #dbeafe, #bfdbfe);
-                color: #1e40af;
-            }}
-            
-            /* Main Content */
-            .main-content {{
-                display: grid;
-                gap: var(--spacing-xl);
-            }}
-            
-            /* Section Titles */
-            .section-title {{
-                font-size: 2rem;
-                font-weight: 700;
-                color: var(--text-primary);
-                margin-bottom: var(--spacing-lg);
-                display: flex;
-                align-items: center;
-                gap: var(--spacing-sm);
-            }}
-            
-            .section-title::after {{
-                content: '';
-                flex: 1;
-                height: 2px;
-                background: linear-gradient(90deg, var(--primary-color), transparent);
-                border-radius: 1px;
-            }}
-            
-            /* Dashboard Overview */
-            .dashboard-overview {{
-                background: var(--bg-secondary);
-                border-radius: var(--border-radius-xl);
-                padding: var(--spacing-xl);
-                box-shadow: var(--shadow-large);
-                margin-bottom: var(--spacing-xl);
-            }}
-            
-            .metrics-grid {{
-                display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-                gap: var(--spacing-md);
-                margin-top: var(--spacing-lg);
-            }}
-            
-            .metric-card {{
-                background: linear-gradient(145deg, #f8fafc, #f1f5f9);
-                border-radius: var(--border-radius-md);
-                padding: var(--spacing-lg);
+                color: #2d3748;
                 text-align: center;
-                box-shadow: inset 3px 3px 6px #e2e8f0, inset -3px -3px 6px #ffffff;
+                text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);
+            }}
+            
+            /* Grid pour les métriques en plusieurs lignes */
+            .trend-metrics-grid {{ 
+                display: grid;
+                grid-template-columns: repeat(5, 1fr);
+                gap: 15px; 
+                justify-items: center;
+            }}
+            .trend-metric-card {{ 
+                width: 100%;
+                text-align: center;
+                padding: 20px 15px;
+                background: linear-gradient(145deg, #f7fafc, #edf2f7);
+                border-radius: 16px;
+                box-shadow: 
+                    6px 6px 12px #d1d9e6,
+                    -6px -6px 12px #ffffff,
+                    inset 1px 1px 2px rgba(255,255,255,0.8);
                 transition: all 0.3s ease;
-                border: 1px solid rgba(255, 255, 255, 0.5);
+                border: 1px solid rgba(255, 255, 255, 0.3);
             }}
-            
-            .metric-card:hover {{
-                transform: translateY(-2px);
-                box-shadow: var(--shadow-medium), inset 2px 2px 4px #e2e8f0, inset -2px -2px 4px #ffffff;
+            .trend-metric-card:hover {{
+                transform: translateY(-3px);
+                box-shadow: 
+                    8px 8px 16px #d1d9e6,
+                    -8px -8px 16px #ffffff,
+                    inset 2px 2px 4px rgba(255,255,255,0.9);
             }}
-            
-            .metric-number {{
-                font-size: 2rem;
+            .trend-metric-number {{
+                font-size: 1.8rem; 
                 font-weight: 800;
-                margin-bottom: var(--spacing-xs);
-                color: var(--text-primary);
+                color: #4a5568;
+                text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);
+                margin-bottom: 8px;
             }}
-            
-            .metric-label {{
-                font-size: 0.875rem;
-                color: var(--text-secondary);
+            .trend-metric-label {{
+                font-size: 0.9rem;
+                color: #718096;
                 font-weight: 600;
                 text-transform: uppercase;
-                letter-spacing: 0.05em;
+                letter-spacing: 0.5px;
             }}
             
-            /* Systems Grid */
-            .systems-section {{
-                background: var(--bg-secondary);
-                border-radius: var(--border-radius-xl);
-                padding: var(--spacing-xl);
-                box-shadow: var(--shadow-large);
+            .systems-grid {{ 
+                display: grid; 
+                grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); 
+                gap: 30px; 
+                margin: 40px 0; 
             }}
-            
-            .systems-grid {{
-                display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-                gap: var(--spacing-lg);
-                margin-top: var(--spacing-lg);
-            }}
-            
-            .system-card {{
-                background: linear-gradient(145deg, #ffffff, #f8fafc);
-                border-radius: var(--border-radius-lg);
-                padding: var(--spacing-lg);
-                box-shadow: var(--shadow-medium);
+            .system-card {{ 
+                background: linear-gradient(145deg, #ffffff, #f7fafc);
+                border-radius: 20px; 
+                padding: 30px; 
+                box-shadow: 
+                    15px 15px 30px #d1d9e6, 
+                    -15px -15px 30px #ffffff,
+                    inset 1px 1px 3px rgba(255,255,255,0.8);
                 transition: all 0.3s ease;
-                border: 1px solid rgba(255, 255, 255, 0.8);
+                border: 1px solid rgba(255, 255, 255, 0.2);
                 position: relative;
                 overflow: hidden;
             }}
-            
             .system-card::before {{
                 content: '';
                 position: absolute;
                 top: 0;
                 left: 0;
                 right: 0;
-                height: 3px;
-                background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
-                border-radius: var(--border-radius-lg) var(--border-radius-lg) 0 0;
+                height: 4px;
+                background: linear-gradient(90deg, #667eea, #764ba2);
+                border-radius: 20px 20px 0 0;
             }}
-            
-            .system-card:hover {{
-                transform: translateY(-4px);
-                box-shadow: var(--shadow-large);
+            .system-card:hover {{ 
+                transform: translateY(-8px); 
+                box-shadow: 
+                    20px 20px 40px #d1d9e6, 
+                    -20px -20px 40px #ffffff,
+                    inset 2px 2px 5px rgba(255,255,255,0.9);
             }}
-            
-            .system-name {{
-                font-size: 1.25rem;
-                font-weight: 700;
-                margin-bottom: var(--spacing-md);
-                color: var(--text-primary);
+            .system-name {{ 
+                font-size: 1.4rem; 
+                font-weight: 700; 
+                margin-bottom: 20px; 
+                color: #2d3748;
+                text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);
             }}
-            
-            .trend-indicator {{
-                display: inline-flex;
-                align-items: center;
-                padding: var(--spacing-xs) var(--spacing-md);
-                border-radius: 20px;
-                font-size: 0.875rem;
+            .trend-indicator {{ 
+                font-size: 1rem; 
+                margin: 15px 0; 
+                padding: 10px 18px; 
+                border-radius: 25px; 
+                display: inline-block;
                 font-weight: 600;
-                margin-bottom: var(--spacing-md);
-                box-shadow: inset 2px 2px 4px rgba(0,0,0,0.05), inset -2px -2px 4px rgba(255,255,255,0.8);
+                box-shadow: inset 2px 2px 5px rgba(0,0,0,0.1), inset -2px -2px 5px rgba(255,255,255,0.8);
+            }}
+            .improving {{ 
+                background: linear-gradient(145deg, #c6f6d5, #9ae6b4); 
+                color: #22543d; 
+            }}
+            .degrading {{ 
+                background: linear-gradient(145deg, #fed7d7, #feb2b2); 
+                color: #742a2a; 
+            }}
+            .stable {{ 
+                background: linear-gradient(145deg, #bee3f8, #90cdf4); 
+                color: #2a4365; 
+            }}
+            .danger {{ color: #e53e3e; }}
+            .success {{ color: #38a169; }}
+            .warning {{ color: #d69e2e; }}
+            .info {{ 
+                color: #2b6cb0; 
+                background: linear-gradient(145deg, #bee3f8, #90cdf4);
+                box-shadow: inset 2px 2px 5px rgba(0,0,0,0.1), inset -2px -2px 5px rgba(255,255,255,0.8);
             }}
             
-            .trend-indicator.improving {{
-                background: linear-gradient(145deg, #dcfce7, #bbf7d0);
-                color: #166534;
-            }}
-            
-            .trend-indicator.degrading {{
-                background: linear-gradient(145deg, #fee2e2, #fecaca);
-                color: #991b1b;
-            }}
-            
-            .trend-indicator.stable {{
-                background: linear-gradient(145deg, #dbeafe, #bfdbfe);
-                color: #1e40af;
-            }}
-            
-            .system-metrics {{
-                display: grid;
-                grid-template-columns: repeat(3, 1fr);
-                gap: var(--spacing-sm);
-                margin: var(--spacing-md) 0;
-            }}
-            
-            .system-metric {{
+            .footer {{ 
+                background: linear-gradient(145deg, #2d3748, #1a202c);
+                color: black; 
+                padding: 40px; 
                 text-align: center;
-                padding: var(--spacing-md);
-                background: linear-gradient(145deg, #f8fafc, #f1f5f9);
-                border-radius: var(--border-radius-sm);
-                box-shadow: inset 2px 2px 4px #e2e8f0, inset -2px -2px 4px #ffffff;
+                position: relative;
+                overflow: hidden;
+            }}
+            .footer::before {{
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: linear-gradient(45deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+            }}
+            .footer p {{
+                position: relative;
+                z-index: 1;
+                text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
             }}
             
-            .system-metric-number {{
-                font-size: 1.5rem;
-                font-weight: 800;
-                margin-bottom: 4px;
+            .list-section {{ 
+                display: grid; 
+                grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); 
+                gap: 30px; 
+                margin-top: 40px; 
             }}
-            
-            .system-metric-label {{
-                font-size: 0.75rem;
-                color: var(--text-secondary);
-                font-weight: 600;
-                text-transform: uppercase;
+            .list-card {{ 
+                background: linear-gradient(145deg, #f7fafc, #edf2f7);
+                padding: 30px; 
+                border-radius: 18px; 
+                box-shadow: 
+                    12px 12px 24px #d1d9e6,
+                    -12px -12px 24px #ffffff,
+                    inset 1px 1px 3px rgba(255,255,255,0.8);
+                border: 1px solid rgba(255, 255, 255, 0.3);
             }}
-            
-            /* Predictions Section */
-            .predictions-section {{
-                background: linear-gradient(145deg, #f0fdf4, #dcfce7);
-                border-radius: var(--border-radius-lg);
-                padding: var(--spacing-lg);
-                margin: var(--spacing-md) 0;
-                box-shadow: inset 2px 2px 4px rgba(0,0,0,0.05), inset -2px -2px 4px rgba(255,255,255,0.8);
-            }}
-            
-            .predictions-title {{
-                font-size: 1.125rem;
+            .list-card h4 {{ 
+                margin-top: 0; 
+                color: #2d3748; 
+                border-bottom: 2px solid rgba(102, 126, 234, 0.2);
+                padding-bottom: 15px;
+                text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);
                 font-weight: 700;
-                color: #166534;
-                margin-bottom: var(--spacing-md);
-                display: flex;
-                align-items: center;
-                gap: var(--spacing-xs);
+            }}
+            .list-card ul {{ 
+                list-style-type: none; 
+                padding: 0; 
+                margin: 0; 
+            }}
+            .list-card li {{ 
+                padding: 12px 0; 
+                border-bottom: 1px solid rgba(0,0,0,0.05);
+                font-size: 1rem;
+                transition: all 0.2s ease;
+            }}
+            .list-card li:hover {{
+                padding-left: 10px;
+                color: #667eea;
+            }}
+            .list-card li:last-child {{ 
+                border-bottom: none; 
             }}
             
-            .predictions-grid {{
+            .recommendations {{
+                background: linear-gradient(145deg, #fff5f5, #fed7d7);
+                padding: 40px; 
+                border-radius: 20px; 
+                margin: 40px 0;
+                box-shadow: 
+                    15px 15px 30px #d1d9e6,
+                    -15px -15px 30px #ffffff,
+                    inset 1px 1px 3px rgba(255,255,255,0.8);
+                border: 1px solid rgba(255, 255, 255, 0.3);
+            }}
+            .recommendations h3 {{
+                font-size: 1.6rem; 
+                margin-bottom: 25px;
+                color: #742a2a;
+                text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);
+                font-weight: 700;
+            }}
+            
+            .prediction-section {{
+                background: linear-gradient(145deg, #f0fff4, #c6f6d5);
+                padding: 40px; 
+                border-radius: 20px; 
+                margin: 40px 0;
+                box-shadow: 
+                    15px 15px 30px #d1d9e6,
+                    -15px -15px 30px #ffffff,
+                    inset 1px 1px 3px rgba(255,255,255,0.8);
+                border: 1px solid rgba(255, 255, 255, 0.3);
+            }}
+            .prediction-section h3 {{
+                font-size: 1.6rem; 
+                margin-bottom: 25px;
+                color: #22543d;
+                text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);
+                font-weight: 700;
+            }}
+
+            /* New styles for improved layout */
+            .metrics-grid-2rows {{
+                display: grid;
+                grid-template-columns: repeat(5, 1fr);
+                gap: 15px;
+                margin-bottom: 20px;
+            }}
+            .metrics-grid-2rows:last-child {{
+                margin-bottom: 0;
+            }}
+            .prediction-cards-grid {{
                 display: grid;
                 grid-template-columns: repeat(2, 1fr);
-                gap: var(--spacing-md);
+                gap: 30px;
             }}
-            
-            .prediction-item {{
-                text-align: center;
+            .prediction-card {{
+                background: linear-gradient(145deg, #ffffff, #f7fafc);
+                padding: 25px;
+                border-radius: 16px;
+                box-shadow: inset 3px 3px 6px #d1d9e6, inset -3px -3px 6px #ffffff;
             }}
-            
-            .prediction-number {{
-                font-size: 1.25rem;
-                font-weight: 700;
-                margin-bottom: 4px;
-            }}
-            
-            .prediction-label {{
-                font-size: 0.875rem;
-                color: var(--text-secondary);
-            }}
-            
-            /* System Details */
-            .system-details {{
-                margin-top: var(--spacing-md);
-                padding: var(--spacing-md);
-                background: rgba(248, 250, 252, 0.5);
-                border-radius: var(--border-radius-sm);
-                font-size: 0.875rem;
-                line-height: 1.6;
-            }}
-            
-            .system-detail-item {{
-                display: flex;
-                justify-content: space-between;
-                margin-bottom: var(--spacing-xs);
-                padding: 4px 0;
-                border-bottom: 1px solid rgba(0,0,0,0.05);
-            }}
-            
-            .system-detail-item:last-child {{
-                border-bottom: none;
-            }}
-            
-            .system-detail-label {{
-                color: var(--text-secondary);
-                font-weight: 500;
-            }}
-            
-            .system-detail-value {{
-                font-weight: 700;
-                color: var(--text-primary);
-            }}
-            
-            /* Insights Section */
-            .insights-section {{
-                background: var(--bg-secondary);
-                border-radius: var(--border-radius-xl);
-                padding: var(--spacing-xl);
-                box-shadow: var(--shadow-large);
-            }}
-            
-            .insights-grid {{
-                display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-                gap: var(--spacing-lg);
-                margin-top: var(--spacing-lg);
-            }}
-            
-            .insight-card {{
-                background: linear-gradient(145deg, #f8fafc, #f1f5f9);
-                border-radius: var(--border-radius-md);
-                padding: var(--spacing-lg);
-                box-shadow: inset 2px 2px 4px #e2e8f0, inset -2px -2px 4px #ffffff;
-            }}
-            
-            .insight-title {{
-                font-size: 1.125rem;
-                font-weight: 700;
-                margin-bottom: var(--spacing-md);
-                display: flex;
-                align-items: center;
-                gap: var(--spacing-xs);
-                color: var(--text-primary);
-            }}
-            
-            .insight-list {{
-                list-style: none;
-                margin: 0;
-                padding: 0;
-            }}
-            
-            .insight-item {{
-                padding: var(--spacing-sm) 0;
-                border-bottom: 1px solid rgba(0,0,0,0.05);
-                font-size: 0.875rem;
-                line-height: 1.5;
-                color: var(--text-secondary);
-            }}
-            
-            .insight-item:last-child {{
-                border-bottom: none;
-            }}
-            
-            .insight-item strong {{
-                color: var(--text-primary);
-                font-weight: 600;
-            }}
-            
-            /* Recommendations */
-            .recommendations-section {{
-                background: linear-gradient(145deg, #fff7ed, #fed7aa);
-                border-radius: var(--border-radius-xl);
-                padding: var(--spacing-xl);
-                box-shadow: var(--shadow-large);
-                margin-top: var(--spacing-xl);
-            }}
-            
             .recommendations-grid {{
                 display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-                gap: var(--spacing-lg);
-                margin-top: var(--spacing-lg);
+                grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+                gap: 30px;
             }}
-            
             .recommendation-card {{
-                background: rgba(255, 255, 255, 0.8);
-                border-radius: var(--border-radius-md);
-                padding: var(--spacing-lg);
-                box-shadow: inset 2px 2px 4px rgba(0,0,0,0.05), inset -2px -2px 4px rgba(255,255,255,0.8);
-            }}
-            
-            .recommendation-title {{
-                font-size: 1.125rem;
-                font-weight: 700;
-                color: #9a3412;
-                margin-bottom: var(--spacing-md);
-                display: flex;
-                align-items: center;
-                gap: var(--spacing-xs);
-            }}
-            
-            .recommendation-list {{
-                list-style: none;
-                margin: 0;
-                padding: 0;
-            }}
-            
-            .recommendation-item {{
-                padding: var(--spacing-xs) 0;
-                font-size: 0.875rem;
-                line-height: 1.5;
-                color: var(--text-primary);
-                display: flex;
-                align-items: flex-start;
-                gap: var(--spacing-xs);
-            }}
-            
-            /* Footer */
-            .footer {{
-                background: rgba(30, 41, 59, 0.95);
-                backdrop-filter: blur(20px);
-                color: white;
-                border-radius: var(--border-radius-xl);
-                padding: var(--spacing-xl);
-                text-align: center;
-                margin-top: var(--spacing-xl);
-                box-shadow: var(--shadow-large);
-            }}
-            
-            .footer-title {{
-                font-size: 1.25rem;
-                font-weight: 700;
-                margin-bottom: var(--spacing-sm);
-            }}
-            
-            .footer-subtitle {{
-                font-size: 1rem;
-                opacity: 0.9;
-                margin-bottom: var(--spacing-sm);
-            }}
-            
-            .footer-meta {{
-                font-size: 0.875rem;
-                opacity: 0.8;
-                margin-bottom: var(--spacing-md);
-            }}
-            
-            .footer-stats {{
-                font-size: 0.75rem;
-                opacity: 0.7;
-                padding-top: var(--spacing-sm);
-                border-top: 1px solid rgba(255, 255, 255, 0.1);
-            }}
-            
-            /* Responsive */
-            @media (max-width: 768px) {{
-                .container {{
-                    padding: var(--spacing-sm);
-                }}
-                
-                .header h1 {{
-                    font-size: 2rem;
-                }}
-                
-                .systems-grid {{
-                    grid-template-columns: 1fr;
-                }}
-                
-                .metrics-grid {{
-                    grid-template-columns: repeat(2, 1fr);
-                }}
-                
-                .system-metrics {{
-                    grid-template-columns: 1fr;
-                }}
-                
-                .insights-grid,
-                .recommendations-grid {{
-                    grid-template-columns: 1fr;
-                }}
+                background: linear-gradient(145deg, #ffffff, #f7fafc);
+                padding: 25px;
+                border-radius: 16px;
+                box-shadow: inset 3px 3px 6px #d1d9e6, inset -3px -3px 6px #ffffff;
             }}
         </style>
     </head>
     <body>
         <div class="container">
-            <!-- Header -->
-            <header class="header">
+            <div class="header">
                 <h1>📊 Executive Dashboard</h1>
-                <p class="header-subtitle">All Systems Performance & Advanced Analytics</p>
-                <p class="header-date">{date_str}</p>
+                <p style="font-size: 1.3rem; opacity: 0.9; font-weight: 500;">All Systems Performance & Advanced Analytics</p>
+                <p style="font-size: 1.1rem; opacity: 0.8;">{date_str}</p>
                 <div class="global-status {global_class}">{global_status}</div>
-            </header>
+            </div>
             
-            <main class="main-content">
-                <!-- Dashboard Overview -->
-                <section class="dashboard-overview">
-                    <h2 class="section-title">📈 Global Performance Overview</h2>
-                    
-                    <div class="metrics-grid">
-                        <div class="metric-card">
-                            <div class="metric-number" style="color: var(--success-color);">{improving_systems}</div>
-                            <div class="metric-label">Systems Improving</div>
+            <div class="content">
+                <div class="trend-summary">
+                    <h3>📈 Global Performance & Predictions Dashboard</h3>
+                    <div class="metrics-grid-2rows">
+                        <div class="trend-metric-card">
+                            <div class="trend-metric-number" style="color: #38a169;">{improving_systems}</div>
+                            <div class="trend-metric-label">Systems Improving</div>
                         </div>
-                        <div class="metric-card">
-                            <div class="metric-number" style="color: var(--danger-color);">{degrading_systems}</div>
-                            <div class="metric-label">Systems Degrading</div>
+                        <div class="trend-metric-card">
+                            <div class="trend-metric-number" style="color: #e53e3e;">{degrading_systems}</div>
+                            <div class="trend-metric-label">Systems Degrading</div>
                         </div>
-                        <div class="metric-card">
-                            <div class="metric-number" style="color: var(--warning-color);">{total_affected_services}</div>
-                            <div class="metric-label">Affected Services</div>
+                        <div class="trend-metric-card">
+                            <div class="trend-metric-number" style="color: #d69e2e;">{total_affected_services}</div>
+                            <div class="trend-metric-label">Affected Services</div>
                         </div>
-                        <div class="metric-card">
-                            <div class="metric-number" style="color: var(--danger-color);">{total_critical_services}</div>
-                            <div class="metric-label">Critical Services</div>
+                        <div class="trend-metric-card">
+                            <div class="trend-metric-number" style="color: #e53e3e;">{total_critical_services}</div>
+                            <div class="trend-metric-label">Critical Services</div>
                         </div>
-                        <div class="metric-card">
-                            <div class="metric-number" style="color: var(--info-color);">{total_errors}</div>
-                            <div class="metric-label">Current Errors</div>
-                        </div>
-                        <div class="metric-card">
-                            <div class="metric-number" style="color: var(--text-primary);">{total_services_monitored}</div>
-                            <div class="metric-label">Services Monitored</div>
-                        </div>
-                        <div class="metric-card">
-                            <div class="metric-number" style="color: var(--primary-color);">{avg_stability_index:.1f}</div>
-                            <div class="metric-label">Avg Stability</div>
-                        </div>
-                        <div class="metric-card">
-                            <div class="metric-number" style="color: var(--secondary-color);">{avg_confidence_level:.1f}%</div>
-                            <div class="metric-label">Prediction Confidence</div>
-                        </div>
-                        <div class="metric-card">
-                            <div class="metric-number" style="color: var(--danger-color);">{high_risk_systems}</div>
-                            <div class="metric-label">High Risk Systems</div>
-                        </div>
-                        <div class="metric-card">
-                            <div class="metric-number" style="color: #8b5cf6;">{int(total_predicted_errors)}</div>
-                            <div class="metric-label">Predicted Errors (24h)</div>
+                        <div class="trend-metric-card">
+                            <div class="trend-metric-number" style="color: #2b6cb0;">{total_errors}</div>
+                            <div class="trend-metric-label">Current Errors</div>
                         </div>
                     </div>
-                </section>
+                    <div class="metrics-grid-2rows">
+                        <div class="trend-metric-card">
+                            <div class="trend-metric-number" style="color: #4a5568;">{total_services_monitored}</div>
+                            <div class="trend-metric-label">Services Monitored</div>
+                        </div>
+                        <div class="trend-metric-card">
+                            <div class="trend-metric-number" style="color: #667eea;">{avg_stability_index:.1f}</div>
+                            <div class="trend-metric-label">Avg Stability Index</div>
+                        </div>
+                        <div class="trend-metric-card">
+                            <div class="trend-metric-number" style="color: #764ba2;">{avg_confidence_level:.1f}%</div>
+                            <div class="trend-metric-label">Prediction Confidence</div>
+                        </div>
+                        <div class="trend-metric-card">
+                            <div class="trend-metric-number" style="color: #e53e3e;">{high_risk_systems}</div>
+                            <div class="trend-metric-label">High Risk Systems</div>
+                        </div>
+                        <div class="trend-metric-card">
+                            <div class="trend-metric-number" style="color: #805ad5;">{int(total_predicted_errors)}</div>
+                            <div class="trend-metric-label">Predicted Errors (24h)</div>
+                        </div>
+                    </div>
+                </div>
                 
-                <!-- Systems Performance -->
-                <section class="systems-section">
-                    <h2 class="section-title">🖥️ Systems Performance Dashboard</h2>
-                    
-                    <div class="systems-grid">
+                <h2 style="color: #2d3748; margin: 50px 0 30px; font-size: 2rem; font-weight: 700; text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);">🖥️ Systems Performance Dashboard</h2>
+                <div class="systems-grid">
     """
     
-    # Ajout des cartes système améliorées
+    # Adding enhanced system cards with all new metrics
     for system_name, stats in all_stats.items():
         error_trend = stats.get('error_trend', 0)
         trend_class = 'improving' if error_trend < 0 else 'degrading' if error_trend > 0 else 'stable'
         trend_text = f'📈 -{abs(error_trend)} errors' if error_trend < 0 else f'📉 +{error_trend} errors' if error_trend > 0 else '➡️ No change'
         
-        # Couleurs de risque
-        risk_colors = {'HIGH': 'var(--danger-color)', 'MEDIUM': 'var(--warning-color)', 'LOW': 'var(--success-color)'}
-        risk_color = risk_colors.get(stats.get('risk_level', 'UNKNOWN'), 'var(--text-secondary)')
+        # Déterminer la couleur du statut de risque
+        risk_color = {'HIGH': '#e53e3e', 'MEDIUM': '#d69e2e', 'LOW': '#38a169'}.get(stats.get('risk_level', 'UNKNOWN'), '#718096')
         
-        # Couleur de confiance
+        # Déterminer l'indicateur de confiance des prédictions
         confidence_level = stats.get('confidence_level', 0)
-        confidence_color = 'var(--success-color)' if confidence_level > 80 else 'var(--warning-color)' if confidence_level > 50 else 'var(--danger-color)'
+        confidence_color = '#38a169' if confidence_level > 80 else '#d69e2e' if confidence_level > 50 else '#e53e3e'
         
         html += f"""
-                        <div class="system-card">
-                            <h3 class="system-name">{system_name} System</h3>
-                            <div class="trend-indicator {trend_class}">
-                                {trend_text} vs previous period
-                            </div>
-                            
-                            <div class="system-metrics">
-                                <div class="system-metric">
-                                    <div class="system-metric-number" style="color: {'var(--danger-color)' if stats.get('total_errors', 0) > 0 else 'var(--success-color)'};">{stats.get('total_errors', 0)}</div>
-                                    <div class="system-metric-label">Current Errors</div>
-                                </div>
-                                <div class="system-metric">
-                                    <div class="system-metric-number" style="color: var(--text-primary);">{stats.get('health_percentage', 0):.1f}%</div>
-                                    <div class="system-metric-label">Health Rate</div>
-                                </div>
-                                <div class="system-metric">
-                                    <div class="system-metric-number" style="color: var(--primary-color);">{stats.get('stability_index', 0):.1f}</div>
-                                    <div class="system-metric-label">Stability Index</div>
-                                </div>
-                            </div>
-                            
-                            <div class="predictions-section">
-                                <h4 class="predictions-title">🔮 Predictions & Analytics</h4>
-                                <div class="predictions-grid">
-                                    <div class="prediction-item">
-                                        <div class="prediction-number" style="color: #8b5cf6;">{stats.get('predicted_errors_consensus', 0)}</div>
-                                        <div class="prediction-label">Predicted Errors (24h)</div>
-                                    </div>
-                                    <div class="prediction-item">
-                                        <div class="prediction-number" style="color: {confidence_color};">{stats.get('confidence_level', 0):.1f}%</div>
-                                        <div class="prediction-label">Prediction Confidence</div>
-                                    </div>
-                                </div>
-                                {f'<div style="text-align: center; margin-top: 0.75rem; font-size: 0.875rem; color: var(--text-secondary);"><strong>Range:</strong> {stats.get("error_margin_lower", 0)} - {stats.get("error_margin_upper", 0)} errors</div>' if stats.get('error_margin_range', 0) > 0 else ''}
-                            </div>
-                            
-                            <div class="system-details">
-                                <div class="system-detail-item">
-                                    <span class="system-detail-label">Critical Services:</span>
-                                    <span class="system-detail-value" style="color: {'var(--danger-color)' if stats.get('critical_services', 0) > 0 else 'var(--success-color)'};">{stats.get('critical_services', 0)}</span>
-                                </div>
-                                <div class="system-detail-item">
-                                    <span class="system-detail-label">Risk Level:</span>
-                                    <span class="system-detail-value" style="color: {risk_color};">{stats.get('risk_level', 'UNKNOWN')}</span>
-                                </div>
-                                <div class="system-detail-item">
-                                    <span class="system-detail-label">Most Impacted:</span>
-                                    <span class="system-detail-value" style="color: var(--primary-color);">{stats.get('top_error_service', 'N/A')}</span>
-                                </div>
-                                <div class="system-detail-item">
-                                    <span class="system-detail-label">Volatility:</span>
-                                    <span class="system-detail-value" style="color: var(--secondary-color);">{stats.get('volatility', 0):.1f}%</span>
-                                </div>
-                                <div class="system-detail-item">
-                                    <span class="system-detail-label">Momentum:</span>
-                                    <span class="system-detail-value" style="color: var(--info-color);">{stats.get('momentum', 'NEUTRAL')}</span>
-                                </div>
-                                {f'<div class="system-detail-item"><span class="system-detail-label">Weekly Trend:</span><span class="system-detail-value" style="color: var(--secondary-color);">{stats.get("improvement_rate", 0):+.1f}%</span></div>' if 'improvement_rate' in stats else ''}
-                                {f'<div class="system-detail-item"><span class="system-detail-label">SLA Status:</span><span class="system-detail-value" style="color: {"var(--success-color)" if stats.get("sla_status") == "MEETING" else "var(--warning-color)" if stats.get("sla_status") == "AT_RISK" else "var(--danger-color)"};">{stats.get("sla_status", "N/A")}</span></div>' if 'sla_status' in stats else ''}
-                                {f'<div class="system-detail-item"><span class="system-detail-label">Business Impact:</span><span class="system-detail-value" style="color: {"var(--success-color)" if stats.get("business_impact") == "MINIMAL" else "var(--warning-color)" if stats.get("business_impact") == "MODERATE" else "var(--danger-color)"};">{stats.get("business_impact", "UNKNOWN")}</span></div>' if 'business_impact' in stats else ''}
-                            </div>
-                            
-                            {f'<div style="background: linear-gradient(145deg, #fef2f2, #fee2e2); padding: var(--spacing-md); border-radius: var(--border-radius-sm); margin-top: var(--spacing-md); box-shadow: inset 1px 1px 2px rgba(0,0,0,0.05);"><div style="font-size: 0.875rem; color: #991b1b; font-weight: 600; margin-bottom: 0.25rem;">💡 Recommended Action:</div><div style="font-size: 0.8125rem; color: var(--text-primary);">{stats.get("recommended_action", "Monitor closely")}</div></div>' if stats.get('recommended_action') and stats.get('recommended_action') != 'NO_DATA' else ''}
+                    <div class="system-card">
+                        <h3 class="system-name">{system_name} System</h3>
+                        <div class="trend-indicator {trend_class}">
+                            {trend_text} vs previous period
                         </div>
+                        
+                        <!-- Métriques principales -->
+                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin: 20px 0;">
+                            <div style="text-align: center; padding: 15px; background: linear-gradient(145deg, #edf2f7, #e2e8f0); border-radius: 12px; box-shadow: inset 3px 3px 6px #d1d9e6, inset -3px -3px 6px #ffffff;">
+                                <div style="font-size: 1.6rem; font-weight: 800; color: {'#e53e3e' if stats.get('total_errors', 0) > 0 else '#38a169'}; text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);">{stats.get('total_errors', 0)}</div>
+                                <div style="font-size: 0.8rem; color: #718096; font-weight: 600;">Current Errors</div>
+                            </div>
+                            <div style="text-align: center; padding: 15px; background: linear-gradient(145deg, #edf2f7, #e2e8f0); border-radius: 12px; box-shadow: inset 3px 3px 6px #d1d9e6, inset -3px -3px 6px #ffffff;">
+                                <div style="font-size: 1.6rem; font-weight: 800; color: #4a5568; text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);">{stats.get('health_percentage', 0):.1f}%</div>
+                                <div style="font-size: 0.8rem; color: #718096; font-weight: 600;">Health Rate</div>
+                            </div>
+                            <div style="text-align: center; padding: 15px; background: linear-gradient(145deg, #edf2f7, #e2e8f0); border-radius: 12px; box-shadow: inset 3px 3px 6px #d1d9e6, inset -3px -3px 6px #ffffff;">
+                                <div style="font-size: 1.6rem; font-weight: 800; color: #667eea; text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);">{stats.get('stability_index', 0):.1f}</div>
+                                <div style="font-size: 0.8rem; color: #718096; font-weight: 600;">Stability Index</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Prédictions et analyse avancée -->
+                        <div style="background: linear-gradient(145deg, #f0fff4, #e6fffa); padding: 20px; border-radius: 12px; margin: 20px 0; box-shadow: inset 2px 2px 4px #d1d9e6, inset -2px -2px 4px #ffffff;">
+                            <h4 style="margin: 0 0 15px; color: #22543d; font-size: 1.1rem;">🔮 Predictions & Analytics</h4>
+                            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px;">
+                                <div>
+                                    <div style="font-size: 1.2rem; font-weight: 700; color: #805ad5;">{stats.get('predicted_errors_consensus', 0)}</div>
+                                    <div style="font-size: 0.8rem; color: #718096;">Predicted Errors (24h)</div>
+                                </div>
+                                <div>
+                                    <div style="font-size: 1.2rem; font-weight: 700; color: {confidence_color};">{stats.get('confidence_level', 0):.1f}%</div>
+                                    <div style="font-size: 0.8rem; color: #718096;">Prediction Confidence</div>
+                                </div>
+                            </div>
+                            {f'<div style="margin-top: 10px; font-size: 0.9rem; color: #4a5568;"><strong>Range:</strong> {stats.get("error_margin_lower", 0)} - {stats.get("error_margin_upper", 0)} errors</div>' if stats.get('error_margin_range', 0) > 0 else ''}
+                        </div>
+                        
+                        <!-- Informations détaillées -->
+                        <div style="margin-top: 20px; font-size: 0.95rem; color: #4a5568; line-height: 1.6;">
+                            <div style="margin-bottom: 8px;">Critical Services: <span style="font-weight: 700; color: {'#e53e3e' if stats.get('critical_services', 0) > 0 else '#38a169'};">{stats.get('critical_services', 0)}</span></div>
+                            <div style="margin-bottom: 8px;">Risk Level: <span style="font-weight: 700; color: {risk_color};">{stats.get('risk_level', 'UNKNOWN')}</span></div>
+                            <div style="margin-bottom: 8px;">Most Impacted: <span style="font-weight: 700; color: #667eea;">{stats.get('top_error_service', 'N/A')}</span></div>
+                            <div style="margin-bottom: 8px;">Volatility: <span style="font-weight: 700; color: #764ba2;">{stats.get('volatility', 0):.1f}%</span></div>
+                            <div style="margin-bottom: 8px;">Momentum: <span style="font-weight: 700; color: #4299e1;">{stats.get('momentum', 'NEUTRAL')}</span></div>
+                            {f'<div style="margin-bottom: 8px;">Weekly Trend: <span style="font-weight: 700; color: #764ba2;">{stats.get("improvement_rate", 0):+.1f}%</span></div>' if 'improvement_rate' in stats else ''}
+                            {f'<div style="margin-bottom: 8px;">SLA Status: <span style="font-weight: 700; color: {"#38a169" if stats.get("sla_status") == "MEETING" else "#d69e2e" if stats.get("sla_status") == "AT_RISK" else "#e53e3e"};">{stats.get("sla_status", "N/A")}</span></div>' if 'sla_status' in stats else ''}
+                            {f'<div style="margin-bottom: 8px;">Business Impact: <span style="font-weight: 700; color: {"#38a169" if stats.get("business_impact") == "MINIMAL" else "#d69e2e" if stats.get("business_impact") == "MODERATE" else "#e53e3e"};">{stats.get("business_impact", "UNKNOWN")}</span></div>' if 'business_impact' in stats else ''}
+                        </div>
+                        
+                        <!-- Actions recommandées -->
+                        {f'<div style="background: linear-gradient(145deg, #fff5f5, #fed7d7); padding: 15px; border-radius: 10px; margin-top: 20px; box-shadow: inset 1px 1px 2px #d1d9e6, inset -1px -1px 2px #ffffff;"><div style="font-size: 0.9rem; color: #742a2a; font-weight: 600;">💡 Recommended Action:</div><div style="font-size: 0.85rem; color: #4a5568; margin-top: 5px;">{stats.get("recommended_action", "Monitor closely")}</div></div>' if stats.get('recommended_action') and stats.get('recommended_action') != 'NO_DATA' else ''}
+                    </div>
         """
     
-    # Génération des listes HTML pour les insights
-    top_degrading_html = ""
-    if top_degrading_systems:
-        top_degrading_html = "\n".join([
-            f'<li class="insight-item"><strong>{d["system"]}</strong>: +{d["errors"]} errors <span style="color: var(--danger-color); font-size: 0.75rem;">({d["risk"]} RISK)</span><br/><small>Volatility: {d["volatility"]:.1f}%</small></li>' 
-            for d in top_degrading_systems
-        ])
-    else:
-        top_degrading_html = '<li class="insight-item">No degrading systems identified. Excellent performance!</li>'
-    
-    high_accuracy_html = ""
-    if high_accuracy_systems:
-        high_accuracy_html = "\n".join([
-            f'<li class="insight-item"><strong>{s["system"]}</strong>: {s["confidence"]:.1f}% confidence<br/><small>Predicted: {s["predicted"]} errors | Accuracy: {s["accuracy"]}</small></li>'
-            for s in high_accuracy_systems[:5]
-        ])
-    else:
-        high_accuracy_html = '<li class="insight-item">Prediction models are still learning from data patterns.</li>'
-    
-    critical_services_html = ""
-    if all_critical_services_list:
-        critical_services_html = "\n".join([
-            f'<li class="insight-item">🚨 <strong>{s["system"]}</strong>: {s["service"]}<br/><small>Stability: {s["stability"]:.1f}/100</small></li>'
-            for s in all_critical_services_list[:10]
-        ])
-    else:
-        critical_services_html = '<li class="insight-item">No critical services found across all systems. Excellent!</li>'
-    
     html += f"""
-                    </div>
-                </section>
+                </div>
                 
-                <!-- Global Predictions Section -->
-                <section class="predictions-section" style="background: linear-gradient(145deg, #f0fdf4, #dcfce7); border-radius: var(--border-radius-xl); padding: var(--spacing-xl); box-shadow: var(--shadow-large);">
-                    <h2 class="section-title" style="color: #166534;">🔮 Global Predictions & Advanced Analytics</h2>
-                    
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: var(--spacing-lg);">
-                        <div style="background: rgba(255, 255, 255, 0.8); padding: var(--spacing-lg); border-radius: var(--border-radius-md); box-shadow: inset 2px 2px 4px rgba(0,0,0,0.05), inset -2px -2px 4px rgba(255,255,255,0.8);">
-                            <h3 style="color: #166534; margin-bottom: var(--spacing-md); font-size: 1.125rem; font-weight: 700;">📊 Prediction Summary</h3>
-                            <div style="margin-bottom: var(--spacing-sm);">
-                                <span style="font-size: 1.5rem; font-weight: 800; color: #8b5cf6;">{int(total_predicted_errors)}</span>
-                                <span style="color: var(--text-secondary); font-size: 0.875rem; margin-left: var(--spacing-xs);">Total predicted errors (next 24h)</span>
+                <!-- Section des prédictions globales -->
+                <div class="prediction-section">
+                    <h3>🔮 Global Predictions & Advanced Analytics</h3>
+                    <div class="prediction-cards-grid">
+                        <div class="prediction-card">
+                            <h4 style="color: #22543d; margin-bottom: 15px; font-size: 1.2rem;">📊 Prediction Summary:</h4>
+                            <div style="margin-bottom: 10px;">
+                                <span style="font-size: 1.5rem; font-weight: 800; color: #805ad5;">{int(total_predicted_errors)}</span>
+                                <span style="color: #718096; font-size: 0.9rem; margin-left: 8px;">Total predicted errors (next 24h)</span>
                             </div>
-                            <div style="margin-bottom: var(--spacing-sm);">
-                                <span style="font-size: 1.25rem; font-weight: 700; color: {confidence_color};">{avg_confidence_level:.1f}%</span>
-                                <span style="color: var(--text-secondary); font-size: 0.875rem; margin-left: var(--spacing-xs);">Average prediction confidence</span>
+                            <div style="margin-bottom: 10px;">
+                                <span style="font-size: 1.2rem; font-weight: 700; color: {confidence_color};">{avg_confidence_level:.1f}%</span>
+                                <span style="color: #718096; font-size: 0.9rem; margin-left: 8px;">Average prediction confidence</span>
                             </div>
-                            <div style="margin-bottom: var(--spacing-sm);">
-                                <span style="font-size: 1.25rem; font-weight: 700; color: var(--info-color);">{len([s for s in all_stats.values() if s.get('prediction_confidence') == 'HIGH'])}</span>
-                                <span style="color: var(--text-secondary); font-size: 0.875rem; margin-left: var(--spacing-xs);">Systems with high prediction accuracy</span>
+                            <div style="margin-bottom: 10px;">
+                                <span style="font-size: 1.2rem; font-weight: 700; color: #4299e1;">{len([s for s in all_stats.values() if s.get('prediction_confidence') == 'HIGH'])}</span>
+                                <span style="color: #718096; font-size: 0.9rem; margin-left: 8px;">Systems with high prediction accuracy</span>
                             </div>
                         </div>
-                        
-                        <div style="background: rgba(255, 255, 255, 0.8); padding: var(--spacing-lg); border-radius: var(--border-radius-md); box-shadow: inset 2px 2px 4px rgba(0,0,0,0.05), inset -2px -2px 4px rgba(255,255,255,0.8);">
-                            <h3 style="color: #166534; margin-bottom: var(--spacing-md); font-size: 1.125rem; font-weight: 700;">⚡ Risk Assessment</h3>
-                            <div style="margin-bottom: var(--spacing-sm);">
-                                <span style="font-size: 1.5rem; font-weight: 800; color: var(--danger-color);">{high_risk_systems}</span>
-                                <span style="color: var(--text-secondary); font-size: 0.875rem; margin-left: var(--spacing-xs);">High-risk systems requiring attention</span>
+                        <div class="prediction-card">
+                            <h4 style="color: #22543d; margin-bottom: 15px; font-size: 1.2rem;">⚡ Risk Assessment:</h4>
+                            <div style="margin-bottom: 10px;">
+                                <span style="font-size: 1.5rem; font-weight: 800; color: #e53e3e;">{high_risk_systems}</span>
+                                <span style="color: #718096; font-size: 0.9rem; margin-left: 8px;">High-risk systems requiring attention</span>
                             </div>
-                            <div style="margin-bottom: var(--spacing-sm);">
-                                <span style="font-size: 1.25rem; font-weight: 700; color: var(--primary-color);">{avg_stability_index:.1f}/100</span>
-                                <span style="color: var(--text-secondary); font-size: 0.875rem; margin-left: var(--spacing-xs);">Global stability index</span>
+                            <div style="margin-bottom: 10px;">
+                                <span style="font-size: 1.2rem; font-weight: 700; color: #667eea;">{avg_stability_index:.1f}/100</span>
+                                <span style="color: #718096; font-size: 0.9rem; margin-left: 8px;">Global stability index</span>
                             </div>
-                            <div style="margin-bottom: var(--spacing-sm);">
-                                <span style="font-size: 1.25rem; font-weight: 700; color: var(--info-color);">{len([s for s in all_stats.values() if s.get('business_impact') == 'SEVERE'])}</span>
-                                <span style="color: var(--text-secondary); font-size: 0.875rem; margin-left: var(--spacing-xs);">Systems with severe business impact</span>
+                            <div style="margin-bottom: 10px;">
+                                <span style="font-size: 1.2rem; font-weight: 700; color: #4299e1;">{len([s for s in all_stats.values() if s.get('business_impact') == 'SEVERE'])}</span>
+                                <span style="color: #718096; font-size: 0.9rem; margin-left: 8px;">Systems with severe business impact</span>
                             </div>
                         </div>
                     </div>
-                </section>
+                </div>
                 
-                <!-- Actionable Insights -->
-                <section class="insights-section">
-                    <h2 class="section-title">❗ Actionable Insights & Analytics</h2>
-                    
-                    <div class="insights-grid">
-                        <div class="insight-card">
-                            <h3 class="insight-title" style="color: var(--danger-color);">🔻 Top Degrading Systems ({len(top_degrading_systems)})</h3>
-                            <ul class="insight-list">
-                                {top_degrading_html}
-                            </ul>
-                        </div>
-                        
-                        <div class="insight-card">
-                            <h3 class="insight-title" style="color: var(--danger-color);">🚨 Global Critical Services ({len(all_critical_services_list)})</h3>
-                            <ul class="insight-list">
-                                {critical_services_html}
-                            </ul>
-                        </div>
-                        
-                        <div class="insight-card">
-                            <h3 class="insight-title" style="color: var(--success-color);">🎯 High Accuracy Predictions ({len(high_accuracy_systems)})</h3>
-                            <ul class="insight-list">
-                                {high_accuracy_html}
-                            </ul>
-                        </div>
+                <h2 style="color: #2d3748; margin: 50px 0 30px; font-size: 2rem; font-weight: 700; text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);">❗ Actionable Insights & Analytics</h2>
+                <div class="list-section">
+                    <div class="list-card">
+                        <h4 style="color: #e53e3e;">🔻 Top Degrading Systems ({len(top_degrading_systems)})</h4>
+                        {top_degrading_html}
                     </div>
-                </section>
-                
-                <!-- Strategic Recommendations -->
-                <section class="recommendations-section">
-                    <h2 class="section-title" style="color: #9a3412;">🎯 Strategic Recommendations & Action Plan</h2>
-                    
+                    <div class="list-card">
+                        <h4 style="color: #e53e3e;">🚨 Global Critical Services ({len(all_critical_services_list)})</h4>
+                        {critical_services_html}
+                    </div>
+                    <div class="list-card">
+                        <h4 style="color: #38a169;">🎯 High Accuracy Predictions ({len(high_accuracy_systems)})</h4>
+                        {high_accuracy_html}
+                    </div>
+                </div>
+
+                <div class="recommendations">
+                    <h3>🎯 Strategic Recommendations & Action Plan</h3>
                     <div class="recommendations-grid">
                         <div class="recommendation-card">
-                            <h3 class="recommendation-title">⚡ Immediate Actions (Next 4 hours)</h3>
-                            <ul class="recommendation-list">
-                                {'<li class="recommendation-item">🔥 Investigate high-risk degrading systems immediately</li>' if degrading_systems > 0 and high_risk_systems > 0 else ''}
-                                {'<li class="recommendation-item">📊 Analyze systems with severe business impact</li>' if len([s for s in all_stats.values() if s.get('business_impact') == 'SEVERE']) > 0 else ''}
-                                {'<li class="recommendation-item">🔍 Review critical services requiring attention</li>' if total_critical_services > 0 else ''}
-                                {'<li class="recommendation-item">✅ Maintain current monitoring practices</li>' if degrading_systems == 0 and high_risk_systems == 0 else ''}
-                                <li class="recommendation-item">📈 Monitor prediction accuracy for model improvement</li>
+                            <h4 style="color: #742a2a; margin-bottom: 15px; font-size: 1.2rem;">⚡ Immediate Actions (Next 4 hours):</h4>
+                            <ul style="margin: 0; padding-left: 20px; color: #2d3748;">
+                                {'<li style="margin-bottom: 8px;">🔥 Investigate high-risk degrading systems immediately</li>' if degrading_systems > 0 and high_risk_systems > 0 else ''}
+                                {'<li style="margin-bottom: 8px;">📊 Analyze systems with severe business impact</li>' if len([s for s in all_stats.values() if s.get('business_impact') == 'SEVERE']) > 0 else ''}
+                                {'<li style="margin-bottom: 8px;">🔍 Review critical services requiring attention</li>' if total_critical_services > 0 else ''}
+                                {'<li style="margin-bottom: 8px;">✅ Maintain current monitoring practices</li>' if degrading_systems == 0 and high_risk_systems == 0 else ''}
+                                <li style="margin-bottom: 8px;">📈 Monitor prediction accuracy for model improvement</li>
                             </ul>
                         </div>
-                        
                         <div class="recommendation-card">
-                            <h3 class="recommendation-title">📊 Strategic Insights (Next 24-48 hours)</h3>
-                            <ul class="recommendation-list">
-                                {'<li class="recommendation-item">🔄 Replicate improvement strategies from successful systems</li>' if improving_systems > 0 else ''}
-                                <li class="recommendation-item">🤖 Leverage high-confidence predictions for proactive maintenance</li>
-                                <li class="recommendation-item">📋 Document patterns in volatility and momentum changes</li>
-                                <li class="recommendation-item">🎯 Focus resources on systems with highest business impact</li>
-                                {'<li class="recommendation-item">⚖️ Balance prediction model parameters for better accuracy</li>' if avg_confidence_level < 70 else ''}
+                            <h4 style="color: #742a2a; margin-bottom: 15px; font-size: 1.2rem;">📊 Strategic Insights (Next 24-48 hours):</h4>
+                            <ul style="margin: 0; padding-left: 20px; color: #2d3748;">
+                                {'<li style="margin-bottom: 8px;">🔄 Replicate improvement strategies from successful systems</li>' if improving_systems > 0 else ''}
+                                <li style="margin-bottom: 8px;">🤖 Leverage high-confidence predictions for proactive maintenance</li>
+                                <li style="margin-bottom: 8px;">📋 Document patterns in volatility and momentum changes</li>
+                                <li style="margin-bottom: 8px;">🎯 Focus resources on systems with highest business impact</li>
+                                {'<li style="margin-bottom: 8px;">⚖️ Balance prediction model parameters for better accuracy</li>' if avg_confidence_level < 70 else ''}
                             </ul>
                         </div>
-                        
                         <div class="recommendation-card">
-                            <h3 class="recommendation-title">🔮 Predictive Actions (Next Week)</h3>
-                            <ul class="recommendation-list">
-                                <li class="recommendation-item">📈 Plan capacity upgrades based on error trend predictions</li>
-                                <li class="recommendation-item">🔧 Implement predictive maintenance for volatile systems</li>
-                                <li class="recommendation-item">📊 Enhance monitoring for systems with low stability indices</li>
-                                <li class="recommendation-item">🎛️ Adjust SLA thresholds based on prediction margins</li>
-                                <li class="recommendation-item">📚 Train teams on new prediction insights and patterns</li>
+                            <h4 style="color: #742a2a; margin-bottom: 15px; font-size: 1.2rem;">🔮 Predictive Actions (Next Week):</h4>
+                            <ul style="margin: 0; padding-left: 20px; color: #2d3748;">
+                                <li style="margin-bottom: 8px;">📈 Plan capacity upgrades based on error trend predictions</li>
+                                <li style="margin-bottom: 8px;">🔧 Implement predictive maintenance for volatile systems</li>
+                                <li style="margin-bottom: 8px;">📊 Enhance monitoring for systems with low stability indices</li>
+                                <li style="margin-bottom: 8px;">🎛️ Adjust SLA thresholds based on prediction margins</li>
+                                <li style="margin-bottom: 8px;">📚 Train teams on new prediction insights and patterns</li>
                             </ul>
                         </div>
                     </div>
-                </section>
-            </main>
+                </div>
+            </div>
             
-            <!-- Footer -->
-            <footer class="footer">
-                <h2 class="footer-title">🚀 Advanced MTN Systems Monitoring</h2>
-                <p class="footer-subtitle">📈 Trend Analysis • 🔮 Predictive Analytics • 📊 Performance Tracking • ⚡ Real-time Insights</p>
-                <p class="footer-meta">Generated: {date_str} | Next Analysis: Tomorrow | Prediction Model: v2.0</p>
-                <p class="footer-stats">
+            <div class="footer">
+                <p style="font-size: 1.2rem; font-weight: 700; margin-bottom: 10px;"><strong>🚀 Advanced MTN Systems Monitoring</strong></p>
+                <p style="font-size: 1rem; margin-bottom: 10px;">📈 Trend Analysis • 🔮 Predictive Analytics • 📊 Performance Tracking • ⚡ Real-time Insights</p>
+                <p style="font-size: 0.9rem; opacity: 0.9;">Generated: {date_str} | Next Analysis: Tomorrow | Prediction Model: v2.0</p>
+                <p style="font-size: 0.8rem; opacity: 0.8; margin-top: 15px;">
                     Global Confidence: {avg_confidence_level:.1f}% | Total Predictions: {int(total_predicted_errors)} errors | 
                     Risk Assessment: {high_risk_systems} high-risk systems detected
                 </p>
-            </footer>
+            </div>
         </div>
     </body>
     </html>
