@@ -1824,15 +1824,14 @@ def create_executive_summary_html_with_trends(systems_data, all_stats, date_str)
             /* Grid pour les métriques en plusieurs lignes */
             .trend-metrics-grid {{ 
                 display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-                gap: 20px; 
+                grid-template-columns: repeat(5, 1fr);
+                gap: 15px; 
                 justify-items: center;
             }}
             .trend-metric-card {{ 
                 width: 100%;
-                max-width: 200px;
                 text-align: center;
-                padding: 25px 20px;
+                padding: 20px 15px;
                 background: linear-gradient(145deg, #f7fafc, #edf2f7);
                 border-radius: 16px;
                 box-shadow: 
@@ -1850,7 +1849,7 @@ def create_executive_summary_html_with_trends(systems_data, all_stats, date_str)
                     inset 2px 2px 4px rgba(255,255,255,0.9);
             }}
             .trend-metric-number {{
-                font-size: 2.2rem; 
+                font-size: 1.8rem; 
                 font-weight: 800;
                 color: #4a5568;
                 text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);
@@ -1939,7 +1938,7 @@ def create_executive_summary_html_with_trends(systems_data, all_stats, date_str)
             
             .footer {{ 
                 background: linear-gradient(145deg, #2d3748, #1a202c);
-                color: white; 
+                color: black; 
                 padding: 40px; 
                 text-align: center;
                 position: relative;
