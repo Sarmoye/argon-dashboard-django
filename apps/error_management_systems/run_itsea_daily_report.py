@@ -24,13 +24,73 @@ IRM_ERROR_REPORT_OUTPUT_DIR = "/srv/itsea_files/irm_error_report_files"
 
 # Configuration email par système
 EMAIL_CONFIG = {
-    'smtp_server': '10.77.152.66',
+    'smtp_server': '10.77.152.66',  # Adresse IP de votre serveur SMTP
     'smtp_port': 25,
     'from_email': 'noreply.errormonitor@mtn.com',
-    'cis_recipients': ['Sarmoye.AmitoureHaidara@mtn.com', 'Hospice.Solevo@mtn.com',],
-    'irm_recipients': ['Sarmoye.AmitoureHaidara@mtn.com', 'Hospice.Solevo@mtn.com',],
-    'ecw_recipients': ['Sarmoye.AmitoureHaidara@mtn.com', 'Hospice.Solevo@mtn.com',],
-    'summary_recipients': ['Sarmoye.AmitoureHaidara@mtn.com', 'Hospice.Solevo@mtn.com',]
+    
+    # Destinataires par système
+    'cis_recipients': [
+        'Sarmoye.AmitoureHaidara@mtn.com',
+        'Hospice.Solevo@mtn.com',
+        'boris.DOLIVEIRA@mtn.com',
+        'Marcel.Kassavi@mtn.com',
+        'Kokou.Adabra@mtn.com',
+        'Jean-Christian.Amelina@mtn.com',
+        'Rukayat.Ishola@mtn.com',
+        'Roseline.Yeje1@mtn.com',
+        'Emmanuel.AVEGNON@mtn.com',
+        'Gildas.Zeounkpe@mtn.com',
+        'Diane.ZOCLI@mtn.com',
+        'Loic.GNACADJA@mtn.com',
+        'Marcelline.NgoBilong@mtn.com',
+        'Frederic.Sogbedji@mtn.com',
+        'Sandra.TOSSOU@mtn.com',
+        'ammara@latro-ms.com',
+        'danials@latro-ms.com',
+        'shivamt@latro-ms.com',
+        'solutionarchitects.BJ@mtn.com'
+    ],
+    
+    'irm_recipients': [
+        'Sarmoye.AmitoureHaidara@mtn.com',
+        'Hospice.Solevo@mtn.com',
+        'boris.DOLIVEIRA@mtn.com',
+        'Marcel.Kassavi@mtn.com',
+        'Kokou.Adabra@mtn.com',
+        'Jean-Christian.Amelina@mtn.com',
+        'Rukayat.Ishola@mtn.com',
+        'Roseline.Yeje1@mtn.com',
+        'seyive.akle@mobile-technologies.com',
+        'support@mobile-technologies.com',
+        'Yawo.Dabla@mtn.com'
+    ],
+    
+    'ecw_recipients': [
+        'Sarmoye.AmitoureHaidara@mtn.com',
+        'Hospice.Solevo@mtn.com',
+        'boris.DOLIVEIRA@mtn.com',
+        'Marcel.Kassavi@mtn.com',
+        'Kokou.Adabra@mtn.com',
+        'Jean-Christian.Amelina@mtn.com',
+        'Rukayat.Ishola@mtn.com',
+        'Roseline.Yeje1@mtn.com',
+        'Kenneth.HOUNGBADJI@mtn.com',
+        'Steve.NANSSONGKUIMO@mtn.com',
+        'Davy.Ouattara@mtn.com',
+        'vas_team.BJ@mtn.com'
+    ],
+    
+    # Destinataires pour le rapport de synthèse
+    'summary_recipients': [
+        'Sarmoye.AmitoureHaidara@mtn.com',
+        'Hospice.Solevo@mtn.com',
+        'boris.DOLIVEIRA@mtn.com',
+        'Marcel.Kassavi@mtn.com',
+        'Kokou.Adabra@mtn.com',
+        'Jean-Christian.Amelina@mtn.com',
+        'Rukayat.Ishola@mtn.com',
+        'Roseline.Yeje1@mtn.com'
+    ]
 }
 
 def get_files_by_date_range(directory, days=7):
