@@ -373,13 +373,13 @@ def generate_predictions(trends_df: pd.DataFrame, current: pd.Series, error_tren
     # Niveau de confiance
     if len(trends_df) >= 7:
         confidence = "HIGH"
-        confidence_level = 0.85
+        confidence_level = 85
     elif len(trends_df) >= 4:
         confidence = "MEDIUM"
-        confidence_level = 0.70
+        confidence_level = 70
     else:
         confidence = "LOW"
-        confidence_level = 0.55
+        confidence_level = 55
     
     predictions.update({
         'predicted_errors_simple': int(simple_pred),
@@ -709,14 +709,14 @@ def create_trend_chart(directory, trends_data, system_name):
         ax1.fill_between(dates, df['total_errors'], alpha=0.1, color=primary_color)
         
         # Ajouter la prédiction
-        if 'predicted_errors_simple' in trends_data:
+        if 'predicted_errors_consensus' in trends_data:
             pred_date = (df['date'].iloc[-1] + timedelta(days=1)).strftime('%b %d')
             all_dates = dates + [pred_date]
-            pred_line = list(df['total_errors']) + [trends_data['predicted_errors_simple']]
+            pred_line = list(df['total_errors']) + [trends_data['predicted_errors_consensus']]
             ax1.plot(all_dates[-2:], pred_line[-2:], 'r--', linewidth=2, alpha=0.6, label='Prediction')
-            ax1.scatter([pred_date], [trends_data['predicted_errors_simple']], color='red', s=120, alpha=0.7, zorder=5)
-            ax1.text(pred_date, trends_data['predicted_errors_simple'] * 1.05, 
-                     f"{int(trends_data['predicted_errors_simple'])}", color='red', 
+            ax1.scatter([pred_date], [trends_data['predicted_errors_consensus']], color='red', s=120, alpha=0.7, zorder=5)
+            ax1.text(pred_date, trends_data['predicted_errors_consensus'] * 1.05, 
+                     f"{int(trends_data['predicted_errors_consensus'])}", color='red', 
                      ha='center', va='bottom', fontsize=10, fontweight='bold')
         
         ax1.set_title(f'{system_name} - Error Trends & Predictions', 
