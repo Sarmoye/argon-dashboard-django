@@ -27,10 +27,10 @@ EMAIL_CONFIG = {
     'smtp_server': '10.77.152.66',
     'smtp_port': 25,
     'from_email': 'noreply.errormonitor@mtn.com',
-    'cis_recipients': ['Sarmoye.AmitoureHaidara@mtn.com'],
-    'irm_recipients': ['Sarmoye.AmitoureHaidara@mtn.com'],
-    'ecw_recipients': ['Sarmoye.AmitoureHaidara@mtn.com'],
-    'summary_recipients': ['Sarmoye.AmitoureHaidara@mtn.com']
+    'cis_recipients': ['Sarmoye.AmitoureHaidara@mtn.com', 'boris.doliveira@mtn.com', 'marcel.kassavi@mtn.com'],
+    'irm_recipients': ['Sarmoye.AmitoureHaidara@mtn.com', 'boris.doliveira@mtn.com', 'marcel.kassavi@mtn.com'],
+    'ecw_recipients': ['Sarmoye.AmitoureHaidara@mtn.com', 'boris.doliveira@mtn.com', 'marcel.kassavi@mtn.com'],
+    'summary_recipients': ['Sarmoye.AmitoureHaidara@mtn.com', 'boris.doliveira@mtn.com', 'marcel.kassavi@mtn.com']
 }
 
 def get_files_by_date_range(directory, days=7):
@@ -854,10 +854,22 @@ def create_professional_system_html_with_trends(system_name, data, stats, date_s
         'INSUFFICIENT_DATA': '#95a5a6'
     }
 
+    sla_colors = {
+        'MEETING': '#27ae60',
+        'AT_RISK': '#f39c12',
+        'BREACH': '#e74c3c'
+    }
+
+    risk_colors = {
+        'HIGH': '#e74c3c',
+        'MEDIUM': '#f39c12',
+        'LOW': '#27ae60'
+    }
+
     # Get status color and text based on the stats dictionary
     status_color, status_text = status_colors.get(stats['status'], status_colors['NO_DATA'])
 
-    # Trend analysis section HTML
+    # Trend analysis section HTML - Enhanced with all available data
     trend_section = ""
     if trends_data and trends_data.get('days_analyzed', 0) >= 2:
         trend_status = stats.get('trend_status', 'STABLE')
@@ -871,47 +883,170 @@ def create_professional_system_html_with_trends(system_name, data, stats, date_s
         stability = trends_data.get('stability_trend', 'INSUFFICIENT_DATA')
         stability_color = stability_colors.get(stability, stability_colors['INSUFFICIENT_DATA'])
         
-        prediction_text = f"{stats.get('predicted_errors', 0)} errors ({stats.get('prediction_confidence', 'LOW')} confidence)"
+        # Prediction section with multiple models
+        prediction_consensus = stats.get('predicted_errors_consensus', 0)
+        prediction_simple = stats.get('predicted_errors_simple', 0)
+        prediction_moving_avg = stats.get('predicted_errors_moving_avg', 0)
+        prediction_regression = stats.get('predicted_errors_regression', 0)
+        
+        error_margin_lower = stats.get('error_margin_lower', 0)
+        error_margin_upper = stats.get('error_margin_upper', 0)
+        confidence_level = stats.get('confidence_level', 0)
+        prediction_accuracy = stats.get('prediction_accuracy', 'N/A')
+
+        # Seasonal patterns and anomalies
+        seasonal_info = ""
+        if trends_data.get('seasonal_patterns'):
+            seasonal_info = f"<div class='trend-item'><strong>Seasonal Patterns:</strong> <span>{len(trends_data['seasonal_patterns'])} pattern(s) detected</span></div>"
+        
+        anomalies_info = ""
+        if trends_data.get('anomalies_detected'):
+            anomalies_count = len(trends_data['anomalies_detected'])
+            anomalies_info = f"<div class='trend-item'><strong>Anomalies Detected:</strong> <span style='color: #e74c3c;'>{anomalies_count} anomaly/ies</span></div>"
+
+        # Data quality score
+        quality_score = trends_data.get('data_quality_score', 0)
+        quality_color = '#27ae60' if quality_score > 80 else '#f39c12' if quality_score > 60 else '#e74c3c'
 
         trend_section = f"""
         <div class="trend-analysis">
-            <h3>{trend_arrow} Trend Analysis (Last days)</h3>
+            <h3>{trend_arrow} Advanced Trend Analysis ({trends_data.get('days_analyzed', 0)} days)</h3>
+            <div class="analysis-period">
+                <p><strong>Analysis Period:</strong> {trends_data.get('analysis_period', 'N/A')}</p>
+                <p><strong>Data Quality Score:</strong> <span style="color: {quality_color}; font-weight: bold;">{quality_score}%</span></p>
+            </div>
+            
             <div class="trend-grid">
                 <div class="trend-item"><strong>Current Trend:</strong> <span style="color: {trend_color}; font-weight: bold;">{trend_text}</span></div>
                 <div class="trend-item"><strong>Error Change (Day-1):</strong> <span style="color: {trend_color};">{stats.get('error_trend', 0):+d}</span> ({stats.get('improvement_rate', 0):+.1f}%)</div>
                 <div class="trend-item"><strong>7-Day Avg Trend:</strong> <span style="color: {trend_color};">{trends_data.get('week_trend', 0):+.1f} avg</span></div>
+                <div class="trend-item"><strong>Reliability Trend:</strong> <span style="color: {trend_color};">{stats.get('reliability_trend', 0):+.1f}%</span></div>
                 <div class="trend-item"><strong>Momentum:</strong> <span style="color: {momentum_color}; font-weight: bold;">{momentum.replace('_', ' ')}</span></div>
-                <div class="trend-item"><strong>Volatility:</strong> <span style="color: {stability_color}; font-weight: bold;">{stability.replace('_', ' ')}</span></div>
-                <div class="trend-item"><strong>Predicted Errors Tomorrow:</strong> <span style="color: {momentum_colors.get(momentum, 'black')};">{prediction_text}</span></div>
+                <div class="trend-item"><strong>Volatility:</strong> <span style="color: {stability_color}; font-weight: bold;">{stability.replace('_', ' ')}</span> ({trends_data.get('volatility', 0):.2f})</div>
+                {seasonal_info}
+                {anomalies_info}
+            </div>
+
+            <div class="prediction-section">
+                <h4>🔮 Predictive Analytics</h4>
+                <div class="prediction-grid">
+                    <div class="prediction-item">
+                        <strong>Consensus Prediction:</strong> 
+                        <span style="color: {momentum_colors.get(momentum, 'black')}; font-weight: bold;">
+                            {prediction_consensus} errors (±{stats.get('error_margin_range', 0)})
+                        </span>
+                    </div>
+                    <div class="prediction-item">
+                        <strong>Confidence Interval:</strong> 
+                        <span>[{error_margin_lower} - {error_margin_upper}] errors</span>
+                    </div>
+                    <div class="prediction-item">
+                        <strong>Confidence Level:</strong> 
+                        <span style="font-weight: bold;">{confidence_level}%</span>
+                    </div>
+                    <div class="prediction-item">
+                        <strong>Model Accuracy:</strong> 
+                        <span>{prediction_accuracy}</span>
+                    </div>
+                </div>
+                
+                <div class="model-details">
+                    <h5>Model Predictions Breakdown:</h5>
+                    <ul>
+                        <li><strong>Simple Linear:</strong> {prediction_simple} errors</li>
+                        <li><strong>Moving Average:</strong> {prediction_moving_avg} errors</li>
+                        <li><strong>Regression:</strong> {prediction_regression} errors</li>
+                    </ul>
+                </div>
             </div>
         </div>
         """
     
-    # Determine recommendation text based on status and trends
+    # Enhanced recommendations based on all available data
     recommendation_list = []
+    
+    # Status-based recommendations
     if stats['status'] == 'CRITICAL':
-        recommendation_list.append(f"<li>🚨 Immediate action is required. Investigate the <strong>{stats.get('critical_services', 0)} critical services</strong> to identify and resolve the root cause of high error counts.</li>")
+        recommendation_list.append(f"<li>🚨 <strong>CRITICAL ALERT:</strong> Immediate action required. Investigate the <strong>{stats.get('critical_services', 0)} critical services</strong> with error counts ≥10.</li>")
     if stats['status'] == 'WARNING' and stats['affected_services'] > 0:
-        recommendation_list.append(f"<li>⚠️ The system is showing signs of instability. Prioritize the <strong>{stats.get('affected_services', 0)} affected services</strong> for analysis.</li>")
+        recommendation_list.append(f"<li>⚠️ <strong>WARNING:</strong> System instability detected. Prioritize analysis of <strong>{stats.get('affected_services', 0)} affected services</strong>.</li>")
+    
+    # Trend-based recommendations
     if stats.get('trend_status') == 'DEGRADING':
-        recommendation_list.append(f"<li>📉 The number of errors is increasing. Analyze the cause of the degradation trend and implement preventative measures.</li>")
-    if stats.get('stability_trend') == 'HIGH_VOLATILITY':
-        recommendation_list.append(f"<li>📊 The system is highly volatile. Monitor error peaks and investigate services with erratic behavior.</li>")
+        recommendation_list.append(f"<li>📉 <strong>DEGRADING TREND:</strong> Error count increasing by {stats.get('error_trend', 0):+d} since last period. Implement corrective measures immediately.</li>")
     if stats.get('momentum') == 'ACCELERATING':
-        recommendation_list.append(f"<li>🔥 Error growth is accelerating. A swift intervention is crucial to prevent the situation from becoming critical.</li>")
+        recommendation_list.append(f"<li>🔥 <strong>ACCELERATING ISSUES:</strong> Error growth rate is increasing. Swift intervention crucial to prevent critical escalation.</li>")
+    
+    # Volatility and stability recommendations
+    if stats.get('stability_trend') == 'HIGH_VOLATILITY':
+        recommendation_list.append(f"<li>📊 <strong>HIGH VOLATILITY:</strong> System showing erratic behavior (volatility: {trends_data.get('volatility', 0):.2f}). Investigate intermittent issues.</li>")
+    
+    # SLA and business impact recommendations
+    if stats.get('sla_status') == 'BREACH':
+        recommendation_list.append(f"<li>🔴 <strong>SLA BREACH:</strong> Uptime at {stats.get('uptime_percentage', 0)}%. Immediate escalation to management required.</li>")
+    elif stats.get('sla_status') == 'AT_RISK':
+        recommendation_list.append(f"<li>🟡 <strong>SLA AT RISK:</strong> Uptime at {stats.get('uptime_percentage', 0)}%. Monitor closely to prevent SLA breach.</li>")
+    
+    # Risk level recommendations
+    if stats.get('risk_level') == 'HIGH':
+        recommendation_list.append(f"<li>⚡ <strong>HIGH RISK DETECTED:</strong> Business impact assessed as {stats.get('business_impact', 'UNKNOWN')}. Activate incident response procedures.</li>")
+    
+    # Predictive recommendations
+    if trends_data and stats.get('predicted_errors_consensus', 0) > stats.get('total_errors', 0):
+        recommendation_list.append(f"<li>🔮 <strong>PREDICTIVE ALERT:</strong> Models predict {stats.get('predicted_errors_consensus', 0)} errors tomorrow (vs {stats.get('total_errors', 0)} today). Proactive monitoring recommended.</li>")
+    
+    # Anomaly recommendations
+    if trends_data and trends_data.get('anomalies_detected'):
+        anomaly_count = len(trends_data['anomalies_detected'])
+        recommendation_list.append(f"<li>🔍 <strong>ANOMALIES DETECTED:</strong> {anomaly_count} unusual pattern(s) identified. Review historical data for root cause analysis.</li>")
+    
+    # Default healthy state recommendation
     if not recommendation_list:
-        recommendation_list.append("<li>✅ The system is stable and healthy. Continue to monitor and perform routine maintenance to ensure long-term reliability.</li>")
+        recommendation_list.append("<li>✅ <strong>SYSTEM HEALTHY:</strong> All indicators within normal ranges. Continue routine monitoring and maintenance for optimal performance.</li>")
+
+    # Add recommended action from trends data if available
+    recommended_action = stats.get('recommended_action', 'NO_DATA')
+    if recommended_action and recommended_action != 'NO_DATA':
+        recommendation_list.append(f"<li>🎯 <strong>RECOMMENDED ACTION:</strong> {recommended_action}</li>")
 
     recommendation_html = "".join(recommendation_list)
 
-    # HTML for affected and critical service lists
+    # Enhanced service lists with error counts
     affected_services_html = "<p>No affected services.</p>"
     if stats.get('affected_services_list'):
         affected_services_html = "<ul>" + "".join([f"<li>{service}</li>" for service in stats['affected_services_list']]) + "</ul>"
 
     critical_services_html = "<p>No critical services.</p>"
     if stats.get('critical_services_list'):
-        critical_services_html = "<ul>" + "".join([f"<li style='color: #e74c3c; font-weight: bold;'>{service}</li>" for service in stats['critical_services_list']]) + "</ul>"
+        critical_services_html = "<ul>" + "".join([f"<li style='color: #e74c3c; font-weight: bold;'>{service} (≥10 errors)</li>" for service in stats['critical_services_list']]) + "</ul>"
+
+    # Error distribution visualization
+    error_dist = stats.get('error_distribution', {})
+    error_dist_html = ""
+    if error_dist:
+        error_dist_html = f"""
+        <div class="error-distribution">
+            <h4>📊 Error Distribution Analysis</h4>
+            <div class="distribution-grid">
+                <div class="dist-item">
+                    <div class="dist-number success">{error_dist.get('zero_errors', 0)}</div>
+                    <div class="dist-label">Zero Errors</div>
+                </div>
+                <div class="dist-item">
+                    <div class="dist-number warning">{error_dist.get('low_errors', 0)}</div>
+                    <div class="dist-label">Low (1-5)</div>
+                </div>
+                <div class="dist-item">
+                    <div class="dist-number danger">{error_dist.get('medium_errors', 0)}</div>
+                    <div class="dist-label">Medium (6-10)</div>
+                </div>
+                <div class="dist-item">
+                    <div class="dist-number danger">{error_dist.get('high_errors', 0)}</div>
+                    <div class="dist-label">High (>10)</div>
+                </div>
+            </div>
+        </div>
+        """
 
     # Return the complete HTML document as a single string
     return f"""
@@ -919,7 +1054,7 @@ def create_professional_system_html_with_trends(system_name, data, stats, date_s
     <html>
     <head>
         <meta charset="UTF-8">
-        <title>{system_name} - System Health Report</title>
+        <title>{system_name} - Advanced System Health Report</title>
         <style>
             body {{ 
                 font-family: 'Inter', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif; 
@@ -929,7 +1064,7 @@ def create_professional_system_html_with_trends(system_name, data, stats, date_s
                 color: #2d3748;
             }}
             .container {{ 
-                max-width: 1200px; 
+                max-width: 1400px; 
                 margin: 20px auto; 
                 background: rgba(255, 255, 255, 0.95); 
                 border-radius: 24px; 
@@ -1001,7 +1136,63 @@ def create_professional_system_html_with_trends(system_name, data, stats, date_s
             }}
             .intro h2 {{ margin-top: 0; color: #2c3e50; }}
             
-            /* Styles pour les cartes d'indicateurs clés - une seule ligne responsive */
+            /* Trend Analysis Styles */
+            .trend-analysis {{
+                background: linear-gradient(145deg, #e8f5e8, #d4f4dd);
+                padding: 30px;
+                border-radius: 18px;
+                margin: 30px 0;
+                border-left: 5px solid #27ae60;
+            }}
+            .analysis-period {{
+                background: rgba(255,255,255,0.7);
+                padding: 15px;
+                border-radius: 8px;
+                margin-bottom: 20px;
+            }}
+            .trend-grid {{
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+                gap: 15px;
+                margin: 20px 0;
+            }}
+            .trend-item {{
+                background: rgba(255,255,255,0.8);
+                padding: 15px;
+                border-radius: 8px;
+                border-left: 3px solid #3498db;
+            }}
+            .prediction-section {{
+                background: linear-gradient(145deg, #f0f4ff, #e6f0ff);
+                padding: 25px;
+                border-radius: 12px;
+                margin-top: 20px;
+                border: 1px solid rgba(52, 152, 219, 0.2);
+            }}
+            .prediction-grid {{
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 15px;
+                margin: 15px 0;
+            }}
+            .prediction-item {{
+                background: rgba(255,255,255,0.8);
+                padding: 12px;
+                border-radius: 6px;
+                border-left: 2px solid #9b59b6;
+            }}
+            .model-details {{
+                margin-top: 20px;
+                padding: 15px;
+                background: rgba(255,255,255,0.6);
+                border-radius: 8px;
+            }}
+            .model-details ul {{
+                margin: 0;
+                padding-left: 20px;
+            }}
+            
+            /* Stats Grid Styles */
             .stats-grid {{ 
                 display: flex; 
                 flex-wrap: wrap;
@@ -1024,7 +1215,7 @@ def create_professional_system_html_with_trends(system_name, data, stats, date_s
             .stat-number {{ font-size: 2rem; font-weight: 700; color: #2c3e50; margin-bottom: 8px; }}
             .stat-label {{ font-size: 0.8rem; color: #7f8c8d; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }}
             
-            /* Styles pour les métriques avancées - une seule ligne responsive */
+            /* Advanced Stats Grid */
             .advanced-stats-grid {{ 
                 display: flex; 
                 flex-wrap: wrap;
@@ -1039,95 +1230,152 @@ def create_professional_system_html_with_trends(system_name, data, stats, date_s
                 text-align: center; 
                 transition: transform 0.2s;
                 flex: 1;
-                min-width: 200px;
-                max-width: 280px;
+                min-width: 180px;
+                max-width: 220px;
             }}
             .advanced-stat-card:hover {{ transform: translateY(-5px); box-shadow: 0 4px 15px rgba(0,0,0,0.1); }}
             
-            /* Media queries pour la responsivité */
-            @media (max-width: 1200px) {{
-                .stats-grid {{
-                    justify-content: center;
-                }}
-                .stat-card {{
-                    min-width: 130px;
-                    max-width: 160px;
-                }}
-                .advanced-stats-grid {{
-                    justify-content: center;
-                }}
-                .advanced-stat-card {{
-                    min-width: 180px;
-                    max-width: 250px;
-                }}
+            /* Error Distribution Styles */
+            .error-distribution {{
+                background: linear-gradient(145deg, #fff5f5, #fed7d7);
+                padding: 25px;
+                border-radius: 12px;
+                margin: 20px 0;
+                border-left: 4px solid #e53e3e;
+            }}
+            .distribution-grid {{
+                display: flex;
+                gap: 20px;
+                justify-content: space-around;
+                margin-top: 15px;
+                flex-wrap: wrap;
+            }}
+            .dist-item {{
+                text-align: center;
+                flex: 1;
+                min-width: 100px;
+            }}
+            .dist-number {{
+                font-size: 1.8rem;
+                font-weight: 700;
+                margin-bottom: 5px;
+            }}
+            .dist-label {{
+                font-size: 0.9rem;
+                color: #666;
+                font-weight: 600;
             }}
             
-            @media (max-width: 768px) {{
-                .stats-grid {{
-                    flex-direction: column;
-                    align-items: center;
-                }}
-                .stat-card {{
-                    max-width: 300px;
-                    width: 100%;
-                }}
-                .advanced-stats-grid {{
-                    flex-direction: column;
-                    align-items: center;
-                }}
-                .advanced-stat-card {{
-                    max-width: 300px;
-                    width: 100%;
-                }}
-            }}
-            
+            /* Color Classes */
             .danger {{ color: #e74c3c !important; }}
             .success {{ color: #27ae60 !important; }}
             .warning {{ color: #f39c12 !important; }}
-            .recommendations {{ background: linear-gradient(135deg, #d4edda, #c3e6cb); color: #155724; padding: 30px; border-radius: 12px; margin: 30px 0; border: 1px solid #c3e6cb; }}
+            .high {{ color: #e74c3c !important; }}
+            .medium {{ color: #f39c12 !important; }}
+            .low {{ color: #27ae60 !important; }}
+            
+            /* Recommendations */
+            .recommendations {{ 
+                background: linear-gradient(135deg, #d4edda, #c3e6cb); 
+                color: #155724; 
+                padding: 30px; 
+                border-radius: 12px; 
+                margin: 30px 0; 
+                border: 1px solid #c3e6cb; 
+            }}
             .recommendations h3 {{ margin-bottom: 20px; font-size: 1.4rem; color: #155724; }}
             .recommendations ul {{ padding-left: 20px; }}
-            .recommendations li {{ margin-bottom: 10px; font-weight: 500; }}
-            .footer {{ background: #2c3e50; color: white; padding: 25px; text-align: center; }}
-            .trend-info {{ font-size: 1.1rem; margin-bottom: 10px; }}
-            .service-lists-container {{ display: flex; justify-content: space-around; gap: 30px; margin-top: 30px; }}
-            .service-list-card {{ flex: 1; background: #fff; padding: 25px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }}
+            .recommendations li {{ margin-bottom: 15px; font-weight: 500; line-height: 1.5; }}
+            
+            /* Service Lists */
+            .service-lists-container {{ 
+                display: flex; 
+                justify-content: space-around; 
+                gap: 30px; 
+                margin-top: 30px; 
+                flex-wrap: wrap;
+            }}
+            .service-list-card {{ 
+                flex: 1; 
+                background: #fff; 
+                padding: 25px; 
+                border-radius: 12px; 
+                box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+                min-width: 300px;
+            }}
             .service-list-card h4 {{ margin-top: 0; border-bottom: 2px solid #ecf0f1; padding-bottom: 10px; }}
             .service-list-card ul {{ list-style-type: none; padding: 0; margin: 0; }}
             .service-list-card li {{ padding: 8px 0; border-bottom: 1px solid #eee; }}
             .service-list-card li:last-child {{ border-bottom: none; }}
+            
+            /* Footer */
+            .footer {{ 
+                background: #2c3e50; 
+                color: white; 
+                padding: 25px; 
+                text-align: center; 
+            }}
+            
+            /* Responsive Design */
+            @media (max-width: 1200px) {{
+                .stats-grid, .advanced-stats-grid {{
+                    justify-content: center;
+                }}
+                .trend-grid, .prediction-grid {{
+                    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                }}
+            }}
+            
+            @media (max-width: 768px) {{
+                .stats-grid, .advanced-stats-grid {{
+                    flex-direction: column;
+                    align-items: center;
+                }}
+                .stat-card, .advanced-stat-card {{
+                    max-width: 300px;
+                    width: 100%;
+                }}
+                .service-lists-container {{
+                    flex-direction: column;
+                }}
+                .distribution-grid {{
+                    flex-direction: column;
+                    gap: 10px;
+                }}
+            }}
         </style>
     </head>
     <body>
         <div class="container">
             <div class="header">
                 <h1>System {system_name}</h1>
-                <p>Advanced Error Analysis Report - {date_str}</p>
+                <p>Advanced Error Analysis & Predictive Intelligence Report - {date_str}</p>
                 <div class="status-badge">{status_text}</div>
             </div>
             
             <div class="content">
                 <div class="intro">
-                    <h2>🔎 Report Objective</h2>
+                    <h2>🔎 Executive Summary</h2>
                     <p>
-                        This report provides a detailed analysis of the errors and incidents encountered on the
-                        <strong>{system_name}</strong> system. You will find a summary of the key indicators,
-                        the observed trends, as well as recommendations to improve stability
-                        and reduce the impact on your services.
+                        This comprehensive report provides an advanced analysis of the errors and incidents on the
+                        <strong>{system_name}</strong> system, enhanced with predictive analytics and trend intelligence.
+                        The analysis includes historical trends, anomaly detection, seasonal patterns, and machine learning-based
+                        predictions to provide actionable insights for system optimization.
                     </p>
                     <p>
-                        The objective is to provide you with a clear vision of the system's health status,
-                        to facilitate decision-making and the implementation of corrective or preventive actions.
+                        <strong>Current System Status:</strong> {status_text.split(' ', 1)[1]} | 
+                        <strong>Risk Level:</strong> <span class="{stats.get('risk_level', '').lower()}">{stats.get('risk_level', 'N/A')}</span> | 
+                        <strong>Business Impact:</strong> {stats.get('business_impact', 'N/A')} |
+                        <strong>SLA Status:</strong> <span style="color: {sla_colors.get(stats.get('sla_status', 'MEETING'), '#000')};">{stats.get('sla_status', 'N/A')}</span>
                     </p>
                 </div>
                 
                 {trend_section}
 
-                <h2>📊 Key Indicators</h2>
+                <h2>📊 Key Performance Indicators</h2>
                 <p>
-                    The figures below summarize the current state of the system.
-                    They allow for a quick identification of the volume of errors, the number of affected services,
-                    and the overall health level.
+                    Comprehensive metrics providing immediate insight into system health, service availability,
+                    and operational efficiency. These indicators form the foundation for strategic decision-making.
                 </p>
                 <div class="stats-grid">
                     <div class="stat-card">
@@ -1150,61 +1398,110 @@ def create_professional_system_html_with_trends(system_name, data, stats, date_s
                         <div class="stat-number {'warning' if stats['avg_errors'] > 2 else 'success'}">{stats.get('avg_errors', 0)}</div>
                         <div class="stat-label">Avg Errors/Service</div>
                     </div>
+                    <div class="stat-card">
+                        <div class="stat-number {'success' if stats['health_percentage'] > 80 else 'warning' if stats['health_percentage'] > 60 else 'danger'}">{stats.get('health_percentage', 0)}%</div>
+                        <div class="stat-label">Health Rate</div>
+                    </div>
                 </div>
 
-                <h2>📈 Advanced Metrics & Insights</h2>
+                <h2>📈 Advanced Analytics & Intelligence</h2>
                 <div class="advanced-stats-grid">
-                <div class="advanced-stat-card" style="border-left: 4px solid #f1c40f;">
+                    <div class="advanced-stat-card" style="border-left: 4px solid #f1c40f;">
                         <div class="stat-number">{stats.get('top_error_service', 'N/A')}</div>
                         <div class="stat-label">Top Error Service</div>
                     </div>
-                    <div class="advanced-stat-card" style="border-left: 4px solid #e67e22;">
+                    <div class="advanced-stat-card" style="border-left: 4px solid {risk_colors.get(stats.get('risk_level', 'LOW'), '#27ae60')};">
                         <div class="stat-number">
                             <span class="{stats.get('risk_level', '').lower()}">{stats.get('risk_level', 'N/A')}</span>
                         </div>
                         <div class="stat-label">Risk Level</div>
                     </div>
-                    <div class="stat-card">
-                        <div class="stat-number {'success' if stats['health_percentage'] > 80 else 'warning' if stats['health_percentage'] > 60 else 'danger'}">{stats.get('health_percentage', 0)}%</div>
-                        <div class="stat-label">Health Rate</div>
-                    </div>
                     <div class="advanced-stat-card" style="border-left: 4px solid #2ecc71;">
                         <div class="stat-number {'success' if stats.get('stability_index', 0) > 70 else 'warning' if stats.get('stability_index', 0) > 50 else 'danger'}">{stats.get('stability_index', 0)}</div>
                         <div class="stat-label">Stability Index (0-100)</div>
                     </div>
+                    <div class="advanced-stat-card" style="border-left: 4px solid {sla_colors.get(stats.get('sla_status', 'MEETING'), '#27ae60')};">
+                        <div class="stat-number {'success' if stats.get('uptime_percentage', 0) >= 99.5 else 'warning' if stats.get('uptime_percentage', 0) >= 95 else 'danger'}">{stats.get('uptime_percentage', 0):.2f}%</div>
+                        <div class="stat-label">Uptime Percentage</div>
+                    </div>
+                    <div class="advanced-stat-card" style="border-left: 4px solid #9b59b6;">
+                        <div class="stat-number">{stats.get('error_density', 0):.2f}</div>
+                        <div class="stat-label">Error Density</div>
+                    </div>
+                    <div class="advanced-stat-card" style="border-left: 4px solid #e67e22;">
+                        <div class="stat-number {'danger' if stats.get('critical_ratio', 0) > 20 else 'warning' if stats.get('critical_ratio', 0) > 10 else 'success'}">{stats.get('critical_ratio', 0)}%</div>
+                        <div class="stat-label">Critical Service Ratio</div>
+                    </div>
                 </div>
+
+                {error_dist_html}
                 
-                <h2>📋 Service Details</h2>
+                <h2>📋 Service Impact Analysis</h2>
                 <p>
-                    Below are the lists of services currently impacted. These lists provide a quick overview of which services require immediate attention.
+                    Detailed breakdown of affected services with severity classification. This analysis helps prioritize 
+                    remediation efforts and resource allocation for maximum impact reduction.
                 </p>
                 <div class="service-lists-container">
                     <div class="service-list-card">
-                        <h4 style="color: #f39c12;">Services Affected ({stats.get('affected_services', 0)})</h4>
+                        <h4 style="color: #f39c12;">⚠️ Services Affected ({stats.get('affected_services', 0)})</h4>
+                        <p><small>Services experiencing at least one error</small></p>
                         {affected_services_html}
                     </div>
                     <div class="service-list-card">
-                        <h4 style="color: #e74c3c;">Critical Services ({stats.get('critical_services', 0)})</h4>
+                        <h4 style="color: #e74c3c;">🔴 Critical Services ({stats.get('critical_services', 0)})</h4>
+                        <p><small>Services with 10 or more errors requiring immediate attention</small></p>
                         {critical_services_html}
                     </div>
                 </div>
                 
                 <div class="recommendations">
-                    <h3>🎯 Strategic Insights & Action Plan</h3>
+                    <h3>🎯 Strategic Action Plan & Recommendations</h3>
                     <p>
-                        Here is an interpretation of the results and actions to consider to improve the situation.
-                        Please collaborate with the monitoring team to identify the root causes
-                        and implement effective solutions.
+                        Based on comprehensive analysis of current state, historical trends, predictive models, and risk assessment,
+                        the following strategic recommendations have been generated to optimize system performance and minimize business impact.
                     </p>
                     <ul>
                         {recommendation_html}
                     </ul>
+                    
+                    <div style="margin-top: 25px; padding: 20px; background: rgba(255,255,255,0.8); border-radius: 8px;">
+                        <h4 style="margin-top: 0; color: #2c3e50;">📊 Decision Support Metrics</h4>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                            <div><strong>Business Impact:</strong> <span class="{stats.get('business_impact', '').lower()}">{stats.get('business_impact', 'N/A')}</span></div>
+                            <div><strong>Predicted Trend:</strong> <span style="color: {trend_colors.get(stats.get('trend_status', 'STABLE'), '#3498db')[0]};">{stats.get('trend_status', 'N/A')}</span></div>
+                            <div><strong>Response Priority:</strong> <span class="{'danger' if stats.get('risk_level') == 'HIGH' else 'warning' if stats.get('risk_level') == 'MEDIUM' else 'success'}">{stats.get('risk_level', 'LOW')} PRIORITY</span></div>
+                            <div><strong>Confidence Level:</strong> {stats.get('confidence_level', 0)}%</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="background: linear-gradient(145deg, #f8f9fa, #e9ecef); padding: 25px; border-radius: 12px; margin: 30px 0;">
+                    <h3>📈 Historical Context & Data Quality</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+                        <div>
+                            <strong>Analysis Period:</strong><br>
+                            <span style="color: #666;">{trends_data.get('analysis_period', 'Current snapshot only') if trends_data else 'Current snapshot only'}</span>
+                        </div>
+                        <div>
+                            <strong>Data Points Analyzed:</strong><br>
+                            <span style="color: #666;">{trends_data.get('days_analyzed', 1) if trends_data else 1} data point(s)</span>
+                        </div>
+                        <div>
+                            <strong>Data Quality Score:</strong><br>
+                            <span style="color: {quality_color if trends_data else '#95a5a6'};">{trends_data.get('data_quality_score', 'N/A') if trends_data else 'N/A'}{'%' if trends_data and trends_data.get('data_quality_score') else ''}</span>
+                        </div>
+                        <div>
+                            <strong>Report Generation:</strong><br>
+                            <span style="color: #666;">{date_str}</span>
+                        </div>
+                    </div>
                 </div>
             </div>
             
             <div class="footer">
-                <p><strong>Enhanced MTN Monitoring System</strong> | Generated: {date_str}</p>
-                <p>📧 For urgent issues: Contact monitoring team immediately</p>
+                <p><strong>🚀 Enhanced MTN Monitoring System v2.0</strong> | AI-Powered Analytics & Predictive Intelligence</p>
+                <p>📧 For urgent issues: Contact monitoring team immediately | 🔔 Automated alerts configured</p>
+                <p><small>Report includes: Trend Analysis • Predictive Models • Anomaly Detection • Risk Assessment • Business Impact Analysis</small></p>
             </div>
         </div>
     </body>
@@ -1338,10 +1635,6 @@ def create_executive_summary_html_with_trends(systems_data, all_stats, date_str)
     total_affected_services = sum(len(stats.get('affected_services_list', [])) for stats in all_stats.values())
     total_critical_services = sum(len(stats.get('critical_services_list', [])) for stats in all_stats.values())
     
-    # Calcul des prédictions globales
-    total_predicted_errors = sum(stats.get('predicted_errors_consensus', 0) for stats in all_stats.values())
-    avg_confidence = np.mean([stats.get('confidence_level', 0) for stats in all_stats.values() if stats.get('confidence_level', 0) > 0])
-    
     # Global status with trend
     if degrading_systems > improving_systems:
         global_status = "📉 SYSTEMS DEGRADING"
@@ -1357,22 +1650,19 @@ def create_executive_summary_html_with_trends(systems_data, all_stats, date_str)
     # Top 5 degrading services
     all_trends = []
     for system_name, stats in all_stats.items():
-        if stats.get('error_trend', 0) > 0:
-            all_trends.append({
-                'system': system_name, 
-                'errors': stats.get('error_trend', 0),
-                'current': stats.get('total_errors', 0),
-                'predicted': stats.get('predicted_errors_consensus', 0)
-            })
+        if stats.get('data') is not None and not stats['data'].empty:
+            # Check for error_trend and previous_errors to calculate degradation
+            current_errors = stats.get('total_errors', 0)
+            previous_errors = stats.get('previous_errors', 0)
+            if current_errors > previous_errors:
+                degradation_amount = current_errors - previous_errors
+                all_trends.append({'system': system_name, 'errors': degradation_amount})
 
     top_degrading_systems = sorted(all_trends, key=lambda x: x['errors'], reverse=True)[:5]
     
     top_degrading_html = ""
     if top_degrading_systems:
-        top_degrading_html = "<ul>" + "".join([
-            f"<li><strong>{d['system']}</strong>: +{d['errors']} errors (Current: {d['current']}, Predicted: {d['predicted']})</li>" 
-            for d in top_degrading_systems
-        ]) + "</ul>"
+        top_degrading_html = "<ul>" + "".join([f"<li><strong>{d['system']}</strong>: +{d['errors']} errors</li>" for d in top_degrading_systems]) + "</ul>"
     else:
         top_degrading_html = "<p>No degrading systems identified.</p>"
     
@@ -1395,34 +1685,316 @@ def create_executive_summary_html_with_trends(systems_data, all_stats, date_str)
     <head>
         <meta charset="UTF-8">
         <style>
-            /* [VOTRE CSS EXISTANT] */
-            .prediction-card {{
-                background: linear-gradient(145deg, #f0fff4, #c6f6d5);
-                padding: 25px;
-                border-radius: 16px;
-                margin: 20px 0;
-                box-shadow: 8px 8px 16px #d1d9e6, -8px -8px 16px #ffffff;
-                border-left: 4px solid #38a169;
+            body {{ 
+                font-family: 'Inter', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif; 
+                margin: 0; 
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                min-height: 100vh;
+                color: #2d3748;
             }}
-            .prediction-range {{
-                background: linear-gradient(145deg, #bee3f8, #90cdf4);
-                padding: 15px;
-                border-radius: 12px;
-                margin: 15px 0;
-                text-align: center;
-            }}
-            .confidence-meter {{
-                height: 20px;
-                background: #e2e8f0;
-                border-radius: 10px;
-                margin: 10px 0;
+            .container {{ 
+                max-width: 1400px; 
+                margin: 20px auto; 
+                background: rgba(255, 255, 255, 0.95); 
+                border-radius: 24px; 
+                backdrop-filter: blur(20px);
+                box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.1);
                 overflow: hidden;
             }}
-            .confidence-fill {{
-                height: 100%;
-                border-radius: 10px;
-                background: linear-gradient(90deg, #38a169, #68d391);
-                transition: width 0.5s ease;
+            
+            .header {{ 
+                background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05)); 
+                color: #1a202c; 
+                padding: 60px 50px; 
+                text-align: center; 
+                position: relative;
+                overflow: hidden;
+            }}
+            .header::before {{
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M30 30c0-11.046-8.954-20-20-20s-20 8.954-20 20 8.954 20 20 20 20-8.954 20-20zM0 0h20v20H0V0zm40 40h20v20H40V40z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E") repeat;
+                opacity: 0.1;
+            }}
+            .header h1 {{ 
+                font-size: 3.2rem; 
+                margin: 0 0 15px; 
+                font-weight: 800; 
+                background: linear-gradient(135deg, #667eea, #764ba2);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+                position: relative;
+                z-index: 1;
+            }}
+            .header p {{
+                position: relative;
+                z-index: 1;
+            }}
+            
+            .global-status {{ 
+                padding: 16px 32px; 
+                border-radius: 50px; 
+                font-weight: 700; 
+                margin-top: 25px; 
+                display: inline-block;
+                box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+                position: relative;
+                z-index: 1;
+            }}
+            
+            .content {{ 
+                padding: 50px; 
+            }}
+            
+            /* Soft UI Trend Summary avec cartes en ligne */
+            .trend-summary {{ 
+                background: linear-gradient(145deg, #ffffff, #f7fafc);
+                border-radius: 20px; 
+                padding: 40px; 
+                margin: 30px 0;
+                box-shadow: 
+                    20px 20px 60px #d1d9e6, 
+                    -20px -20px 60px #ffffff,
+                    inset 2px 2px 5px rgba(255,255,255,0.8),
+                    inset -2px -2px 5px rgba(0,0,0,0.1);
+                border: 1px solid rgba(255, 255, 255, 0.2);
+            }}
+            .trend-summary h3 {{
+                margin: 0 0 30px 0; 
+                font-size: 1.8rem;
+                font-weight: 700;
+                color: #2d3748;
+                text-align: center;
+                text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);
+            }}
+            
+            /* Grid pour les métriques en une ligne responsive */
+            .trend-metrics-grid {{ 
+                display: flex;
+                flex-wrap: wrap;
+                gap: 20px; 
+                justify-content: space-between;
+            }}
+            .trend-metric-card {{ 
+                flex: 1;
+                min-width: 160px;
+                max-width: 200px;
+                text-align: center;
+                padding: 25px 20px;
+                background: linear-gradient(145deg, #f7fafc, #edf2f7);
+                border-radius: 16px;
+                box-shadow: 
+                    6px 6px 12px #d1d9e6,
+                    -6px -6px 12px #ffffff,
+                    inset 1px 1px 2px rgba(255,255,255,0.8);
+                transition: all 0.3s ease;
+                border: 1px solid rgba(255, 255, 255, 0.3);
+            }}
+            .trend-metric-card:hover {{
+                transform: translateY(-3px);
+                box-shadow: 
+                    8px 8px 16px #d1d9e6,
+                    -8px -8px 16px #ffffff,
+                    inset 2px 2px 4px rgba(255,255,255,0.9);
+            }}
+            .trend-metric-number {{
+                font-size: 2.2rem; 
+                font-weight: 800;
+                color: #4a5568;
+                text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);
+                margin-bottom: 8px;
+            }}
+            .trend-metric-label {{
+                font-size: 0.9rem;
+                color: #718096;
+                font-weight: 600;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+            }}
+            
+            /* Media queries pour la responsivité */
+            @media (max-width: 1200px) {{
+                .trend-metrics-grid {{
+                    justify-content: center;
+                }}
+                .trend-metric-card {{
+                    min-width: 140px;
+                    max-width: 180px;
+                }}
+            }}
+            @media (max-width: 768px) {{
+                .trend-metrics-grid {{
+                    flex-direction: column;
+                    align-items: center;
+                }}
+                .trend-metric-card {{
+                    max-width: 280px;
+                    width: 100%;
+                }}
+            }}
+            
+            .systems-grid {{ 
+                display: grid; 
+                grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); 
+                gap: 30px; 
+                margin: 40px 0; 
+            }}
+            .system-card {{ 
+                background: linear-gradient(145deg, #ffffff, #f7fafc);
+                border-radius: 20px; 
+                padding: 30px; 
+                box-shadow: 
+                    15px 15px 30px #d1d9e6, 
+                    -15px -15px 30px #ffffff,
+                    inset 1px 1px 3px rgba(255,255,255,0.8);
+                transition: all 0.3s ease;
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                position: relative;
+                overflow: hidden;
+            }}
+            .system-card::before {{
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 4px;
+                background: linear-gradient(90deg, #667eea, #764ba2);
+                border-radius: 20px 20px 0 0;
+            }}
+            .system-card:hover {{ 
+                transform: translateY(-8px); 
+                box-shadow: 
+                    20px 20px 40px #d1d9e6, 
+                    -20px -20px 40px #ffffff,
+                    inset 2px 2px 5px rgba(255,255,255,0.9);
+            }}
+            .system-name {{ 
+                font-size: 1.4rem; 
+                font-weight: 700; 
+                margin-bottom: 20px; 
+                color: #2d3748;
+                text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);
+            }}
+            .trend-indicator {{ 
+                font-size: 1rem; 
+                margin: 15px 0; 
+                padding: 10px 18px; 
+                border-radius: 25px; 
+                display: inline-block;
+                font-weight: 600;
+                box-shadow: inset 2px 2px 5px rgba(0,0,0,0.1), inset -2px -2px 5px rgba(255,255,255,0.8);
+            }}
+            .improving {{ 
+                background: linear-gradient(145deg, #c6f6d5, #9ae6b4); 
+                color: #22543d; 
+            }}
+            .degrading {{ 
+                background: linear-gradient(145deg, #fed7d7, #feb2b2); 
+                color: #742a2a; 
+            }}
+            .stable {{ 
+                background: linear-gradient(145deg, #bee3f8, #90cdf4); 
+                color: #2a4365; 
+            }}
+            .danger {{ color: #e53e3e; }}
+            .success {{ color: #38a169; }}
+            .warning {{ color: #d69e2e; }}
+            .info {{ 
+                color: #2b6cb0; 
+                background: linear-gradient(145deg, #bee3f8, #90cdf4);
+                box-shadow: inset 2px 2px 5px rgba(0,0,0,0.1), inset -2px -2px 5px rgba(255,255,255,0.8);
+            }}
+            
+            .footer {{ 
+                background: linear-gradient(145deg, #2d3748, #1a202c);
+                color: black; 
+                padding: 40px; 
+                text-align: center;
+                position: relative;
+                overflow: hidden;
+            }}
+            .footer::before {{
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: linear-gradient(45deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+            }}
+            .footer p {{
+                position: relative;
+                z-index: 1;
+                text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+            }}
+            
+            .list-section {{ 
+                display: flex; 
+                justify-content: space-between; 
+                gap: 30px; 
+                margin-top: 40px; 
+            }}
+            .list-card {{ 
+                flex: 1; 
+                background: linear-gradient(145deg, #f7fafc, #edf2f7);
+                padding: 30px; 
+                border-radius: 18px; 
+                box-shadow: 
+                    12px 12px 24px #d1d9e6,
+                    -12px -12px 24px #ffffff,
+                    inset 1px 1px 3px rgba(255,255,255,0.8);
+                border: 1px solid rgba(255, 255, 255, 0.3);
+            }}
+            .list-card h4 {{ 
+                margin-top: 0; 
+                color: #2d3748; 
+                border-bottom: 2px solid rgba(102, 126, 234, 0.2);
+                padding-bottom: 15px;
+                text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);
+                font-weight: 700;
+            }}
+            .list-card ul {{ 
+                list-style-type: none; 
+                padding: 0; 
+                margin: 0; 
+            }}
+            .list-card li {{ 
+                padding: 12px 0; 
+                border-bottom: 1px solid rgba(0,0,0,0.05);
+                font-size: 1rem;
+                transition: all 0.2s ease;
+            }}
+            .list-card li:hover {{
+                padding-left: 10px;
+                color: #667eea;
+            }}
+            .list-card li:last-child {{ 
+                border-bottom: none; 
+            }}
+            
+            .recommendations {{
+                background: linear-gradient(145deg, #fff5f5, #fed7d7);
+                padding: 40px; 
+                border-radius: 20px; 
+                margin: 40px 0;
+                box-shadow: 
+                    15px 15px 30px #d1d9e6,
+                    -15px -15px 30px #ffffff,
+                    inset 1px 1px 3px rgba(255,255,255,0.8);
+                border: 1px solid rgba(255, 255, 255, 0.3);
+            }}
+            .recommendations h3 {{
+                font-size: 1.6rem; 
+                margin-bottom: 25px;
+                color: #742a2a;
+                text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);
+                font-weight: 700;
             }}
         </style>
     </head>
@@ -1464,40 +2036,17 @@ def create_executive_summary_html_with_trends(systems_data, all_stats, date_str)
                             <div class="trend-metric-label">Services Monitored</div>
                         </div>
                     </div>
-                    
-                    <!-- Section Prédictions Globales -->
-                    <div class="prediction-card">
-                        <h4 style="margin: 0 0 15px 0; color: #22543d; font-weight: 700;">🔮 Global Predictions</h4>
-                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
-                            <div style="text-align: center;">
-                                <div style="font-size: 2rem; font-weight: 800; color: #2d3748;">{int(total_predicted_errors)}</div>
-                                <div style="font-size: 0.9rem; color: #4a5568;">Predicted Errors</div>
-                            </div>
-                            <div style="text-align: center;">
-                                <div style="font-size: 1.5rem; font-weight: 800; color: #38a169;">{avg_confidence:.0%}</div>
-                                <div style="font-size: 0.9rem; color: #4a5568;">Avg Confidence</div>
-                                <div class="confidence-meter">
-                                    <div class="confidence-fill" style="width: {avg_confidence * 100}%;"></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
                 </div>
                 
-                <h2 style="color: #2d3748; margin: 50px 0 30px; font-size: 2rem; font-weight: 700;">🖥️ Systems Performance Dashboard</h2>
+                <h2 style="color: #2d3748; margin: 50px 0 30px; font-size: 2rem; font-weight: 700; text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);">🖥️ Systems Performance Dashboard</h2>
                 <div class="systems-grid">
     """
     
-    # Adding system cards with trends and predictions
+    # Adding system cards with trends
     for system_name, stats in all_stats.items():
         error_trend = stats.get('error_trend', 0)
         trend_class = 'improving' if error_trend < 0 else 'degrading' if error_trend > 0 else 'stable'
         trend_text = f'📈 -{abs(error_trend)} errors' if error_trend < 0 else f'📉 +{error_trend} errors' if error_trend > 0 else '➡️ No change'
-        
-        # Données de prédiction
-        predicted_errors = stats.get('predicted_errors_consensus', 0)
-        error_margin = stats.get('error_margin_range', 0)
-        confidence = stats.get('confidence_level', 0)
         
         html += f"""
                     <div class="system-card">
@@ -1507,22 +2056,14 @@ def create_executive_summary_html_with_trends(systems_data, all_stats, date_str)
                         </div>
                         <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin: 20px 0;">
                             <div style="text-align: center; padding: 15px; background: linear-gradient(145deg, #edf2f7, #e2e8f0); border-radius: 12px; box-shadow: inset 3px 3px 6px #d1d9e6, inset -3px -3px 6px #ffffff;">
-                                <div style="font-size: 1.6rem; font-weight: 800; color: {'#e53e3e' if stats.get('total_errors', 0) > 0 else '#38a169'};">{stats.get('total_errors', 0)}</div>
+                                <div style="font-size: 1.6rem; font-weight: 800; color: {'#e53e3e' if stats.get('total_errors', 0) > 0 else '#38a169'}; text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);">{stats.get('total_errors', 0)}</div>
                                 <div style="font-size: 0.9rem; color: #718096; font-weight: 600;">Current Errors</div>
                             </div>
                             <div style="text-align: center; padding: 15px; background: linear-gradient(145deg, #edf2f7, #e2e8f0); border-radius: 12px; box-shadow: inset 3px 3px 6px #d1d9e6, inset -3px -3px 6px #ffffff;">
-                                <div style="font-size: 1.6rem; font-weight: 800; color: #4a5568;">{stats.get('health_percentage', 0):.1f}%</div>
+                                <div style="font-size: 1.6rem; font-weight: 800; color: #4a5568; text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);">{stats.get('health_percentage', 0):.1f}%</div>
                                 <div style="font-size: 0.9rem; color: #718096; font-weight: 600;">Health Rate</div>
                             </div>
                         </div>
-                        
-                        <!-- Section Prédiction -->
-                        <div style="background: linear-gradient(145deg, #f0fff4, #c6f6d5); padding: 15px; border-radius: 12px; margin: 15px 0; border-left: 3px solid #38a169;">
-                            <div style="font-size: 0.9rem; font-weight: 700; color: #22543d; margin-bottom: 8px;">🔮 Prediction: {int(predicted_errors)} ±{int(error_margin)}</div>
-                            <div style="font-size: 0.8rem; color: #38a169;">Confidence: {confidence:.0%}</div>
-                            <div style="font-size: 0.8rem; color: #2d3748; margin-top: 5px;">{stats.get('recommended_action', '').replace('_', ' ').title()}</div>
-                        </div>
-                        
                         <div style="margin-top: 20px; font-size: 0.95rem; color: #4a5568; line-height: 1.6;">
                             <div style="margin-bottom: 8px;">Critical Services: <span style="font-weight: 700; color: {'#e53e3e' if stats.get('critical_services', 0) > 0 else '#38a169'};">{stats.get('critical_services', 0)}</span></div>
                             <div style="margin-bottom: 8px;">Most Impacted: <span style="font-weight: 700; color: #667eea;">{stats.get('top_error_service', 'N/A')}</span></div>
@@ -1534,7 +2075,7 @@ def create_executive_summary_html_with_trends(systems_data, all_stats, date_str)
     html += f"""
                 </div>
                 
-                <h2 style="color: #2d3748; margin: 50px 0 30px; font-size: 2rem; font-weight: 700;">❗ Actionable Insights</h2>
+                <h2 style="color: #2d3748; margin: 50px 0 30px; font-size: 2rem; font-weight: 700; text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);">❗ Actionable Insights</h2>
                 <div class="list-section">
                     <div class="list-card">
                         <h4 style="color: #e53e3e;">Top 5 Degrading Systems ({len(top_degrading_systems)})</h4>
@@ -1555,7 +2096,6 @@ def create_executive_summary_html_with_trends(systems_data, all_stats, date_str)
                                 {'<li style="margin-bottom: 8px;">Investigate degrading systems immediately</li>' if degrading_systems > 0 else '<li style="margin-bottom: 8px;">Maintain current monitoring practices</li>'}
                                 {'<li style="margin-bottom: 8px;">Replicate improvement strategies across systems</li>' if improving_systems > 0 else '<li style="margin-bottom: 8px;">Review error prevention measures</li>'}
                                 <li style="margin-bottom: 8px;">Focus on critical services requiring attention</li>
-                                <li style="margin-bottom: 8px;">Monitor predicted error ranges closely</li>
                             </ul>
                         </div>
                         <div style="background: linear-gradient(145deg, #ffffff, #f7fafc); padding: 25px; border-radius: 16px; box-shadow: inset 3px 3px 6px #d1d9e6, inset -3px -3px 6px #ffffff;">
@@ -1565,7 +2105,6 @@ def create_executive_summary_html_with_trends(systems_data, all_stats, date_str)
                                 <li style="margin-bottom: 8px;">Implement predictive maintenance where possible</li>
                                 <li style="margin-bottom: 8px;">Document successful improvement strategies</li>
                                 <li style="margin-bottom: 8px;">Plan capacity upgrades for consistently problematic services</li>
-                                <li style="margin-bottom: 8px;">Use prediction confidence levels for resource allocation</li>
                             </ul>
                         </div>
                     </div>
@@ -1574,7 +2113,7 @@ def create_executive_summary_html_with_trends(systems_data, all_stats, date_str)
             
             <div class="footer">
                 <p style="font-size: 1.2rem; font-weight: 700; margin-bottom: 10px;"><strong>🚀 Advanced MTN Systems Monitoring</strong></p>
-                <p style="font-size: 1rem; margin-bottom: 10px;">📈 Trend Analysis • 📊 Performance Tracking • 🔮 Predictive Insights</p>
+                <p style="font-size: 1rem; margin-bottom: 10px;">📈 Trend Analysis • 📊 Performance Tracking • ⚡ Real-time Insights</p>
                 <p style="font-size: 0.9rem; opacity: 0.9;">Generated: {date_str} | Next Analysis: Tomorrow</p>
             </div>
         </div>
