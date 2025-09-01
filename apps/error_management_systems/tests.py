@@ -199,6 +199,7 @@ def analyze_historical_trends(directory: str, system_name: str, days: int = 7) -
         'affected_trend': int(affected_trend),
         'critical_trend': int(critical_trend),
         'reliability_trend': round(reliability_trend, 1),
+        'improvement_rate': round((error_trend / previous['total_errors'] * 100) if previous['total_errors'] > 0 else 0, 1),
         
         # Analyse avancée
         **trend_analysis,
@@ -910,7 +911,7 @@ def create_professional_system_html_with_trends(system_name, data, stats, date_s
 
         trend_section = f"""
         <div class="trend-analysis">
-            <h3>{trend_arrow} Advanced Trend Analysis ({trends_data.get('days_analyzed', 0)} days)</h3>
+            <h3>{trend_arrow} Advanced Trend Analysis (Last days)</h3>
             <div class="analysis-period">
                 <p><strong>Analysis Period:</strong> {trends_data.get('analysis_period', 'N/A')}</p>
                 <p><strong>Data Quality Score:</strong> <span style="color: {quality_color}; font-weight: bold;">{quality_score}%</span></p>
