@@ -27,10 +27,10 @@ EMAIL_CONFIG = {
     'smtp_server': '10.77.152.66',
     'smtp_port': 25,
     'from_email': 'noreply.errormonitor@mtn.com',
-    'cis_recipients': ['Sarmoye.AmitoureHaidara@mtn.com', 'boris.doliveira@mtn.com', 'marcel.kassavi@mtn.com'],
-    'irm_recipients': ['Sarmoye.AmitoureHaidara@mtn.com', 'boris.doliveira@mtn.com', 'marcel.kassavi@mtn.com'],
-    'ecw_recipients': ['Sarmoye.AmitoureHaidara@mtn.com', 'boris.doliveira@mtn.com', 'marcel.kassavi@mtn.com'],
-    'summary_recipients': ['Sarmoye.AmitoureHaidara@mtn.com', 'boris.doliveira@mtn.com', 'marcel.kassavi@mtn.com']
+    'cis_recipients': ['Sarmoye.AmitoureHaidara@mtn.com'],
+    'irm_recipients': ['Sarmoye.AmitoureHaidara@mtn.com'],
+    'ecw_recipients': ['Sarmoye.AmitoureHaidara@mtn.com'],
+    'summary_recipients': ['Sarmoye.AmitoureHaidara@mtn.com']
 }
 
 def get_files_by_date_range(directory, days=7):
