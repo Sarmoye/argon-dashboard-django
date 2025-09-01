@@ -2094,9 +2094,9 @@ def create_executive_summary_html_with_trends(systems_data, all_stats, date_str)
                         </div>
                         <div class="prediction-card">
                             <h4 style="margin: 0 0 15px 0; color: #22543d; font-weight: 700;">Average Confidence</h4>
-                            <div style="font-size: 2rem; font-weight: 800; color: #38a169; text-align: center;">{avg_confidence:.0%}</div>
+                            <div style="font-size: 2rem; font-weight: 800; color: #38a169; text-align: center;">{avg_confidence}</div>
                             <div class="confidence-meter">
-                                <div class="confidence-fill" style="width: {avg_confidence * 100}%;"></div>
+                                <div class="confidence-fill" style="width: {avg_confidence}%;"></div>
                             </div>
                             <div style="text-align: center; color: #4a5568; margin-top: 10px;">Prediction accuracy</div>
                         </div>
@@ -2147,8 +2147,7 @@ def create_executive_summary_html_with_trends(systems_data, all_stats, date_str)
                         <!-- Section Prédiction dans la carte système -->
                         <div style="background: linear-gradient(145deg, #f0fff4, #c6f6d5); padding: 15px; border-radius: 12px; margin: 15px 0; border-left: 3px solid #38a169;">
                             <div style="font-size: 0.9rem; font-weight: 700; color: #22543d; margin-bottom: 8px;">🔮 Prediction: {int(predicted_errors)} ±{int(error_margin)}</div>
-                            <div style="font-size: 0.8rem; color: #38a169;">Confidence: {confidence:.0%}</div>
-                            <div style="font-size: 0.8rem; color: #2d3748; margin-top: 5px;">{stats.get('recommended_action', '').replace('_', ' ').title()}</div>
+                            <div style="font-size: 0.8rem; color: #38a169;">Confidence: {confidence}%</div>
                         </div>
                         
                         <div style="margin-top: 20px; font-size: 0.95rem; color: #4a5568; line-height: 1.6;">
@@ -2203,7 +2202,7 @@ def create_executive_summary_html_with_trends(systems_data, all_stats, date_str)
             <div class="footer">
                 <p style="font-size: 1.2rem; font-weight: 700; margin-bottom: 10px;"><strong>🚀 Advanced MTN Systems Monitoring</strong></p>
                 <p style="font-size: 1rem; margin-bottom: 10px;">📈 Trend Analysis • 📊 Performance Tracking • 🔮 Predictive Insights</p>
-                <p style="font-size: 0.9rem; opacity: 0.9;">Generated: {date_str} | Next Analysis: Tomorrow</p>
+                <p style="font-size: 0.9rem; opacity: 0.9;">Generated: {date_str}</p>
             </div>
         </div>
     </body>
