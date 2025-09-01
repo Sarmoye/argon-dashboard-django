@@ -2039,39 +2039,6 @@ def create_executive_summary_html_with_trends(systems_data, all_stats, date_str)
                 text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);
                 font-weight: 700;
             }}
-
-            /* New styles for improved layout */
-            .metrics-grid-2rows {{
-                display: grid;
-                grid-template-columns: repeat(5, 1fr);
-                gap: 15px;
-                margin-bottom: 20px;
-            }}
-            .metrics-grid-2rows:last-child {{
-                margin-bottom: 0;
-            }}
-            .prediction-cards-grid {{
-                display: grid;
-                grid-template-columns: repeat(2, 1fr);
-                gap: 30px;
-            }}
-            .prediction-card {{
-                background: linear-gradient(145deg, #ffffff, #f7fafc);
-                padding: 25px;
-                border-radius: 16px;
-                box-shadow: inset 3px 3px 6px #d1d9e6, inset -3px -3px 6px #ffffff;
-            }}
-            .recommendations-grid {{
-                display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-                gap: 30px;
-            }}
-            .recommendation-card {{
-                background: linear-gradient(145deg, #ffffff, #f7fafc);
-                padding: 25px;
-                border-radius: 16px;
-                box-shadow: inset 3px 3px 6px #d1d9e6, inset -3px -3px 6px #ffffff;
-            }}
         </style>
     </head>
     <body>
@@ -2086,7 +2053,7 @@ def create_executive_summary_html_with_trends(systems_data, all_stats, date_str)
             <div class="content">
                 <div class="trend-summary">
                     <h3>📈 Global Performance & Predictions Dashboard</h3>
-                    <div class="metrics-grid-2rows">
+                    <div class="trend-metrics-grid">
                         <div class="trend-metric-card">
                             <div class="trend-metric-number" style="color: #38a169;">{improving_systems}</div>
                             <div class="trend-metric-label">Systems Improving</div>
@@ -2107,8 +2074,6 @@ def create_executive_summary_html_with_trends(systems_data, all_stats, date_str)
                             <div class="trend-metric-number" style="color: #2b6cb0;">{total_errors}</div>
                             <div class="trend-metric-label">Current Errors</div>
                         </div>
-                    </div>
-                    <div class="metrics-grid-2rows">
                         <div class="trend-metric-card">
                             <div class="trend-metric-number" style="color: #4a5568;">{total_services_monitored}</div>
                             <div class="trend-metric-label">Services Monitored</div>
@@ -2211,8 +2176,8 @@ def create_executive_summary_html_with_trends(systems_data, all_stats, date_str)
                 <!-- Section des prédictions globales -->
                 <div class="prediction-section">
                     <h3>🔮 Global Predictions & Advanced Analytics</h3>
-                    <div class="prediction-cards-grid">
-                        <div class="prediction-card">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px;">
+                        <div style="background: linear-gradient(145deg, #ffffff, #f7fafc); padding: 25px; border-radius: 16px; box-shadow: inset 3px 3px 6px #d1d9e6, inset -3px -3px 6px #ffffff;">
                             <h4 style="color: #22543d; margin-bottom: 15px; font-size: 1.2rem;">📊 Prediction Summary:</h4>
                             <div style="margin-bottom: 10px;">
                                 <span style="font-size: 1.5rem; font-weight: 800; color: #805ad5;">{int(total_predicted_errors)}</span>
@@ -2227,7 +2192,7 @@ def create_executive_summary_html_with_trends(systems_data, all_stats, date_str)
                                 <span style="color: #718096; font-size: 0.9rem; margin-left: 8px;">Systems with high prediction accuracy</span>
                             </div>
                         </div>
-                        <div class="prediction-card">
+                        <div style="background: linear-gradient(145deg, #ffffff, #f7fafc); padding: 25px; border-radius: 16px; box-shadow: inset 3px 3px 6px #d1d9e6, inset -3px -3px 6px #ffffff;">
                             <h4 style="color: #22543d; margin-bottom: 15px; font-size: 1.2rem;">⚡ Risk Assessment:</h4>
                             <div style="margin-bottom: 10px;">
                                 <span style="font-size: 1.5rem; font-weight: 800; color: #e53e3e;">{high_risk_systems}</span>
@@ -2263,8 +2228,8 @@ def create_executive_summary_html_with_trends(systems_data, all_stats, date_str)
 
                 <div class="recommendations">
                     <h3>🎯 Strategic Recommendations & Action Plan</h3>
-                    <div class="recommendations-grid">
-                        <div class="recommendation-card">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 30px;">
+                        <div style="background: linear-gradient(145deg, #ffffff, #f7fafc; padding: 25px; border-radius: 16px; box-shadow: inset 3px 3px 6px #d1d9e6, inset -3px -3px 6px #ffffff;">
                             <h4 style="color: #742a2a; margin-bottom: 15px; font-size: 1.2rem;">⚡ Immediate Actions (Next 4 hours):</h4>
                             <ul style="margin: 0; padding-left: 20px; color: #2d3748;">
                                 {'<li style="margin-bottom: 8px;">🔥 Investigate high-risk degrading systems immediately</li>' if degrading_systems > 0 and high_risk_systems > 0 else ''}
@@ -2274,7 +2239,7 @@ def create_executive_summary_html_with_trends(systems_data, all_stats, date_str)
                                 <li style="margin-bottom: 8px;">📈 Monitor prediction accuracy for model improvement</li>
                             </ul>
                         </div>
-                        <div class="recommendation-card">
+                        <div style="background: linear-gradient(145deg, #ffffff, #f7fafc); padding: 25px; border-radius: 16px; box-shadow: inset 3px 3px 6px #d1d9e6, inset -3px -3px 6px #ffffff;">
                             <h4 style="color: #742a2a; margin-bottom: 15px; font-size: 1.2rem;">📊 Strategic Insights (Next 24-48 hours):</h4>
                             <ul style="margin: 0; padding-left: 20px; color: #2d3748;">
                                 {'<li style="margin-bottom: 8px;">🔄 Replicate improvement strategies from successful systems</li>' if improving_systems > 0 else ''}
@@ -2284,7 +2249,7 @@ def create_executive_summary_html_with_trends(systems_data, all_stats, date_str)
                                 {'<li style="margin-bottom: 8px;">⚖️ Balance prediction model parameters for better accuracy</li>' if avg_confidence_level < 70 else ''}
                             </ul>
                         </div>
-                        <div class="recommendation-card">
+                        <div style="background: linear-gradient(145deg, #ffffff, #f7fafc); padding: 25px; border-radius: 16px; box-shadow: inset 3px 3px 6px #d1d9e6, inset -3px -3px 6px #ffffff;">
                             <h4 style="color: #742a2a; margin-bottom: 15px; font-size: 1.2rem;">🔮 Predictive Actions (Next Week):</h4>
                             <ul style="margin: 0; padding-left: 20px; color: #2d3748;">
                                 <li style="margin-bottom: 8px;">📈 Plan capacity upgrades based on error trend predictions</li>
